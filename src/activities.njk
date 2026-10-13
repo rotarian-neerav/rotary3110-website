@@ -1,0 +1,33 @@
+---
+layout: layouts/base.njk
+title: Activities
+description: A running feed of service projects by the Rotary clubs of District 3110, filterable by club and by Rotary's Areas of Focus.
+permalink: /activities/
+scripts: ["filters.js"]
+---
+{% from "macros.njk" import activityCard %}
+<div class="wrap section">
+  <h1>Activities</h1>
+  <p class="lead">What our clubs have done, newest first.</p>
+  <form class="filters" data-filter-target="#activity-list" onsubmit="return false">
+    <label>{{ t.activity.filter_club }}
+      <select name="club">
+        <option value="">{{ t.activity.all_clubs }}</option>
+        {%- for c in site.clubs %}{% if c.activities.length %}<option value="{{ c.club_id }}">{{ c.name }}</option>{% endif %}{% endfor %}
+      </select>
+    </label>
+    <fieldset class="theme-chips">
+      <legend>{{ t.activity.filter_theme }}</legend>
+      <label><input type="radio" name="theme" value="" checked> {{ t.activity.all_themes }}</label>
+      {%- for th in site.themes %}{% if th.count %}
+      <label><input type="radio" name="theme" value="{{ th.slug }}"> {{ th.name }}</label>
+      {%- endif %}{% endfor %}
+    </fieldset>
+  </form>
+  <p class="small" data-filter-count aria-live="polite"></p>
+  <div class="grid cards" id="activity-list" data-page-size="24">
+    {%- for a in site.activities %}{{ activityCard(a, t) }}{% endfor %}
+  </div>
+  <p class="none" data-filter-empty hidden>{{ t.activity.empty }}</p>
+  <p class="center"><button class="btn" type="button" data-show-more hidden>{{ t.activity.show_more }}</button></p>
+</div>

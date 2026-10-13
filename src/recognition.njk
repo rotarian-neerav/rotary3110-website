@@ -1,0 +1,29 @@
+---
+layout: layouts/base.njk
+title: Recognition
+description: Monthly recognition for Rotary District 3110 clubs – most active per member, most consistent, and the moderators' story of the month.
+permalink: /recognition/
+---
+<div class="wrap section narrow">
+  <h1>Recognition</h1>
+  <p class="lead">Three monthly recognitions, so that more than the biggest clubs get celebrated.</p>
+  <ol class="how">
+    <li><strong>Most active per member.</strong> Activities in the month divided by the club's members. A club needs at least 3 activities in the month to qualify. A joint activity counts for the club that sent it.</li>
+    <li><strong>Most consistent.</strong> The club that posted in the most months of this Rotary year (July to June).</li>
+    <li><strong>Story of the month.</strong> The moderators' pick of the best activity, judged on quality, not quantity.</li>
+  </ol>
+  {%- for r in site.recognitionHistory %}
+  <section class="recognition-month">
+    <h2>{{ r.month | month }}</h2>
+    <dl class="details">
+      <dt>Most active per member</dt>
+      <dd>{% for w in r.mostActive %}<a href="{{ w.club.url }}">{{ w.club.name }}</a> – {{ w.count }} activities, {{ w.members }} members{% if not loop.last %}; {% endif %}{% else %}No club reached 3 activities.{% endfor %}
+        {%- if r.runnersUp.length %}<br><span class="small muted">Also qualified: {% for w in r.runnersUp %}{{ w.club.name }} ({{ w.count }}){% if not loop.last %}, {% endif %}{% endfor %}</span>{% endif %}</dd>
+      <dt>Most consistent</dt>
+      <dd>{% for w in r.mostConsistent %}<a href="{{ w.club.url }}">{{ w.club.name }}</a> – {{ w.months }} of {{ r.monthsCounted }} months{% if not loop.last %}; {% endif %}{% else %}–{% endfor %}</dd>
+      <dt>Story of the month</dt>
+      <dd>{% for s in r.story %}<a href="{{ s.url }}">{{ s.title }}</a> – {{ s.club.name }}{% else %}Not chosen yet.{% endfor %}</dd>
+    </dl>
+  </section>
+  {%- endfor %}
+</div>

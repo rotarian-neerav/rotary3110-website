@@ -1,0 +1,18 @@
+---
+layout: layouts/base.njk
+title: Celebrations
+description: Birthdays and wedding anniversaries of Rotary District 3110 members who chose to share them.
+permalink: /celebrations/
+noindex: true
+scripts: ["celebrations.js"]
+---
+<div class="wrap section narrow">
+  <h1>Celebrations</h1>
+  <p class="lead">{{ t.celebrations.note }}</p>
+  <h2>This week</h2>
+  <ul class="celebration-list" data-celebrations="week"></ul>
+  <h2>Next week</h2>
+  <ul class="celebration-list" data-celebrations="next"></ul>
+  <noscript><p>Please turn on JavaScript to see this week's celebrations.</p></noscript>
+  <p class="small muted">Want your birthday or anniversary shown? <a href="/consent/">Fill the consent form</a>. Changed your mind? <a href="/remove/">Remove it</a>.</p>
+</div>

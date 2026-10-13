@@ -1,0 +1,25 @@
+---
+layout: layouts/base.njk
+title: Monthly magazine
+description: Every issue of the Rotary District 3110 monthly magazine, by year and month. Each issue opens as a PDF.
+permalink: /magazine/
+---
+<div class="wrap section">
+  <h1>Monthly magazine</h1>
+  {%- for g in site.magazinesByYear %}
+  <h2>{{ g.year }}</h2>
+  <ul class="magazine-grid">
+    {%- for m in g.issues %}
+    <li>
+      <a href="{{ m.href }}"{% if m.external %} target="_blank" rel="noopener"{% endif %}>
+        {%- if m.image %}<img src="{{ m.image.card.src }}" alt="Cover of {{ m.title }}" width="{{ m.image.card.width }}" height="{{ m.image.card.height }}" loading="lazy">{% else %}<span class="cover-fallback">{{ m.label }}</span>{% endif %}
+        <span class="mag-title">{{ m.label }}</span>
+        <span class="small muted">{{ m.title }} · PDF</span>
+      </a>
+    </li>
+    {%- endfor %}
+  </ul>
+  {%- else %}
+  <p>The first issue will appear here soon.</p>
+  {%- endfor %}
+</div>

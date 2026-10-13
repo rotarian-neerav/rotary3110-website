@@ -1,0 +1,9 @@
+---
+pagination:
+  data: site.events
+  size: 1
+  alias: e
+permalink: "{{ e.ics }}"
+eleventyExcludeFromCollections: true
+---
+{{ e | ics | safe }}

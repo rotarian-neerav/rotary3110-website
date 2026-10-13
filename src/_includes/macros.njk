@@ -1,0 +1,64 @@
+{% macro avatar(name, src, size=56) -%}
+{%- if src -%}
+<img class="avatar" src="{{ src }}" alt="Photo of {{ name }}" width="{{ size }}" height="{{ size }}" loading="lazy">
+{%- else -%}
+<span class="avatar avatar-initials" style="--s:{{ size }}px" aria-hidden="true">{{ name | initials }}</span>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro clubLink(club) -%}
+{%- if club %}<a href="{{ club.url }}">{{ club.name }}</a>{% endif -%}
+{%- endmacro %}
+
+{% macro activityCard(a, t) %}
+<article class="card activity" data-club="{{ a.club_id }}{% for p in a.partners %} {{ p.club_id }}{% endfor %}" data-theme="{{ a.themeSlug }}">
+  <a class="card-media" href="{{ a.url }}" tabindex="-1" aria-hidden="true">
+    {%- if a.images.length %}
+    <img src="{{ a.images[0].card.src }}" alt="" width="{{ a.images[0].card.width }}" height="{{ a.images[0].card.height }}" loading="lazy">
+    {%- else %}
+    <span class="media-fallback theme-{{ a.themeSlug }}">{{ a.theme }}</span>
+    {%- endif %}
+  </a>
+  <div class="card-body">
+    <p class="meta"><span class="chip theme-{{ a.themeSlug }}">{{ a.theme }}</span> <time datetime="{{ a.date }}">{{ a.dateLabel }}</time></p>
+    <h3><a href="{{ a.url }}">{{ a.title }}</a></h3>
+    <p class="club-line">{{ a.club.name }}{% if a.partners.length %} <span class="muted">with {% for p in a.partners %}{{ p.name }}{% if not loop.last %}, {% endif %}{% endfor %}</span>{% endif %}</p>
+  </div>
+</article>
+{% endmacro %}
+
+{% macro eventItem(e, t) %}
+<article class="event{% if e.isPast %} past{% endif %}">
+  <div class="event-date" aria-hidden="true">
+    <span class="d">{{ e.start_date.slice(8, 10) | int }}</span><span class="m">{{ e.dateLabel.split(' ')[1] }}</span>
+  </div>
+  <div class="event-body">
+    <h3><a href="{{ e.url }}">{{ e.title }}</a></h3>
+    <p class="meta">{{ e.dateLabel }}{% if e.start_time %} · {{ e.start_time }}{% endif %} · {{ e.venue }}, {{ e.city }}</p>
+    <p class="meta">{{ t.events.organiser }}: {{ e.organiser }} · <span class="chip">{{ e.event_type }}</span></p>
+    {%- if e.isPast and e.report %}
+    <p><a href="{{ e.report.url }}">{{ t.events.report }} →</a></p>
+    {%- endif %}
+  </div>
+</article>
+{% endmacro %}
+
+{% macro roleLine(r) -%}
+{{ r.role }}{% if r.zone and r.role != 'Assistant Governor' %} – {{ r.zone }} Zone{% endif %}{% if r.term %} ({{ r.term }}){% endif %}
+{%- endmacro %}
+
+{% macro personCard(r) %}
+<li class="person">
+  {{ avatar(r.name, r.image.sq.src if r.image else '', 48) }}
+  <div>
+    <strong>{{ r.name }}</strong>
+    <span class="role">{{ roleLine(r) }}</span>
+    {%- if r.club %}<span class="club"><a href="{{ r.club.url }}">{{ r.club.name }}</a></span>{% endif %}
+    {%- if r.contact_ok and r.contact_link %}<a class="btn-small wa" href="{{ r.contact_link }}" rel="noopener">WhatsApp</a>{% endif %}
+  </div>
+</li>
+{% endmacro %}
+
+{% macro shareButton(text, url, t) -%}
+<a class="btn btn-wa" href="{{ text | waShare(url) }}" target="_blank" rel="noopener">{{ t.activity.share }}</a>
+{%- endmacro %}

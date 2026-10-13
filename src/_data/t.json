@@ -1,0 +1,96 @@
+{
+  "lang": "en",
+  "district": "Rotary District 3110",
+  "tagline": "What our clubs achieve",
+  "skip": "Skip to content",
+  "menu": "Menu",
+  "nav": {
+    "home": "Home",
+    "activities": "Activities",
+    "events": "Events",
+    "clubs": "Clubs",
+    "magazine": "Magazine",
+    "messages": "Messages",
+    "leadership": "District Leadership",
+    "teams": "Teams & Committees",
+    "directory": "Member Directory",
+    "recognition": "Recognition",
+    "spotlight": "Member Spotlight"
+  },
+  "home": {
+    "latest": "Latest from our clubs",
+    "all_activities": "See all activities",
+    "upcoming": "Upcoming events",
+    "all_events": "Full calendar",
+    "magazine": "This month's magazine",
+    "read_issue": "Read this issue",
+    "archive": "Past issues",
+    "recognition": "Recognition",
+    "celebrations": "Celebrations this week",
+    "share_cta": "Did your club do something good?",
+    "share_cta_text": "Send it in two minutes. A moderator checks it and it appears here.",
+    "share_button": "Share your club's activity"
+  },
+  "activity": {
+    "people_helped": "people helped",
+    "amount_spent": "spent",
+    "with": "With",
+    "read_post": "Read the club's own post",
+    "share": "Share on WhatsApp",
+    "filter_club": "Club",
+    "filter_theme": "Theme",
+    "all_clubs": "All clubs",
+    "all_themes": "All themes",
+    "show_more": "Show more",
+    "empty": "No activities match. Try another club or theme.",
+    "report_of": "Report of the event"
+  },
+  "events": {
+    "upcoming": "Upcoming",
+    "past": "Past events",
+    "add_google": "Add to Google Calendar",
+    "add_phone": "Add to phone calendar (.ics)",
+    "organiser": "Organiser",
+    "venue": "Venue",
+    "report": "Read the report",
+    "map": "Map",
+    "details": "Details",
+    "empty": "No upcoming events yet."
+  },
+  "celebrations": {
+    "birthday": "Birthday",
+    "anniversary": "Wedding anniversary",
+    "today": "Today",
+    "empty": "No celebrations this week.",
+    "note": "Shown only for members who agreed, with day and month only."
+  },
+  "directory": {
+    "intro": "Find a fellow Rotarian by profession and place. Only members who agreed are listed.",
+    "search": "Search name or keyword",
+    "profession": "Profession",
+    "area": "Area",
+    "any_profession": "Any profession",
+    "any_area": "Any area",
+    "whatsapp": "WhatsApp",
+    "call": "Call",
+    "website": "Website",
+    "results": "members found",
+    "empty": "No members match. Try a wider search.",
+    "sample_contact": "Sample entry – contact buttons are switched off"
+  },
+  "people": {
+    "search": "Search by name, team, committee, role or club",
+    "results": "people found",
+    "empty": "Nobody matches that search.",
+    "past_years": "Past years"
+  },
+  "footer": {
+    "scam": "The district will never ask for money over WhatsApp. If someone does, it is not us.",
+    "privacy": "Privacy notice",
+    "submit": "Share your club's activity",
+    "club_profile": "Update your club's links",
+    "consent": "Join the directory or celebrations",
+    "remove": "Remove my details",
+    "about": "The website of the clubs of Rotary District 3110. Content is sent by clubs and checked by district moderators."
+  }
+}

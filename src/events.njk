@@ -1,0 +1,18 @@
+---
+layout: layouts/base.njk
+title: Events calendar
+description: Upcoming district events, vocational visits and networking evenings in Rotary District 3110, with past events linked to their reports.
+permalink: /events/
+---
+{% from "macros.njk" import eventItem %}
+<div class="wrap section narrow">
+  <h1>Events calendar</h1>
+  <p class="lead">Tap an event to add it to your phone's calendar.</p>
+  <h2>{{ t.events.upcoming }}</h2>
+  {%- for e in site.upcomingEvents %}{{ eventItem(e, t) }}{% else %}<p>{{ t.events.empty }}</p>{% endfor %}
+  {%- if site.pastEvents.length %}
+  <h2>{{ t.events.past }}</h2>
+  {%- for e in site.pastEvents %}{{ eventItem(e, t) }}{% endfor %}
+  {%- endif %}
+  <p class="small">Want your club's event here? <a href="/submit/">Send it through the activity form</a> and choose "An upcoming event".</p>
+</div>

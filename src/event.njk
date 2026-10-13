@@ -1,0 +1,50 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.events
+  size: 1
+  alias: e
+permalink: "{{ e.url }}"
+eleventyComputed:
+  title: "{{ e.title }} – {{ e.dateLabel }}"
+  description: "{{ e.event_type }} in {{ e.city }} on {{ e.dateLabel }}. {{ e.description }}"
+  jsonld:
+    "@context": "https://schema.org"
+    "@type": "Event"
+    name: "{{ e.title }}"
+    startDate: "{{ e.start_date }}{% if e.start_time %}T{{ e.start_time }}:00+05:30{% endif %}"
+    endDate: "{{ e.end_date or e.start_date }}"
+    eventStatus: "https://schema.org/EventScheduled"
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode"
+    location:
+      "@type": "Place"
+      name: "{{ e.venue }}"
+      address: "{{ e.venue }}, {{ e.city }}, India"
+    organizer:
+      "@type": "Organization"
+      name: "{{ e.organiser }}"
+    description: "{{ e.description }}"
+---
+{% from "macros.njk" import shareButton %}
+<article class="wrap section narrow">
+  <p class="meta"><span class="chip">{{ e.event_type }}</span>{% if e.isPast %} <span class="chip muted-chip">Past event</span>{% endif %}</p>
+  <h1>{{ e.title }}</h1>
+  <dl class="details">
+    <dt>Date</dt><dd>{{ e.dateLabel }}{% if e.start_time %}, {{ e.start_time }}{% endif %}</dd>
+    <dt>{{ t.events.venue }}</dt><dd>{{ e.venue }}, {{ e.city }}{% if e.map_link %} · <a href="{{ e.map_link }}" target="_blank" rel="noopener">{{ t.events.map }} ↗</a>{% endif %}</dd>
+    <dt>{{ t.events.organiser }}</dt><dd>{{ e.organiser }}</dd>
+  </dl>
+  {%- if e.description %}<p class="story">{{ e.description }}</p>{% endif %}
+  {%- if e.isPast and e.report %}
+  <p class="report-link"><a class="btn" href="{{ e.report.url }}">{{ t.events.report }}: {{ e.report.title }} →</a></p>
+  {%- endif %}
+  <p class="actions">
+    {%- if not e.isPast %}
+    <a class="btn" href="{{ e | gcal }}" target="_blank" rel="noopener">{{ t.events.add_google }}</a>
+    <a class="btn" href="{{ e.ics }}" download>{{ t.events.add_phone }}</a>
+    {%- endif %}
+    {%- if e.details_link %}<a class="btn" href="{{ e.details_link }}" target="_blank" rel="noopener">{{ t.events.details }} ↗</a>{% endif %}
+    {{ shareButton(e.title + ' – ' + e.dateLabel, e.url, t) }}
+  </p>
+  <p><a href="/events/">← All events</a></p>
+</article>

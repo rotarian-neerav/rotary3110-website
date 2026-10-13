@@ -1,0 +1,111 @@
+---
+layout: layouts/base.njk
+scripts: ["celebrations.js"]
+eleventyComputed:
+  jsonld:
+    "@context": "https://schema.org"
+    "@type": "Organization"
+    name: "Rotary District 3110"
+    url: "{{ '/' | absolute }}"
+    logo: "{{ '/assets/img/logo.png' | absolute }}"
+---
+{% from "macros.njk" import activityCard, eventItem, avatar %}
+<section class="hero">
+  <div class="wrap">
+    <h1>{{ t.tagline }}</h1>
+    <p class="lead">Service projects, events and stories from {{ site.activeClubs.length }} Rotary clubs across Agra, Bareilly and Kanpur zones.</p>
+    <ul class="stats">
+      <li><strong>{{ site.activities.length | number }}</strong> activities shared</li>
+      <li><strong>{{ site.stats.clubsPosting }}</strong> clubs posting</li>
+      <li><strong>{{ site.stats.peopleHelped | number }}</strong> people helped</li>
+    </ul>
+    <a class="btn btn-gold" href="/submit/">{{ t.home.share_button }}</a>
+  </div>
+</section>
+
+<section class="wrap celebrations-strip" id="celebrations" data-nosnippet hidden>
+  <h2>{{ t.home.celebrations }}</h2>
+  <ul class="celebration-list" data-celebrations="week"></ul>
+  <p class="small"><a href="/celebrations/">All celebrations</a> · {{ t.celebrations.note }}</p>
+</section>
+
+<section class="wrap section">
+  <div class="section-head"><h2>{{ t.home.latest }}</h2><a href="/activities/">{{ t.home.all_activities }} →</a></div>
+  <div class="grid cards">
+    {%- for a in site.activities.slice(0, 6) %}{{ activityCard(a, t) }}{% endfor %}
+  </div>
+</section>
+
+<div class="wrap two-col section">
+  <section>
+    <div class="section-head"><h2>{{ t.home.upcoming }}</h2><a href="/events/">{{ t.home.all_events }} →</a></div>
+    {%- for e in site.upcomingEvents.slice(0, 3) %}{{ eventItem(e, t) }}{% else %}<p>{{ t.events.empty }}</p>{% endfor %}
+  </section>
+  {%- set mag = site.magazines[0] %}
+  {%- if mag %}
+  <section class="magazine-feature">
+    <div class="section-head"><h2>{{ t.home.magazine }}</h2><a href="/magazine/">{{ t.home.archive }} →</a></div>
+    <a class="cover-link" href="{{ mag.href }}"{% if mag.external %} target="_blank" rel="noopener"{% endif %}>
+      {%- if mag.image %}<img src="{{ mag.image.card.src }}" alt="Cover of {{ mag.title }}" width="{{ mag.image.card.width }}" height="{{ mag.image.card.height }}" loading="lazy">{% endif %}
+      <span><strong>{{ mag.title }}</strong><br>{{ t.home.read_issue }} (PDF) →</span>
+    </a>
+  </section>
+  {%- endif %}
+</div>
+
+{%- set r = site.recognition %}
+<section class="recognition-band">
+  <div class="wrap">
+    <div class="section-head"><h2>{{ t.home.recognition }} · {{ r.month | month }}</h2><a href="/recognition/">How it works →</a></div>
+    <div class="grid three">
+      <div class="award">
+        <h3>Most active per member</h3>
+        {%- for w in r.mostActive %}<p class="winner"><a href="{{ w.club.url }}">{{ w.club.name }}</a></p><p class="small">{{ w.count }} activities · {{ w.members }} members</p>{% else %}<p class="small">No club posted 3 or more activities this month.</p>{% endfor %}
+      </div>
+      <div class="award">
+        <h3>Most consistent</h3>
+        {%- for w in r.mostConsistent %}<p class="winner"><a href="{{ w.club.url }}">{{ w.club.name }}</a></p><p class="small">Posted in {{ w.months }} of {{ r.monthsCounted }} months this Rotary year</p>{% else %}<p class="small">No activities yet this Rotary year.</p>{% endfor %}
+      </div>
+      <div class="award">
+        <h3>Story of the month</h3>
+        {%- for s in r.story %}<p class="winner"><a href="{{ s.url }}">{{ s.title }}</a></p><p class="small">{{ s.club.name }}</p>{% else %}<p class="small">The moderators' pick will appear here.</p>{% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap two-col section">
+  {%- if site.spotlight %}
+  {%- set sp = site.spotlight %}
+  <section>
+    <div class="section-head"><h2>{{ t.nav.spotlight }}</h2><a href="/spotlight/">More →</a></div>
+    <div class="spotlight-card">
+      {{ avatar(sp.member.name, sp.image.sq.src if sp.image else '', 80) }}
+      <div>
+        <p class="meta">{{ sp.monthLabel }}</p>
+        <h3>{{ sp.member.name }}</h3>
+        <p>{{ sp.headline }}</p>
+        <p class="small">{{ sp.member.profession }} · {{ sp.club.name }}</p>
+      </div>
+    </div>
+  </section>
+  {%- endif %}
+  {%- set msg = site.messages[0] %}
+  {%- if msg %}
+  <section>
+    <div class="section-head"><h2>{{ t.nav.messages }}</h2><a href="/messages/">All messages →</a></div>
+    <blockquote class="message-teaser">
+      <p>{{ msg.message | truncate(220) }}</p>
+      <footer>{{ msg.name }}, {{ msg.position }}</footer>
+    </blockquote>
+  </section>
+  {%- endif %}
+</div>
+
+<section class="cta-band">
+  <div class="wrap">
+    <h2>{{ t.home.share_cta }}</h2>
+    <p>{{ t.home.share_cta_text }}</p>
+    <a class="btn btn-gold" href="/submit/">{{ t.home.share_button }}</a>
+  </div>
+</section>

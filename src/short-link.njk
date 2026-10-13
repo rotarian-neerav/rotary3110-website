@@ -1,0 +1,24 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: shortLinks
+  size: 1
+  alias: link
+permalink: "/{{ link.slug }}/"
+noindex: true
+eleventyComputed:
+  title: "{{ link.title }}"
+  description: "{{ link.text }}"
+---
+{%- set url = site.forms[link.form] %}
+<div class="wrap section narrow">
+  <h1>{{ link.title }}</h1>
+  <p class="lead">{{ link.text }}</p>
+  {%- if url %}
+  <p><a class="btn btn-gold" href="{{ url }}" data-autoforward>Open the form →</a></p>
+  <p class="small muted">Opening the form…</p>
+  {%- else %}
+  <p class="callout">This form will be available soon.</p>
+  {%- endif %}
+  <p class="small"><a href="/privacy/">How we use your information</a></p>
+</div>

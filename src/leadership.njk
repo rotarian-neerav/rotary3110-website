@@ -1,0 +1,30 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.rolesByYear
+  size: 1
+  alias: y
+permalink: "{% if y.current %}/leadership/{% else %}/leadership/{{ y.year }}/{% endif %}"
+scripts: ["people-search.js"]
+eleventyComputed:
+  title: "District Leadership {{ y.year }}"
+  description: "The District Governor, Governor's office team, Assistant Governors, District Counsellors and College of Governors of Rotary District 3110 for {{ y.year }}."
+---
+{% from "macros.njk" import personCard %}
+<div class="wrap section">
+  <h1>District Leadership <span class="muted">{{ y.year }}</span></h1>
+  {% include "partials/year-switch.njk" %}
+  {% set searchYear = y.year %}{% include "partials/people-search.njk" %}
+  <nav class="jump" aria-label="Sections">{% for s in y.leadership %}<a href="#{{ s.id }}">{{ s.section }}</a>{% endfor %}<a href="/teams/{% if not y.current %}{{ y.year }}/{% endif %}">Teams & Committees →</a></nav>
+  {%- for s in y.leadership %}
+  <section class="role-section" id="{{ s.id }}">
+    <h2>{{ s.section }}</h2>
+    {%- for g in s.groups %}
+    {%- if g.label %}<h3>{{ g.label }}{% if s.section == 'Assistant Governors' %} Zone{% endif %}</h3>{% endif %}
+    <ul class="people-grid">{% for r in g.people %}{{ personCard(r) }}{% endfor %}</ul>
+    {%- endfor %}
+  </section>
+  {%- else %}
+  <p>No leadership list for this year yet.</p>
+  {%- endfor %}
+</div>

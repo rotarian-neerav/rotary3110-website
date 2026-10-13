@@ -1,0 +1,39 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.clubs
+  size: 1
+  alias: c
+permalink: "{{ c.url }}"
+eleventyComputed:
+  title: "{{ c.display_name }}"
+  description: "{{ c.display_name }}, {{ c.city }} – office bearers, meetings and service activities. Part of Rotary District 3110, {{ c.zone }} Zone."
+---
+{% from "macros.njk" import activityCard, avatar %}
+<div class="wrap section">
+  <p class="meta">{{ c.zone }} Zone · {{ c.city }}{% if c.status != 'active' %} · <strong>No longer active</strong>{% endif %}</p>
+  <h1>{{ c.display_name }}</h1>
+  {%- if c.former_names.length %}<p class="small muted">Formerly {{ c.former_names | join(', ') }}</p>{% endif %}
+  {%- if c.meeting %}<p>🗓 Meets: {{ c.meeting }}</p>{% endif %}
+  {%- set links = [["website", "Website"], ["facebook", "Facebook"], ["instagram", "Instagram"], ["youtube", "YouTube"], ["x", "X"], ["linkedin", "LinkedIn"]] %}
+  <p class="link-buttons">
+    {%- for l in links %}{% if c.links[l[0]] %}<a class="btn btn-outline" href="{{ c.links[l[0]] }}" target="_blank" rel="noopener">{{ l[1] }} ↗</a>{% endif %}{% endfor %}
+  </p>
+
+  {%- if c.officers.length %}
+  <h2>Office bearers {{ site.rotaryYear }}</h2>
+  <ul class="people-grid">
+    {%- for o in c.officers %}
+    <li class="person">{{ avatar(o.name, o.image.sq.src if o.image else '', 48) }}<div><strong>{{ o.name }}</strong><span class="role">{{ o.role }}</span></div></li>
+    {%- endfor %}
+  </ul>
+  {%- endif %}
+
+  <h2>Activities</h2>
+  {%- if c.activities.length %}
+  <div class="grid cards">{% for a in c.activities %}{{ activityCard(a, t) }}{% endfor %}</div>
+  {%- else %}
+  <p>No activities shared yet. <a href="/submit/">Share your club's first activity</a>.</p>
+  {%- endif %}
+  <p class="small"><a href="/club-profile/">Update this club's links or meeting details</a></p>
+</div>

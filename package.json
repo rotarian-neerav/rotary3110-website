@@ -1,0 +1,35 @@
+{
+  "name": "rotary3110-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Rotary District 3110 website, generated from the district Google Sheet",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "fetch": "node scripts/fetch-data.mjs",
+    "validate": "node scripts/validate-public.mjs",
+    "media": "node scripts/fetch-media.mjs",
+    "eleventy": "eleventy",
+    "build": "npm run fetch && npm run validate && npm run media && npm run eleventy",
+    "serve": "node scripts/serve.mjs",
+    "test": "node --test \"tests/unit/*.test.mjs\"",
+    "test:site": "node --test \"tests/site/*.test.mjs\"",
+    "test:all": "npm test && npm run build && npm run test:site",
+    "convert-excel": "node tools/convert-excel.mjs",
+    "make-sample": "node tools/make-sample-data.mjs",
+    "bundle-script": "node tools/bundle-apps-script.mjs"
+  },
+  "dependencies": {
+    "@11ty/eleventy": "3.1.6",
+    "@fontsource/open-sans": "5.3.0",
+    "qrcode": "1.5.4",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "exceljs": "4.4.0",
+    "ical.js": "2.2.1",
+    "node-html-parser": "9.0.4"
+  }
+}

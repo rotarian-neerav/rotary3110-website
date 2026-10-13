@@ -1,0 +1,25 @@
+---
+layout: layouts/base.njk
+title: Member spotlight
+description: Each month the moderators tell the story of a Rotary District 3110 member's profession and how they serve through it.
+permalink: /spotlight/
+---
+{% from "macros.njk" import avatar %}
+<div class="wrap section narrow">
+  <h1>Member spotlight</h1>
+  <p class="lead">Members in business and service: one story each month, chosen by the moderators.</p>
+  {%- for s in site.spotlights %}
+  <article class="message-card{% if loop.first %} featured{% endif %}">
+    <header>
+      {{ avatar(s.member.name, s.image.sq.src if s.image else '', 72) }}
+      <div><p class="meta">{{ s.monthLabel }}</p><h2>{{ s.member.name }}</h2><p class="role">{{ s.member.profession }} · <a href="{{ s.club.url }}">{{ s.club.name }}</a></p></div>
+    </header>
+    <h3>{{ s.headline }}</h3>
+    <p>{{ s.story }}</p>
+    {%- if s.member.website %}<p><a href="{{ s.member.website }}" target="_blank" rel="noopener">Website ↗</a></p>{% endif %}
+  </article>
+  {%- else %}
+  <p>The first spotlight will appear here soon.</p>
+  {%- endfor %}
+  <p class="small">Happy to be considered? Tick "member spotlight" on the <a href="/consent/">consent form</a>.</p>
+</div>

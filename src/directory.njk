@@ -1,0 +1,27 @@
+---
+layout: layouts/base.njk
+title: Member directory
+description: Find a fellow Rotarian of District 3110 by profession and place. Only members who agreed are listed.
+permalink: /directory/
+noindex: true
+scripts: ["directory.js"]
+---
+<div class="wrap section">
+  <h1>Member directory</h1>
+  <p class="lead">{{ t.directory.intro }}</p>
+  <form class="filters directory-filters" role="search" onsubmit="return false" data-directory>
+    <label>{{ t.directory.profession }}
+      <select name="profession"><option value="">{{ t.directory.any_profession }}</option>{% for p in site.professions %}<option>{{ p }}</option>{% endfor %}</select>
+    </label>
+    <label>{{ t.directory.area }}
+      <select name="area"><option value="">{{ t.directory.any_area }}</option>{% for a in site.areas %}<option>{{ a }}</option>{% endfor %}</select>
+    </label>
+    <label class="grow">{{ t.directory.search }}
+      <input type="search" name="q" placeholder="e.g. chartered accountant Agra" autocomplete="off">
+    </label>
+  </form>
+  <p class="small" data-directory-count aria-live="polite"></p>
+  <ul class="directory-list" data-directory-results></ul>
+  <noscript><p>Please turn on JavaScript to search the directory.</p></noscript>
+  <p class="small muted">Want to be listed, or to change or remove your listing? <a href="/consent/">Fill the consent form</a> · <a href="/remove/">Remove my details</a></p>
+</div>

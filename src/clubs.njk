@@ -1,0 +1,27 @@
+---
+layout: layouts/base.njk
+title: Clubs
+description: All Rotary clubs of District 3110, grouped by zone, each with its office bearers and recent activities.
+permalink: /clubs/
+---
+<div class="wrap section">
+  <h1>Our clubs</h1>
+  <p class="lead">{{ site.activeClubs.length }} clubs in {{ site.zones.length }} zones. Tap a club to see its office bearers and activities.</p>
+  {%- for zone in site.zones %}
+  <section class="zone">
+    <h2>{{ zone }} Zone</h2>
+    <ul class="club-list">
+      {%- for c in site.clubs %}{% if c.zone == zone and c.status == 'active' %}
+      <li><a href="{{ c.url }}">{{ c.name }}</a> <span class="small muted">{{ c.city }}{% if c.activities.length %} · {{ c.activities.length }} {{ 'activity' if c.activities.length == 1 else 'activities' }}{% endif %}</span></li>
+      {%- endif %}{% endfor %}
+    </ul>
+  </section>
+  {%- endfor %}
+  {%- set inactive = site.inactiveClubs %}
+  {%- if inactive.length %}
+  <section class="zone">
+    <h2>Former clubs</h2>
+    <ul class="club-list">{% for c in inactive %}<li><a href="{{ c.url }}">{{ c.name }}</a> <span class="small muted">no longer active</span></li>{% endfor %}</ul>
+  </section>
+  {%- endif %}
+</div>

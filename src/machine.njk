@@ -1,0 +1,79 @@
+---
+pagination:
+  data: machineFiles
+  size: 1
+  alias: f
+permalink: "{{ f.path }}"
+eleventyExcludeFromCollections: true
+machineFiles:
+  - { path: /robots.txt, kind: robots }
+  - { path: /sitemap.xml, kind: sitemap }
+  - { path: /feed.xml, kind: feed }
+  - { path: /build-info.json, kind: buildinfo }
+  - { path: /data/people.json, kind: people }
+  - { path: /data/directory.json, kind: directory }
+  - { path: /data/celebrations.json, kind: celebrations }
+---
+{%- if f.kind == 'robots' -%}
+# Rotary District 3110
+# AI companies' crawlers are asked not to copy this site's content for training.
+{% for bot in ["GPTBot", "CCBot", "Google-Extended", "ClaudeBot", "anthropic-ai", "Claude-Web", "Applebot-Extended", "PerplexityBot", "Bytespider", "Meta-ExternalAgent", "meta-externalagent", "Amazonbot", "cohere-ai", "cohere-training-data-crawler", "Diffbot", "Omgilibot", "ImagesiftBot", "Timpibot", "AI2Bot", "img2dataset"] -%}
+User-agent: {{ bot }}
+{% endfor -%}
+Disallow: /
+
+# Member photos are kept out of image search
+User-agent: Googlebot-Image
+Disallow: {{ pathPrefix }}media/person-
+Disallow: {{ pathPrefix }}media/couple-
+
+User-agent: *
+Disallow: {{ pathPrefix }}data/
+
+Sitemap: {{ '/sitemap.xml' | absolute }}
+{%- elif f.kind == 'sitemap' -%}
+<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{%- for p in collections.all %}{% if not p.data.noindex and p.url and p.url.endsWith('/') %}
+  <url><loc>{{ p.url | absolute }}</loc><lastmod>{{ site.today }}</lastmod></url>
+{%- endif %}{% endfor %}
+</urlset>
+{%- elif f.kind == 'feed' -%}
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>{{ t.district }} – activities and events</title>
+  <link>{{ '/' | absolute }}</link>
+  <description>New service activities and events from the clubs of {{ t.district }}.</description>
+  <language>en-in</language>
+  <atom:link href="{{ '/feed.xml' | absolute }}" rel="self" type="application/rss+xml"/>
+  {%- for a in site.activities.slice(0, 30) %}
+  <item>
+    <title>{{ (a.title + ' – ' + a.club.name) | xml }}</title>
+    <link>{{ a.url | absolute }}</link>
+    <guid isPermaLink="true">{{ a.url | absolute }}</guid>
+    <pubDate>{{ (a.approved_at or a.date) | isoDateTime }}</pubDate>
+    <category>{{ a.theme | xml }}</category>
+    <description>{{ a.description | xml }}</description>
+    {%- if a.images.length %}<enclosure url="{{ a.images[0].og.src | absolute }}" type="image/jpeg" length="0"/>{% endif %}
+  </item>
+  {%- endfor %}
+  {%- for e in site.upcomingEvents %}
+  <item>
+    <title>{{ ('Event: ' + e.title + ' – ' + e.dateLabel) | xml }}</title>
+    <link>{{ e.url | absolute }}</link>
+    <guid isPermaLink="true">{{ e.url | absolute }}</guid>
+    <description>{{ (e.venue + ', ' + e.city + '. ' + e.description) | xml }}</description>
+  </item>
+  {%- endfor %}
+</channel>
+</rss>
+{%- elif f.kind == 'buildinfo' -%}
+{{ { generated_at: site.generatedAt, rebuild_requested_at: site.rebuildRequestedAt, source: site.source, today: site.today } | json | safe }}
+{%- elif f.kind == 'people' -%}
+{{ site.people | json | safe }}
+{%- elif f.kind == 'directory' -%}
+{{ site.directory | json | safe }}
+{%- elif f.kind == 'celebrations' -%}
+{{ site.celebrations | json | safe }}
+{%- endif -%}

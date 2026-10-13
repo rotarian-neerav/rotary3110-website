@@ -1,0 +1,21 @@
+---
+layout: layouts/base.njk
+title: Messages from dignitaries
+description: Messages from the District Governor and other dignitaries of Rotary District 3110.
+permalink: /messages/
+---
+{% from "macros.njk" import avatar %}
+<div class="wrap section narrow">
+  <h1>Messages</h1>
+  {%- for m in site.messages %}
+  <article class="message-card{% if m.featured %} featured{% endif %}">
+    <header>
+      {{ avatar(m.name, m.image.sq.src if m.image else '', 72 if m.featured else 56) }}
+      <div><h2>{{ m.name }}</h2><p class="role">{{ m.position }}</p>{% if m.dateLabel %}<p class="small muted">{{ m.dateLabel }}</p>{% endif %}</div>
+    </header>
+    <p>{{ m.message }}</p>
+  </article>
+  {%- else %}
+  <p>Messages will appear here.</p>
+  {%- endfor %}
+</div>

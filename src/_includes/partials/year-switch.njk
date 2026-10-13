@@ -1,0 +1,8 @@
+{%- if site.rolesByYear.length > 1 %}
+{%- set base = '/leadership/' if '/leadership/' in page.url else '/teams/' %}
+<p class="year-switch">{{ t.people.past_years }}:
+{%- for yy in site.rolesByYear %}
+  {%- if yy.year == y.year %} <strong>{{ yy.year }}</strong>{% else %} <a href="{{ base }}{% if not yy.current %}{{ yy.year }}/{% endif %}">{{ yy.year }}</a>{% endif %}
+{%- endfor %}
+</p>
+{%- endif %}

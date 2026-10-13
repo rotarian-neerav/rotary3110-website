@@ -1,0 +1,10 @@
+node_modules/
+_site/
+.cache/
+src/media/
+dist/
+*.log
+.env
+.clasprc.json
+tools/out/
+.claude/

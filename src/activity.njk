@@ -1,0 +1,46 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.activities
+  size: 1
+  alias: a
+permalink: "{{ a.url }}"
+ogType: article
+eleventyComputed:
+  title: "{{ a.title }} – {{ a.club.name }}"
+  description: "{{ a.description }}"
+  ogImage: "{{ a.images[0].og.src if a.images.length else '' }}"
+---
+{% from "macros.njk" import shareButton %}
+<article class="wrap section activity-page">
+  <p class="meta"><span class="chip theme-{{ a.themeSlug }}">{{ a.theme }}</span> <time datetime="{{ a.date }}">{{ a.dateLabel }}</time></p>
+  <h1>{{ a.title }}</h1>
+  <p class="club-line"><a href="{{ a.club.url }}">{{ a.club.name }}</a>{% if a.partners.length %} · {{ t.activity.with }} {% for p in a.partners %}<a href="{{ p.url }}">{{ p.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+
+  {%- if a.images.length %}
+  <div class="photos photos-{{ a.images.length }}">
+    {%- for im in a.images %}
+    <a href="{{ im.full.src }}"><img src="{{ im.card.src }}" srcset="{{ im.card.src }} {{ im.card.width }}w, {{ im.full.src }} {{ im.full.width }}w" sizes="(min-width: 760px) 720px, 100vw" alt="Photo {{ loop.index }} of {{ a.title }}" width="{{ im.card.width }}" height="{{ im.card.height }}"{% if not loop.first %} loading="lazy"{% endif %}></a>
+    {%- endfor %}
+  </div>
+  {%- endif %}
+
+  <p class="story">{{ a.description }}</p>
+
+  {%- if a.people_helped or a.amount_spent %}
+  <ul class="facts">
+    {%- if a.people_helped %}<li><strong>{{ a.people_helped | number }}</strong> {{ t.activity.people_helped }}</li>{% endif %}
+    {%- if a.amount_spent %}<li><strong>₹{{ a.amount_spent | number }}</strong> {{ t.activity.amount_spent }}</li>{% endif %}
+  </ul>
+  {%- endif %}
+
+  <p class="actions">
+    {%- if a.post_link %}<a class="btn" href="{{ a.post_link }}" target="_blank" rel="noopener">{{ t.activity.read_post }} ↗</a>{% endif %}
+    {{ shareButton(a.title + ' – ' + a.club.name, a.url, t) }}
+  </p>
+  {%- for e in site.events %}{% if e.report_activity_id == a.id %}
+  <p class="small">{{ t.activity.report_of }}: <a href="{{ e.url }}">{{ e.title }}</a></p>
+  {%- endif %}{% endfor %}
+  <p class="small muted">Approved by a district moderator{% if a.story_of_month %} · ★ Story of the month{% endif %}</p>
+  <p><a href="/activities/">← All activities</a></p>
+</article>

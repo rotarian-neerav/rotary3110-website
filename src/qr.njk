@@ -1,0 +1,20 @@
+---
+layout: layouts/base.njk
+title: QR codes for the forms
+description: Printable QR codes for the district's forms.
+permalink: /qr/
+noindex: true
+bodyClass: print-page
+---
+<div class="wrap section">
+  <h1>QR codes for the forms</h1>
+  <p class="lead">Print this page for district meetings. Each code opens the form on a phone.</p>
+  <div class="qr-grid">
+    {%- for q in qr %}
+    <figure class="qr">
+      {{ q.svg | safe }}
+      <figcaption><strong>{{ q.title }}</strong><br><span class="small">{{ q.url }}</span></figcaption>
+    </figure>
+    {%- endfor %}
+  </div>
+</div>

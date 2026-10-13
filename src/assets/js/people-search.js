@@ -20,8 +20,10 @@
 
   function roleText(r) {
     var where = r.committee || r.section;
-    var role = r.role + (r.zone && r.role !== 'Assistant Governor' ? ' – ' + r.zone + ' Zone' : '') + (r.term ? ' (' + r.term + ')' : '');
-    return escapeHtml(role) + (where && where !== r.role ? ' · <span class="muted">' + escapeHtml(where) + '</span>' : '');
+    var role = r.role + (r.zone ? ' – ' + r.zone + ' Zone' : '') + (r.term ? ' (' + r.term + ')' : '');
+    // "Assistant Governor · Assistant Governors" says the same thing twice
+    var repeat = !where || where.toLowerCase().indexOf(r.role.toLowerCase()) === 0;
+    return escapeHtml(role) + (repeat ? '' : ' · <span class="muted">' + escapeHtml(where) + '</span>');
   }
 
   function render() {

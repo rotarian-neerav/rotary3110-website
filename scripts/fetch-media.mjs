@@ -40,9 +40,16 @@ async function sourceBytes(ref) {
     if (!DATA_URL || !DATA_TOKEN) throw new Error(`Cannot fetch ${ref} without DATA_URL and DATA_TOKEN`);
     const mode = ref.startsWith('thumb:') ? 'thumb' : 'file';
     const url = `${DATA_URL}?mode=${mode}&id=${encodeURIComponent(ref.slice(6))}&token=${encodeURIComponent(DATA_TOKEN)}`;
-    const body = await (await fetch(url, { redirect: 'follow' })).json();
-    if (!body.ok) throw new Error(`Data link refused file ${ref}: ${body.error}`);
-    return Buffer.from(body.base64, 'base64');
+    for (let attempt = 1; ; attempt++) {
+      try {
+        const body = await (await fetch(url, { redirect: 'follow' })).json();
+        if (!body.ok) throw new Error(`Data link refused file ${ref}: ${body.error}`);
+        return Buffer.from(body.base64, 'base64');
+      } catch (err) {
+        if (attempt >= 3 || /refused/.test(err.message)) throw err;
+        await new Promise((r) => setTimeout(r, 3000 * attempt));
+      }
+    }
   }
   throw new Error(`Unknown photo reference: ${ref}`);
 }

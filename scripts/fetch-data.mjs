@@ -16,6 +16,21 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = resolve(ROOT, '.cache/public-data.json');
 
 async function fromSheet(url, token) {
+  // Google occasionally answers a slow first request with an error page; try up to three times
+  let lastError;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      return await fetchOnce(url, token);
+    } catch (err) {
+      lastError = err;
+      console.warn(`Data link attempt ${attempt} failed: ${err.message}`);
+      await new Promise((r) => setTimeout(r, 5000 * attempt));
+    }
+  }
+  throw lastError;
+}
+
+async function fetchOnce(url, token) {
   const res = await fetch(`${url}?mode=data&token=${encodeURIComponent(token)}`, { redirect: 'follow' });
   if (!res.ok) throw new Error(`Data link answered ${res.status} ${res.statusText}`);
   const body = await res.json().catch(() => {

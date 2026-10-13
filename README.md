@@ -15,7 +15,7 @@ Private members Sheet ┘ (consent, spouses, never published)    ▼
                                          protected data link (Apps Script web app)
                                          returns approved rows + public fields only
                                                                │
-GitHub Actions: Sundays 6 am IST, or ~15 min after "Rebuild site now"
+GitHub Actions: Sundays 6 am IST, or within ~30 min of "Rebuild site now"
    fetch ─► privacy check (stops on unsafe data) ─► photos resized, location data removed ─► Eleventy ─► tests ─► GitHub Pages
 ```
 

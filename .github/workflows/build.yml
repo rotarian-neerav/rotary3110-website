@@ -1,6 +1,6 @@
 # Builds and publishes the website.
 #  - every Sunday at 6:00 am India time (00:30 UTC)
-#  - within ~15 minutes when a moderator presses "Rebuild site now" in the Sheet (or marks someone deceased)
+#  - within ~30 minutes (checked every 15; GitHub often runs late) when a moderator presses "Rebuild site now" in the Sheet (or marks someone deceased)
 #  - on every change to the code, and by hand from the Actions tab ("Run workflow")
 name: Build and publish
 

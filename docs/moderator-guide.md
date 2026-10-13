@@ -34,7 +34,7 @@ New ones appear in **club_profile_requests**. Check that the links work and belo
 
 ## When a member or spouse passes away
 
-**Rotary → Mark as deceased…** → enter their ID (from the private members list). Birthday and anniversary greetings stop **immediately** (the site rebuilds within 15 minutes). Their past roles stay on record.
+**Rotary → Mark as deceased…** → enter their ID (from the private members list). Birthday and anniversary greetings stop **immediately** (the site rebuilds within about 30 minutes). Their past roles stay on record.
 
 ## Magazine
 

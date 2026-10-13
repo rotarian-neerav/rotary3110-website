@@ -42,7 +42,14 @@ class FakeRange {
   setFontWeight() { return this; }
   setBackground() { return this; }
   setFontColor() { return this; }
-  setDataValidation() { return this; }
+  setDataValidation(rule) {
+    // Like real Google Sheets: a tick-box rule fills every empty cell in the range with FALSE
+    if (rule && rule.checkbox) {
+      for (let r = 0; r < this.numRows; r++) if (this.sheet.cell(this.row + r, this.col) === '') this.sheet.set(this.row + r, this.col, false);
+    }
+    return this;
+  }
+  clearDataValidations() { return this; }
   setNumberFormat() { return this; }
 }
 
@@ -56,6 +63,7 @@ class FakeSheet {
     row[c - 1] = v;
   }
   trim() {
+    // Like Sheets, a cell holding FALSE counts as used
     while (this.data.length && this.data[this.data.length - 1].every((v) => v === '' || v == null)) this.data.pop();
   }
   getName() { return this.name; }
@@ -145,7 +153,11 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
       getUi: () => ui,
       getActiveSheet: () => activeSheet,
       flush: () => {},
-      newDataValidation: () => chain(),
+      newDataValidation: () => {
+        let checkbox = false;
+        const b = chain({ requireCheckbox: () => { checkbox = true; return b; }, build: () => ({ checkbox }) });
+        return b;
+      },
       ProtectionType: { SHEET: 'SHEET' },
     },
     PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => props.get(k) ?? null, setProperty: (k, v) => props.set(k, v) }) },

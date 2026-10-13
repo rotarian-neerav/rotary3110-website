@@ -883,6 +883,8 @@ function setup() {
 
   ensureTabs_(main, SCHEMA_MAIN, report);
   ensureTabs_(priv, SCHEMA_PRIVATE, report);
+  tidyBlankRows_(main, report);
+  tidyBlankRows_(priv, report);
   ensureSettings_(report);
   addValidation_(main, priv);
 
@@ -979,7 +981,6 @@ function listRule_(values) {
 }
 
 function addValidation_(main, priv) {
-  var checkbox = SpreadsheetApp.newDataValidation().requireCheckbox().build();
   function apply(ss, tab, col, rule) {
     var sh = ss.getSheetByName(tab);
     var idx = headers_(ss, tab).indexOf(col);
@@ -991,7 +992,9 @@ function addValidation_(main, priv) {
   apply(main, 'activities', 'theme', listRule_(CORE_THEMES));
   apply(main, 'events', 'event_type', listRule_(CORE_EVENT_TYPES));
   apply(main, 'clubs', 'status', listRule_(['active', 'inactive']));
-  apply(main, 'activities', 'story_of_month', checkbox);
+  // A tick-box column would fill every empty row with FALSE, so new rows would land far down the tab.
+  // A TRUE/FALSE dropdown leaves empty rows empty.
+  apply(main, 'activities', 'story_of_month', listRule_(['TRUE', 'FALSE']));
   ['consent_requests', 'removal_requests'].forEach(function (t) {
     apply(priv, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
@@ -1052,6 +1055,26 @@ function installTriggers_(report) {
     ScriptApp.newTrigger('dailyJobs').timeBased().everyDays(1).atHour(7).inTimezone('Asia/Kolkata').create();
     report.push('Scheduled the daily reminders and dashboard (7 am)');
   }
+}
+
+/**
+ * Removes "rows" that hold nothing but FALSE or blanks (left behind by tick-boxes), so that new
+ * rows are added straight after the real data. Real rows keep their order.
+ */
+function tidyBlankRows_(ss, report) {
+  ss.getSheets().forEach(function (sh) {
+    if (/^raw_/.test(sh.getName()) || sh.getLastRow() < 2) return;
+    var range = sh.getDataRange();
+    var values = range.getValues();
+    var keep = values.filter(function (row, i) {
+      return i === 0 || row.some(function (v) { return v !== '' && v !== false && v != null; });
+    });
+    if (keep.length === values.length) return;
+    range.clearContent();
+    sh.getRange(2, 1, sh.getMaxRows() - 1, sh.getMaxColumns()).clearDataValidations();
+    sh.getRange(1, 1, keep.length, keep[0].length).setValues(keep);
+    report.push('Tidied ' + sh.getName() + ': removed ' + (values.length - keep.length) + ' empty rows');
+  });
 }
 
 
@@ -1407,6 +1430,13 @@ function fileIds_(value) {
   return (Array.isArray(value) ? value : [value]).map(function (id) { return 'drive:' + id; }).join(', ');
 }
 
+/** "aol.com/post" -> "https://aol.com/post", so links people type without https:// still work. */
+function link_(value) {
+  var s = Core_str(value);
+  if (!s) return '';
+  return /^https?:\/\//i.test(s) ? s : 'https://' + s.replace(/^\/+/, '');
+}
+
 function checked_(value) {
   return Array.isArray(value) ? value.length > 0 : !!Core_str(value);
 }
@@ -1435,8 +1465,8 @@ function fileActivityOrEvent_(a, meta) {
       id: nextId_(events, 'EVT-' + new Date().getFullYear() + '-'),
       title: Core_str(a[Q.eTitle]), event_type: Core_str(a[Q.eType]), start_date: Core_str(a[Q.eStart]),
       start_time: Core_str(a[Q.eTime]), end_date: Core_str(a[Q.eEnd]), venue: Core_str(a[Q.eVenue]), city: Core_str(a[Q.eCity]),
-      organiser: Core_str(a[Q.eOrganiser]) || clubName, description: Core_str(a[Q.eDesc]), map_link: Core_str(a[Q.eMap]),
-      details_link: Core_str(a[Q.eDetails]),
+      organiser: Core_str(a[Q.eOrganiser]) || clubName, description: Core_str(a[Q.eDesc]), map_link: link_(a[Q.eMap]),
+      details_link: link_(a[Q.eDetails]),
     }));
     return;
   }
@@ -1446,7 +1476,7 @@ function fileActivityOrEvent_(a, meta) {
     id: nextId_(activities, 'ACT-' + new Date().getFullYear() + '-'),
     club_id: clubIdByName_(clubName), club_name: clubName,
     title: Core_str(a[Q.aTitle]), date: Core_str(a[Q.aDate]), theme: Core_str(a[Q.aTheme]), description: Core_str(a[Q.aDesc]),
-    photo_files: fileIds_(firstStartingWith_(a, 'Photos')), post_link: Core_str(a[Q.aLink]),
+    photo_files: fileIds_(firstStartingWith_(a, 'Photos')), post_link: link_(a[Q.aLink]),
     people_helped: Core_str(a[Q.aHelped]), amount_spent: Core_str(a[Q.aSpent]), partner_clubs: partners.join(', '),
     photo_consent: checked_(a[Q.aConsent]),
   });
@@ -1463,11 +1493,12 @@ function fileClubProfile_(a, meta) {
   var ss = mainSs_();
   var clubName = Core_str(a[Q.club]);
   var ans = function (t) { return Core_str(a[t + ' (optional)']); };
+  var url = function (t) { return link_(a[t + ' (optional)']); };
   appendRow_(ss, 'club_profile_requests', {
     id: nextId_(readTab_(ss, 'club_profile_requests'), 'CPR-'), submitted_at: meta.submitted_at, submitter_email: meta.submitter_email,
     submitter_name: Core_str(a[Q.name]), submitter_role: Core_str(a[Q.role]), submitter_mobile: Core_str(a[Q.mobile]),
-    club_id: clubIdByName_(clubName), club_name: clubName, website: ans(Q.pWebsite), facebook: ans(Q.pFacebook),
-    instagram: ans(Q.pInstagram), youtube: ans(Q.pYoutube), x: ans(Q.pX), linkedin: ans(Q.pLinkedin),
+    club_id: clubIdByName_(clubName), club_name: clubName, website: url(Q.pWebsite), facebook: url(Q.pFacebook),
+    instagram: url(Q.pInstagram), youtube: url(Q.pYoutube), x: url(Q.pX), linkedin: url(Q.pLinkedin),
     meeting_day_place: ans(Q.pMeeting), status: 'pending',
   });
 }
@@ -1480,7 +1511,7 @@ function fileConsent_(a, meta) {
     filled_by: Core_str(a[Q.cFilledBy]), club_id: clubIdByName_(a[Q.cClub]), name: Core_str(a[Q.cName]),
     member_id: Core_str(a[Q.cMemberId]), mobile: Core_str(a[Q.cMobile]),
     directory_ok: yes_(a[Q.cDirectory]), profession: Core_str(a[Q.cProfession]), area: Core_str(a[Q.cArea]),
-    description: Core_str(a[Q.cWhat]), website: Core_str(a[Q.cWebsite]), spotlight_ok: checked_(a[Q.cSpotlight]),
+    description: Core_str(a[Q.cWhat]), website: link_(a[Q.cWebsite]), spotlight_ok: checked_(a[Q.cSpotlight]),
     contact_ok: yes_(a[Q.cContact]), photo_ok: yes_(a[Q.cPhoto]), photo_file: fileIds_(firstStartingWith_(a, 'My photo')),
     birthday_ok: yes_(a[Q.cBirthday]), birthday: dayMonthAnswer_(a[Q.cBirthdayDate]),
     anniversary_ok: yes_(a[Q.cAnniversary]), spouse_is_rotarian: spouseRotarian ? 'Yes' : (Core_str(a[Q.cSpouseRotarian]) ? 'No' : ''),

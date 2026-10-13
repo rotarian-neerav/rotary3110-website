@@ -11,6 +11,8 @@ function setup() {
 
   ensureTabs_(main, SCHEMA_MAIN, report);
   ensureTabs_(priv, SCHEMA_PRIVATE, report);
+  tidyBlankRows_(main, report);
+  tidyBlankRows_(priv, report);
   ensureSettings_(report);
   addValidation_(main, priv);
 
@@ -107,7 +109,6 @@ function listRule_(values) {
 }
 
 function addValidation_(main, priv) {
-  var checkbox = SpreadsheetApp.newDataValidation().requireCheckbox().build();
   function apply(ss, tab, col, rule) {
     var sh = ss.getSheetByName(tab);
     var idx = headers_(ss, tab).indexOf(col);
@@ -119,7 +120,9 @@ function addValidation_(main, priv) {
   apply(main, 'activities', 'theme', listRule_(CORE_THEMES));
   apply(main, 'events', 'event_type', listRule_(CORE_EVENT_TYPES));
   apply(main, 'clubs', 'status', listRule_(['active', 'inactive']));
-  apply(main, 'activities', 'story_of_month', checkbox);
+  // A tick-box column would fill every empty row with FALSE, so new rows would land far down the tab.
+  // A TRUE/FALSE dropdown leaves empty rows empty.
+  apply(main, 'activities', 'story_of_month', listRule_(['TRUE', 'FALSE']));
   ['consent_requests', 'removal_requests'].forEach(function (t) {
     apply(priv, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
@@ -180,4 +183,24 @@ function installTriggers_(report) {
     ScriptApp.newTrigger('dailyJobs').timeBased().everyDays(1).atHour(7).inTimezone('Asia/Kolkata').create();
     report.push('Scheduled the daily reminders and dashboard (7 am)');
   }
+}
+
+/**
+ * Removes "rows" that hold nothing but FALSE or blanks (left behind by tick-boxes), so that new
+ * rows are added straight after the real data. Real rows keep their order.
+ */
+function tidyBlankRows_(ss, report) {
+  ss.getSheets().forEach(function (sh) {
+    if (/^raw_/.test(sh.getName()) || sh.getLastRow() < 2) return;
+    var range = sh.getDataRange();
+    var values = range.getValues();
+    var keep = values.filter(function (row, i) {
+      return i === 0 || row.some(function (v) { return v !== '' && v !== false && v != null; });
+    });
+    if (keep.length === values.length) return;
+    range.clearContent();
+    sh.getRange(2, 1, sh.getMaxRows() - 1, sh.getMaxColumns()).clearDataValidations();
+    sh.getRange(1, 1, keep.length, keep[0].length).setValues(keep);
+    report.push('Tidied ' + sh.getName() + ': removed ' + (values.length - keep.length) + ' empty rows');
+  });
 }

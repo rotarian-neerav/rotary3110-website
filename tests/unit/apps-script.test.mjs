@@ -67,7 +67,7 @@ test('an activity sent through the form waits as pending and is not public', () 
     [Q.club]: 'RC Agra North', [Q.name]: 'Rtn Test Secretary', [Q.role]: 'Secretary', [Q.mobile]: '98765 43210', [Q.kind]: Q.kindActivity,
     [Q.aTitle]: 'Winter blankets for night shelters', [Q.aDate]: '2026-10-11', [Q.aTheme]: 'Club service / Other',
     [Q.aDesc]: 'Members distributed 200 blankets at three night shelters in the city with the municipal corporation, before the cold wave.',
-    'Photos (up to 3, each under 1 MB)': ['1AbCdEfGhIjKlMnOpQrStUvWxYz0123456'], [Q.aHelped]: '200', [Q.aPartners]: ['RC Agra Greater'], [Q.aConsent]: ['yes'],
+    'Photos (up to 3, each under 1 MB)': ['1AbCdEfGhIjKlMnOpQrStUvWxYz0123456'], [Q.aLink]: 'aol.com/post/1', [Q.aHelped]: '200', [Q.aPartners]: ['RC Agra Greater'], [Q.aConsent]: ['yes'],
   });
   const row = env.main.rows('activities').at(-1);
   newActivityId = row.id;
@@ -77,7 +77,10 @@ test('an activity sent through the form waits as pending and is not public', () 
   assert.equal(row.club_id, 'S-004');
   assert.equal(row.partner_clubs, 'S-002');
   assert.equal(row.photo_files, 'drive:1AbCdEfGhIjKlMnOpQrStUvWxYz0123456');
+  const blank = env.main.rows('activities').filter((r) => !r.id).length;
+  assert.equal(blank, 0, `${blank} empty rows sit above the new entry (tick-box FALSE rows), so it lands far down the tab`);
   assert.equal(row.submitter_mobile, '98765 43210');
+  assert.equal(row.post_link, 'https://aol.com/post/1', 'links typed without https:// are fixed');
   assert.ok(!data().activities.some((a) => a.id === row.id));
 });
 

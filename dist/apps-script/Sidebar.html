@@ -25,7 +25,9 @@
   function load() { google.script.run.withSuccessHandler(render).withFailureHandler(function (e) { say(e.message); }).getMemberRequests(); }
   function act(fn, args) {
     say('Working…');
-    google.script.run.withSuccessHandler(function (r) { say(r); load(); }).withFailureHandler(function (e) { say(e.message); })[fn].apply(null, args);
+    // keep the runner as "this": Google's runner loses its connection to the server when called with apply(null, ...)
+    var runner = google.script.run.withSuccessHandler(function (r) { say(r); load(); }).withFailureHandler(function (e) { say(e.message); });
+    runner[fn].apply(runner, args);
   }
   function reject(kind, id) {
     var reason = prompt('Reason for rejecting ' + id + ' (kept in the Sheet):');

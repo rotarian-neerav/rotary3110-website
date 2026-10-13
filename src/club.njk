@@ -3,6 +3,7 @@ layout: layouts/base.njk
 pagination:
   data: site.clubs
   size: 1
+  addAllPagesToCollections: true
   alias: c
 permalink: "{{ c.url }}"
 eleventyComputed:
@@ -24,10 +25,11 @@ eleventyComputed:
   <h2>Office bearers {{ site.rotaryYear }}</h2>
   <ul class="people-grid">
     {%- for o in c.officers %}
-    <li class="person">{{ avatar(o.name, o.image.sq.src if o.image else '', 48) }}<div><strong>{{ o.name }}</strong><span class="role">{{ o.role }}</span></div></li>
+    <li class="person">{{ avatar(o.name, o.image.sq.src if o.image else '', 48) }}<div><strong>{% if o.card %}<a href="{{ o.card }}">{{ o.name }}</a>{% else %}{{ o.name }}{% endif %}</strong><span class="role">{{ o.role }}</span></div></li>
     {%- endfor %}
   </ul>
   {%- endif %}
+  <p><a class="btn btn-outline" href="{{ c.membersUrl }}">See all members ({{ c.members.length }} listed) →</a></p>
 
   <h2>Activities</h2>
   {%- if c.activities.length %}

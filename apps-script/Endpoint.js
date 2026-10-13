@@ -36,7 +36,7 @@ function publicData_() {
   var tabs = {};
   ['settings', 'clubs', 'officers', 'functionaries', 'activities', 'events', 'magazines', 'messages', 'spotlights', 'members_public', 'couples_public']
     .forEach(function (name) { tabs[name] = readTab_(ss, name); });
-  var data = Core_buildPublicData(tabs, nowIso_());
+  var data = Core_buildPublicData(tabs, nowIso_(), { personRef: personRefFn_(), inactiveIds: inactiveMemberIds_() });
   var problems = Core_validatePublic(data);
   if (problems.length) throw new Error('privacy check failed: ' + problems.slice(0, 5).join(' | '));
   // remember which Drive files may be handed out, for the file mode below
@@ -46,6 +46,32 @@ function publicData_() {
   });
   CacheService.getScriptCache().put('allowed_files', JSON.stringify(Object.keys(allowed)), 21600);
   return data;
+}
+
+/**
+ * The scrambled reference that joins one person's roles and listing into a member card. A keyed hash
+ * (HMAC-SHA256 with a secret kept in the script's properties), so the member ID cannot be worked back.
+ * The secret is made once and never changes, so card addresses stay the same.
+ */
+function personRefFn_() {
+  var secret = props_().getProperty('PERSON_SECRET');
+  if (!secret) {
+    secret = Utilities.getUuid() + Utilities.getUuid();
+    props_().setProperty('PERSON_SECRET', secret);
+  }
+  return function (memberId) {
+    var bytes = Utilities.computeHmacSha256Signature(String(memberId), secret);
+    var hex = '';
+    for (var i = 0; i < 6; i++) hex += ('0' + ((bytes[i] + 256) % 256).toString(16)).slice(-2);
+    return 'P' + hex;
+  };
+}
+
+/** Member IDs marked deceased or left in the private members list. */
+function inactiveMemberIds_() {
+  return readTab_(privateSs_(), 'members_master').filter(function (m) {
+    return Core_str(m.member_id) && Core_str(m.status || 'active').toLowerCase() !== 'active';
+  }).map(function (m) { return Core_str(m.member_id); });
 }
 
 function fileFor_(mode, id) {

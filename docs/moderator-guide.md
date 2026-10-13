@@ -34,7 +34,23 @@ New ones appear in **club_profile_requests**. Check that the links work and belo
 
 ## When a member or spouse passes away
 
-**Rotary → Mark as deceased…** → enter their ID (from the private members list). Birthday and anniversary greetings stop **immediately** (the site rebuilds within about 30 minutes). Their past roles stay on record.
+**Rotary → Mark as deceased…** → enter their ID (from the private members list). Birthday and anniversary greetings stop **immediately** (the site rebuilds within about 30 minutes). On the website they then have no member card and are removed from the club's member list, the directory and this year's office bearer and team lists. Their past roles and any past Member Spotlight story stay on record, showing the name only.
+
+Someone who **leaves Rotary** is treated the same way: set `status` to `left` in **members_master** (private Sheet), then **Rotary → Refresh public members**.
+
+If they held a role this year, enter who holds it now in **officers** or **functionaries**. **Check roles and member IDs** (below) lists these.
+
+## Member cards and member IDs
+
+Every office bearer and district team member has a **member card** on the website, with all their roles, newest year first. Members who agreed through the consent form also show their profession, photo and contact. The cards join up by **member ID**, so the ID must be the same in **officers**, **functionaries** and the private **members_master**.
+
+**Rotary → Check roles and member IDs** (also run every morning) lists what to fix in the **role_checks** tab, most urgent first:
+- someone marked deceased or left who still holds a role this year;
+- a role with no member ID (no card);
+- the same ID with different names, or the same name and club with different IDs (one person, two cards);
+- an ID that is not in the members list, or whose name differs.
+
+Titles do not matter: "DG", "PDG", "Rtn" are ignored when comparing names.
 
 ## Magazine
 
@@ -58,6 +74,6 @@ Every page has a preview card. If you change a photo after a link was already sh
 
 ## Never
 
-- Never type in **members_public**, **couples_public** or **dashboard**: the script fills them in.
+- Never type in **members_public**, **couples_public**, **dashboard** or **role_checks**: the script fills them in.
 - Never share the private members Sheet or make the Drive folders public (except 3110Magazines).
 - The district never asks for money over WhatsApp. If someone reports such a message, it is a scam.

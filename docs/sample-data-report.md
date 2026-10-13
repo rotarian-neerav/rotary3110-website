@@ -15,7 +15,7 @@ Every awkward case the site must handle, and how many sample rows cover it. Gene
 | Pending events | 1 |
 | Events with photos | 2 |
 | Past events with a report linked | 2 |
-| Upcoming events | 7 |
+| Upcoming events | 10 |
 | Members who never opted in | 36 |
 | Members waiting for a moderator | 5 |
 | Contact allowed = yes | 24 |
@@ -29,6 +29,9 @@ Every awkward case the site must handle, and how many sample rows cover it. Gene
 | Couple withdrawn by a spouse | 1 |
 | Couple photos | 2 |
 | People marked deceased | 2 |
+| Roles from last Rotary year (member card history) | 15 |
+| This year's role held by someone marked deceased (must not show) | 1 |
+| Upcoming events beyond the home page limit of 8 | 1 |
 | Members who changed clubs (club history) | 3 |
 | Inactive club kept on record | 1 |
 | Pending consent requests | 2 |

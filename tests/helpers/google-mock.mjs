@@ -1,6 +1,7 @@
 // A small stand-in for Google's Apps Script services, enough to run the Sheet script's logic in Node.
 // Spreadsheets are plain 2D arrays; Forms, triggers and UI calls are recorded rather than performed.
 import { readFileSync } from 'node:fs';
+import { createHmac } from 'node:crypto';
 import vm from 'node:vm';
 
 /** Returns a callable object where any method call returns itself, for builder-style APIs. */
@@ -167,6 +168,8 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
     Utilities: {
       getUuid: () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, () => Math.floor(Math.random() * 16).toString(16)),
       base64Encode: (bytes) => Buffer.from(bytes).toString('base64'),
+      // like Apps Script: signed bytes (-128..127)
+      computeHmacSha256Signature: (value, key) => [...createHmac('sha256', key).update(value).digest()].map((b) => (b > 127 ? b - 256 : b)),
     },
     Logger: { log: () => {} },
     MailApp: { sendEmail: (to, subject, body) => mails.push({ to, subject, body }) },

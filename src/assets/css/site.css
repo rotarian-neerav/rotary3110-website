@@ -186,7 +186,7 @@ img.avatar { width: auto; }
 .dir-card p { margin: 4px 0 0; }
 
 /* Celebrations */
-.celebrations-strip { background: #fffaf0; border: 1px solid #f2d9a6; border-radius: var(--radius); margin-top: 20px; padding-top: 4px; padding-bottom: 8px; }
+.celebrations-strip { background: #fffaf0; border: 1px solid #f2d9a6; border-radius: var(--radius); margin-top: 20px; margin-bottom: 8px; padding-top: 4px; padding-bottom: 8px; }
 .celebration-list { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 8px; }
 .celebration { display: grid; grid-template-columns: 70px auto 1fr; gap: 10px; align-items: center; background: #fff; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); }
 .celebration.is-today { border-color: var(--gold); box-shadow: 0 0 0 2px #fde2a7; }
@@ -254,6 +254,7 @@ img.avatar { width: auto; }
   .people-grid { grid-template-columns: repeat(3, 1fr); }
   .three { grid-template-columns: repeat(3, 1fr); }
   .two-col { grid-template-columns: 1fr 1fr; }
+  .event-grid { grid-template-columns: 1fr 1fr; }
   .magazine-grid { grid-template-columns: repeat(4, 1fr); }
   .club-list { columns: 3; }
   .filters { grid-template-columns: 1fr 1fr 2fr; }
@@ -273,3 +274,19 @@ img.avatar { width: auto; }
 .celebrations-strip .celebration-list { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 6px; scroll-snap-type: x mandatory; }
 .celebrations-strip .celebration { flex: 0 0 230px; grid-template-columns: auto 1fr; align-content: start; row-gap: 6px; scroll-snap-align: start; }
 .celebrations-strip .cel-date { grid-column: 1 / -1; }
+
+/* Home: upcoming events, district first */
+.event-grid { display: grid; column-gap: 32px; }
+.chip-district { background: var(--gold); color: #1c1c1c; }
+
+/* Member cards */
+.person strong a { color: inherit; }
+.member-head { display: flex; gap: 18px; align-items: center; margin-bottom: 12px; }
+.member-head h1 { margin: 0 0 4px; }
+.member-head p { margin: 0 0 4px; }
+.member-head .club a { font-weight: 600; }
+.role-year { border-top: 1px solid var(--line); padding: 8px 0 4px; }
+.role-year h3 { margin: 4px 0 6px; font-size: 1rem; }
+.role-list { margin: 0 0 6px; padding-left: 18px; }
+.role-list li { margin-bottom: 4px; }
+@media (max-width: 480px) { .member-head { flex-direction: column; align-items: flex-start; } }

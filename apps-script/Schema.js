@@ -31,6 +31,7 @@ var SCHEMA_MAIN = {
     'person_b_club_id', 'anniversary', 'both_consented', 'couple_photo_file', 'is_sample'],
   dashboard: ['club_id', 'club_name', 'zone', 'member_count', 'last_activity_date', 'activities_this_month',
     'activities_last_month', 'activities_this_rotary_year', 'months_posted_this_rotary_year', 'needs_nudge'],
+  role_checks: ['checked_at', 'tab', 'row', 'rotary_year', 'name', 'member_id', 'problem'],
 };
 
 var SCHEMA_PRIVATE = {

@@ -1,0 +1,49 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.cards
+  size: 1
+  addAllPagesToCollections: true
+  alias: p
+permalink: "{{ p.url }}"
+eleventyComputed:
+  title: "{{ p.name }}"
+  description: "{{ p.name }}{% if p.club %}, {{ p.club.name }}{% endif %}{% if p.currentRoles.length %} – {{ p.currentRoles[0].role }}{% endif %}. Roles in Rotary District 3110{% if p.profession %} · {{ p.profession }}{% endif %}."
+  noindex: "{% if not p.listed %}yes{% endif %}"
+---
+{% from "macros.njk" import avatar %}
+<div class="wrap section narrow">
+  <article class="member-card">
+    <header class="member-head">
+      {{ avatar(p.name, p.photo.sq.src if p.photo else '', 120) }}
+      <div>
+        <h1>{{ p.name }}</h1>
+        {%- if p.club %}<p class="club"><a href="{{ p.club.url }}">{{ p.club.name }}</a></p>{% endif %}
+        {%- if p.profession %}<p class="role">{{ p.profession }}{% if p.area %} · {{ p.area }}{% endif %}</p>{% endif %}
+        <p class="dir-actions">
+          {%- if p.wa %}<a class="btn-small wa" href="{{ p.wa }}" target="_blank" rel="noopener">WhatsApp</a><a class="btn-small" href="{{ p.wa | tel }}">Call</a>
+          {%- elif p.sampleContact %}<span class="small muted">Sample entry – WhatsApp and call buttons are switched off</span>
+          {%- elif p.officialContact %}<a class="btn-small wa" href="{{ p.officialContact }}" target="_blank" rel="noopener">Contact</a>{% endif %}
+          {%- if p.website %}<a class="btn-small" href="{{ p.website }}" target="_blank" rel="noopener">Website ↗</a>{% endif %}
+        </p>
+      </div>
+    </header>
+    {%- if p.description %}<p class="lead">{{ p.description }}</p>{% endif %}
+    {%- for s in p.spotlights %}<p><a href="/spotlight/#{{ s.month }}">Member spotlight, {{ s.monthLabel }}: {{ s.headline }} →</a></p>{% endfor %}
+
+    {%- if p.years.length %}
+    <h2>Roles in the district</h2>
+    {%- for y in p.years %}
+    <section class="role-year">
+      <h3>{{ y.year }}{% if y.current %} <span class="chip">Current</span>{% endif %}</h3>
+      <ul class="role-list">
+        {%- for r in y.roles %}
+        <li><strong>{% if r.link %}<a href="{{ r.link }}">{{ r.role }}</a>{% else %}{{ r.role }}{% endif %}</strong>{% if r.where %} <span class="muted">· {{ r.where }}</span>{% endif %}</li>
+        {%- endfor %}
+      </ul>
+    </section>
+    {%- endfor %}
+    {%- endif %}
+  </article>
+  <p class="small muted">{% if p.listed %}Shown with this member's consent.{% else %}Name, club and roles only. Members can choose to add their profession, photo and contact through the <a href="/consent/">consent form</a>.{% endif %} To correct or remove details, use the <a href="/remove/">removal form</a>.</p>
+</div>

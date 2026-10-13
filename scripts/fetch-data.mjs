@@ -10,7 +10,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { core, plain } from '../lib/core.mjs';
+import { core, plain, sampleOptions } from '../lib/core.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = resolve(ROOT, '.cache/public-data.json');
@@ -42,7 +42,7 @@ async function fetchOnce(url, token) {
 
 function fromSample() {
   const sample = JSON.parse(readFileSync(resolve(ROOT, 'sample/sample-data.json'), 'utf8'));
-  return plain(core.Core_buildPublicData(sample.main, new Date().toISOString()));
+  return plain(core.Core_buildPublicData(sample.main, new Date().toISOString(), sampleOptions(sample)));
 }
 
 const { DATA_URL, DATA_TOKEN } = process.env;

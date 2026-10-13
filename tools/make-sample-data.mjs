@@ -336,6 +336,33 @@ const functionaries = converted.functionaries.map((f) => ({
   contact_ok: false, contact_link: '', is_sample: true,
 }));
 
+/* ---------- last Rotary year's roles, for the member cards' history ---------- */
+const PAST_YEAR = `${+ROTARY_YEAR.slice(0, 4) - 1}-${ROTARY_YEAR.slice(2, 4)}`;
+const pastOfficer = (club_id, m, role) => officers.push({ rotary_year: PAST_YEAR, club_id, member_id: m.member_id, name: m.name, role, contact_ok: false, contact_link: '', is_sample: true });
+// In eight clubs, this year's secretary was last year's president
+activeClubs.slice(0, 8).forEach((c) => {
+  const sec = officers.find((o) => o.club_id === c.club_id && o.role === 'Secretary');
+  pastOfficer(c.club_id, sec, 'President');
+});
+// A member who has since died: last year's treasurer, and still in this year's list (the build must leave that out)
+pastOfficer(deceasedMember.club_id, deceasedMember, 'Treasurer');
+officers.push({ rotary_year: ROTARY_YEAR, club_id: deceasedMember.club_id, member_id: deceasedMember.member_id, name: deceasedMember.name, role: 'Treasurer', contact_ok: false, contact_link: '', is_sample: true });
+const fnRow = (id) => converted.functionaries.find((f) => f.member_id === id);
+const pastRole = (f, section, role, extra = {}) => functionaries.push({
+  rotary_year: PAST_YEAR, page: 'leadership', section, committee: '', member_id: f.member_id, name: f.name, role, zone: '',
+  club_id: f.club_id, term: '', sort_order: extra.sort_order || 0, contact_ok: false, contact_link: '', is_sample: true, ...extra,
+});
+const dg = fnRow('T-0001');
+const dge = fnRow('T-0028');
+const sharat = fnRow('T-0020');
+pastRole({ ...dg, name: dg.name.replace(/^DG /, 'DGE ') }, 'Governor line', 'District Governor Elect', { term: ROTARY_YEAR, sort_order: 1 });
+pastRole({ ...dge, name: dge.name.replace(/^DGE /, 'DGN ') }, 'Governor line', 'District Governor Nominee', { term: '2025-26', sort_order: 2 });
+pastRole(sharat, 'District Counsellors', 'District Counsellor', { sort_order: 3 });
+pastRole({ member_id: deceasedMember.member_id, name: deceasedMember.name, club_id: deceasedMember.club_id }, "Governor's Office Team", 'District Secretary', { committee: 'District Secretariat', sort_order: 4 });
+pastRole({ member_id: approved[50].member_id, name: approved[50].name, club_id: approved[50].club_id }, "Governor's Office Team", 'District Treasurer', { committee: 'District Secretariat', sort_order: 5 });
+// PDG Sharat Chandra also served his club last year
+officers.push({ rotary_year: PAST_YEAR, club_id: sharat.club_id, member_id: sharat.member_id, name: sharat.name, role: 'Club Trainer', contact_ok: false, contact_link: '', is_sample: true });
+
 /* ---------- activities ---------- */
 const MODERATORS = ['moderator.a@example.com', 'moderator.b@example.com', 'moderator.c@example.com', 'moderator.d@example.com'];
 const activities = [];
@@ -434,6 +461,10 @@ addEvent({ title: 'Free eye camp', event_type: 'Club event open to all', start_d
 addEvent({ title: 'Career guidance day for Class 12 students', event_type: 'Vocational visit', start_date: '2026-12-05', start_time: '11:00', venue: 'City Montessori School', city: 'Kanpur', organiser: 'RC Kanpur South' });
 addEvent({ title: 'District Conference 2026', event_type: 'District event', start_date: '2026-12-19', end_date: '2026-12-20', start_time: '10:00', venue: 'Hotel Radisson', city: 'Agra', organiser: 'Governor\'s Office Team', description: 'Annual district conference with awards for clubs.' });
 addEvent({ title: 'PENDING-SAMPLE event awaiting approval', event_type: 'Club event open to all', start_date: '2026-11-30', venue: 'Town Hall', city: 'Jhansi', organiser: 'RC Jhansi', status: 'pending' });
+// More club events than the home page shows (at most 8, district events first)
+addEvent({ title: 'Blanket distribution at night shelters', event_type: 'Club event open to all', start_date: '2026-12-12', start_time: '19:00', venue: 'Night shelter, Civil Lines', city: 'Kanpur', organiser: 'RC Kanpur', description: 'Members hand out blankets before the cold wave.' });
+addEvent({ title: 'Inter-club cricket match', event_type: 'Club event open to all', start_date: '2027-01-10', start_time: '09:00', venue: 'Railway Stadium', city: 'Jhansi', organiser: 'RC Jhansi', description: 'Friendly match between Jhansi and Lalitpur clubs.' });
+addEvent({ title: 'Republic Day blood donation camp', event_type: 'Club event open to all', start_date: '2027-01-26', start_time: '10:00', venue: 'Government Medical College', city: 'Aligarh', organiser: 'RC Aligarh', description: 'Blood donation camp with the medical college blood bank.' });
 // link report activities back to their events
 activities.find((a) => a.id === pastReportA).event_id = events[0].id;
 activities.find((a) => a.id === pastReportB).event_id = events[1].id;
@@ -694,6 +725,9 @@ function writeReport() {
     ['Couple withdrawn by a spouse', couples.filter((c) => c.status === 'withdrawn').length],
     ['Couple photos', couples.filter((c) => c.couple_photo_file).length],
     ['People marked deceased', master.filter((m) => m.status === 'deceased').length],
+    ['Roles from last Rotary year (member card history)', officers.filter((o) => o.rotary_year === PAST_YEAR).length + functionaries.filter((f) => f.rotary_year === PAST_YEAR).length],
+    ['This year\'s role held by someone marked deceased (must not show)', officers.filter((o) => o.rotary_year === ROTARY_YEAR && o.member_id === deceasedMember.member_id).length],
+    ['Upcoming events beyond the home page limit of 8', Math.max(0, data.main.events.filter((e) => e.status === 'approved' && e.start_date > TODAY).length - 8)],
     ['Members who changed clubs (club history)', clubHistory.filter((h) => h.reason === 'transferred out').length],
     ['Inactive club kept on record', clubs.filter((c) => c.status === 'inactive').length],
     ['Pending consent requests', consentRequests.length],

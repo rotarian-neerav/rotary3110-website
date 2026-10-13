@@ -29,11 +29,11 @@ const data = () => {
 };
 
 test('setup creates every tab, loads the sample, makes four forms and fills their links', () => {
-  for (const t of ['settings', 'clubs', 'activities', 'events', 'functionaries', 'members_public', 'couples_public', 'dashboard']) assert.ok(env.main.getSheetByName(t), t);
+  for (const t of ['settings', 'clubs', 'activities', 'events', 'functionaries', 'members_public', 'couples_public', 'dashboard', 'role_checks']) assert.ok(env.main.getSheetByName(t), t);
   for (const t of ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests']) assert.ok(env.priv.getSheetByName(t), t);
   assert.equal(env.main.getSheetByName('Sheet1'), null, 'empty default tab removed');
   assert.equal(env.main.rows('clubs').length, 70);
-  assert.equal(env.main.rows('functionaries').length, 176);
+  assert.equal(env.main.rows('functionaries').length, 181, '176 from the Excel plus 5 sample roles from last year');
   const s = Object.fromEntries(env.main.rows('settings').map((r) => [r.key, r.value]));
   for (const k of ['form_activity_url', 'form_club_profile_url', 'form_consent_url', 'form_removal_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
   assert.ok(env.main.getSheetByName('raw_activity_form'), 'raw answers tab for the activity form');
@@ -59,6 +59,26 @@ test('data link: refuses without the token; same result as the website build on 
   assert.equal(d.members.length, local.members.length);
   assert.equal(d.couples.length, local.couples.length);
   assert.deepEqual(plain(core.Core_validatePublic(d)), []);
+});
+
+test('data link: member card references are keyed hashes; deceased members hold no role this year', () => {
+  const d = data();
+  const refs = d.officers.concat(d.functionaries).map((r) => r.person_ref).filter(Boolean);
+  assert.ok(refs.length > 100 && refs.every((r) => /^P[0-9a-f]{12}$/.test(r)));
+  assert.ok(env.props.get('PERSON_SECRET'), 'secret kept in the script properties');
+  assert.deepEqual(data().functionaries.map((r) => r.person_ref), d.functionaries.map((r) => r.person_ref), 'card addresses stay the same between builds');
+  const dead = env.priv.rows('members_master').find((m) => m.status === 'deceased' && m.is_rotarian === true);
+  const year = env.main.rows('settings').find((r) => r.key === 'current_rotary_year').value;
+  assert.ok(env.main.rows('officers').some((o) => o.member_id === dead.member_id && o.rotary_year === year), 'the sample has one');
+  assert.ok(!d.officers.some((o) => o.name === dead.name && o.rotary_year === year), 'left out of the website');
+});
+
+test('Check roles and member IDs: fills the role_checks tab, most urgent first', () => {
+  env.run('checkRoles');
+  const rows = env.main.rows('role_checks');
+  assert.ok(rows.length >= 1);
+  assert.match(rows[0].problem, /marked "deceased"/);
+  assert.match(env.alerts.at(-1), /role_checks tab/);
 });
 
 let newActivityId;

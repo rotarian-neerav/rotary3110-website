@@ -272,8 +272,16 @@ function Core_photoRefs(v) {
  * tabs: { settings, clubs, officers, functionaries, activities, events, magazines,
  *         messages, spotlights, members_public, couples_public, lists }
  * Each is an array of row objects (see Core_rows).
+ * options.personRef(memberId): the scrambled reference that links one person's roles and listing
+ *   (the Sheet uses a keyed hash, so the member ID cannot be worked back from it).
+ * options.inactiveIds: member IDs marked deceased or left in the private members list. Their
+ *   current-year roles are left out; past roles keep the name only, with no link, photo or contact.
  */
-function Core_buildPublicData(tabs, nowIso) {
+function Core_buildPublicData(tabs, nowIso, options) {
+  var opts = options || {};
+  var personRef = opts.personRef || function (id) { return 'P' + Core_hash(id) + Core_hash('#' + id).slice(0, 4); };
+  var inactiveIds = {};
+  (opts.inactiveIds || []).forEach(function (id) { if (Core_str(id)) inactiveIds[Core_str(id)] = true; });
   var settings = Core_settings(tabs.settings || []);
   var rotaryYear = Core_str(settings.current_rotary_year);
 
@@ -325,16 +333,20 @@ function Core_buildPublicData(tabs, nowIso) {
   });
   var photoByMemberId = {};
   members.forEach(function (m) {
+    m.person_ref = m.member_id ? personRef(m.member_id) : '';
     if (m.photo_ok && m.photo && m.member_id) photoByMemberId[m.member_id] = { photo: m.photo, key: m.public_key };
   });
 
   function roleRow(r) {
-    var p = photoByMemberId[Core_str(r.member_id)];
-    var contact = Core_isTrue(r.contact_ok) && Core_str(r.contact_link) ? Core_str(r.contact_link) : '';
+    var id = Core_str(r.member_id);
+    var inactive = !!(id && inactiveIds[id]);
+    var p = inactive ? null : photoByMemberId[id];
+    var contact = !inactive && Core_isTrue(r.contact_ok) && Core_str(r.contact_link) ? Core_str(r.contact_link) : '';
     return {
       rotary_year: Core_str(r.rotary_year),
       person_key: p ? p.key : '',
-      person_ref: Core_str(r.member_id) ? 'P' + Core_hash(Core_str(r.member_id)) : '',
+      // no reference for someone deceased or departed: their past roles show the name only, with no card
+      person_ref: id && !inactive ? personRef(id) : '',
       name: Core_str(r.name),
       role: Core_str(r.role),
       club_id: Core_str(r.club_id),
@@ -344,9 +356,14 @@ function Core_buildPublicData(tabs, nowIso) {
     };
   }
 
-  var officers = (tabs.officers || []).filter(function (o) { return Core_str(o.name); }).map(roleRow);
+  // Current-year roles of people who have died or left are not shown at all
+  function current(r) {
+    return Core_str(r.name) && !(inactiveIds[Core_str(r.member_id)] && Core_str(r.rotary_year) === rotaryYear);
+  }
 
-  var functionaries = (tabs.functionaries || []).filter(function (f) { return Core_str(f.name); }).map(function (f) {
+  var officers = (tabs.officers || []).filter(current).map(roleRow);
+
+  var functionaries = (tabs.functionaries || []).filter(current).map(function (f) {
     var row = roleRow(f);
     row.page = Core_str(f.page);
     row.section = Core_str(f.section);
@@ -435,16 +452,24 @@ function Core_buildPublicData(tabs, nowIso) {
 
   var memberKeys = {};
   members.forEach(function (m) { memberKeys[m.public_key] = m; });
+  var inactiveKeys = {};
+  Core_list(settings.inactive_keys).forEach(function (k) { inactiveKeys[k] = true; });
   var spotlights = (tabs.spotlights || []).map(function (s) {
+    var key = Core_str(s.public_key);
+    var gone = !memberKeys[key] && inactiveKeys[key];
     return {
       month: Core_str(s.month).slice(0, 7),
-      public_key: Core_str(s.public_key),
+      // a past story about someone who has since died or left keeps their name only
+      public_key: gone ? '' : key,
+      member_name: gone ? Core_str(s.member_name) : '',
       headline: Core_str(s.headline),
       story: Core_str(s.story),
+      _ok: gone ? !!Core_str(s.member_name) : !!(memberKeys[key] && memberKeys[key].spotlight_ok),
     };
   }).filter(function (s) {
-    var m = memberKeys[s.public_key];
-    return /^\d{4}-\d{2}$/.test(s.month) && m && m.spotlight_ok && s.story;
+    var ok = s._ok;
+    delete s._ok;
+    return /^\d{4}-\d{2}$/.test(s.month) && ok && s.story;
   });
 
   var couples = (tabs.couples_public || []).map(function (c) {
@@ -558,6 +583,10 @@ function Core_validatePublic(data) {
 
   (data.officers || []).concat(data.functionaries || []).forEach(function (p, i) {
     if (p.contact_link && !p.contact_ok) err('roles[' + i + '] ' + p.name, 'contact link without consent');
+    if (p.person_ref && !/^P[0-9a-f]{12}$/.test(p.person_ref)) err('roles[' + i + '] ' + p.name, 'person reference is not a scrambled reference');
+  });
+  (data.members || []).forEach(function (m, i) {
+    if (m.person_ref && !/^P[0-9a-f]{12}$/.test(m.person_ref)) err('members[' + i + '] ' + m.name, 'person reference is not a scrambled reference');
   });
 
   // No phone numbers or emails anywhere, except consented WhatsApp links
@@ -644,6 +673,70 @@ function Core_overdue(rows, nowMs, hours) {
   });
 }
 
+/** A name without titles, dots and extra spaces, for comparing the same person across tabs. */
+function Core_plainName(name) {
+  var s = Core_str(name).toLowerCase().replace(/\./g, ' ');
+  var titles = /^(rtn|pdg|ipdg|dg|dge|dgn|dgnd|pag|ag|pp|ipp|dr|ca|cs|er|adv|mr|mrs|ms|smt|shri|late)\s+/;
+  while (titles.test(s)) s = s.replace(titles, '');
+  return s.replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Checks the officers and functionaries tabs against the private members list, so that every
+ * person's roles join up on one member card. Returns [{ tab, row, rotary_year, name, member_id, problem }],
+ * the most urgent first.
+ */
+function Core_checkRoles(officers, functionaries, master, rotaryYear) {
+  var byId = {};
+  (master || []).forEach(function (m) { if (Core_str(m.member_id)) byId[Core_str(m.member_id)] = m; });
+  var rows = [];
+  (officers || []).forEach(function (r) { rows.push({ tab: 'officers', r: r }); });
+  (functionaries || []).forEach(function (r) { rows.push({ tab: 'functionaries', r: r }); });
+
+  var namesById = {};
+  var idsByName = {};
+  rows.forEach(function (x) {
+    var id = Core_str(x.r.member_id);
+    var n = Core_plainName(x.r.name);
+    if (!id || !n) return;
+    (namesById[id] = namesById[id] || {})[n] = Core_str(x.r.name);
+    var nk = n + '|' + Core_str(x.r.club_id);
+    (idsByName[nk] = idsByName[nk] || {})[id] = true;
+  });
+
+  var out = [];
+  function add(x, order, problem) {
+    out.push({ order: order, tab: x.tab, row: x.r._row || '', rotary_year: Core_str(x.r.rotary_year), name: Core_str(x.r.name),
+      member_id: Core_str(x.r.member_id), problem: problem });
+  }
+  rows.forEach(function (x) {
+    var r = x.r;
+    if (!Core_str(r.name)) return;
+    var id = Core_str(r.member_id);
+    var m = byId[id];
+    var status = m ? Core_str(m.status || 'active').toLowerCase() : 'active';
+    if (m && status !== 'active' && Core_str(r.rotary_year) === rotaryYear) {
+      add(x, 1, 'Holds a role this year but is marked "' + status + '" in the members list: not shown on the website; enter who holds the role now');
+    }
+    if (!id) { add(x, 2, 'No member ID: this role cannot be linked to a member card'); return; }
+    var names = Object.keys(namesById[id] || {});
+    if (names.length > 1) add(x, 3, 'The same member ID is used with different names: ' + names.map(function (n) { return namesById[id][n]; }).join(' / '));
+    var others = Object.keys(idsByName[Core_plainName(r.name) + '|' + Core_str(r.club_id)] || {});
+    if (others.length > 1) add(x, 3, 'Same name and club with different member IDs (' + others.join(', ') + '): the person would get two cards');
+    if (!m) {
+      // sample rows use made-up IDs, so only real rows are checked against the members list
+      if (!Core_isTrue(r.is_sample)) add(x, 4, 'Member ID not found in the private members list');
+      return;
+    }
+    if (Core_plainName(m.name) && Core_plainName(m.name) !== Core_plainName(r.name)) {
+      add(x, 5, 'Name differs from the members list ("' + Core_str(m.name) + '"): check the member ID');
+    }
+  });
+  out.sort(function (a, b) { return a.order - b.order || a.tab.localeCompare(b.tab) || (a.row || 0) - (b.row || 0); });
+  out.forEach(function (o) { delete o.order; });
+  return out;
+}
+
 // Lets the website's Node.js tests load this file; ignored by Google Apps Script.
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -652,5 +745,6 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
     Core_matchMember: Core_matchMember, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
+    Core_checkRoles: Core_checkRoles, Core_plainName: Core_plainName,
   };
 }

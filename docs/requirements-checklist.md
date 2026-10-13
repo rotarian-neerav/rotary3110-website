@@ -57,3 +57,18 @@ Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (
 | 44 | §9 | One command clears all sample data | Rotary → Sample data → Clear all sample data | U(sim): clear keeps real rows, site data still valid | 🟡 |
 | 45 | §9 | Weekly public-data backup | Snapshot step in the workflow | Runs on scheduled builds | 🟡 first Sunday |
 | 46 | §12 | Launch items (moderators, IDs, professions, lawyer, domain, etc.) | `docs/yearly-update-and-launch.md` | – | ⏳ |
+
+### Added in October 2026
+
+| # | Requirement | Feature | Proof | Status |
+|---|---|---|---|---|
+| 47 | Form buttons open in a new tab | Build step in `eleventy.config.js` | S: form links open in a new tab | ✅ |
+| 48 | Club page links to all its members | `src/club-members.njk` (role holders, plus members who agreed; "12 of 45 listed") | U: office bearers first; S: every club has a members page | ✅ |
+| 49 | Office bearers (and team members) open their member card | Links matched by member ID through a scrambled reference | S: every office bearer with an ID links to a working card | ✅ |
+| 50 | Member card: everything the member agreed to show; every position, newest year first; old years kept | `src/member.njk`, `lib/derive.mjs` | U: Sharat Chandra's 4 roles, newest first, no unconsented fields; S: card checks | ✅ |
+| 51 | No birthday, anniversary, spouse or mobile number on cards; cards of people who have not consented hidden from search engines | `member.njk` | S: card checks, sitemap | ✅ |
+| 52 | Someone deceased or departed: no card or listing; this year's roles hidden; past roles and spotlight stories keep the name as plain text | `Core_buildPublicData` (inactive IDs from the private Sheet) | U: deceased and left; S: deceased sample member | 🟡 live after the script update |
+| 53 | Home page order: achievements, events, latest, recognition, spotlight, celebrations, magazine, messages | `src/index.njk` | S: section order | ✅ |
+| 54 | Home page events: at most 8, all district events first (the next 8 if there are more) | `homeEvents` in `lib/derive.mjs` | U: worked cases; S: home page | ✅ |
+| 55 | Moderators see roles whose member ID is missing or wrong | Rotary → Check roles and member IDs (and every morning), `role_checks` tab | U: role check cases; U(sim): tab filled | 🟡 live after the script update |
+| 56 | Search engines get every page (the sitemap had only the first club, activity and event) | `addAllPagesToCollections` | S: every club, activity and event in the sitemap | ✅ |

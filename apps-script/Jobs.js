@@ -1,10 +1,11 @@
 /**
- * Daily at 7 am (India): 48-hour reminders to moderators, the monthly-nudge dashboard, new magazines.
+ * Daily at 7 am (India): 48-hour reminders to moderators, the monthly-nudge dashboard, the role check, new magazines.
  */
 
 function dailyJobs() {
   scanMagazines_();
   refreshDashboard();
+  checkRoles(true);
   sendReminders_();
 }
 
@@ -55,4 +56,24 @@ function refreshDashboard() {
   replaceRows_(ss, 'dashboard', rows);
   var posting = rows.filter(function (r) { return r.activities_this_rotary_year > 0; }).length;
   setSetting_('clubs_posting_this_rotary_year', posting + ' of ' + rows.length + ' clubs (' + Math.round(100 * posting / Math.max(1, rows.length)) + '%)');
+}
+
+/**
+ * Lists office bearers and team members whose member ID is missing or does not match the private
+ * members list, and roles still held by someone marked deceased or left, in the role_checks tab.
+ * Each person's roles join up on one member card only when the member ID is right.
+ */
+function checkRoles(silent) {
+  var ss = mainSs_();
+  var problems = Core_checkRoles(readTab_(ss, 'officers'), readTab_(ss, 'functionaries'), readTab_(privateSs_(), 'members_master'),
+    Core_str(settings_().current_rotary_year));
+  var at = nowIso_();
+  replaceRows_(ss, 'role_checks', problems.map(function (p) { p.checked_at = at; return p; }));
+  if (silent === true) return problems.length;
+  try {
+    SpreadsheetApp.getUi().alert(problems.length
+      ? problems.length + ' thing(s) to check. They are listed in the role_checks tab, most urgent first.'
+      : 'All roles have a member ID that matches the members list.');
+  } catch (e) { /* called from code */ }
+  return problems.length;
 }

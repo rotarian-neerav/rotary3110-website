@@ -23,7 +23,8 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 3. **settings → current_rotary_year**: set the new year (e.g. `2027-28`).
 4. **clubs**: update member counts; mark closed clubs `inactive` (never delete them); add new clubs.
 5. **Members who moved clubs** (private Sheet): in **club_history**, put an end date on the old club row and add a new row for the new club. Change `club_id` in **members_master**.
-6. **Rotary → Update form lists**, then **Rotary → Rebuild site now**.
+6. **Rotary → Check roles and member IDs**: fix anything in the **role_checks** tab, so each person's new roles join their member card. Last year's roles stay on the cards under last year.
+7. **Rotary → Update form lists**, then **Rotary → Rebuild site now**.
 
 ## Launch checklist (from the brief, section 12)
 

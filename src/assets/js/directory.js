@@ -17,7 +17,7 @@
     }
     if (m.website) buttons += '<a class="btn-small" href="' + escapeHtml(m.website) + '" target="_blank" rel="noopener">Website ↗</a>';
     return '<li class="dir-card">' + avatarHtml(m.name, m.photo, 64) +
-      '<div><h3>' + escapeHtml(m.name) + '</h3>' +
+      '<div><h3>' + (m.u ? '<a href="' + escapeHtml(siteUrl(m.u)) + '">' + escapeHtml(m.name) + '</a>' : escapeHtml(m.name)) + '</h3>' +
       '<p class="role">' + escapeHtml(m.profession) + ' · ' + escapeHtml(m.area) + '</p>' +
       '<p class="club"><a href="' + escapeHtml(siteUrl(m.clubUrl)) + '">' + escapeHtml(m.club) + '</a></p>' +
       (m.text ? '<p>' + escapeHtml(m.text) + '</p>' : '') +

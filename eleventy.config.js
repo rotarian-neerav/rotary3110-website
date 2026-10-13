@@ -1,5 +1,6 @@
 import { HtmlBasePlugin } from '@11ty/eleventy';
 import { formatDate, formatDayMonth, formatMonth } from './lib/derive.mjs';
+import shortLinks from './src/_data/shortLinks.js';
 
 // The site lives at /rotary3110-website/ on GitHub's free address until the domain is bought.
 const PATH_PREFIX = process.env.PATH_PREFIX || '/';
@@ -20,6 +21,13 @@ const plusHours = (iso, time, hours) => {
 
 export default function (eleventyConfig) {
   eleventyConfig.addPlugin(HtmlBasePlugin);
+
+  // Links to the forms (…/submit/, …/consent/ etc.) open in a new tab, so the website stays open behind the form
+  const formLink = new RegExp(String.raw`<a\b(?![^>]*\btarget=)([^>]*\bhref="[^"]*/(?:${shortLinks.map((l) => l.slug).join('|')})/")`, 'g');
+  eleventyConfig.addTransform('form-links-new-tab', function (content) {
+    if (!(this.page.outputPath || '').endsWith('.html')) return content;
+    return content.replace(formLink, '<a target="_blank" rel="noopener"$1');
+  });
 
   eleventyConfig.addPassthroughCopy({ 'src/assets/img': 'assets/img' });
   eleventyConfig.addPassthroughCopy({ 'src/assets/js': 'assets/js' });

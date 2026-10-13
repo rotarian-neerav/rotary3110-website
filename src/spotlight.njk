@@ -9,10 +9,11 @@ permalink: /spotlight/
   <h1>Member spotlight</h1>
   <p class="lead">Members in business and service: one story each month, chosen by the moderators.</p>
   {%- for s in site.spotlights %}
-  <article class="message-card{% if loop.first %} featured{% endif %}">
+  <article class="message-card{% if loop.first %} featured{% endif %}" id="{{ s.month }}">
     <header>
       {{ avatar(s.member.name, s.image.sq.src if s.image else '', 72) }}
-      <div><p class="meta">{{ s.monthLabel }}</p><h2>{{ s.member.name }}</h2><p class="role">{{ s.member.profession }} · <a href="{{ s.club.url }}">{{ s.club.name }}</a></p></div>
+      <div><p class="meta">{{ s.monthLabel }}</p><h2>{% if s.card %}<a href="{{ s.card }}">{{ s.member.name }}</a>{% else %}{{ s.member.name }}{% endif %}</h2>
+        {%- if s.club %}<p class="role">{% if s.member.profession %}{{ s.member.profession }} · {% endif %}<a href="{{ s.club.url }}">{{ s.club.name }}</a></p>{% endif %}</div>
     </header>
     <h3>{{ s.headline }}</h3>
     <p>{{ s.story }}</p>

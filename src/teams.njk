@@ -3,6 +3,7 @@ layout: layouts/base.njk
 pagination:
   data: site.rolesByYear
   size: 1
+  addAllPagesToCollections: true
   alias: y
 permalink: "{% if y.current %}/teams/{% else %}/teams/{{ y.year }}/{% endif %}"
 scripts: ["people-search.js"]

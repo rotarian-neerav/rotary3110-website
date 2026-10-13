@@ -1,5 +1,5 @@
-// District Leadership and Teams pages: one search over name, team, committee, role, club and zone.
-// Each person appears once, with all their roles.
+// District Leadership and Teams pages: one search over name, team, committee, role, club and zone,
+// club office bearers included. Each person appears once, with all their roles and a link to their card.
 (function () {
   var form = document.querySelector('[data-people-search]');
   if (!form) return;
@@ -36,7 +36,8 @@
     box.hidden = false;
     countEl.textContent = found.length ? found.length + ' ' + (found.length === 1 ? 'person' : 'people') + ' found' : 'Nobody matches that search.';
     listEl.innerHTML = found.slice(0, 60).map(function (p) {
-      return '<li class="person">' + avatarHtml(p.name, p.photo, 48) + '<div><strong>' + escapeHtml(p.name) + '</strong>' +
+      var name = p.u ? '<a href="' + escapeHtml(siteUrl(p.u)) + '">' + escapeHtml(p.name) + '</a>' : escapeHtml(p.name);
+      return '<li class="person">' + avatarHtml(p.name, p.photo, 48) + '<div><strong>' + name + '</strong>' +
         p.roles.map(function (r) { return '<span class="role">' + roleText(r) + '</span>'; }).join('') +
         (p.club ? '<span class="club"><a href="' + escapeHtml(siteUrl(p.clubUrl)) + '">' + escapeHtml(p.club) + '</a></span>' : '') +
         '</div></li>';

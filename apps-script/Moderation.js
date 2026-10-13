@@ -13,6 +13,7 @@ function onOpen() {
     .addSeparator()
     .addItem('Rebuild site now', 'requestRebuild')
     .addItem('Refresh dashboard', 'refreshDashboard')
+    .addItem('Check roles and member IDs', 'checkRoles')
     .addItem('Update form lists (clubs, areas, professions)', 'updateFormLists')
     .addSeparator()
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Sample data')

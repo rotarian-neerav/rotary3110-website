@@ -36,7 +36,7 @@
   <div class="event-body">
     <h3><a href="{{ e.url }}">{{ e.title }}</a></h3>
     <p class="meta">{{ e.dateLabel }}{% if e.start_time %} · {{ e.start_time }}{% endif %} · {{ e.venue }}, {{ e.city }}</p>
-    <p class="meta">{{ t.events.organiser }}: {{ e.organiser }} · <span class="chip">{{ e.event_type }}</span></p>
+    <p class="meta">{% if e.isDistrict %}<span class="chip chip-district">District</span> {% endif %}{{ t.events.organiser }}: {{ e.organiser }} · <span class="chip">{{ e.event_type }}</span></p>
     {%- if e.isPast and e.report %}
     <p><a href="{{ e.report.url }}">{{ t.events.report }} →</a></p>
     {%- endif %}
@@ -52,7 +52,7 @@
 <li class="person">
   {{ avatar(r.name, r.image.sq.src if r.image else '', 48) }}
   <div>
-    <strong>{{ r.name }}</strong>
+    <strong>{% if r.card %}<a href="{{ r.card }}">{{ r.name }}</a>{% else %}{{ r.name }}{% endif %}</strong>
     <span class="role">{{ roleLine(r) }}</span>
     {%- if r.club %}<span class="club"><a href="{{ r.club.url }}">{{ r.club.name }}</a></span>{% endif %}
     {%- if r.contact_ok and r.contact_link %}<a class="btn-small wa" href="{{ r.contact_link }}" rel="noopener">WhatsApp</a>{% endif %}

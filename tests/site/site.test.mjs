@@ -144,6 +144,11 @@ test('directory, celebrations and form pages are kept out of search engines', ()
   const sitemap = read(join(SITE, 'sitemap.xml'));
   assert.ok(!sitemap.includes('/directory/') && !sitemap.includes('/celebrations/'));
   assert.ok(sitemap.includes('/activities/'));
+  // every club, activity and event page, not only the first of each
+  for (const c of data.clubs) assert.ok(sitemap.includes(`/clubs/${c.slug}/<`), `sitemap: club ${c.slug}`);
+  for (const a of data.activities) assert.ok(sitemap.includes(`/activities/${a.id.toLowerCase()}/<`), `sitemap: ${a.id}`);
+  for (const e of data.events) assert.ok(sitemap.includes(`/events/${e.id.toLowerCase()}/<`), `sitemap: ${e.id}`);
+  assert.ok(!sitemap.includes('/members/<') && !/\/clubs\/[a-z0-9-]+\/members\//.test(sitemap), 'club member lists are not in the sitemap');
 });
 
 test('robots.txt blocks AI crawlers and image search of member photos, not normal search', () => {
@@ -173,5 +178,97 @@ test("home page recognition matches the hand-worked sample (September 2026)", ()
 
 test('Teams and Leadership pages list every person from the Excel', () => {
   const html = page('teams') + page('leadership');
-  for (const f of data.functionaries) assert.ok(html.includes(f.name.replace(/&/g, '&amp;').replace(/'/g, '&#39;')) || html.includes(f.name), `missing ${f.name}`);
+  for (const f of data.functionaries.filter((x) => x.rotary_year === data.site.rotary_year)) assert.ok(html.includes(f.name.replace(/&/g, '&amp;').replace(/'/g, '&#39;')) || html.includes(f.name), `missing ${f.name}`);
+});
+
+const sitemap = () => read(join(SITE, 'sitemap.xml'));
+const cardPages = () => readdirSync(join(SITE, 'members')).map((d) => ({ url: `/members/${d}/`, html: page(`members/${d}`) }));
+const isNoindex = (html) => /<meta name="robots" content="noindex/.test(html);
+
+test('member cards: hidden from search engines unless the person agreed to be listed; nothing they did not agree to', () => {
+  const cards = cardPages();
+  assert.ok(cards.length > 50);
+  const map = sitemap();
+  let listed = 0;
+  for (const c of cards) {
+    const root = parse(c.html);
+    const head = root.querySelector('.member-head');
+    assert.ok(head, `card layout: ${c.url}`);
+    assert.doesNotMatch(c.html, /birthday|anniversary|spouse/i, `no birthday, anniversary or spouse: ${c.url}`);
+    if (isNoindex(c.html)) {
+      assert.ok(!map.includes(c.url), `hidden card not in sitemap: ${c.url}`);
+      assert.equal(head.querySelectorAll('p.role').length, 0, `no profession without consent: ${c.url}`);
+      assert.ok(!root.querySelector('main p.lead'), `no description without consent: ${c.url}`);
+      assert.ok(!head.querySelector('a.wa[href*="wa.me"]'), `no WhatsApp without consent: ${c.url}`);
+    } else {
+      listed++;
+      assert.ok(map.includes(c.url), `listed card in sitemap: ${c.url}`);
+    }
+  }
+  if (data.source === 'sample') assert.ok(listed > 0 && listed < cards.length, 'sample has both kinds of card');
+});
+
+test("PDG Sharat Chandra's card shows his 4 roles this year, then last year's", () => {
+  if (data.source !== 'sample') return;
+  const card = cardPages().find((c) => c.url.startsWith('/members/sharat-chandra-'));
+  assert.ok(card);
+  const years = parse(card.html).querySelectorAll('.role-year');
+  assert.match(years[0].querySelector('h3').text, new RegExp(data.site.rotary_year));
+  assert.equal(years[0].querySelectorAll('li').length, 4);
+  assert.match(years[1].querySelector('h3').text, /2023-24/);
+});
+
+test('every office bearer and team member with a member ID links to a working card; every club has a members page', () => {
+  for (const c of data.clubs) {
+    const root = parse(page(`clubs/${c.slug}`));
+    assert.ok(root.querySelector(`a[href$="/clubs/${c.slug}/members/"]`), `members link on ${c.slug}`);
+    assert.ok(existsSync(join(SITE, 'clubs', c.slug, 'members', 'index.html')), `members page ${c.slug}`);
+    const officers = data.officers.filter((o) => o.club_id === c.club_id && o.rotary_year === data.site.rotary_year && o.person_ref);
+    const links = root.querySelectorAll('.people-grid .person strong a').map((a) => a.getAttribute('href'));
+    assert.equal(links.length, officers.length, `${c.slug}: office bearers link to cards`);
+    for (const l of links) assert.match(l, /\/members\/[a-z0-9-]+\/$/);
+  }
+  const leaders = parse(page('leadership') + page('teams')).querySelectorAll('.person strong');
+  assert.ok(leaders.length > 100 && leaders.every((s) => s.querySelector('a')), 'Leadership and Teams names link to cards');
+});
+
+test('someone marked deceased: no card, not on the club or directory pages, name kept as plain text in past years', () => {
+  if (data.source !== 'sample') return;
+  const sample = JSON.parse(read(resolve(import.meta.dirname, '../../sample/sample-data.json')));
+  const dead = sample.private.members_master.find((m) => m.status === 'deceased' && m.is_rotarian);
+  const club = data.clubs.find((c) => c.club_id === dead.club_id);
+  assert.ok(!page(`clubs/${club.slug}`).includes(dead.name), "not among this year's office bearers");
+  assert.ok(!page(`clubs/${club.slug}/members`).includes(dead.name));
+  assert.ok(!read(join(SITE, 'data/directory.json')).includes(dead.name));
+  assert.ok(!cardPages().some((c) => c.html.includes(dead.name)), 'no card mentions them');
+  const past = parse(page('leadership/2023-24'));
+  const entry = past.querySelectorAll('.person strong').find((s) => s.text.trim() === dead.name);
+  assert.ok(entry, "still in last year's leadership");
+  assert.equal(entry.querySelector('a'), null, 'as plain text, not a link');
+});
+
+test('home page: sections in the agreed order; at most 8 events, district events first', () => {
+  const html = page('');
+  const order = ['class="hero"', 'id="upcoming-events"', 'id="latest"', 'id="recognition"', 'id="spotlight"', 'id="celebrations"', 'id="magazine"', 'id="messages"', 'class="cta-band"'];
+  const at = order.map((m) => html.indexOf(m));
+  for (let i = 0; i < order.length; i++) assert.ok(at[i] >= 0, `${order[i]} present`);
+  for (let i = 1; i < order.length; i++) assert.ok(at[i - 1] < at[i], `${order[i - 1]} before ${order[i]}`);
+  const events = parse(html).querySelectorAll('#upcoming-events .event');
+  assert.ok(events.length <= 8);
+  const district = events.map((e) => !!e.querySelector('.chip-district'));
+  assert.ok(district.indexOf(false) < 0 || district.slice(district.indexOf(false)).every((d) => !d), 'district events first');
+  if (data.source === 'sample') assert.equal(events.length, 8);
+});
+
+test('form links open in a new tab', () => {
+  let count = 0;
+  for (const f of htmlFiles) {
+    for (const a of parse(read(f)).querySelectorAll('a[href]')) {
+      if (!/\/(submit|club-profile|consent|remove)\/$/.test(a.getAttribute('href'))) continue;
+      count++;
+      assert.equal(a.getAttribute('target'), '_blank', `${relative(SITE, f)}: ${a.getAttribute('href')}`);
+      assert.equal(a.getAttribute('rel'), 'noopener');
+    }
+  }
+  assert.ok(count > 100);
 });

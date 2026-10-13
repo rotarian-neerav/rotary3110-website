@@ -1,0 +1,35 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.clubs
+  size: 1
+  addAllPagesToCollections: true
+  alias: c
+permalink: "{{ c.membersUrl }}"
+noindex: true
+eleventyComputed:
+  title: "Members of {{ c.display_name }}"
+  description: "Office bearers, district role holders and members of {{ c.display_name }} who agreed to be listed."
+---
+{% from "macros.njk" import avatar %}
+<div class="wrap section">
+  <p class="meta"><a href="{{ c.url }}">← {{ c.display_name }}</a></p>
+  <h1>Members of {{ c.display_name }}</h1>
+  <p class="lead">
+    {%- if c.member_count and c.member_count >= c.members.length %}{{ c.members.length }} of {{ c.member_count }} members are listed.
+    {%- else %}{{ c.members.length }} {{ 'member' if c.members.length == 1 else 'members' }} listed.{% endif %}
+    Office bearers and district role holders are listed by their role; others only if they agreed.
+    <a href="/consent/">Join through the consent form</a>.
+  </p>
+  {%- if c.members.length %}
+  <ul class="people-grid">
+    {%- for p in c.members %}
+    <li class="person">{{ avatar(p.name, p.photo.sq.src if p.photo else '', 48) }}<div><strong><a href="{{ p.url }}">{{ p.name }}</a></strong>
+      {%- for r in p.currentRoles.slice(0, 2) %}<span class="role">{{ r.role }}{% if r.where and r.page != 'club' %} · {{ r.where }}{% endif %}</span>{% endfor %}
+      {%- if p.currentRoles.length > 2 %}<span class="role muted">+ {{ p.currentRoles.length - 2 }} more</span>{% endif %}
+      {%- if not p.currentRoles.length and p.profession %}<span class="role">{{ p.profession }}</span>{% endif %}
+    </div></li>
+    {%- endfor %}
+  </ul>
+  {%- endif %}
+</div>

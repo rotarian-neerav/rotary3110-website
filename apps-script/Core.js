@@ -260,7 +260,7 @@ function Core_photoRefs(v) {
   return Core_list(v).map(function (ref) {
     // Google Form uploads arrive as Drive links; keep just the file id
     var m = ref.match(/[-\w]{25,}/);
-    if (ref.indexOf('sample:') === 0) return ref;
+    if (ref.indexOf('sample:') === 0 || ref.indexOf('thumb:') === 0) return ref;
     return m ? 'drive:' + m[0] : '';
   }).filter(function (x) { return x; });
 }
@@ -564,7 +564,7 @@ function Core_validatePublic(data) {
   (scan.officers || []).concat(scan.functionaries || []).forEach(function (p) { if (p.contact_ok) delete p.contact_link; });
   Core_walk(scan, '', function (path, value) {
     if (typeof value !== 'string') return;
-    if (/^(drive|sample):/.test(value) || /^https?:\/\//.test(value)) {
+    if (/^(drive|sample|thumb):/.test(value) || /^https?:\/\//.test(value)) {
       if (CORE_EMAIL_RE.test(value.replace(/^https?:\/\/[^/]*@/, ''))) err(path, 'link contains an email address');
       return;
     }

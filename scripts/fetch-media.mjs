@@ -35,9 +35,11 @@ async function sourceBytes(ref) {
     if (!file) throw new Error(`Sample file not found: ${name}`);
     return readFileSync(file);
   }
-  if (ref.startsWith('drive:')) {
+  if (ref.startsWith('drive:') || ref.startsWith('thumb:')) {
+    // thumb: is the first-page picture Google Drive makes of a magazine PDF, used when no cover image was uploaded
     if (!DATA_URL || !DATA_TOKEN) throw new Error(`Cannot fetch ${ref} without DATA_URL and DATA_TOKEN`);
-    const url = `${DATA_URL}?mode=file&id=${encodeURIComponent(ref.slice(6))}&token=${encodeURIComponent(DATA_TOKEN)}`;
+    const mode = ref.startsWith('thumb:') ? 'thumb' : 'file';
+    const url = `${DATA_URL}?mode=${mode}&id=${encodeURIComponent(ref.slice(6))}&token=${encodeURIComponent(DATA_TOKEN)}`;
     const body = await (await fetch(url, { redirect: 'follow' })).json();
     if (!body.ok) throw new Error(`Data link refused file ${ref}: ${body.error}`);
     return Buffer.from(body.base64, 'base64');

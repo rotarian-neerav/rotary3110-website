@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<style>
+  body { font: 13px/1.45 Arial, sans-serif; color: #1c2430; margin: 0; padding: 10px; }
+  h2 { color: #17458F; font-size: 15px; margin: 14px 0 6px; }
+  .card { border: 1px solid #dde3ec; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+  .card h3 { margin: 0 0 4px; font-size: 14px; }
+  .muted { color: #5b6573; font-size: 12px; }
+  .warn { color: #9e1b1a; font-size: 12px; }
+  ul { margin: 6px 0; padding-left: 18px; }
+  img { max-width: 120px; border-radius: 6px; margin: 4px 6px 0 0; }
+  button { font: inherit; border-radius: 16px; padding: 5px 12px; margin: 6px 6px 0 0; cursor: pointer; border: 1px solid #17458F; background: #fff; color: #17458F; }
+  button.ok { background: #17458F; color: #fff; }
+  #msg { background: #fff4dc; padding: 6px 8px; border-radius: 6px; display: none; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div id="msg"></div>
+<div id="out">Loading…</div>
+<script>
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function say(t) { var m = document.getElementById('msg'); m.textContent = t; m.style.display = 'block'; }
+  function load() { google.script.run.withSuccessHandler(render).withFailureHandler(function (e) { say(e.message); }).getMemberRequests(); }
+  function act(fn, args) {
+    say('Working…');
+    google.script.run.withSuccessHandler(function (r) { say(r); load(); }).withFailureHandler(function (e) { say(e.message); })[fn].apply(null, args);
+  }
+  function reject(kind, id) {
+    var reason = prompt('Reason for rejecting ' + id + ' (kept in the Sheet):');
+    if (reason !== null) act('rejectRequest', [kind, id, reason]);
+  }
+  function render(d) {
+    var h = '<p class="muted">Approving updates the private members list and the public tabs straight away.</p>';
+    h += '<h2>Consent requests (' + d.consent.length + ')</h2>';
+    if (!d.consent.length) h += '<p class="muted">None waiting.</p>';
+    d.consent.forEach(function (r) {
+      h += '<div class="card"><h3>' + esc(r.name) + '</h3><div class="muted">' + esc(r.club) + ' · ' + esc(r.filledBy) + ' · ' + esc(r.id) + '</div>' +
+        '<div class="muted">' + esc(r.match) + '</div><ul>' + r.choices.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>' +
+        (r.description ? '<div>“' + esc(r.description) + '”</div>' : '') +
+        (r.photo ? '<img src="' + r.photo + '" alt="Member photo">' : '') + (r.couplePhoto ? '<img src="' + r.couplePhoto + '" alt="Couple photo">' : '') +
+        r.warnings.map(function (w) { return '<div class="warn">⚠ ' + esc(w) + '</div>'; }).join('') +
+        '<div><button class="ok" onclick="act(\'approveConsent\', [\'' + r.id + '\'])">Approve</button><button onclick="reject(\'consent\', \'' + r.id + '\')">Reject</button></div></div>';
+    });
+    h += '<h2>Removal requests (' + d.removal.length + ')</h2>';
+    if (!d.removal.length) h += '<p class="muted">None waiting.</p>';
+    d.removal.forEach(function (r) {
+      h += '<div class="card"><h3>' + esc(r.name) + '</h3><div class="muted">' + esc(r.club) + ' · ' + esc(r.id) + '</div><div class="muted">' + esc(r.match) + '</div>' +
+        '<div>Remove: <strong>' + esc(r.items) + '</strong></div>' + (r.reason ? '<div class="muted">' + esc(r.reason) + '</div>' : '') +
+        '<div><button class="ok" onclick="act(\'approveRemoval\', [\'' + r.id + '\'])">Remove now</button><button onclick="reject(\'removal\', \'' + r.id + '\')">Reject</button></div></div>';
+    });
+    h += '<h2>Couples waiting (' + d.waiting.length + ')</h2>';
+    if (!d.waiting.length) h += '<p class="muted">None.</p>';
+    d.waiting.forEach(function (c) {
+      h += '<div class="card"><h3>' + esc(c.names) + '</h3><div class="muted">' + esc(c.status === 'check_dates' ? 'Dates differ – check with the couple' : "Waiting for the spouse's own form") + '</div>' +
+        (c.notes ? '<div class="muted">' + esc(c.notes) + '</div>' : '') + '</div>';
+    });
+    document.getElementById('out').innerHTML = h;
+  }
+  load();
+</script>
+</body>
+</html>

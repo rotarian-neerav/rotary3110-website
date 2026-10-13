@@ -348,7 +348,7 @@ function addActivity({ clubId, date, theme, status = 'approved', photos = 1, lin
   activities.push({
     id, submitted_at: submitted, submitter_email: submitter.email || 'sample@example.com', submitter_name: submitter.name,
     submitter_role: pick(['President', 'Secretary', 'Public Image Chair']), submitter_mobile: submitter.mobile,
-    club_id: clubId, title, date, theme, description,
+    club_id: clubId, club_name: clubById[clubId].club_name, title, date, theme, description,
     photo_files: Array.from({ length: photos }, () => `sample:activity-${pad(THEMES.indexOf(theme) * 2 + between(1, 2))}.jpg`).filter((v, i, a) => a.indexOf(v) === i).join(', '),
     post_link: link ? `https://www.facebook.com/example-${clubById[clubId].slug}/posts/${between(1000, 9999)}` : '',
     people_helped: helped ?? (rand() < 0.7 ? between(20, 400) : ''),
@@ -491,7 +491,7 @@ const removalRequests = [
 const clubProfileRequests = [
   {
     id: 'CPR-S001', submitted_at: '2026-10-12T17:40:00+05:30', submitter_email: 'president.sample@example.com', submitter_name: 'Rtn Sample President',
-    submitter_role: 'President', submitter_mobile: '9999000001', club_id: 'S-036', website: 'https://example.com/rc-jhansi',
+    submitter_role: 'President', submitter_mobile: '9999000001', club_id: 'S-036', club_name: 'RC Jhansi', website: 'https://example.com/rc-jhansi',
     facebook: 'https://www.facebook.com/example-rc-jhansi', instagram: '', youtube: '', x: '', linkedin: '',
     meeting_day_place: 'Every Thursday, 7:30 pm, Hotel Sita, Jhansi', status: 'pending', approved_by: '', approved_at: '', moderator_note: '', is_sample: true,
   },

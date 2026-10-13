@@ -1,4 +1,4 @@
-# Google setup (about 15 minutes, once)
+# Google setup (about 30 minutes, once)
 
 Do this **signed in to Google as rotarian.neerav@gmail.com**, on a computer (not a phone).
 You will need two files from this project: `dist/apps-script/Code.gs` and `dist/apps-script/Sidebar.html`.

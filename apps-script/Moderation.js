@@ -114,11 +114,11 @@ function notifySubmitter_(tab, r, approved, reason) {
   }
 }
 
-/** Asks the website to rebuild within about 15 minutes, instead of waiting for Sunday. */
+/** Asks the website to rebuild within about 30 minutes, instead of waiting for Sunday. */
 function requestRebuild() {
   setSetting_('rebuild_requested_at', nowIso_());
   try {
-    SpreadsheetApp.getUi().alert('Done. The website will update within about 15 minutes.');
+    SpreadsheetApp.getUi().alert('Done. The website will update within about 30 minutes.');
   } catch (e) { /* called from code */ }
 }
 

@@ -14,7 +14,7 @@ You need edit access to the Sheet **3110Website** (and to the private members Sh
    - Every activity needs **at least one photo or a link** to the club's post.
 3. Click any cell in the row (or select several rows) → **Rotary → ✔ Approve selected row(s)**. The script fills in `approved_by` and `approved_at` and emails the club.
 4. To refuse: **Rotary → ✖ Reject selected row(s)…** and type the reason. The club gets the reason by email.
-5. Approved items appear at the next update (**every Sunday**). For something urgent: **Rotary → Rebuild site now** (about 15 minutes).
+5. Approved items appear at the next update (**every Sunday**). For something urgent: **Rotary → Rebuild site now** (about 30 minutes).
 
 **Linking an event to its report:** when an approved activity reports on a calendar event, type the event's ID (e.g. `EVT-2026-0004`) in the activity's `event_id` column. The calendar entry then links to the report.
 
@@ -29,7 +29,7 @@ New ones appear in **club_profile_requests**. Check that the links work and belo
 **Rotary → Member requests (consent & removal)…** opens a panel on the right.
 
 - **Consent:** shows the member's choices, any photo, and whether the request matches someone in the private members list. Check the photo shows the member alone and is suitable. Watch for the warnings (declaration not ticked, spouse's agreement missing). Then **Approve** or **Reject**.
-- **Removal:** **Remove now**. Removals must be done **within two days**; the site updates within about 15 minutes, and removed photos are deleted from Drive.
+- **Removal:** **Remove now**. Removals must be done **within two days**; the site updates within about 30 minutes, and removed photos are deleted from Drive.
 - **Couples waiting:** anniversaries where one Rotarian spouse has not yet sent their own form, or where the two forms give different dates. Ask the club to follow up. For different dates, correct the `anniversary` in the private Sheet's **couples** tab, then set `status` to `active`.
 
 ## When a member or spouse passes away

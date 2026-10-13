@@ -1652,11 +1652,11 @@ function notifySubmitter_(tab, r, approved, reason) {
   }
 }
 
-/** Asks the website to rebuild within about 15 minutes, instead of waiting for Sunday. */
+/** Asks the website to rebuild within about 30 minutes, instead of waiting for Sunday. */
 function requestRebuild() {
   setSetting_('rebuild_requested_at', nowIso_());
   try {
-    SpreadsheetApp.getUi().alert('Done. The website will update within about 15 minutes.');
+    SpreadsheetApp.getUi().alert('Done. The website will update within about 30 minutes.');
   } catch (e) { /* called from code */ }
 }
 
@@ -1973,7 +1973,7 @@ function approveRemoval(requestId) {
     updateRow_(ps, 'removal_requests', req._row, { status: 'approved', matched_member_id: m.member_id, approved_by: moderatorEmail_(), approved_at: nowIso_() });
     refreshPublicMembers(true);
     setSetting_('rebuild_requested_at', nowIso_()); // removals should not wait for Sunday
-    return 'Removed for ' + m.name + '. The website updates within about 15 minutes.';
+    return 'Removed for ' + m.name + '. The website updates within about 30 minutes.';
   } finally {
     lock.releaseLock();
   }

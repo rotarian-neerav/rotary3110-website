@@ -127,6 +127,7 @@ test('activity pages use their own photo for WhatsApp previews', () => {
 
 test('event pages show their photos and use one for WhatsApp previews', () => {
   const e = data.events.find((x) => x.photos?.length);
+  if (!e && data.source !== 'sample') return; // the live Sheet may not have any event photos yet
   assert.ok(e, 'sample has an event with photos');
   const html = page(`events/${e.id.toLowerCase()}`);
   assert.match(html, /class="photos photos-\d"/);

@@ -268,5 +268,5 @@ img.avatar { width: auto; }
 
 /* Home page: celebrations as one compact, sideways-scrolling row */
 .celebrations-strip .celebration-list { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 6px; scroll-snap-type: x mandatory; }
-.celebrations-strip .celebration { flex: 0 0 250px; grid-template-columns: auto 1fr; grid-template-rows: auto auto; scroll-snap-align: start; }
+.celebrations-strip .celebration { flex: 0 0 230px; grid-template-columns: auto 1fr; align-content: start; row-gap: 6px; scroll-snap-align: start; }
 .celebrations-strip .cel-date { grid-column: 1 / -1; }

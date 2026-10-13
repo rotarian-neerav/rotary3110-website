@@ -2,7 +2,8 @@ node_modules/
 _site/
 .cache/
 src/media/
-dist/
+dist/*
+!dist/apps-script/
 *.log
 .env
 .clasprc.json

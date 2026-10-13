@@ -59,7 +59,10 @@ test('WhatsApp links appear only for members who agreed', () => {
   const dir = JSON.parse(read(join(SITE, 'data/directory.json')));
   const consented = new Set(data.members.filter((m) => m.contact_ok).map((m) => m.contact_link));
   for (const m of dir) if (m.wa) assert.ok(consented.has(m.wa), `unconsented link for ${m.name}`);
-  assert.ok(dir.some((m) => m.wa), 'sample data should include some consented links');
+  if (data.source === 'sample') {
+    assert.ok(dir.some((m) => m.sampleContact), 'sample data should include members who agreed to a contact button');
+    assert.ok(!dir.some((m) => m.wa), 'sample members never get a real WhatsApp link');
+  }
 });
 
 test('celebrations and directory data carry no years', () => {

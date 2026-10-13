@@ -178,7 +178,9 @@ function Core_buildMembersPublic(master, couples, makeKey) {
     if (!isActiveRotarian(m)) return;
     if (!Core_isTrue(m.listing_approved)) return;
     var directory = Core_isTrue(m.directory_ok);
-    var contact = directory && Core_isTrue(m.contact_ok) && !!Core_mobile(m.mobile);
+    var sample = Core_isTrue(m.is_sample);
+    // sample members never get a real WhatsApp link; the site shows their buttons as switched off
+    var contact = directory && Core_isTrue(m.contact_ok) && (sample || !!Core_mobile(m.mobile));
     var photo = Core_isTrue(m.photo_ok) && Core_isTrue(m.photo_approved) && !!Core_str(m.photo_file);
     var birthday = Core_isTrue(m.birthday_ok) && !!Core_dayMonth(m.dob);
     if (!directory && !photo && !birthday) return;
@@ -194,7 +196,7 @@ function Core_buildMembersPublic(master, couples, makeKey) {
       description: directory ? Core_str(m.description) : '',
       website: directory ? Core_url(m.website) : '',
       contact_ok: contact,
-      contact_link: contact ? 'https://wa.me/' + Core_mobile(m.mobile) : '',
+      contact_link: contact && !sample ? 'https://wa.me/' + Core_mobile(m.mobile) : '',
       photo_ok: photo,
       photo_file: photo ? Core_str(m.photo_file) : '',
       birthday_ok: birthday,

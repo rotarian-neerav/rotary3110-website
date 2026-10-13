@@ -158,8 +158,8 @@ function newPerson(clubId, { female = rand() < 0.4, rotarian = true, surname } =
     club_id: rotarian ? clubId : '',
     is_rotarian: rotarian,
     status: 'active',
-    // dummy mobiles in a block reserved for this sample; sample contact buttons are disabled on the site
-    mobile: `9999${pad(between(0, 999999), 6)}`,
+    // Indian mobile numbers never start with 5, so these cannot be anyone's real number
+    mobile: `5555${pad(between(0, 999999), 6)}`,
     email: rotarian ? `${name.toLowerCase().replace(/\s+/g, '.')}@example.com` : '',
     dob: `${year}-${pad(between(1, 12))}-${pad(between(1, 28))}`,
     marriage_date: '',
@@ -343,7 +343,7 @@ let actSeq = 1;
 function addActivity({ clubId, date, theme, status = 'approved', photos = 1, link = false, partners = [], story = false, eventId = '', template, helped, spent }) {
   const [title, description] = template || pick(ACTIVITY_TEMPLATES[theme]);
   const id = `ACT-2026-${pad(actSeq++, 4)}`;
-  const submitter = master.find((m) => m.club_id === clubId && m.is_rotarian) || { name: 'Rtn Sample Member', mobile: '9999000000', email: 'sample@example.com' };
+  const submitter = master.find((m) => m.club_id === clubId && m.is_rotarian) || { name: 'Rtn Sample Member', mobile: '5555000000', email: 'sample@example.com' };
   const submitted = `${addDays(date, between(0, 2))}T${pad(between(8, 20))}:${pad(between(0, 59))}:00+05:30`;
   activities.push({
     id, submitted_at: submitted, submitter_email: submitter.email || 'sample@example.com', submitter_name: submitter.name,
@@ -412,7 +412,7 @@ function addEvent(e) {
   const id = `EVT-2026-${pad(evtSeq++, 4)}`;
   events.push({
     id, submitted_at: `${addDays(e.start_date, -20)}T10:00:00+05:30`, submitter_email: 'sample@example.com', submitter_name: 'Rtn Sample Secretary',
-    submitter_role: 'Secretary', submitter_mobile: '9999000000', title: e.title, event_type: e.event_type, start_date: e.start_date,
+    submitter_role: 'Secretary', submitter_mobile: '5555000000', title: e.title, event_type: e.event_type, start_date: e.start_date,
     start_time: e.start_time || '', end_date: e.end_date || '', venue: e.venue, city: e.city, organiser: e.organiser,
     description: e.description || '', map_link: e.map_link || '', details_link: '', status: e.status || 'approved', source: 'form',
     approved_by: e.status === 'pending' ? '' : pick(MODERATORS), approved_at: e.status === 'pending' ? '' : `${addDays(e.start_date, -18)}T12:00:00+05:30`,
@@ -473,7 +473,7 @@ const consentRequests = [
   },
   {
     id: 'CON-S002', submitted_at: '2026-10-13T08:05:00+05:30', submitter_email: 'new.member@example.com', filled_by: 'The member',
-    club_id: 'S-046', name: 'Rtn Kavita Rastogi', member_id: '', mobile: '9999123456', directory_ok: true, profession: 'Teacher',
+    club_id: 'S-046', name: 'Rtn Kavita Rastogi', member_id: '', mobile: '5555123456', directory_ok: true, profession: 'Teacher',
     area: 'Kanpur', description: PROFESSION_LINES.Teacher, website: '', spotlight_ok: false, contact_ok: true, photo_ok: false, photo_file: '',
     birthday_ok: false, birthday: '', anniversary_ok: true, spouse_is_rotarian: 'Yes', spouse_name: 'Rtn Manish Rastogi',
     spouse_club_id: 'S-047', spouse_member_id: '', spouse_agrees: false, anniversary: '30-10', couple_photo_file: '',
@@ -491,7 +491,7 @@ const removalRequests = [
 const clubProfileRequests = [
   {
     id: 'CPR-S001', submitted_at: '2026-10-12T17:40:00+05:30', submitter_email: 'president.sample@example.com', submitter_name: 'Rtn Sample President',
-    submitter_role: 'President', submitter_mobile: '9999000001', club_id: 'S-036', club_name: 'RC Jhansi', website: 'https://example.com/rc-jhansi',
+    submitter_role: 'President', submitter_mobile: '5555000001', club_id: 'S-036', club_name: 'RC Jhansi', website: 'https://example.com/rc-jhansi',
     facebook: 'https://www.facebook.com/example-rc-jhansi', instagram: '', youtube: '', x: '', linkedin: '',
     meeting_day_place: 'Every Thursday, 7:30 pm, Hotel Sita, Jhansi', status: 'pending', approved_by: '', approved_at: '', moderator_note: '', is_sample: true,
   },

@@ -1,0 +1,111 @@
+# Builds and publishes the website.
+#  - every Sunday at 6:00 am India time (00:30 UTC)
+#  - within ~15 minutes when a moderator presses "Rebuild site now" in the Sheet (or marks someone deceased)
+#  - on every change to the code, and by hand from the Actions tab ("Run workflow")
+name: Build and publish
+
+on:
+  schedule:
+    - cron: "30 0 * * 0"
+    - cron: "*/15 * * * *"
+  push:
+    branches: [main]
+    paths-ignore: ["data-snapshots/**", "docs/**", "**.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
+  PATH_PREFIX: ${{ vars.PATH_PREFIX || format('/{0}/', github.event.repository.name) }}
+
+jobs:
+  check:
+    name: Decide whether to build
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.decide.outputs.build }}
+    steps:
+      - id: decide
+        env:
+          DATA_URL: ${{ secrets.DATA_URL }}
+          DATA_TOKEN: ${{ secrets.DATA_TOKEN }}
+          EVENT: ${{ github.event_name }}
+          CRON: ${{ github.event.schedule }}
+        run: |
+          if [ "$EVENT" != "schedule" ] || [ "$CRON" = "30 0 * * 0" ]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if [ -z "$DATA_URL" ]; then echo "build=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          requested=$(curl -sL --max-time 60 "$DATA_URL?mode=status&token=$DATA_TOKEN" | jq -r '.rebuild_requested_at // ""')
+          built=$(curl -sL --max-time 30 "${SITE_URL}${PATH_PREFIX}build-info.json" | jq -r '.generated_at // ""' 2>/dev/null || echo "")
+          echo "Rebuild requested at: ${requested:-never}; site built at: ${built:-unknown}"
+          if [ -n "$requested" ] && [[ "$requested" > "$built" ]]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Test, build and publish
+    needs: check
+    if: needs.check.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Keep processed photos between builds
+        uses: actions/cache@v4
+        with:
+          path: .cache/media
+          key: media-${{ github.run_id }}
+          restore-keys: media-
+
+      - name: Unit tests (privacy rules, recognition, Sheet script)
+        run: npm test
+
+      - name: Build (stops if the privacy check fails)
+        env:
+          DATA_URL: ${{ secrets.DATA_URL }}
+          DATA_TOKEN: ${{ secrets.DATA_TOKEN }}
+          CF_BEACON_TOKEN: ${{ vars.CF_BEACON_TOKEN }}
+        run: npm run build
+
+      - name: Check the built site
+        run: npm run test:site
+
+      - name: Save a dated copy of the public data
+        if: github.event_name != 'push'
+        run: |
+          mkdir -p data-snapshots
+          cp .cache/public-data.json data-snapshots/public-data.json
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > data-snapshots/last-build.txt
+          git config user.name "Rotary District 3110 (automatic build)"
+          git config user.email "rotarian.neerav@gmail.com"
+          git add data-snapshots
+          git commit -m "Public data snapshot $(cat data-snapshots/last-build.txt)" || echo "No change"
+          git push || echo "Snapshot not pushed"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

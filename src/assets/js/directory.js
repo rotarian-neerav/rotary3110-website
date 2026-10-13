@@ -10,11 +10,10 @@
 
   function card(m) {
     var buttons = '';
+    if (m.sampleContact) buttons = '<span class="small muted">Sample entry – WhatsApp and call buttons are switched off</span>';
     if (m.wa) {
-      buttons = m.sample
-        ? '<span class="small muted">Sample entry – contact buttons are switched off</span>'
-        : '<a class="btn-small wa" href="' + escapeHtml(m.wa) + '" target="_blank" rel="noopener">WhatsApp</a>' +
-          '<a class="btn-small" href="tel:+' + escapeHtml(m.wa.replace(/\D/g, '')) + '">Call</a>';
+      buttons = '<a class="btn-small wa" href="' + escapeHtml(m.wa) + '" target="_blank" rel="noopener">WhatsApp</a>' +
+        '<a class="btn-small" href="tel:+' + escapeHtml(m.wa.replace(/\D/g, '')) + '">Call</a>';
     }
     if (m.website) buttons += '<a class="btn-small" href="' + escapeHtml(m.website) + '" target="_blank" rel="noopener">Website ↗</a>';
     return '<li class="dir-card">' + avatarHtml(m.name, m.photo, 64) +

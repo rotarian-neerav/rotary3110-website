@@ -32,6 +32,7 @@
   <div class="event-date" aria-hidden="true">
     <span class="d">{{ e.start_date.slice(8, 10) | int }}</span><span class="m">{{ e.dateLabel.split(' ')[1] }}</span>
   </div>
+  {%- if e.images.length %}<a class="event-thumb" href="{{ e.url }}" tabindex="-1" aria-hidden="true"><img src="{{ e.images[0].card.src }}" alt="" width="96" height="64" loading="lazy"></a>{% endif %}
   <div class="event-body">
     <h3><a href="{{ e.url }}">{{ e.title }}</a></h3>
     <p class="meta">{{ e.dateLabel }}{% if e.start_time %} · {{ e.start_time }}{% endif %} · {{ e.venue }}, {{ e.city }}</p>

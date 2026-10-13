@@ -414,7 +414,7 @@ function addEvent(e) {
     id, submitted_at: `${addDays(e.start_date, -20)}T10:00:00+05:30`, submitter_email: 'sample@example.com', submitter_name: 'Rtn Sample Secretary',
     submitter_role: 'Secretary', submitter_mobile: '5555000000', title: e.title, event_type: e.event_type, start_date: e.start_date,
     start_time: e.start_time || '', end_date: e.end_date || '', venue: e.venue, city: e.city, organiser: e.organiser,
-    description: e.description || '', map_link: e.map_link || '', details_link: '', status: e.status || 'approved', source: 'form',
+    description: e.description || '', map_link: e.map_link || '', details_link: '', photo_files: e.photos || '', status: e.status || 'approved', source: 'form',
     approved_by: e.status === 'pending' ? '' : pick(MODERATORS), approved_at: e.status === 'pending' ? '' : `${addDays(e.start_date, -18)}T12:00:00+05:30`,
     moderator_note: '', report_activity_id: e.report || '', notified: true, is_sample: true,
   });
@@ -428,8 +428,8 @@ addEvent({ title: 'District Membership Seminar', event_type: 'District event', s
 addEvent({ title: 'Bareilly Zone mega health camp', event_type: 'Club event open to all', start_date: '2026-09-13', start_time: '09:00', venue: 'Rotary Bhawan', city: 'Bareilly', organiser: 'RC Bareilly Central', description: 'Free consultations with specialist doctors; medicines provided free.', report: pastReportB });
 addEvent({ title: 'Vocational visit to a leather footwear unit', event_type: 'Vocational visit', start_date: '2026-09-20', start_time: '16:00', venue: 'Foundry Nagar industrial area', city: 'Agra', organiser: 'RC Agra North', description: 'Members saw how footwear is made for export and discussed skill training for workers.' });
 addEvent({ title: 'Rotary Foundation Seminar', event_type: 'Training or seminar', start_date: '2026-10-25', start_time: '10:00', venue: 'Hotel Landmark', city: 'Kanpur', organiser: 'District Rotary Foundation Team', description: 'Global grants, district grants and stewardship for club Foundation chairs.', map_link: 'https://maps.google.com/?q=Kanpur' });
-addEvent({ title: 'Business networking evening – Agra Zone', event_type: 'Business networking evening', start_date: '2026-11-07', start_time: '18:30', venue: 'Hotel Clarks Shiraz', city: 'Agra', organiser: 'RC Agra Greater', description: 'Members introduce their professions and businesses to each other. No sales pitches.' });
-addEvent({ title: 'District Learning Assembly', event_type: 'District event', start_date: '2026-11-15', end_date: '2026-11-16', start_time: '09:30', venue: 'Convention Centre', city: 'Bareilly', organiser: 'District Learning Facilitation Team', description: 'Two-day training for incoming club officers.' });
+addEvent({ title: 'Business networking evening – Agra Zone', event_type: 'Business networking evening', start_date: '2026-11-07', start_time: '18:30', venue: 'Hotel Clarks Shiraz', city: 'Agra', organiser: 'RC Agra Greater', description: 'Members introduce their professions and businesses to each other. No sales pitches.', photos: 'sample:activity-11.jpg' });
+addEvent({ title: 'District Learning Assembly', event_type: 'District event', start_date: '2026-11-15', end_date: '2026-11-16', start_time: '09:30', venue: 'Convention Centre', city: 'Bareilly', organiser: 'District Learning Facilitation Team', description: 'Two-day training for incoming club officers.', photos: 'sample:activity-15.jpg, sample:activity-16.jpg' });
 addEvent({ title: 'Free eye camp', event_type: 'Club event open to all', start_date: '2026-11-22', start_time: '09:00', venue: 'Government Inter College', city: 'Aligarh', organiser: 'RC Aligarh', description: 'Eye check-ups and free spectacles; cataract patients referred for surgery.' });
 addEvent({ title: 'Career guidance day for Class 12 students', event_type: 'Vocational visit', start_date: '2026-12-05', start_time: '11:00', venue: 'City Montessori School', city: 'Kanpur', organiser: 'RC Kanpur South' });
 addEvent({ title: 'District Conference 2026', event_type: 'District event', start_date: '2026-12-19', end_date: '2026-12-20', start_time: '10:00', venue: 'Hotel Radisson', city: 'Agra', organiser: 'Governor\'s Office Team', description: 'Annual district conference with awards for clubs.' });
@@ -678,6 +678,7 @@ function writeReport() {
     ['Club with exactly 3 activities in Sep 2026 (qualifies)', count(small.club_id) === 3 ? 1 : 0],
     ['Club with 2 activities in Sep 2026 (does not qualify)', count(tiny.club_id) === 2 ? 1 : 0],
     ['Pending events', data.main.events.filter((e) => e.status === 'pending').length],
+    ['Events with photos', data.main.events.filter((e) => e.photo_files).length],
     ['Past events with a report linked', data.main.events.filter((e) => e.report_activity_id).length],
     ['Upcoming events', data.main.events.filter((e) => e.start_date > TODAY).length],
     ['Members who never opted in', master.filter((m) => m.is_rotarian && !m.directory_ok && !m.birthday_ok && !m.photo_ok).length],

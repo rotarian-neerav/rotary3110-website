@@ -173,7 +173,7 @@ var SCHEMA_MAIN = {
     'notified', 'is_sample'],
   events: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'title',
     'event_type', 'start_date', 'start_time', 'end_date', 'venue', 'city', 'organiser', 'description', 'map_link',
-    'details_link', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'report_activity_id', 'notified',
+    'details_link', 'photo_files', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'report_activity_id', 'notified',
     'is_sample'],
   club_profile_requests: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile',
     'club_id', 'club_name', 'website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'meeting_day_place', 'status',
@@ -620,6 +620,7 @@ function Core_buildPublicData(tabs, nowIso) {
       description: Core_str(e.description),
       map_link: Core_url(e.map_link),
       details_link: Core_url(e.details_link),
+      photos: Core_photoRefs(e.photo_files).slice(0, 3),
       report_activity_id: activityIds[report] ? report : '',
     };
   }).filter(function (e) { return e.id && e.title && e.start_date; });
@@ -1467,6 +1468,8 @@ function fileActivityOrEvent_(a, meta) {
       start_time: Core_str(a[Q.eTime]), end_date: Core_str(a[Q.eEnd]), venue: Core_str(a[Q.eVenue]), city: Core_str(a[Q.eCity]),
       organiser: Core_str(a[Q.eOrganiser]) || clubName, description: Core_str(a[Q.eDesc]), map_link: link_(a[Q.eMap]),
       details_link: link_(a[Q.eDetails]),
+      // the event page has its own photo question with the same title; only one of the two is ever answered
+      photo_files: fileIds_(firstStartingWith_(a, 'Photos')),
     }));
     return;
   }

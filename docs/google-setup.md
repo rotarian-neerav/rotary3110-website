@@ -22,15 +22,16 @@ You will need two files from this project: `dist/apps-script/Code.gs` and `dist/
    tabs in both Sheets, sample data loaded, four forms created, sharing checked, daily reminders scheduled.
 5. Go back to the Sheet and reload the page. A **Rotary** menu appears.
 
-## 3. Add the three photo questions by hand (5 minutes)
+## 3. Add the four photo questions by hand (5 minutes)
 
-Google does not let a script add file-upload questions, so these three are added by hand. **The titles must match exactly** (copy them from here).
+Google does not let a script add file-upload questions, so these four are added by hand. **The titles must match exactly** (copy them from here).
 
 The forms are in your Google Drive (search for "Rotary District 3110"), or open them from the Sheet's **settings** tab (`form_…_url`; change `viewform` to `edit` in the address).
 
 | Form | Add after the question… | Title (copy exactly) | Settings |
 |---|---|---|---|
-| Club activity or event | **Description** | `Photos (up to 3, each under 1 MB)` | File upload · Allow only specific file types: **Image** · Maximum number of files: **3** · Maximum file size: **1 MB** · not required |
+| Club activity or event | **Description** (activity page) | `Photos (up to 3, each under 1 MB)` | File upload · Allow only specific file types: **Image** · Maximum number of files: **3** · Maximum file size: **1 MB** · not required |
+| Club activity or event | **Short description (optional)** (event page) | `Photos (up to 3, each under 1 MB)` | File upload · **Image** · **3** files · **1 MB** · not required |
 | Member consent | **Show my photo next to my name** | `My photo (one photo of me alone, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
 | Member consent | **Our wedding anniversary** | `Couple photo (optional, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
 

@@ -125,11 +125,19 @@ test('events go to the events tab as pending', () => {
     [Q.club]: 'RC Jhansi', [Q.name]: 'Rtn Y', [Q.role]: 'President', [Q.mobile]: '9822222222', [Q.kind]: Q.kindEvent,
     [Q.eTitle]: 'Blood donation drive', [Q.eType]: 'Club event open to all', [Q.eStart]: '2026-11-14', [Q.eTime]: '09:00',
     [Q.eVenue]: 'Town Hall', [Q.eCity]: 'Jhansi', [Q.eOrganiser]: 'RC Jhansi',
+    'Photos (up to 3, each under 1 MB)': ['1EventPhotoAbCdEfGhIjKlMnOpQrSt'],
   });
   const e = env.main.rows('events').at(-1);
   assert.equal(e.status, 'pending');
   assert.equal(e.title, 'Blood donation drive');
   assert.equal(e.start_time, '09:00');
+  assert.equal(e.photo_files, 'drive:1EventPhotoAbCdEfGhIjKlMnOpQrSt');
+  const rows = env.main.rows('events');
+  env.setActive('events', rows.length + 1);
+  env.run('approveSelected');
+  const pub = data().events.find((x) => x.title === 'Blood donation drive');
+  assert.deepEqual(pub.photos, ['drive:1EventPhotoAbCdEfGhIjKlMnOpQrSt'], 'event photos are public once approved');
+  assert.ok(env.doGet({ mode: 'file', id: '1EventPhotoAbCdEfGhIjKlMnOpQrSt', token }).ok);
 });
 
 test('club profile updates apply to the club only when approved', () => {

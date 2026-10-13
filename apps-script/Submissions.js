@@ -79,6 +79,8 @@ function fileActivityOrEvent_(a, meta) {
       start_time: Core_str(a[Q.eTime]), end_date: Core_str(a[Q.eEnd]), venue: Core_str(a[Q.eVenue]), city: Core_str(a[Q.eCity]),
       organiser: Core_str(a[Q.eOrganiser]) || clubName, description: Core_str(a[Q.eDesc]), map_link: link_(a[Q.eMap]),
       details_link: link_(a[Q.eDetails]),
+      // the event page has its own photo question with the same title; only one of the two is ever answered
+      photo_files: fileIds_(firstStartingWith_(a, 'Photos')),
     }));
     return;
   }

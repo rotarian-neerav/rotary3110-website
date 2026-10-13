@@ -13,6 +13,7 @@ Every awkward case the site must handle, and how many sample rows cover it. Gene
 | Club with exactly 3 activities in Sep 2026 (qualifies) | 1 |
 | Club with 2 activities in Sep 2026 (does not qualify) | 1 |
 | Pending events | 1 |
+| Events with photos | 2 |
 | Past events with a report linked | 2 |
 | Upcoming events | 7 |
 | Members who never opted in | 36 |

@@ -125,6 +125,14 @@ test('activity pages use their own photo for WhatsApp previews', () => {
   assert.ok(statSync(ogFile).size < 300 * 1024, 'preview image under 300 KB so WhatsApp shows it');
 });
 
+test('event pages show their photos and use one for WhatsApp previews', () => {
+  const e = data.events.find((x) => x.photos?.length);
+  assert.ok(e, 'sample has an event with photos');
+  const html = page(`events/${e.id.toLowerCase()}`);
+  assert.match(html, /class="photos photos-\d"/);
+  assert.match(parse(html).querySelector('meta[property="og:image"]').getAttribute('content'), /-og\.jpg$/);
+});
+
 test('directory, celebrations and form pages are kept out of search engines', () => {
   for (const p of ['directory', 'celebrations', 'submit', 'consent', 'remove', 'qr']) {
     assert.match(page(p), /<meta name="robots" content="noindex/, p);

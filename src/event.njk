@@ -8,6 +8,7 @@ permalink: "{{ e.url }}"
 eleventyComputed:
   title: "{{ e.title }} – {{ e.dateLabel }}"
   description: "{{ e.event_type }} in {{ e.city }} on {{ e.dateLabel }}. {{ e.description }}"
+  ogImage: "{{ e.images[0].og.src if e.images.length else '' }}"
   jsonld:
     "@context": "https://schema.org"
     "@type": "Event"
@@ -34,6 +35,13 @@ eleventyComputed:
     <dt>{{ t.events.venue }}</dt><dd>{{ e.venue }}, {{ e.city }}{% if e.map_link %} · <a href="{{ e.map_link }}" target="_blank" rel="noopener">{{ t.events.map }} ↗</a>{% endif %}</dd>
     <dt>{{ t.events.organiser }}</dt><dd>{{ e.organiser }}</dd>
   </dl>
+  {%- if e.images.length %}
+  <div class="photos photos-{{ e.images.length }}">
+    {%- for im in e.images %}
+    <a href="{{ im.full.src }}"><img src="{{ im.card.src }}" srcset="{{ im.card.src }} {{ im.card.width }}w, {{ im.full.src }} {{ im.full.width }}w" sizes="(min-width: 760px) 720px, 100vw" alt="Photo {{ loop.index }} of {{ e.title }}" width="{{ im.card.width }}" height="{{ im.card.height }}"{% if not loop.first %} loading="lazy"{% endif %}></a>
+    {%- endfor %}
+  </div>
+  {%- endif %}
   {%- if e.description %}<p class="story">{{ e.description }}</p>{% endif %}
   {%- if e.isPast and e.report %}
   <p class="report-link"><a class="btn" href="{{ e.report.url }}">{{ t.events.report }}: {{ e.report.title }} →</a></p>

@@ -406,6 +406,7 @@ function Core_buildPublicData(tabs, nowIso) {
       description: Core_str(e.description),
       map_link: Core_url(e.map_link),
       details_link: Core_url(e.details_link),
+      photos: Core_photoRefs(e.photo_files).slice(0, 3),
       report_activity_id: activityIds[report] ? report : '',
     };
   }).filter(function (e) { return e.id && e.title && e.start_date; });

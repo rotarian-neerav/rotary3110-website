@@ -131,6 +131,9 @@ select, input[type=search] { font: inherit; padding: 10px 12px; border: 1px soli
 .event-date .m { font-size: .8rem; text-transform: uppercase; color: var(--gold); }
 .event.past .event-date { background: #8a94a6; }
 .event h3 { margin: 0 0 4px; }
+.event-body { flex: 1; min-width: 0; }
+.event-thumb { order: 3; flex: 0 0 96px; }
+.event-thumb img { width: 96px; height: 64px; object-fit: cover; border-radius: 6px; }
 .event .meta { margin: 0 0 2px; }
 .details { display: grid; grid-template-columns: 1fr; gap: 2px 16px; margin: 12px 0 16px; }
 .details dt { font-weight: 600; color: var(--royal); margin-top: 8px; }

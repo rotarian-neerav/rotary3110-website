@@ -215,6 +215,26 @@ function Core_safeText(v, where, skipped) {
  * A club's list of projects or services: one item per line. Blank lines go; a line with a phone number
  * or email goes (listed in skipped); each line is cut to 160 characters; at most 12 lines.
  */
+/**
+ * Rows whose ID was already used are left out, so two rows with one ID cannot stop the build.
+ * A real row wins over a sample row; otherwise the first row wins. Left-out IDs go to `duplicates`.
+ */
+function Core_uniqueRows(rows, duplicates) {
+  var real = {};
+  rows.forEach(function (r) { if (!Core_isTrue(r.is_sample)) real[Core_str(r.id)] = true; });
+  var seen = {};
+  return rows.filter(function (r) {
+    var id = Core_str(r.id);
+    if (!id) return true;
+    if (seen[id] || (real[id] && Core_isTrue(r.is_sample))) {
+      duplicates.push(id);
+      return false;
+    }
+    seen[id] = true;
+    return true;
+  });
+}
+
 function Core_cleanLines(cell, where, skipped) {
   var out = [];
   Core_str(cell).split(/\r?\n/).forEach(function (line) {
@@ -745,9 +765,10 @@ function Core_buildPublicData(tabs, nowIso, options) {
   });
 
   var skipped = [];
-  var activities = (tabs.activities || []).filter(function (a) {
+  var duplicates = [];
+  var activities = Core_uniqueRows((tabs.activities || []).filter(function (a) {
     return Core_str(a.status).toLowerCase() === 'approved';
-  }).map(function (a) {
+  }), duplicates).map(function (a) {
     return {
       id: Core_str(a.id),
       club_id: Core_str(a.club_id),
@@ -776,9 +797,9 @@ function Core_buildPublicData(tabs, nowIso, options) {
   var activityIds = {};
   activities.forEach(function (a) { activityIds[a.id] = a; });
 
-  var events = (tabs.events || []).filter(function (e) {
+  var events = Core_uniqueRows((tabs.events || []).filter(function (e) {
     return Core_str(e.status).toLowerCase() === 'approved';
-  }).map(function (e) {
+  }), duplicates).map(function (e) {
     var report = Core_str(e.report_activity_id);
     var fee = Core_safeText(e.fee, 'event ' + Core_str(e.id) + ' fee', skippedItems);
     if (CORE_PAYMENT_RE.test(fee)) {
@@ -908,6 +929,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
     campaigns: campaigns,
     skipped_activities: skipped,
     skipped_items: skippedItems,
+    duplicate_ids: duplicates,
   };
 }
 
@@ -1139,7 +1161,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_matchMember: Core_matchMember, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
     Core_checkRoles: Core_checkRoles, Core_plainName: Core_plainName,
-    Core_cleanLines: Core_cleanLines, Core_lineParts: Core_lineParts, Core_isDistrictEvent: Core_isDistrictEvent,
+    Core_uniqueRows: Core_uniqueRows, Core_cleanLines: Core_cleanLines, Core_lineParts: Core_lineParts, Core_isDistrictEvent: Core_isDistrictEvent,
     Core_registrationLine: Core_registrationLine, Core_campaignLabel: Core_campaignLabel, Core_campaignIdForLabel: Core_campaignIdForLabel,
     Core_openCampaigns: Core_openCampaigns, Core_campaignTotals: Core_campaignTotals, Core_inCampaign: Core_inCampaign,
     Core_bulletin: Core_bulletin, Core_bulletinMessage: Core_bulletinMessage, Core_sundayOf: Core_sundayOf, Core_addDays: Core_addDays,

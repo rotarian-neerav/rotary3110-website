@@ -9,6 +9,21 @@ const sample = JSON.parse(readFileSync(new URL('../../sample/sample-data.json', 
 const build = (tabs = sample.main) => plain(core.Core_buildPublicData(tabs, '2026-10-13T00:00:00Z', sampleOptions(sample)));
 const media = { images: {}, pdfs: {} };
 
+/* ---------- one ID, two rows ---------- */
+
+test('two rows with one ID: the real row is kept, the sample one is left out and listed; the build does not stop', () => {
+  const tabs = structuredClone(sample.main);
+  const sampleEvent = tabs.events.find((e) => e.id === 'EVT-2026-0011' && e.status === 'approved');
+  tabs.events.push({ ...sampleEvent, title: 'Real test event', is_sample: false });
+  const twice = tabs.activities.find((a) => a.status === 'approved');
+  tabs.activities.push({ ...twice, title: 'Second copy' });
+  const d = build(tabs);
+  assert.deepEqual(d.events.filter((e) => e.id === 'EVT-2026-0011').map((e) => e.title), ['Real test event']);
+  assert.deepEqual(d.activities.filter((a) => a.id === twice.id).map((a) => a.title), [twice.title], 'otherwise the first row wins');
+  assert.deepEqual(d.duplicate_ids.sort(), [twice.id, 'EVT-2026-0011'].sort());
+  assert.deepEqual(build().duplicate_ids, []);
+});
+
 /* ---------- club services and projects ---------- */
 
 test('services and projects: one per line; blank lines go; a line with a phone number or email is left out; 160 characters; 12 lines', () => {

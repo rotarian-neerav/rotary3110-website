@@ -411,7 +411,13 @@ test('"Clear all sample data" leaves only real rows, and the site data is still 
   assert.ok(!env.priv.rows('members_master').some((m) => m.is_sample === true));
   const d = data();
   assert.deepEqual(plain(core.Core_validatePublic(d)), []);
-  // "Load sample data" puts it back for testing
-  env.run('loadSampleData', true);
+  // a real event that was numbered before the sample grew holds an ID the sample also uses
+  const events = env.main.getSheetByName('events');
+  const realRow = env.main.rows('events').findIndex((e) => e.title === 'Blood donation drive') + 2;
+  events.getRange(realRow, 1).setValue('EVT-2026-0011');
+  // "Load sample data" puts it back for testing, without a second EVT-2026-0011
+  const counts = env.run('loadSampleData', true);
   assert.equal(env.main.rows('clubs').length, 70);
+  assert.deepEqual(env.main.rows('events').filter((e) => e.id === 'EVT-2026-0011').map((e) => e.title), ['Blood donation drive']);
+  assert.ok(counts.some((c) => /^events: 1 sample row\(s\) not loaded/.test(c)), counts.join('\n'));
 });

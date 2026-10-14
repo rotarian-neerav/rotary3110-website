@@ -20,6 +20,11 @@ function loadSampleData(silent) {
   return counts;
 }
 
+var SAMPLE_ID_KEYS = {
+  clubs: 'club_id', activities: 'id', events: 'id', club_profile_requests: 'id', campaigns: 'campaign_id',
+  messages: 'id', members_master: 'member_id', couples: 'couple_id', consent_requests: 'id', removal_requests: 'id',
+};
+
 function loadTabs_(ss, tabs, counts) {
   Object.keys(tabs).forEach(function (name) {
     var rows = tabs[name];
@@ -34,6 +39,16 @@ function loadTabs_(ss, tabs, counts) {
     if (name === 'members_public' || name === 'couples_public') return; // rebuilt by refreshPublicMembers
     if (name === 'lists' && readTab_(ss, 'lists').length) return; // keep lists that are already there
     var headers = headers_(ss, name);
+    // a sample row whose ID a real row already has is not loaded (the real row keeps its ID)
+    var key = SAMPLE_ID_KEYS[name];
+    if (key) {
+      var taken = {};
+      readTab_(ss, name).forEach(function (r) { if (Core_str(r[key])) taken[Core_str(r[key])] = true; });
+      var before = rows.length;
+      rows = rows.filter(function (r) { return !taken[Core_str(r[key])]; });
+      if (rows.length < before) counts.push(name + ': ' + (before - rows.length) + ' sample row(s) not loaded because the ID is already used');
+      if (!rows.length) return;
+    }
     var values = rows.map(function (r) {
       return headers.map(function (h) {
         var v = r[h];

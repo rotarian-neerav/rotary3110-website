@@ -70,7 +70,67 @@ var Q = {
   rMobile: "Member's mobile number",
   rItems: 'What should be removed?',
   rReason: 'Reason (optional)',
+  // added in October 2026 (club services and projects, district campaigns, event registration)
+  pProjects: 'Permanent projects (optional)',
+  pServices: 'Regular services (optional)',
+  aCampaign: 'District campaign (optional)',
+  aCampaignCount: 'Campaign count (optional)',
+  eRegClose: 'Registration closes on (optional)',
+  eFee: 'Fee (optional)',
 };
+
+var CLUB_PROFILE_DESCRIPTION = "For club office bearers: your club's website, social media pages, meeting details, permanent projects and " +
+  "regular services, shown on your club's page. Send it again any time to update.";
+
+/**
+ * Questions added after the forms were first created. setup() and "Upgrade Sheet" add any that are missing to the
+ * existing forms, in place (after or before the named question), without recreating the forms.
+ */
+var LATER_QUESTIONS = [
+  { form: 'club_profile', title: Q.pProjects, type: 'paragraph', before: Q.pConfirm,
+    help: 'One per line: name – what it is – where. For lasting facilities such as a hospital, clinic, school, library, old-age home, ' +
+      'skill centre or dialysis unit. No phone numbers. Type "none" to clear your club\'s list.' },
+  { form: 'club_profile', title: Q.pServices, type: 'paragraph', before: Q.pConfirm,
+    help: 'One per line: what – when – where. For services that repeat, such as "Free eye check-up – every Thursday, 11 am–1 pm – ' +
+      'Roshni Centre". No phone numbers. Type "none" to clear your club\'s list.' },
+  { form: 'activity', title: Q.aCampaign, type: 'campaign', after: Q.aHelped,
+    help: 'Choose a campaign only if this activity was part of a district drive. The report still needs a photo or a link to your club\'s post.' },
+  { form: 'activity', title: Q.aCampaignCount, type: 'number', after: Q.aCampaign,
+    help: 'The number in the campaign\'s unit, shown in brackets in the campaign name, e.g. blood units collected. Count only what your own club did.' },
+  { form: 'activity', title: Q.eRegClose, type: 'date', after: Q.eEnd, help: 'Leave blank if no registration is needed.' },
+  { form: 'activity', title: Q.eFee, type: 'text', after: Q.eRegClose, help: 'For example: Free, or ₹500 per person. Please do not add bank or UPI details.' },
+];
+
+function laterQuestion_(title) {
+  return LATER_QUESTIONS.filter(function (q) { return q.title === title; })[0];
+}
+
+function addLaterQuestion_(form, title, L) {
+  var q = laterQuestion_(title);
+  if (q.type === 'paragraph') return form.addParagraphTextItem().setTitle(q.title).setHelpText(q.help);
+  if (q.type === 'campaign') return form.addListItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(L.campaigns);
+  if (q.type === 'number') return form.addTextItem().setTitle(q.title).setHelpText(q.help).setValidation(numberRule_());
+  if (q.type === 'date') return form.addDateItem().setTitle(q.title).setHelpText(q.help);
+  return form.addTextItem().setTitle(q.title).setHelpText(q.help)
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
+}
+
+/** Adds any missing later question to the existing forms, in its place. Safe to run more than once. */
+function addLaterQuestions_(report) {
+  var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
+  var L = formLists_();
+  LATER_QUESTIONS.forEach(function (q) {
+    if (!ids[q.form]) return;
+    var form = FormApp.openById(ids[q.form]);
+    var titles = function () { return form.getItems().map(function (it) { return it.getTitle(); }); };
+    if (titles().indexOf(q.title) >= 0) return;
+    var item = addLaterQuestion_(form, q.title, L);
+    var anchor = titles().indexOf(q.after || q.before);
+    if (anchor >= 0) form.moveItem(item.getIndex(), q.after ? anchor + 1 : anchor);
+    report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
+  });
+  if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
+}
 
 var YES_NO = ['Yes', 'No'];
 var MOBILE_PATTERN = '^(\\+?91[ -]?)?0?[6-9][0-9]{4}[ -]?[0-9]{5}$';
@@ -103,6 +163,7 @@ function formLists_() {
     professions: professions.length ? professions.concat(['Other']) : ['Other'],
     organisers: activeClubs.concat(teams.length ? teams : ["Governor's Office Team"]),
     roles: ['President', 'Secretary', 'Public Image Chair', 'Other office bearer', 'Member'],
+    campaigns: [CORE_NO_CAMPAIGN].concat(Core_openCampaigns(readTab_(mainSs_(), 'campaigns'), today_()).map(Core_campaignLabel)),
   };
 }
 
@@ -182,6 +243,8 @@ function makeActivityForm_(L) {
   form.addTextItem().setTitle(Q.aLink).setHelpText('If your club already posted this on its website or social page, paste the link instead of photos.')
     .setValidation(urlRule_());
   form.addTextItem().setTitle(Q.aHelped).setValidation(numberRule_());
+  addLaterQuestion_(form, Q.aCampaign, L);
+  addLaterQuestion_(form, Q.aCampaignCount, L);
   form.addTextItem().setTitle(Q.aSpent).setValidation(numberRule_());
   form.addCheckboxItem().setTitle(Q.aPartners).setChoiceValues(L.clubs);
   form.addCheckboxItem().setTitle(Q.aConsent).setRequired(true)
@@ -194,6 +257,8 @@ function makeActivityForm_(L) {
   form.addDateItem().setTitle(Q.eStart).setRequired(true);
   form.addTimeItem().setTitle(Q.eTime);
   form.addDateItem().setTitle(Q.eEnd);
+  addLaterQuestion_(form, Q.eRegClose, L);
+  addLaterQuestion_(form, Q.eFee, L);
   form.addTextItem().setTitle(Q.eVenue).setRequired(true);
   form.addListItem().setTitle(Q.eCity).setChoiceValues(L.areas).setRequired(true);
   form.addListItem().setTitle(Q.eOrganiser).setChoiceValues(L.organisers).setRequired(true);
@@ -208,14 +273,15 @@ function makeActivityForm_(L) {
 }
 
 function makeClubProfileForm_(L) {
-  var form = baseForm_("Club profile – Rotary District 3110",
-    "For club office bearers: your club's website, social media pages and meeting details, shown on your club's page. Send it again any time to update.");
+  var form = baseForm_("Club profile – Rotary District 3110", CLUB_PROFILE_DESCRIPTION);
   addSender_(form, L);
   form.getItems()[2].asListItem().setChoiceValues(['President', 'Secretary', 'Other office bearer']);
   [Q.pWebsite, Q.pFacebook, Q.pInstagram, Q.pYoutube, Q.pX, Q.pLinkedin].forEach(function (t) {
     form.addTextItem().setTitle(t + ' (optional)').setValidation(urlRule_());
   });
   form.addTextItem().setTitle(Q.pMeeting + ' (optional)').setHelpText('For example: Every Tuesday, 7:30 pm, Hotel Grand, Agra');
+  addLaterQuestion_(form, Q.pProjects, L);
+  addLaterQuestion_(form, Q.pServices, L);
   form.addCheckboxItem().setTitle(Q.pConfirm).setRequired(true)
     .setChoiceValues(['I am an office bearer of this club and these links belong to the club.']);
   return form;
@@ -284,13 +350,17 @@ function makeRemovalForm_(L) {
   return form;
 }
 
-/** Menu: refresh club, area and profession lists in the forms after the clubs or lists tabs change. */
-function updateFormLists() {
+/**
+ * Menu: refresh the club, area, profession and campaign lists in the forms after the clubs, lists or campaigns tabs
+ * change. Also runs every morning, so campaigns drop off the form 30 days after they end.
+ */
+function updateFormLists(silent) {
   var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
   var L = formLists_();
   var lists = {};
   lists[Q.club] = L.clubs; lists[Q.cClub] = L.clubs; lists[Q.aPartners] = L.clubs; lists[Q.cSpouseClub] = L.clubs;
   lists[Q.eCity] = L.areas; lists[Q.cArea] = L.areas; lists[Q.cProfession] = L.professions; lists[Q.eOrganiser] = L.organisers;
+  lists[Q.aCampaign] = L.campaigns;
   Object.keys(ids).forEach(function (k) {
     var form = FormApp.openById(ids[k]);
     form.getItems().forEach(function (item) {
@@ -300,5 +370,6 @@ function updateFormLists() {
       if (item.getType() === FormApp.ItemType.CHECKBOX) item.asCheckboxItem().setChoiceValues(values);
     });
   });
+  if (silent === true) return;
   try { SpreadsheetApp.getUi().alert('Form lists updated.'); } catch (e) { /* editor */ }
 }

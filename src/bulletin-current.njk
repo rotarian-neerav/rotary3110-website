@@ -1,0 +1,13 @@
+---
+layout: layouts/base.njk
+permalink: /bulletin/
+scripts: ["bulletin.js"]
+# the same page as this week's dated bulletin, which search engines are pointed to instead
+sitemap: false
+eleventyComputed:
+  title: "This week in Rotary District 3110 – {{ site.bulletin.dateLabel }}"
+  description: "{{ site.bulletin.summary }}"
+  canonical: "{{ site.bulletin.url }}"
+---
+{%- set b = site.bulletin %}
+{% include "partials/bulletin.njk" %}

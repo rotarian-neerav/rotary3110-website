@@ -7,8 +7,8 @@ Every awkward case the site must handle, and how many sample rows cover it. Gene
 | Pending activities | 5 |
 | Rejected activities | 1 |
 | Approved activity with neither photo nor link (build must skip) | 1 |
-| Link-only activities | 1 |
-| Joint activities (partner clubs) | 5 |
+| Link-only activities | 2 |
+| Joint activities (partner clubs) | 6 |
 | Story of the month picks | 2 |
 | Club with exactly 3 activities in Sep 2026 (qualifies) | 1 |
 | Club with 2 activities in Sep 2026 (does not qualify) | 1 |
@@ -37,3 +37,12 @@ Every awkward case the site must handle, and how many sample rows cover it. Gene
 | Pending consent requests | 2 |
 | Pending removal requests | 1 |
 | Pending club profile updates | 1 |
+| Clubs with regular services or permanent projects | 3 |
+| Service line with a phone number (must be dropped) | 1 |
+| District campaigns (one running, one from last year) | 2 |
+| Activities tagged to the running campaign | 5 |
+| Joint activity tagged to a campaign (partners get no credit) | 1 |
+| Activities kept out of the bulletin | 1 |
+| Events with a registration closing date | 4 |
+| Events with a fee | 4 |
+| Events marked Seats full / Postponed / Cancelled / Extended | 4 |

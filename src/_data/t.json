@@ -55,7 +55,8 @@
     "report": "Read the report",
     "map": "Map",
     "details": "Details",
-    "empty": "No upcoming events yet."
+    "empty": "No upcoming events yet.",
+    "fee": "Fee"
   },
   "celebrations": {
     "birthday": "Birthday",
@@ -91,6 +92,59 @@
     "club_profile": "Update your club's links",
     "consent": "Join the directory or celebrations",
     "remove": "Remove my details",
-    "about": "The website of the clubs of Rotary District 3110. Content is sent by clubs and checked by district moderators."
+    "about": "The website of the clubs of Rotary District 3110. Content is sent by clubs and checked by district moderators.",
+    "bulletin": "This week's bulletin",
+    "campaigns": "District campaigns"
+  },
+  "club": {
+    "services": "Regular services",
+    "projects": "Permanent projects",
+    "missing": "Is something missing? Update your club's profile",
+    "update_profile": "Update this club's links, meeting details, projects or services",
+    "campaigns_this_year": "District campaigns this year"
+  },
+  "campaigns": {
+    "title": "District campaigns",
+    "intro": "District-wide drives and how much our clubs have done for each, from reports approved by district moderators.",
+    "running": "Running now",
+    "from_reports": "from",
+    "reports": "reports",
+    "report": "report",
+    "by": "by",
+    "clubs": "clubs",
+    "club_one": "club",
+    "of": "of",
+    "note": "Running total of reports approved by district moderators.",
+    "updated": "Last updated",
+    "by_club": "By club",
+    "latest": "Latest reports",
+    "more_reports": "More reports",
+    "how": "How to report",
+    "how_text": "Use the activity form, choose this campaign and enter your count. Count only what your own club did.",
+    "chair": "Campaign chair",
+    "empty": "No reports yet.",
+    "home_heading": "District campaigns"
+  },
+  "bulletin": {
+    "title": "This week in District 3110",
+    "coming_up": "Coming up: the next 14 days",
+    "all_events": "All upcoming events",
+    "closing": "Registration closing soon",
+    "done": "Done last week",
+    "and_more": "and {n} more {acts} from {m} {clubs}",
+    "all_activities": "See all activities",
+    "campaigns": "Campaign totals",
+    "quiet": "A quiet week – no new activities or events.",
+    "how_title": "How to get your club in next week's bulletin",
+    "how_text": "Send your activities and events through the forms. A moderator checks each one; approved items appear in the next bulletin.",
+    "official": "Official district messages come only from the district's official numbers and pages.",
+    "copy": "Copy message",
+    "copied": "Copied",
+    "share": "Share on WhatsApp",
+    "message": "WhatsApp message",
+    "archive": "All bulletins",
+    "archive_title": "Weekly bulletins",
+    "archive_intro": "Every Sunday the website puts together \"This week in District 3110\" from approved activities and events.",
+    "home_line": "This week in District 3110"
   }
 }

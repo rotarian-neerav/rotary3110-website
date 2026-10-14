@@ -1,12 +1,94 @@
 /**
- * Daily at 7 am (India): 48-hour reminders to moderators, the monthly-nudge dashboard, the role check, new magazines.
+ * Daily at 7 am (India): 48-hour reminders to moderators, the monthly-nudge dashboard, the role check, new magazines,
+ * and the forms' lists (so a campaign drops off the activity form 30 days after it ends).
  */
 
 function dailyJobs() {
   scanMagazines_();
   refreshDashboard();
   checkRoles(true);
+  try { updateFormLists(true); } catch (e) { Logger.log('Form lists not updated: ' + e.message); }
   sendReminders_();
+}
+
+/* ---------- Weekly bulletin emails ---------- */
+
+/** Moderators, or the district account until moderators are named. */
+function moderatorRecipients_(s) {
+  return Core_list(s.moderator_emails).join(',') || Session.getEffectiveUser().getEmail();
+}
+
+/**
+ * Saturday 6 pm: the coming Sunday's bulletin, so moderators can leave something out before it is published.
+ * Nothing to do if it looks right.
+ */
+function bulletinPreview() {
+  var today = today_();
+  var sunday = Core_addDays(Core_sundayOf(today), 7);
+  var data = publicData_();
+  var b = Core_bulletin(data, sunday);
+  var s = settings_();
+  var ids = [];
+  b.events.forEach(function (e) { ids.push('Coming up: ' + e.id + ' – ' + e.title); });
+  b.closing.forEach(function (e) { ids.push('Registration closing: ' + e.id + ' – ' + e.title); });
+  b.done.items.forEach(function (a) { ids.push('Done last week: ' + a.id + ' – ' + a.title + ' (' + a.club_name + ')'); });
+  b.campaigns.forEach(function (c) { ids.push('Campaign: ' + c.campaign_id + ' – ' + c.name); });
+  var skipped = data.skipped_items || [];
+  var body = Core_bulletinMessage(b, s.site_url) +
+    '\n\n----------\nChosen items (row ids):\n' + (ids.join('\n') || '(none: a quiet week)') +
+    (b.done.more ? '\n…and ' + b.done.more + ' more activities, counted but not listed.' : '') +
+    '\n\nNothing to do if this looks right. To leave something out, set bulletin_exclude to TRUE on that row in the ' +
+    'activities or events tab before Sunday 6 am.' +
+    (skipped.length ? '\n\nLeft out of the website because they contain a phone number, email or payment details: ' + skipped.join('; ') : '');
+  var subject = new Date(today + 'T00:00:00Z').getUTCDay() === 6 ? "Tomorrow's bulletin – no action needed"
+    : 'Bulletin for Sunday ' + Core_dateLabel(sunday) + ' – no action needed';
+  MailApp.sendEmail(moderatorRecipients_(s), subject, body);
+  try { SpreadsheetApp.getUi().alert('Bulletin preview sent to ' + moderatorRecipients_(s) + '.'); } catch (e) { /* timed run */ }
+}
+
+/**
+ * Sunday 8 am: the WhatsApp message for this week's bulletin, for someone to forward to the district groups.
+ * The message links to this week's bulletin page, so it is sent only once that page is on the website. If the
+ * Sunday build is late, it asks for a rebuild and tries again every hour (up to four times), then sends anyway.
+ */
+function bulletinMessage(force) {
+  var props = props_();
+  var sunday = Core_sundayOf(today_());
+  if (force !== true && props.getProperty('BULLETIN_SENT') === sunday) return 'already sent';
+  var s = settings_();
+  var site = Core_str(s.site_url).replace(/\/?$/, '/');
+  var live = false;
+  try {
+    live = UrlFetchApp.fetch(site + 'bulletin/' + sunday + '/', { muteHttpExceptions: true }).getResponseCode() === 200;
+  } catch (e) { live = false; }
+  var tries = (props.getProperty('BULLETIN_TRIES') || '').split(':');
+  var count = tries[0] === sunday ? Number(tries[1]) || 0 : 0;
+  if (!live && force !== true && count < 4) {
+    props.setProperty('BULLETIN_TRIES', sunday + ':' + (count + 1));
+    setSetting_('rebuild_requested_at', nowIso_());
+    ScriptApp.newTrigger('bulletinMessageRetry').timeBased().after(60 * 60 * 1000).create();
+    return 'waiting for the website';
+  }
+  var text = Core_bulletinMessage(Core_bulletin(publicData_(), sunday), site);
+  var to = Core_list(s.bulletin_emails).join(',') || moderatorRecipients_(s);
+  MailApp.sendEmail(to, "This week's bulletin – please forward to the district groups", text +
+    (live ? '' : '\n\n(The bulletin page was not on the website yet when this was sent. The link will work once the website has updated.)'));
+  props.setProperty('BULLETIN_SENT', sunday);
+  return 'sent';
+}
+
+function bulletinMessageRetry() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'bulletinMessageRetry') ScriptApp.deleteTrigger(t);
+  });
+  bulletinMessage();
+}
+
+/** Menu: send this week's message again now (for example to a new address). */
+function sendBulletinMessageNow() {
+  bulletinMessage(true);
+  var s = settings_();
+  try { SpreadsheetApp.getUi().alert("This week's bulletin message was sent to " + (Core_list(s.bulletin_emails).join(',') || moderatorRecipients_(s)) + '.'); } catch (e) { /* editor */ }
 }
 
 function sendReminders_() {

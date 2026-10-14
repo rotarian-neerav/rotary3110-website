@@ -8,7 +8,7 @@ pagination:
 permalink: "{{ c.url }}"
 eleventyComputed:
   title: "{{ c.display_name }}"
-  description: "{{ c.display_name }}, {{ c.city }} – office bearers, meetings and service activities. Part of Rotary District 3110, {{ c.zone }} Zone."
+  description: "{{ c.display_name }}, {{ c.city }} – office bearers, meetings{% if c.services.length %}, regular services{% endif %} and service activities. Part of Rotary District 3110, {{ c.zone }} Zone."
 ---
 {% from "macros.njk" import activityCard, avatar %}
 <div class="wrap section">
@@ -31,11 +31,38 @@ eleventyComputed:
   {%- endif %}
   <p><a class="btn btn-outline" href="{{ c.membersUrl }}">See all members ({{ c.members.length }} listed) →</a></p>
 
+  {%- if c.services.length %}
+  <section id="services">
+    <h2>{{ t.club.services }}</h2>
+    <ul class="club-items">
+      {%- for s in c.services %}
+      <li><strong>{{ s.what }}</strong>{% if s.when %}<span>{{ s.when }}</span>{% endif %}{% if s.where %}<span class="muted">{{ s.where }}</span>{% endif %}</li>
+      {%- endfor %}
+    </ul>
+  </section>
+  {%- endif %}
+  {%- if c.projects.length %}
+  <section id="projects">
+    <h2>{{ t.club.projects }}</h2>
+    <ul class="club-items">
+      {%- for p in c.projects %}
+      <li><strong>{{ p.name }}</strong>{% if p.what %}<span>{{ p.what }}</span>{% endif %}{% if p.where %}<span class="muted">{{ p.where }}</span>{% endif %}</li>
+      {%- endfor %}
+    </ul>
+  </section>
+  {%- endif %}
+  {%- if c.services.length or c.projects.length %}
+  <p class="small"><a href="/club-profile/">{{ t.club.missing }}</a></p>
+  {%- endif %}
+  {%- if c.campaigns.length %}
+  <p class="campaign-line"><strong>{{ t.club.campaigns_this_year }}:</strong> {% for x in c.campaigns %}<a href="{{ x.campaign.url }}">{{ x.campaign.name }}</a> – {{ x.count | number }} {{ x.campaign.unit }}{% if not loop.last %}; {% endif %}{% endfor %}</p>
+  {%- endif %}
+
   <h2>Activities</h2>
   {%- if c.activities.length %}
   <div class="grid cards">{% for a in c.activities %}{{ activityCard(a, t) }}{% endfor %}</div>
   {%- else %}
   <p>No activities shared yet. <a href="/submit/">Share your club's first activity</a>.</p>
   {%- endif %}
-  <p class="small"><a href="/club-profile/">Update this club's links or meeting details</a></p>
+  <p class="small"><a href="/club-profile/">{{ t.club.update_profile }}</a></p>
 </div>

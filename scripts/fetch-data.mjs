@@ -55,5 +55,6 @@ writeFileSync(OUT, JSON.stringify(data, null, 1));
 console.log(
   `Fetched ${data.source} data: ${data.clubs.length} clubs, ${data.activities.length} activities, ${data.events.length} events, ` +
     `${data.members.length} members, ${data.couples.length} couples, ${data.functionaries.length} team roles` +
-    (data.skipped_activities?.length ? `; skipped (no photo or link): ${data.skipped_activities.join(', ')}` : ''),
+    (data.skipped_activities?.length ? `; skipped (no photo or link): ${data.skipped_activities.join(', ')}` : '') +
+    (data.skipped_items?.length ? `; left out (phone number, email or payment details): ${data.skipped_items.join(', ')}` : ''),
 );

@@ -163,21 +163,24 @@ var SCHEMA_MAIN = {
   settings: ['key', 'value', 'notes'],
   lists: ['list', 'value'],
   clubs: ['club_id', 'club_name', 'display_name', 'slug', 'former_names', 'city', 'zone', 'status', 'member_count',
-    'meeting_day_place', 'website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'profile_updated_at', 'is_sample'],
+    'meeting_day_place', 'website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'profile_updated_at', 'is_sample',
+    'permanent_projects', 'regular_services'],
   officers: ['rotary_year', 'club_id', 'member_id', 'name', 'role', 'contact_ok', 'contact_link', 'is_sample'],
   functionaries: ['rotary_year', 'page', 'section', 'committee', 'member_id', 'name', 'role', 'zone', 'club_id', 'term',
     'sort_order', 'contact_ok', 'contact_link', 'is_sample'],
   activities: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'club_id',
     'club_name', 'title', 'date', 'theme', 'description', 'photo_files', 'post_link', 'people_helped', 'amount_spent', 'partner_clubs',
     'photo_consent', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'story_of_month', 'event_id',
-    'notified', 'is_sample'],
+    'notified', 'is_sample', 'campaign_id', 'campaign_count', 'bulletin_exclude'],
   events: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'title',
     'event_type', 'start_date', 'start_time', 'end_date', 'venue', 'city', 'organiser', 'description', 'map_link',
     'details_link', 'photo_files', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'report_activity_id', 'notified',
-    'is_sample'],
+    'is_sample', 'registration_close_date', 'fee', 'registration_status', 'bulletin_exclude'],
   club_profile_requests: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile',
     'club_id', 'club_name', 'website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'meeting_day_place', 'status',
-    'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
+    'approved_by', 'approved_at', 'moderator_note', 'is_sample', 'permanent_projects', 'regular_services'],
+  campaigns: ['campaign_id', 'rotary_year', 'name', 'slug', 'unit', 'start_date', 'end_date', 'target', 'description', 'chair',
+    'chair_member_id', 'sort_order', 'is_sample'],
   magazines: ['issue_month', 'title', 'pdf_file', 'pdf_url', 'cover_image', 'is_sample'],
   messages: ['id', 'name', 'position', 'photo', 'message', 'date', 'featured', 'is_sample'],
   spotlights: ['month', 'public_key', 'member_name', 'headline', 'story', 'is_sample'],
@@ -243,6 +246,17 @@ var CORE_EVENT_TYPES = [
 ];
 
 var IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
+// Event registration states a moderator may set by hand (blank = worked out from the closing date)
+var CORE_REG_STATUSES = ['Seats full', 'Extended', 'Postponed', 'Cancelled'];
+// First choice of the activity form's campaign question
+var CORE_NO_CAMPAIGN = 'Not part of a district campaign';
+// Club services and projects: one item per line, each line cut to this length, at most this many lines
+var CORE_LINE_MAX = 160;
+var CORE_LIST_MAX = 12;
+// Payment details are never shown with an event's fee
+var CORE_PAYMENT_RE = /\b(upi|ifsc)\b|\ba\/c\b/i;
+var MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function Core_isTrue(v) {
   if (v === true) return true;
@@ -350,6 +364,345 @@ function Core_url(v) {
 
 function Core_firstName(name) {
   return Core_str(name).replace(/^(Rtn|Dr|Mr|Mrs|Ms|Smt|Shri)\.?\s+/i, '').split(/\s+/)[0] || '';
+}
+
+/* ------------------------------------------------------------------ */
+/* Dates                                                               */
+/* ------------------------------------------------------------------ */
+
+function Core_addDays(iso, n) {
+  var d = new Date(iso + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+/** The Sunday on or before a date (YYYY-MM-DD). */
+function Core_sundayOf(iso) {
+  return Core_addDays(iso, -new Date(iso + 'T00:00:00Z').getUTCDay());
+}
+
+/** Midnight at the start of a date in India, as milliseconds. */
+function Core_istMidnight(iso) {
+  return Date.parse(iso + 'T00:00:00Z') - IST_OFFSET_MS;
+}
+
+/** "19 Oct 2026", or "19 Oct" when short. */
+function Core_dateLabel(iso, short) {
+  if (!iso) return '';
+  var p = iso.split('-');
+  return (+p[2]) + ' ' + MONTHS_SHORT[+p[1] - 1] + (short ? '' : ' ' + p[0]);
+}
+
+/** The Rotary year (1 July to 30 June) a date falls in, e.g. "2026-27". */
+function Core_rotaryYearOf(iso) {
+  var y = +iso.slice(0, 4);
+  var start = +iso.slice(5, 7) >= 7 ? y : y - 1;
+  return start + '-' + String(start + 1).slice(2);
+}
+
+/** 1226 -> "1,226"; 122600 -> "1,22,600" (Indian grouping). */
+function Core_formatNumber(n) {
+  var s = String(Math.round(Number(n) || 0));
+  if (s.length <= 3) return s;
+  var rest = s.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+  return rest + ',' + s.slice(-3);
+}
+
+/* ------------------------------------------------------------------ */
+/* Free text typed by clubs or moderators                              */
+/* ------------------------------------------------------------------ */
+
+function Core_unsafeText(s) {
+  return CORE_PHONE_RE.test(s) || CORE_EMAIL_RE.test(s);
+}
+
+/**
+ * A text field that may be published, or '' if it holds a phone number or email address. Such text is
+ * left out (and listed in skipped) rather than stopping the whole build.
+ */
+function Core_safeText(v, where, skipped) {
+  var s = Core_str(v);
+  if (s && Core_unsafeText(s)) {
+    skipped.push(where);
+    return '';
+  }
+  return s;
+}
+
+/**
+ * A club's list of projects or services: one item per line. Blank lines go; a line with a phone number
+ * or email goes (listed in skipped); each line is cut to 160 characters; at most 12 lines.
+ */
+function Core_cleanLines(cell, where, skipped) {
+  var out = [];
+  Core_str(cell).split(/\r?\n/).forEach(function (line) {
+    line = line.trim();
+    if (!line) return;
+    if (Core_unsafeText(line)) {
+      skipped.push(where + ' line');
+      return;
+    }
+    out.push(line.length > CORE_LINE_MAX ? line.slice(0, CORE_LINE_MAX).trim() : line);
+  });
+  return out.slice(0, CORE_LIST_MAX);
+}
+
+/**
+ * "Free eye check-up – every Thursday – Roshni Centre" -> {what, when, where}. Parts are separated by a
+ * dash with spaces round it, so "11 am–1 pm" stays whole. A line with no separator stays in the first part.
+ */
+function Core_lineParts(line, keys) {
+  var parts = Core_str(line).split(/\s+[–—-]\s+/);
+  if (parts.length > keys.length) parts = parts.slice(0, keys.length - 1).concat([parts.slice(keys.length - 1).join(' – ')]);
+  var o = {};
+  keys.forEach(function (k, i) { o[k] = Core_str(parts[i]); });
+  return o;
+}
+
+/* ------------------------------------------------------------------ */
+/* Events, campaigns and the weekly bulletin                           */
+/* ------------------------------------------------------------------ */
+
+/** clubNames: {lower-case club name: true}. A district event, or one organised by a district team rather than a club. */
+function Core_isDistrictEvent(e, clubNames) {
+  return e.event_type === 'District event' || !clubNames[Core_str(e.organiser).toLowerCase()];
+}
+
+/**
+ * The registration line shown with an event, worked out on refDate (today on event pages; the bulletin's
+ * own Sunday on a bulletin, so an archived bulletin keeps saying what it said that week).
+ */
+function Core_registrationLine(e, refDate) {
+  var status = Core_str(e.registration_status);
+  var close = Core_str(e.registration_close_date);
+  var text = '';
+  var state = '';
+  if (status === 'Cancelled') { text = 'Cancelled'; state = 'cancelled'; }
+  else if (status === 'Postponed') { text = 'Postponed – new date to be announced'; state = 'postponed'; }
+  else if (status === 'Seats full') { text = 'Seats full'; state = 'full'; }
+  else if (status === 'Extended') { text = close ? 'Registration extended till ' + Core_dateLabel(close, true) : 'Registration extended'; state = 'open'; }
+  else if (close) {
+    if (close >= refDate) { text = 'Registration open till ' + Core_dateLabel(close, true); state = 'open'; }
+    else { text = 'Registration closed'; state = 'closed'; }
+  }
+  var fee = Core_str(e.fee);
+  return { text: text, state: state, fee: fee, line: [text, fee ? 'Fee: ' + fee : ''].filter(function (x) { return x; }).join(' · ') };
+}
+
+/** The basic fields of a campaigns tab row, or null if it has no id, name or start date. */
+function Core_campaignRow(c) {
+  var row = {
+    campaign_id: Core_str(c.campaign_id),
+    rotary_year: Core_str(c.rotary_year),
+    name: Core_str(c.name),
+    unit: Core_str(c.unit),
+    start_date: Core_isoDate(c.start_date),
+    end_date: Core_isoDate(c.end_date),
+  };
+  if (!row.campaign_id || !row.name || !row.start_date) return null;
+  row.slug = Core_str(c.slug) || Core_slug(row.name + '-' + row.rotary_year);
+  return row;
+}
+
+/** The activity form's choice for a campaign, e.g. "Blood Donation Drive 2026-27 (blood units)". */
+function Core_campaignLabel(c) {
+  return Core_str(c.name) + (Core_str(c.rotary_year) ? ' ' + Core_str(c.rotary_year) : '') + (Core_str(c.unit) ? ' (' + Core_str(c.unit) + ')' : '');
+}
+
+/** Campaigns the activity form offers on a date: until 30 days after a campaign ends, for late reports. */
+function Core_openCampaigns(rows, today) {
+  return (rows || []).map(Core_campaignRow).filter(function (c) {
+    return c && (!c.end_date || Core_addDays(c.end_date, 30) >= today);
+  });
+}
+
+/** Maps a form answer back to a campaign id; '' for "Not part of a district campaign" or an unknown label. */
+function Core_campaignIdForLabel(label, rows) {
+  var l = Core_str(label);
+  if (!l || l === CORE_NO_CAMPAIGN) return '';
+  var list = (rows || []).map(Core_campaignRow).filter(function (c) { return c; });
+  for (var i = 0; i < list.length; i++) if (Core_campaignLabel(list[i]) === l) return list[i].campaign_id;
+  return '';
+}
+
+/** Only work done during the campaign counts (late reports of that work are fine). */
+function Core_inCampaign(c, date) {
+  return !!date && date >= c.start_date && (!c.end_date || date <= c.end_date);
+}
+
+/**
+ * Running total of a campaign from approved activities. A joint activity counts only for the club that
+ * sent it. An activity tagged without a count is a report that adds 0. With beforeMs, only activities
+ * approved before that moment count (activities with no approval time are older and always count).
+ */
+function Core_campaignTotals(c, activities, beforeMs) {
+  var byClub = {};
+  var order = [];
+  var total = 0;
+  var ids = [];
+  (activities || []).forEach(function (a) {
+    if (!c.campaign_id || a.campaign_id !== c.campaign_id || !Core_inCampaign(c, a.date)) return;
+    if (beforeMs != null && a.approved_at && Date.parse(a.approved_at) >= beforeMs) return;
+    var n = Math.max(0, Math.floor(Number(a.campaign_count) || 0));
+    total += n;
+    ids.push(a.id);
+    if (!byClub[a.club_id]) {
+      byClub[a.club_id] = { club_id: a.club_id, entries: 0, count: 0 };
+      order.push(a.club_id);
+    }
+    byClub[a.club_id].entries++;
+    byClub[a.club_id].count += n;
+  });
+  var list = order.map(function (k) { return byClub[k]; }).sort(function (x, y) { return y.count - x.count || y.entries - x.entries; });
+  return { total: total, entries: ids.length, clubs: list.length, by_club: list, activity_ids: ids };
+}
+
+/**
+ * "This week in District 3110" for the bulletin dated `sunday`, from the public data (approved rows only).
+ * Fixed rules, so the website and the Sheet's emails always pick the same items:
+ *  - coming up: events starting in the 14 days from Sunday, or still running; district events first; at most 10
+ *  - registration closing soon: other events whose registration closes in the 7 days from Sunday
+ *  - done last week: activities approved in the 7 days before Sunday; story of the month first, then those
+ *    with photos; one per club; ties go round the zones in turn, newest first; at most 6
+ *  - campaign totals: campaigns running on Sunday, counting reports approved before Sunday
+ */
+function Core_bulletin(data, sunday) {
+  var S = sunday;
+  var clubById = {};
+  var clubNames = {};
+  (data.clubs || []).forEach(function (c) {
+    clubById[c.club_id] = c;
+    clubNames[Core_str(c.name).toLowerCase()] = true;
+  });
+  var weekEnd = Core_addDays(S, 6);
+  var fortnightEnd = Core_addDays(S, 13);
+  function eventItem(e) {
+    return {
+      id: e.id, title: e.title, start_date: e.start_date, end_date: e.end_date, start_time: e.start_time, city: e.city,
+      organiser: e.organiser, is_district: Core_isDistrictEvent(e, clubNames), registration: Core_registrationLine(e, S),
+    };
+  }
+  var allEvents = (data.events || []).filter(function (e) { return !e.bulletin_exclude; });
+  var coming = allEvents.filter(function (e) {
+    return (e.start_date >= S && e.start_date <= fortnightEnd) || (e.start_date < S && e.end_date && S <= e.end_date);
+  }).map(eventItem).sort(function (a, b) {
+    return (b.is_district - a.is_district) || a.start_date.localeCompare(b.start_date) ||
+      (a.start_time || '').localeCompare(b.start_time || '') || a.id.localeCompare(b.id);
+  }).slice(0, 10);
+  var listed = {};
+  coming.forEach(function (e) { listed[e.id] = true; });
+  var closing = allEvents.filter(function (e) {
+    var close = Core_str(e.registration_close_date);
+    return !listed[e.id] && close >= S && close <= weekEnd && ['Cancelled', 'Postponed'].indexOf(e.registration_status) < 0;
+  }).sort(function (a, b) {
+    return a.registration_close_date.localeCompare(b.registration_close_date) || a.start_date.localeCompare(b.start_date);
+  }).map(eventItem);
+
+  var from = Core_istMidnight(Core_addDays(S, -7));
+  var to = Core_istMidnight(S);
+  var acts = (data.activities || []).filter(function (a) {
+    if (a.bulletin_exclude || !a.approved_at) return false;
+    var t = Date.parse(a.approved_at);
+    return !isNaN(t) && t >= from && t < to;
+  });
+  var zones = (data.site && data.site.zones) || [];
+  var zoneRank = function (zone) { var i = zones.indexOf(zone); return i < 0 ? zones.length : i; };
+  var newestFirst = function (a, b) { return b.date.localeCompare(a.date) || b.id.localeCompare(a.id); };
+  var tiers = [
+    acts.filter(function (a) { return a.story_of_month; }),
+    acts.filter(function (a) { return !a.story_of_month && a.photos && a.photos.length; }),
+    acts.filter(function (a) { return !a.story_of_month && !(a.photos && a.photos.length); }),
+  ];
+  var picked = [];
+  var usedClubs = {};
+  tiers.forEach(function (tier) {
+    // the newest activity of each club not yet picked, then round the zones in turn
+    var queues = [];
+    tier.slice().sort(newestFirst).forEach(function (a) {
+      if (usedClubs[a.club_id]) return;
+      usedClubs[a.club_id] = true;
+      var z = zoneRank(clubById[a.club_id] ? clubById[a.club_id].zone : '');
+      (queues[z] = queues[z] || []).push(a);
+    });
+    for (var more = true; more;) {
+      more = false;
+      for (var z = 0; z < queues.length; z++) {
+        if (queues[z] && queues[z].length) {
+          picked.push(queues[z].shift());
+          more = true;
+        }
+      }
+    }
+  });
+  picked = picked.slice(0, 6);
+  var pickedIds = {};
+  picked.forEach(function (a) { pickedIds[a.id] = true; });
+  var countClubs = function (list) {
+    var seen = {};
+    list.forEach(function (a) { seen[a.club_id] = true; });
+    return Object.keys(seen).length;
+  };
+  var rest = acts.filter(function (a) { return !pickedIds[a.id]; });
+
+  var campaigns = (data.campaigns || []).filter(function (c) {
+    return c.start_date <= S && (!c.end_date || S <= c.end_date);
+  }).sort(function (a, b) { return a.sort_order - b.sort_order || a.name.localeCompare(b.name); }).map(function (c) {
+    var t = Core_campaignTotals(c, data.activities, to);
+    return { campaign_id: c.campaign_id, slug: c.slug, name: c.name, unit: c.unit, total: t.total, entries: t.entries, clubs: t.clubs };
+  });
+
+  return {
+    sunday: S,
+    district: (data.site && data.site.district) || 'Rotary District 3110',
+    events: coming,
+    closing: closing,
+    done: {
+      items: picked.map(function (a) {
+        return { id: a.id, title: a.title, club_id: a.club_id, club_name: clubById[a.club_id] ? clubById[a.club_id].name : '', date: a.date };
+      }),
+      total: acts.length,
+      clubs: countClubs(acts),
+      more: rest.length,
+      more_clubs: countClubs(rest),
+    },
+    campaigns: campaigns,
+    empty: !coming.length && !closing.length && !acts.length && !campaigns.length,
+  };
+}
+
+/** The bulletin as a plain-text WhatsApp message of at most 1,000 characters. */
+function Core_bulletinMessage(b, siteUrl) {
+  var link = Core_str(siteUrl).replace(/\/?$/, '/') + 'bulletin/' + b.sunday + '/';
+  var plural = function (n, one, many) { return Core_formatNumber(n) + ' ' + (n === 1 ? one : many); };
+  function build(eventCount, titleMax) {
+    var cut = function (s) { return s.length > titleMax ? s.slice(0, titleMax - 1).trim() + '…' : s; };
+    var lines = ['*This week in ' + b.district + '* – ' + Core_dateLabel(b.sunday)];
+    if (b.empty) lines.push('A quiet week – no new activities or events.');
+    var events = b.events.slice(0, eventCount);
+    if (events.length) {
+      lines.push('*Coming up*');
+      events.forEach(function (e) {
+        lines.push('• ' + Core_dateLabel(e.start_date, true) + ' – ' + cut(e.title) + (e.city ? ', ' + e.city : '') +
+          (e.registration.text ? ' – ' + e.registration.text : ''));
+      });
+    }
+    if (b.done.total) {
+      var titles = b.done.items.slice(0, 2).map(function (a) { return cut(a.title); });
+      lines.push('*Done last week:* ' + plural(b.done.total, 'activity', 'activities') + ' from ' + plural(b.done.clubs, 'club', 'clubs') +
+        (titles.length ? ', including ' + titles.join(', ') : '') + '.');
+    }
+    b.campaigns.forEach(function (c) {
+      lines.push('*' + c.name + ':* ' + Core_formatNumber(c.total) + (c.unit ? ' ' + c.unit : '') + ' so far (' + plural(c.clubs, 'club', 'clubs') + ')');
+    });
+    lines.push('Full bulletin: ' + link);
+    return lines.join('\n');
+  }
+  var eventCount = Math.min(5, b.events.length);
+  var text = build(eventCount, 80);
+  while (text.length > 1000 && eventCount > 1) text = build(--eventCount, 80);
+  if (text.length > 1000) text = build(eventCount, 30);
+  if (text.length > 1000) text = text.slice(0, 1000 - link.length - 17).trim() + '…\nFull bulletin: ' + link;
+  return text;
 }
 
 /* ------------------------------------------------------------------ */
@@ -485,7 +838,7 @@ function Core_photoRefs(v) {
 /**
  * Turns the main sheet's tabs into the data the website is built from.
  * tabs: { settings, clubs, officers, functionaries, activities, events, magazines,
- *         messages, spotlights, members_public, couples_public, lists }
+ *         messages, spotlights, members_public, couples_public, campaigns, lists }
  * Each is an array of row objects (see Core_rows).
  * options.personRef(memberId): the scrambled reference that links one person's roles and listing
  *   (the Sheet uses a keyed hash, so the member ID cannot be worked back from it).
@@ -499,8 +852,11 @@ function Core_buildPublicData(tabs, nowIso, options) {
   (opts.inactiveIds || []).forEach(function (id) { if (Core_str(id)) inactiveIds[Core_str(id)] = true; });
   var settings = Core_settings(tabs.settings || []);
   var rotaryYear = Core_str(settings.current_rotary_year);
+  // free text left out because it held a phone number or email (one careless entry must not stop the build)
+  var skippedItems = [];
 
   var clubs = (tabs.clubs || []).filter(function (c) { return Core_str(c.club_id); }).map(function (c) {
+    var where = 'club ' + Core_str(c.club_id);
     return {
       club_id: Core_str(c.club_id),
       slug: Core_str(c.slug) || Core_slug(c.club_name),
@@ -520,6 +876,8 @@ function Core_buildPublicData(tabs, nowIso, options) {
         x: Core_url(c.x),
         linkedin: Core_url(c.linkedin),
       },
+      projects: Core_cleanLines(c.permanent_projects, where, skippedItems).map(function (l) { return Core_lineParts(l, ['name', 'what', 'where']); }),
+      services: Core_cleanLines(c.regular_services, where, skippedItems).map(function (l) { return Core_lineParts(l, ['what', 'when', 'where']); }),
     };
   });
   var clubIds = {};
@@ -589,6 +947,21 @@ function Core_buildPublicData(tabs, nowIso, options) {
     return row;
   }).sort(function (a, b) { return a.sort_order - b.sort_order; });
 
+  var campaignIds = {};
+  var campaigns = [];
+  (tabs.campaigns || []).forEach(function (row) {
+    var c = Core_campaignRow(row);
+    if (!c || campaignIds[c.campaign_id]) return;
+    var chairId = Core_str(row.chair_member_id);
+    c.target = Math.max(0, Math.floor(Number(row.target) || 0));
+    c.description = Core_safeText(row.description, 'campaign ' + c.campaign_id + ' description', skippedItems);
+    c.chair = Core_safeText(row.chair, 'campaign ' + c.campaign_id + ' chair', skippedItems);
+    c.chair_ref = chairId && !inactiveIds[chairId] ? personRef(chairId) : '';
+    c.sort_order = Number(row.sort_order) || 0;
+    campaignIds[c.campaign_id] = true;
+    campaigns.push(c);
+  });
+
   var skipped = [];
   var activities = (tabs.activities || []).filter(function (a) {
     return Core_str(a.status).toLowerCase() === 'approved';
@@ -608,6 +981,9 @@ function Core_buildPublicData(tabs, nowIso, options) {
       story_of_month: Core_isTrue(a.story_of_month),
       event_id: Core_str(a.event_id),
       approved_at: Core_isoTimestamp(a.approved_at),
+      campaign_id: campaignIds[Core_str(a.campaign_id)] ? Core_str(a.campaign_id) : '',
+      campaign_count: Math.max(0, Math.floor(Number(a.campaign_count) || 0)),
+      bulletin_exclude: Core_isTrue(a.bulletin_exclude),
     };
   }).filter(function (a) {
     var ok = a.id && a.title && a.date && clubIds[a.club_id] && (a.photos.length || a.post_link);
@@ -622,6 +998,13 @@ function Core_buildPublicData(tabs, nowIso, options) {
     return Core_str(e.status).toLowerCase() === 'approved';
   }).map(function (e) {
     var report = Core_str(e.report_activity_id);
+    var fee = Core_safeText(e.fee, 'event ' + Core_str(e.id) + ' fee', skippedItems);
+    if (CORE_PAYMENT_RE.test(fee)) {
+      skippedItems.push('event ' + Core_str(e.id) + ' fee');
+      fee = '';
+    }
+    var status = '';
+    CORE_REG_STATUSES.forEach(function (st) { if (st.toLowerCase() === Core_str(e.registration_status).toLowerCase()) status = st; });
     if (!report) {
       activities.forEach(function (a) { if (a.event_id && a.event_id === Core_str(e.id)) report = a.id; });
     }
@@ -640,6 +1023,10 @@ function Core_buildPublicData(tabs, nowIso, options) {
       details_link: Core_url(e.details_link),
       photos: Core_photoRefs(e.photo_files).slice(0, 3),
       report_activity_id: activityIds[report] ? report : '',
+      registration_close_date: Core_isoDate(e.registration_close_date),
+      fee: fee,
+      registration_status: status,
+      bulletin_exclude: Core_isTrue(e.bulletin_exclude),
     };
   }).filter(function (e) { return e.id && e.title && e.start_date; });
 
@@ -713,6 +1100,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
       rotary_year: rotaryYear,
       district: Core_str(settings.district_name) || 'Rotary District 3110',
       zones: Core_list(settings.zones),
+      bulletin_start_date: Core_isoDate(settings.bulletin_start_date),
     },
     forms: {
       activity: Core_url(settings.form_activity_url),
@@ -735,7 +1123,9 @@ function Core_buildPublicData(tabs, nowIso, options) {
     spotlights: spotlights,
     members: members,
     couples: couples,
+    campaigns: campaigns,
     skipped_activities: skipped,
+    skipped_items: skippedItems,
   };
 }
 
@@ -802,6 +1192,12 @@ function Core_validatePublic(data) {
   });
   (data.members || []).forEach(function (m, i) {
     if (m.person_ref && !/^P[0-9a-f]{12}$/.test(m.person_ref)) err('members[' + i + '] ' + m.name, 'person reference is not a scrambled reference');
+  });
+  (data.campaigns || []).forEach(function (c, i) {
+    if (c.chair_ref && !/^P[0-9a-f]{12}$/.test(c.chair_ref)) err('campaigns[' + i + '] ' + c.name, 'chair reference is not a scrambled reference');
+  });
+  (data.events || []).forEach(function (e, i) {
+    if (CORE_PAYMENT_RE.test(Core_str(e.fee))) err('events[' + i + '] ' + e.title, 'fee contains payment details (UPI, IFSC or A/c)');
   });
 
   // No phone numbers or emails anywhere, except consented WhatsApp links
@@ -961,6 +1357,12 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_matchMember: Core_matchMember, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
     Core_checkRoles: Core_checkRoles, Core_plainName: Core_plainName,
+    Core_cleanLines: Core_cleanLines, Core_lineParts: Core_lineParts, Core_isDistrictEvent: Core_isDistrictEvent,
+    Core_registrationLine: Core_registrationLine, Core_campaignLabel: Core_campaignLabel, Core_campaignIdForLabel: Core_campaignIdForLabel,
+    Core_openCampaigns: Core_openCampaigns, Core_campaignTotals: Core_campaignTotals, Core_inCampaign: Core_inCampaign,
+    Core_bulletin: Core_bulletin, Core_bulletinMessage: Core_bulletinMessage, Core_sundayOf: Core_sundayOf, Core_addDays: Core_addDays,
+    Core_dateLabel: Core_dateLabel, Core_rotaryYearOf: Core_rotaryYearOf, Core_formatNumber: Core_formatNumber,
+    CORE_REG_STATUSES: CORE_REG_STATUSES, CORE_NO_CAMPAIGN: CORE_NO_CAMPAIGN,
   };
 }
 
@@ -995,7 +1397,9 @@ function setup() {
     loadSampleData(true); // forms need the club list; sample rows can be cleared later in one step
     report.push('Loaded the sample data (clubs, teams, dummy activities and members)');
   }
+  ensureLists_(report);
   createForms_(report);
+  addLaterQuestions_(report);
   ensureMemberPhotosFolder_(report);
   checkSharing_(main, report);
   installTriggers_(report);
@@ -1008,7 +1412,39 @@ function setup() {
   try { SpreadsheetApp.getUi().alert(msg); } catch (e) { /* run from the editor */ }
 }
 
-var TEXT_COLUMNS = ['member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
+/**
+ * Administrator → Upgrade Sheet: brings a Sheet set up earlier up to date with the current script (new tabs and
+ * columns, settings, dropdowns, form questions and timed jobs), without touching existing data or recreating the
+ * forms. Safe to run more than once; a new install gets the same through setup().
+ */
+function upgradeSheet() {
+  var main = mainSs_();
+  var report = [];
+  ensureTabs_(main, SCHEMA_MAIN, report);
+  ensureTabs_(privateSs_(), SCHEMA_PRIVATE, report);
+  ensureSettings_(report);
+  addValidation_(main, privateSs_());
+  ensureLists_(report);
+  addLaterQuestions_(report);
+  installTriggers_(report);
+  updateFormLists(true);
+  var msg = 'Upgrade finished.\n\n' + (report.join('\n') || 'Everything was already up to date.');
+  Logger.log(msg);
+  try { SpreadsheetApp.getUi().alert(msg); } catch (e) { /* run from the editor */ }
+  return report;
+}
+
+/** Values for the dropdowns kept in the lists tab. */
+function ensureLists_(report) {
+  var ss = mainSs_();
+  var have = readTab_(ss, 'lists').filter(function (r) { return r.list === 'registration_status'; }).map(function (r) { return Core_str(r.value); });
+  CORE_REG_STATUSES.forEach(function (v) {
+    if (have.indexOf(v) < 0) appendRow_(ss, 'lists', { list: 'registration_status', value: v });
+  });
+  if (have.length < CORE_REG_STATUSES.length) report.push('Added the registration status list');
+}
+
+var TEXT_COLUMNS = ['member_id', 'chair_member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
   'person_b_id', 'spouse_id', 'spouse_member_id', 'matched_member_id', 'public_key', 'club_id', 'rotary_year', 'term', 'issue_month', 'month'];
 
 function ensureTabs_(ss, schema, report) {
@@ -1059,6 +1495,9 @@ var DEFAULT_SETTINGS = [
   ['form_removal_url', '', 'Filled in by setup'],
   ['rebuild_requested_at', '', 'Set by "Rebuild site now" and "Mark as deceased"'],
   ['inactive_keys', '', 'Filled in by "Refresh public members"; never edit by hand'],
+  ['campaign_check_above', '1000', 'A campaign count above this gets a note for the moderator'],
+  ['bulletin_start_date', '', 'A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week\'s bulletin'],
+  ['bulletin_emails', '', 'Comma-separated; they receive the Sunday WhatsApp message to forward. Blank: the moderators'],
 ];
 
 function ensureSettings_(report) {
@@ -1091,6 +1530,9 @@ function addValidation_(main, priv) {
   // A tick-box column would fill every empty row with FALSE, so new rows would land far down the tab.
   // A TRUE/FALSE dropdown leaves empty rows empty.
   apply(main, 'activities', 'story_of_month', listRule_(['TRUE', 'FALSE']));
+  apply(main, 'activities', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
+  apply(main, 'events', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
+  apply(main, 'events', 'registration_status', listRule_(CORE_REG_STATUSES));
   ['consent_requests', 'removal_requests'].forEach(function (t) {
     apply(priv, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
@@ -1150,6 +1592,14 @@ function installTriggers_(report) {
   if (!existing.some(function (e) { return e.indexOf('dailyJobs|') === 0; })) {
     ScriptApp.newTrigger('dailyJobs').timeBased().everyDays(1).atHour(7).inTimezone('Asia/Kolkata').create();
     report.push('Scheduled the daily reminders and dashboard (7 am)');
+  }
+  if (!existing.some(function (e) { return e.indexOf('bulletinPreview|') === 0; })) {
+    ScriptApp.newTrigger('bulletinPreview').timeBased().onWeekDay(ScriptApp.WeekDay.SATURDAY).atHour(18).inTimezone('Asia/Kolkata').create();
+    report.push('Scheduled the bulletin preview email (Saturday 6 pm)');
+  }
+  if (!existing.some(function (e) { return e.indexOf('bulletinMessage|') === 0; })) {
+    ScriptApp.newTrigger('bulletinMessage').timeBased().onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(8).inTimezone('Asia/Kolkata').create();
+    report.push('Scheduled the bulletin message email (Sunday 8 am)');
   }
 }
 
@@ -1247,7 +1697,67 @@ var Q = {
   rMobile: "Member's mobile number",
   rItems: 'What should be removed?',
   rReason: 'Reason (optional)',
+  // added in October 2026 (club services and projects, district campaigns, event registration)
+  pProjects: 'Permanent projects (optional)',
+  pServices: 'Regular services (optional)',
+  aCampaign: 'District campaign (optional)',
+  aCampaignCount: 'Campaign count (optional)',
+  eRegClose: 'Registration closes on (optional)',
+  eFee: 'Fee (optional)',
 };
+
+var CLUB_PROFILE_DESCRIPTION = "For club office bearers: your club's website, social media pages, meeting details, permanent projects and " +
+  "regular services, shown on your club's page. Send it again any time to update.";
+
+/**
+ * Questions added after the forms were first created. setup() and "Upgrade Sheet" add any that are missing to the
+ * existing forms, in place (after or before the named question), without recreating the forms.
+ */
+var LATER_QUESTIONS = [
+  { form: 'club_profile', title: Q.pProjects, type: 'paragraph', before: Q.pConfirm,
+    help: 'One per line: name – what it is – where. For lasting facilities such as a hospital, clinic, school, library, old-age home, ' +
+      'skill centre or dialysis unit. No phone numbers. Type "none" to clear your club\'s list.' },
+  { form: 'club_profile', title: Q.pServices, type: 'paragraph', before: Q.pConfirm,
+    help: 'One per line: what – when – where. For services that repeat, such as "Free eye check-up – every Thursday, 11 am–1 pm – ' +
+      'Roshni Centre". No phone numbers. Type "none" to clear your club\'s list.' },
+  { form: 'activity', title: Q.aCampaign, type: 'campaign', after: Q.aHelped,
+    help: 'Choose a campaign only if this activity was part of a district drive. The report still needs a photo or a link to your club\'s post.' },
+  { form: 'activity', title: Q.aCampaignCount, type: 'number', after: Q.aCampaign,
+    help: 'The number in the campaign\'s unit, shown in brackets in the campaign name, e.g. blood units collected. Count only what your own club did.' },
+  { form: 'activity', title: Q.eRegClose, type: 'date', after: Q.eEnd, help: 'Leave blank if no registration is needed.' },
+  { form: 'activity', title: Q.eFee, type: 'text', after: Q.eRegClose, help: 'For example: Free, or ₹500 per person. Please do not add bank or UPI details.' },
+];
+
+function laterQuestion_(title) {
+  return LATER_QUESTIONS.filter(function (q) { return q.title === title; })[0];
+}
+
+function addLaterQuestion_(form, title, L) {
+  var q = laterQuestion_(title);
+  if (q.type === 'paragraph') return form.addParagraphTextItem().setTitle(q.title).setHelpText(q.help);
+  if (q.type === 'campaign') return form.addListItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(L.campaigns);
+  if (q.type === 'number') return form.addTextItem().setTitle(q.title).setHelpText(q.help).setValidation(numberRule_());
+  if (q.type === 'date') return form.addDateItem().setTitle(q.title).setHelpText(q.help);
+  return form.addTextItem().setTitle(q.title).setHelpText(q.help)
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
+}
+
+/** Adds any missing later question to the existing forms, in its place. Safe to run more than once. */
+function addLaterQuestions_(report) {
+  var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
+  var L = formLists_();
+  LATER_QUESTIONS.forEach(function (q) {
+    if (!ids[q.form]) return;
+    var form = FormApp.openById(ids[q.form]);
+    var titles = function () { return form.getItems().map(function (it) { return it.getTitle(); }); };
+    if (titles().indexOf(q.title) >= 0) return;
+    var item = addLaterQuestion_(form, q.title, L);
+    var anchor = titles().indexOf(q.after || q.before);
+    if (anchor >= 0) form.moveItem(item.getIndex(), q.after ? anchor + 1 : anchor);
+    report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
+  });
+  if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
+}
 
 var YES_NO = ['Yes', 'No'];
 var MOBILE_PATTERN = '^(\\+?91[ -]?)?0?[6-9][0-9]{4}[ -]?[0-9]{5}$';
@@ -1280,6 +1790,7 @@ function formLists_() {
     professions: professions.length ? professions.concat(['Other']) : ['Other'],
     organisers: activeClubs.concat(teams.length ? teams : ["Governor's Office Team"]),
     roles: ['President', 'Secretary', 'Public Image Chair', 'Other office bearer', 'Member'],
+    campaigns: [CORE_NO_CAMPAIGN].concat(Core_openCampaigns(readTab_(mainSs_(), 'campaigns'), today_()).map(Core_campaignLabel)),
   };
 }
 
@@ -1359,6 +1870,8 @@ function makeActivityForm_(L) {
   form.addTextItem().setTitle(Q.aLink).setHelpText('If your club already posted this on its website or social page, paste the link instead of photos.')
     .setValidation(urlRule_());
   form.addTextItem().setTitle(Q.aHelped).setValidation(numberRule_());
+  addLaterQuestion_(form, Q.aCampaign, L);
+  addLaterQuestion_(form, Q.aCampaignCount, L);
   form.addTextItem().setTitle(Q.aSpent).setValidation(numberRule_());
   form.addCheckboxItem().setTitle(Q.aPartners).setChoiceValues(L.clubs);
   form.addCheckboxItem().setTitle(Q.aConsent).setRequired(true)
@@ -1371,6 +1884,8 @@ function makeActivityForm_(L) {
   form.addDateItem().setTitle(Q.eStart).setRequired(true);
   form.addTimeItem().setTitle(Q.eTime);
   form.addDateItem().setTitle(Q.eEnd);
+  addLaterQuestion_(form, Q.eRegClose, L);
+  addLaterQuestion_(form, Q.eFee, L);
   form.addTextItem().setTitle(Q.eVenue).setRequired(true);
   form.addListItem().setTitle(Q.eCity).setChoiceValues(L.areas).setRequired(true);
   form.addListItem().setTitle(Q.eOrganiser).setChoiceValues(L.organisers).setRequired(true);
@@ -1385,14 +1900,15 @@ function makeActivityForm_(L) {
 }
 
 function makeClubProfileForm_(L) {
-  var form = baseForm_("Club profile – Rotary District 3110",
-    "For club office bearers: your club's website, social media pages and meeting details, shown on your club's page. Send it again any time to update.");
+  var form = baseForm_("Club profile – Rotary District 3110", CLUB_PROFILE_DESCRIPTION);
   addSender_(form, L);
   form.getItems()[2].asListItem().setChoiceValues(['President', 'Secretary', 'Other office bearer']);
   [Q.pWebsite, Q.pFacebook, Q.pInstagram, Q.pYoutube, Q.pX, Q.pLinkedin].forEach(function (t) {
     form.addTextItem().setTitle(t + ' (optional)').setValidation(urlRule_());
   });
   form.addTextItem().setTitle(Q.pMeeting + ' (optional)').setHelpText('For example: Every Tuesday, 7:30 pm, Hotel Grand, Agra');
+  addLaterQuestion_(form, Q.pProjects, L);
+  addLaterQuestion_(form, Q.pServices, L);
   form.addCheckboxItem().setTitle(Q.pConfirm).setRequired(true)
     .setChoiceValues(['I am an office bearer of this club and these links belong to the club.']);
   return form;
@@ -1461,13 +1977,17 @@ function makeRemovalForm_(L) {
   return form;
 }
 
-/** Menu: refresh club, area and profession lists in the forms after the clubs or lists tabs change. */
-function updateFormLists() {
+/**
+ * Menu: refresh the club, area, profession and campaign lists in the forms after the clubs, lists or campaigns tabs
+ * change. Also runs every morning, so campaigns drop off the form 30 days after they end.
+ */
+function updateFormLists(silent) {
   var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
   var L = formLists_();
   var lists = {};
   lists[Q.club] = L.clubs; lists[Q.cClub] = L.clubs; lists[Q.aPartners] = L.clubs; lists[Q.cSpouseClub] = L.clubs;
   lists[Q.eCity] = L.areas; lists[Q.cArea] = L.areas; lists[Q.cProfession] = L.professions; lists[Q.eOrganiser] = L.organisers;
+  lists[Q.aCampaign] = L.campaigns;
   Object.keys(ids).forEach(function (k) {
     var form = FormApp.openById(ids[k]);
     form.getItems().forEach(function (item) {
@@ -1477,6 +1997,7 @@ function updateFormLists() {
       if (item.getType() === FormApp.ItemType.CHECKBOX) item.asCheckboxItem().setChoiceValues(values);
     });
   });
+  if (silent === true) return;
   try { SpreadsheetApp.getUi().alert('Form lists updated.'); } catch (e) { /* editor */ }
 }
 
@@ -1548,6 +2069,14 @@ function dayMonthAnswer_(value) {
   return m ? m[2] + '-' + m[1] : '';
 }
 
+/** Moderator notes for free text that must not be published as it is. */
+function textNotes_(values, notes) {
+  if (values.some(function (v) { return Core_unsafeText(Core_str(v)); })) notes.push('Contains a phone number or email: remove it before approving');
+  if (values.some(function (v) { return Core_str(v).split(/\r?\n/).some(function (l) { return l.trim().length > CORE_LINE_MAX; }); })) {
+    notes.push('A line is longer than ' + CORE_LINE_MAX + ' characters');
+  }
+}
+
 function fileActivityOrEvent_(a, meta) {
   var ss = mainSs_();
   var clubName = Core_str(a[Q.club]);
@@ -1557,6 +2086,9 @@ function fileActivityOrEvent_(a, meta) {
   };
   if (Core_str(a[Q.kind]) === Q.kindEvent) {
     var events = readTab_(ss, 'events');
+    var fee = Core_str(a[Q.eFee]);
+    var eventNotes = [];
+    if (Core_unsafeText(fee) || CORE_PAYMENT_RE.test(fee)) eventNotes.push('Fee contains payment details: remove before approving');
     appendRow_(ss, 'events', Object.assign(sender, {
       id: nextId_(events, 'EVT-' + new Date().getFullYear() + '-'),
       title: Core_str(a[Q.eTitle]), event_type: Core_str(a[Q.eType]), start_date: Core_str(a[Q.eStart]),
@@ -1565,6 +2097,7 @@ function fileActivityOrEvent_(a, meta) {
       details_link: link_(a[Q.eDetails]),
       // the event page has its own photo question with the same title; only one of the two is ever answered
       photo_files: fileIds_(firstStartingWith_(a, 'Photos')),
+      registration_close_date: Core_str(a[Q.eRegClose]), fee: fee, moderator_note: eventNotes.join('; '),
     }));
     return;
   }
@@ -1578,7 +2111,12 @@ function fileActivityOrEvent_(a, meta) {
     people_helped: Core_str(a[Q.aHelped]), amount_spent: Core_str(a[Q.aSpent]), partner_clubs: partners.join(', '),
     photo_consent: checked_(a[Q.aConsent]),
   });
+  var campaignRows = readTab_(ss, 'campaigns');
+  var count = Core_str(a[Q.aCampaignCount]).replace(/[,\s]/g, '');
+  row.campaign_id = Core_campaignIdForLabel(a[Q.aCampaign], campaignRows);
+  row.campaign_count = /^\d+$/.test(count) ? Number(count) : '';
   var notes = [];
+  campaignNotes_(row, activities, campaignRows, notes);
   var dup = Core_findDuplicate(row, activities);
   if (dup) notes.push('Possible duplicate of ' + dup);
   if (!row.photo_files && !row.post_link) notes.push('No photo or link: reject or ask the club for one');
@@ -1587,17 +2125,41 @@ function fileActivityOrEvent_(a, meta) {
   appendRow_(ss, 'activities', row);
 }
 
+/** Notes for a campaign report: a count without a campaign, a date outside it, a large count, another club the same day. */
+function campaignNotes_(row, activities, campaignRows, notes) {
+  if (row.campaign_count !== '' && !row.campaign_id) notes.push('Count given without a campaign');
+  if (!row.campaign_id) return;
+  var c = Core_openCampaigns(campaignRows, '0000-00-00').filter(function (x) { return x.campaign_id === row.campaign_id; })[0];
+  var date = Core_isoDate(row.date);
+  if (c && !Core_inCampaign(c, date)) notes.push('Date is outside the campaign period: it will not count');
+  var limit = Number(settings_().campaign_check_above) || 1000;
+  if (row.campaign_count !== '' && row.campaign_count > limit) notes.push('Check the campaign count');
+  var other = activities.filter(function (x) {
+    return Core_str(x.campaign_id) === row.campaign_id && Core_isoDate(x.date) === date && Core_str(x.club_id) !== row.club_id &&
+      Core_str(x.status).toLowerCase() !== 'rejected';
+  })[0];
+  if (other) {
+    notes.push('Another club reported this campaign on the same date (' + other.id + ', ' + Core_str(other.club_name) +
+      '): check it is not one joint event counted twice');
+  }
+}
+
 function fileClubProfile_(a, meta) {
   var ss = mainSs_();
   var clubName = Core_str(a[Q.club]);
   var ans = function (t) { return Core_str(a[t + ' (optional)']); };
   var url = function (t) { return link_(a[t + ' (optional)']); };
+  var projects = Core_str(a[Q.pProjects]);
+  var services = Core_str(a[Q.pServices]);
+  var notes = [];
+  textNotes_([projects, services], notes);
   appendRow_(ss, 'club_profile_requests', {
     id: nextId_(readTab_(ss, 'club_profile_requests'), 'CPR-'), submitted_at: meta.submitted_at, submitter_email: meta.submitter_email,
     submitter_name: Core_str(a[Q.name]), submitter_role: Core_str(a[Q.role]), submitter_mobile: Core_str(a[Q.mobile]),
     club_id: clubIdByName_(clubName), club_name: clubName, website: url(Q.pWebsite), facebook: url(Q.pFacebook),
     instagram: url(Q.pInstagram), youtube: url(Q.pYoutube), x: url(Q.pX), linkedin: url(Q.pLinkedin),
-    meeting_day_place: ans(Q.pMeeting), status: 'pending',
+    meeting_day_place: ans(Q.pMeeting), permanent_projects: projects, regular_services: services, status: 'pending',
+    moderator_note: notes.join('; '),
   });
 }
 
@@ -1654,6 +2216,9 @@ function onOpen() {
       .addItem('Clear all sample data…', 'clearSampleData'))
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Administrator')
       .addItem('Show data link details', 'showDataLink')
+      .addItem('Upgrade Sheet (new tabs, columns, questions)', 'upgradeSheet')
+      .addItem('Send bulletin preview now', 'bulletinPreview')
+      .addItem('Send bulletin message now', 'sendBulletinMessageNow')
       .addItem('Run setup again', 'setup'))
     .addToUi();
 }
@@ -1724,6 +2289,11 @@ function applyClubProfile_(r) {
   var fields = { profile_updated_at: nowIso_() };
   ['website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'meeting_day_place'].forEach(function (k) {
     if (Core_str(r[k])) fields[k] = Core_str(r[k]);
+  });
+  // Projects and services: a blank answer keeps the club's list, "none" clears it, anything else replaces it
+  ['permanent_projects', 'regular_services'].forEach(function (k) {
+    var v = Core_str(r[k]);
+    if (v) fields[k] = v.toLowerCase() === 'none' ? '' : v;
   });
   updateRow_(ss, 'clubs', club._row, fields);
 }
@@ -2141,7 +2711,8 @@ function publicData_() {
   scanMagazines_();
   var ss = mainSs_();
   var tabs = {};
-  ['settings', 'clubs', 'officers', 'functionaries', 'activities', 'events', 'magazines', 'messages', 'spotlights', 'members_public', 'couples_public']
+  ['settings', 'clubs', 'officers', 'functionaries', 'activities', 'events', 'magazines', 'messages', 'spotlights', 'members_public', 'couples_public',
+    'campaigns']
     .forEach(function (name) { tabs[name] = readTab_(ss, name); });
   var data = Core_buildPublicData(tabs, nowIso_(), { personRef: personRefFn_(), inactiveIds: inactiveMemberIds_() });
   var problems = Core_validatePublic(data);
@@ -2225,14 +2796,96 @@ function scanMagazines_() {
 
 // ===== Jobs.js =====
 /**
- * Daily at 7 am (India): 48-hour reminders to moderators, the monthly-nudge dashboard, the role check, new magazines.
+ * Daily at 7 am (India): 48-hour reminders to moderators, the monthly-nudge dashboard, the role check, new magazines,
+ * and the forms' lists (so a campaign drops off the activity form 30 days after it ends).
  */
 
 function dailyJobs() {
   scanMagazines_();
   refreshDashboard();
   checkRoles(true);
+  try { updateFormLists(true); } catch (e) { Logger.log('Form lists not updated: ' + e.message); }
   sendReminders_();
+}
+
+/* ---------- Weekly bulletin emails ---------- */
+
+/** Moderators, or the district account until moderators are named. */
+function moderatorRecipients_(s) {
+  return Core_list(s.moderator_emails).join(',') || Session.getEffectiveUser().getEmail();
+}
+
+/**
+ * Saturday 6 pm: the coming Sunday's bulletin, so moderators can leave something out before it is published.
+ * Nothing to do if it looks right.
+ */
+function bulletinPreview() {
+  var today = today_();
+  var sunday = Core_addDays(Core_sundayOf(today), 7);
+  var data = publicData_();
+  var b = Core_bulletin(data, sunday);
+  var s = settings_();
+  var ids = [];
+  b.events.forEach(function (e) { ids.push('Coming up: ' + e.id + ' – ' + e.title); });
+  b.closing.forEach(function (e) { ids.push('Registration closing: ' + e.id + ' – ' + e.title); });
+  b.done.items.forEach(function (a) { ids.push('Done last week: ' + a.id + ' – ' + a.title + ' (' + a.club_name + ')'); });
+  b.campaigns.forEach(function (c) { ids.push('Campaign: ' + c.campaign_id + ' – ' + c.name); });
+  var skipped = data.skipped_items || [];
+  var body = Core_bulletinMessage(b, s.site_url) +
+    '\n\n----------\nChosen items (row ids):\n' + (ids.join('\n') || '(none: a quiet week)') +
+    (b.done.more ? '\n…and ' + b.done.more + ' more activities, counted but not listed.' : '') +
+    '\n\nNothing to do if this looks right. To leave something out, set bulletin_exclude to TRUE on that row in the ' +
+    'activities or events tab before Sunday 6 am.' +
+    (skipped.length ? '\n\nLeft out of the website because they contain a phone number, email or payment details: ' + skipped.join('; ') : '');
+  var subject = new Date(today + 'T00:00:00Z').getUTCDay() === 6 ? "Tomorrow's bulletin – no action needed"
+    : 'Bulletin for Sunday ' + Core_dateLabel(sunday) + ' – no action needed';
+  MailApp.sendEmail(moderatorRecipients_(s), subject, body);
+  try { SpreadsheetApp.getUi().alert('Bulletin preview sent to ' + moderatorRecipients_(s) + '.'); } catch (e) { /* timed run */ }
+}
+
+/**
+ * Sunday 8 am: the WhatsApp message for this week's bulletin, for someone to forward to the district groups.
+ * The message links to this week's bulletin page, so it is sent only once that page is on the website. If the
+ * Sunday build is late, it asks for a rebuild and tries again every hour (up to four times), then sends anyway.
+ */
+function bulletinMessage(force) {
+  var props = props_();
+  var sunday = Core_sundayOf(today_());
+  if (force !== true && props.getProperty('BULLETIN_SENT') === sunday) return 'already sent';
+  var s = settings_();
+  var site = Core_str(s.site_url).replace(/\/?$/, '/');
+  var live = false;
+  try {
+    live = UrlFetchApp.fetch(site + 'bulletin/' + sunday + '/', { muteHttpExceptions: true }).getResponseCode() === 200;
+  } catch (e) { live = false; }
+  var tries = (props.getProperty('BULLETIN_TRIES') || '').split(':');
+  var count = tries[0] === sunday ? Number(tries[1]) || 0 : 0;
+  if (!live && force !== true && count < 4) {
+    props.setProperty('BULLETIN_TRIES', sunday + ':' + (count + 1));
+    setSetting_('rebuild_requested_at', nowIso_());
+    ScriptApp.newTrigger('bulletinMessageRetry').timeBased().after(60 * 60 * 1000).create();
+    return 'waiting for the website';
+  }
+  var text = Core_bulletinMessage(Core_bulletin(publicData_(), sunday), site);
+  var to = Core_list(s.bulletin_emails).join(',') || moderatorRecipients_(s);
+  MailApp.sendEmail(to, "This week's bulletin – please forward to the district groups", text +
+    (live ? '' : '\n\n(The bulletin page was not on the website yet when this was sent. The link will work once the website has updated.)'));
+  props.setProperty('BULLETIN_SENT', sunday);
+  return 'sent';
+}
+
+function bulletinMessageRetry() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'bulletinMessageRetry') ScriptApp.deleteTrigger(t);
+  });
+  bulletinMessage();
+}
+
+/** Menu: send this week's message again now (for example to a new address). */
+function sendBulletinMessageNow() {
+  bulletinMessage(true);
+  var s = settings_();
+  try { SpreadsheetApp.getUi().alert("This week's bulletin message was sent to " + (Core_list(s.bulletin_emails).join(',') || moderatorRecipients_(s)) + '.'); } catch (e) { /* editor */ }
 }
 
 function sendReminders_() {

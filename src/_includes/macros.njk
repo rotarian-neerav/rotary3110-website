@@ -23,12 +23,35 @@
     <p class="meta"><span class="chip theme-{{ a.themeSlug }}">{{ a.theme }}</span> <time datetime="{{ a.date }}">{{ a.dateLabel }}</time></p>
     <h3><a href="{{ a.url }}">{{ a.title }}</a></h3>
     <p class="club-line">{{ a.club.name }}{% if a.partners.length %} <span class="muted">with {% for p in a.partners %}{{ p.name }}{% if not loop.last %}, {% endif %}{% endfor %}</span>{% endif %}</p>
+    {%- if a.campaign %}<p class="campaign-tag-line">{{ campaignTag(a) }}</p>{% endif %}
   </div>
 </article>
 {% endmacro %}
 
+{% macro campaignTag(a) -%}
+<a class="chip chip-campaign" href="{{ a.campaign.url }}">{{ a.campaign.name }}{% if a.campaign_count %} · {{ a.campaign_count | number }} {{ a.campaign.unit }}{% endif %}</a>
+{%- endmacro %}
+
+{% macro registrationLine(r) -%}
+{%- if r and r.line %}<p class="reg-line reg-{{ r.state or 'none' }}">{% if r.text %}<span class="reg-text">{{ r.text }}</span>{% endif %}{% if r.fee %}{% if r.text %} · {% endif %}Fee: {{ r.fee }}{% endif %}</p>{% endif -%}
+{%- endmacro %}
+
+{% macro campaignCard(c, t) %}
+<article class="campaign-card">
+  <h3><a href="{{ c.url }}">{{ c.name }}</a></h3>
+  <p class="campaign-number"><strong>{{ c.total | number }}</strong> {{ c.unit }}</p>
+  {%- if c.target %}{{ progress(c, t) }}{% endif %}
+  <p class="small muted">{{ c.entries }} {{ t.campaigns.report if c.entries == 1 else t.campaigns.reports }} {{ t.campaigns.by }} {{ c.clubs }} {{ t.campaigns.club_one if c.clubs == 1 else t.campaigns.clubs }}</p>
+</article>
+{% endmacro %}
+
+{% macro progress(c, t) -%}
+<div class="progress" role="img" aria-label="{{ c.percent }}% of the target of {{ c.target | number }} {{ c.unit }}"><span style="width: {{ c.percent }}%"></span></div>
+<p class="small muted">{{ c.percent }}% {{ t.campaigns.of }} {{ c.target | number }}</p>
+{%- endmacro %}
+
 {% macro eventItem(e, t) %}
-<article class="event{% if e.isPast %} past{% endif %}">
+<article class="event{% if e.isPast %} past{% endif %}{% if e.registration.state == 'cancelled' %} cancelled{% endif %}">
   <div class="event-date" aria-hidden="true">
     <span class="d">{{ e.start_date.slice(8, 10) | int }}</span><span class="m">{{ e.dateLabel.split(' ')[1] }}</span>
   </div>
@@ -37,6 +60,7 @@
     <h3><a href="{{ e.url }}">{{ e.title }}</a></h3>
     <p class="meta">{{ e.dateLabel }}{% if e.start_time %} · {{ e.start_time }}{% endif %} · {{ e.venue }}, {{ e.city }}</p>
     <p class="meta">{% if e.isDistrict %}<span class="chip chip-district">District</span> {% endif %}{{ t.events.organiser }}: {{ e.organiser }} · <span class="chip">{{ e.event_type }}</span></p>
+    {%- if not e.isPast %}{{ registrationLine(e.registration) }}{% endif %}
     {%- if e.isPast and e.report %}
     <p><a href="{{ e.report.url }}">{{ t.events.report }} →</a></p>
     {%- endif %}

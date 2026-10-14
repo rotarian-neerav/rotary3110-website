@@ -17,6 +17,44 @@ function chain(overrides = {}) {
   return proxy;
 }
 
+/** Wraps an object so that any method it does not have returns the wrapper itself (builder-style APIs). */
+function fluent(target) {
+  const proxy = new Proxy(target, {
+    get(t, prop) {
+      if (prop in t) return t[prop];
+      if (prop === 'then') return undefined;
+      return () => proxy;
+    },
+  });
+  return proxy;
+}
+
+/** A Google Form whose questions are kept in order, so tests can check where questions were added. */
+class FakeForm {
+  constructor(id, title) { this.id = id; this.title = title; this.items = []; this.description = ''; }
+  add(type) {
+    const form = this;
+    const item = fluent({
+      type, title: '', help: '', choices: [],
+      setTitle(t) { this.title = t; return item; },
+      getTitle() { return this.title; },
+      setHelpText(h) { this.help = h; return item; },
+      setChoiceValues(v) { this.choices = v; return item; },
+      getType() { return this.type; },
+      getIndex() { return form.items.indexOf(item); },
+      asListItem() { return item; },
+      asCheckboxItem() { return item; },
+    });
+    this.items.push(item);
+    return item;
+  }
+  titles() { return this.items.map((i) => i.title); }
+}
+for (const [method, type] of Object.entries({ addListItem: 'LIST', addCheckboxItem: 'CHECKBOX', addTextItem: 'TEXT', addParagraphTextItem: 'PARAGRAPH_TEXT',
+  addDateItem: 'DATE', addTimeItem: 'TIME', addMultipleChoiceItem: 'MULTIPLE_CHOICE', addPageBreakItem: 'PAGE_BREAK' })) {
+  FakeForm.prototype[method] = function () { return this.add(type); };
+}
+
 class FakeRange {
   constructor(sheet, row, col, numRows = 1, numCols = 1) { Object.assign(this, { sheet, row, col, numRows, numCols }); }
   getRow() { return this.row; }
@@ -118,6 +156,8 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
   let formSeq = 0;
   const files = new Map(); // drive id -> { name, bytes }
   const sharing = new Map();
+  const fetched = [];
+  const pages = { status: 200 }; // answer for website pages the script checks (e.g. this week's bulletin)
 
   const ui = {
     alert: (...a) => { alerts.push(a.join(' | ')); return 'YES'; },
@@ -173,11 +213,19 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
     },
     Logger: { log: () => {} },
     MailApp: { sendEmail: (to, subject, body) => mails.push({ to, subject, body }) },
-    UrlFetchApp: { fetch: () => ({ getResponseCode: () => 200, getContentText: () => sampleJson }) },
+    UrlFetchApp: {
+      fetch: (url) => {
+        fetched.push(url);
+        if (/\/bulletin\//.test(url)) return { getResponseCode: () => pages.status, getContentText: () => '' };
+        return { getResponseCode: () => 200, getContentText: () => sampleJson };
+      },
+    },
     ContentService: { createTextOutput: (s) => ({ setMimeType: () => ({ content: s }) }), MimeType: { JSON: 'JSON' } },
     HtmlService: { createTemplateFromFile: () => chain() },
     ScriptApp: {
-      getProjectTriggers: () => triggers,
+      getProjectTriggers: () => [...triggers],
+      deleteTrigger: (t) => { const i = triggers.indexOf(t); if (i >= 0) triggers.splice(i, 1); },
+      WeekDay: { SATURDAY: 'SATURDAY', SUNDAY: 'SUNDAY' },
       newTrigger: (fn) => chain({ forForm: (id) => chain({ onFormSubmit: () => chain({ create: () => triggers.push({ getHandlerFunction: () => fn, getTriggerSourceId: () => id }) }) }), timeBased: () => chain({ create: () => triggers.push({ getHandlerFunction: () => fn, getTriggerSourceId: () => '' }) }) }),
       getService: () => ({ getUrl: () => 'https://script.google.com/macros/s/TEST/exec' }),
     },
@@ -198,21 +246,27 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
     FormApp: {
       create: (title) => {
         const id = `FORM${++formSeq}`;
-        forms[id] = title;
-        // the response tab appears in the destination spreadsheet
-        return chain({
+        const form = new FakeForm(id, title);
+        forms[id] = form;
+        Object.assign(form, {
           getId: () => id,
           getPublishedUrl: () => `https://docs.google.com/forms/d/e/${id}/viewform`,
-          setDestination: (_t, ssId) => { const ss = ssId === privateId ? priv : main; const sh = ss.insertSheet('Form Responses ' + formSeq); sh.formUrl = `https://docs.google.com/forms/d/${id}/edit`; },
-          getItems: () => [chain(), chain(), chain({ asListItem: () => chain() }), chain()],
+          // the response tab appears in the destination spreadsheet
+          setDestination: (_t, ssId) => { const ss = ssId === privateId ? priv : main; const sh = ss.insertSheet('Form Responses ' + formSeq); sh.formUrl = `https://docs.google.com/forms/d/${id}/edit`; return form.proxy; },
+          getItems: () => [...form.items],
+          setDescription: (d) => { form.description = d; return form.proxy; },
+          moveItem: (from, to) => { const [it] = form.items.splice(from, 1); form.items.splice(to, 0, it); return it; },
         });
+        form.proxy = fluent(form);
+        return form.proxy;
       },
-      openById: (id) => { if (!forms[id]) throw new Error('no form'); return chain({ getId: () => id, getPublishedUrl: () => `https://docs.google.com/forms/d/e/${id}/viewform`, getItems: () => [] }); },
+      openById: (id) => { if (!forms[id]) throw new Error('no form'); return forms[id].proxy; },
       createTextValidation: () => chain(),
       createParagraphTextValidation: () => chain(),
       DestinationType: { SPREADSHEET: 'SPREADSHEET' },
       PageNavigationType: { SUBMIT: 'SUBMIT' },
       ItemType: { LIST: 'LIST', CHECKBOX: 'CHECKBOX' },
+      Alignment: {},
     },
   };
 
@@ -229,6 +283,9 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
     files,
     sharing,
     triggers,
+    forms,
+    fetched,
+    pages,
     load(code) { vm.runInContext(code, context, { filename: 'Code.gs' }); },
     run(fn, ...args) { return context[fn](...args); },
     setActive(tab, row, numRows = 1) { activeSheet = main.getSheetByName(tab); activeSheet.select(row, numRows); },

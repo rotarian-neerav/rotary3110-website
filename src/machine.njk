@@ -34,7 +34,7 @@ Sitemap: {{ '/sitemap.xml' | absolute }}
 {%- elif f.kind == 'sitemap' -%}
 <?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{%- for p in collections.all %}{% if not p.data.noindex and p.url and p.url.endsWith('/') %}
+{%- for p in collections.all %}{% if not p.data.noindex and p.data.sitemap !== false and p.url and p.url.endsWith('/') %}
   <url><loc>{{ p.url | absolute }}</loc><lastmod>{{ site.today }}</lastmod></url>
 {%- endif %}{% endfor %}
 </urlset>
@@ -54,6 +54,7 @@ Sitemap: {{ '/sitemap.xml' | absolute }}
     <guid isPermaLink="true">{{ a.url | absolute }}</guid>
     <pubDate>{{ (a.approved_at or a.date) | isoDateTime }}</pubDate>
     <category>{{ a.theme | xml }}</category>
+    {%- if a.campaign %}<category>{{ a.campaign.name | xml }}</category>{% endif %}
     <description>{{ a.description | xml }}</description>
     {%- if a.images.length %}<enclosure url="{{ a.images[0].og.src | absolute }}" type="image/jpeg" length="0"/>{% endif %}
   </item>

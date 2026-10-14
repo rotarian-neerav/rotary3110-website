@@ -5,6 +5,7 @@ import { join, relative, resolve } from 'node:path';
 import { test } from 'node:test';
 import ICAL from 'ical.js';
 import { parse } from 'node-html-parser';
+import { core } from '../../lib/core.mjs';
 
 const SITE = resolve(import.meta.dirname, '../../_site');
 const data = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../.cache/public-data.json'), 'utf8'));
@@ -271,4 +272,93 @@ test('form links open in a new tab', () => {
     }
   }
   assert.ok(count > 100);
+});
+
+/* ---------- club services and projects, campaigns, event registration, weekly bulletin ---------- */
+
+test('club pages show regular services and permanent projects; the clubs list counts them', () => {
+  const withLists = data.clubs.filter((c) => c.services?.length || c.projects?.length);
+  if (data.source === 'sample') assert.ok(withLists.length >= 3);
+  for (const c of withLists) {
+    const root = parse(page(`clubs/${c.slug}`));
+    assert.equal(root.querySelectorAll('#services li').length, c.services.length, `${c.slug} services`);
+    assert.equal(root.querySelectorAll('#projects li').length, c.projects.length, `${c.slug} projects`);
+    assert.match(root.toString(), /club-profile\/"[^>]*>Is something missing\?/);
+  }
+  if (withLists.length) assert.match(page('clubs'), /\d+ (service|project)s?/);
+});
+
+test('campaign pages: one per campaign with the right total; the list groups them by Rotary year', () => {
+  if (!data.campaigns?.length) {
+    assert.ok(!existsSync(join(SITE, 'campaigns', 'index.html')) || !/class="campaign-list"/.test(page('campaigns')));
+    return;
+  }
+  for (const c of data.campaigns) {
+    const t = core.Core_campaignTotals(c, data.activities);
+    const html = page(`campaigns/${c.slug}`);
+    assert.match(html, new RegExp(`<strong>${Number(t.total).toLocaleString('en-IN')}</strong> ${c.unit}`), c.campaign_id);
+    assert.doesNotMatch(html, /\blive\b/i, 'never claims to be live');
+  }
+  assert.ok(page('campaigns').includes(`Rotary year ${data.campaigns[0].rotary_year}`));
+});
+
+test('home page: campaign band while one runs, and the line to this week\'s bulletin', () => {
+  const html = page('');
+  assert.match(html, /id="this-week"[\s\S]*?href="[^"]*\/bulletin\/"/);
+  const today = new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
+  const running = (data.campaigns || []).filter((c) => c.start_date <= today && (!c.end_date || today <= c.end_date));
+  assert.equal(parse(html).querySelectorAll('#campaigns .campaign-card').length, running.length);
+  if (running.length) assert.ok(html.indexOf('id="campaigns"') < html.indexOf('id="upcoming-events"'), 'campaigns above upcoming events');
+});
+
+test('weekly bulletin: this week\'s page, a dated page for every Sunday, the archive; only dated pages in the sitemap', () => {
+  const current = parse(page('bulletin'));
+  const canonical = current.querySelector('link[rel=canonical]').getAttribute('href');
+  assert.match(canonical, /\/bulletin\/\d{4}-\d{2}-\d{2}\/$/);
+  const dated = canonical.match(/\/bulletin\/(\d{4}-\d{2}-\d{2})\/$/)[1];
+  assert.equal(new Date(dated + 'T00:00:00Z').getUTCDay(), 0, 'dated by a Sunday');
+  assert.ok(existsSync(join(SITE, 'bulletin', dated, 'index.html')));
+  const archive = parse(page('bulletin/archive')).querySelectorAll('.bulletin-archive a').map((a) => a.getAttribute('href'));
+  assert.ok(archive.length >= 1);
+  for (const href of archive) assert.ok(existsSync(join(SITE, href.replace(PREFIX, ''), 'index.html')), href);
+  if (data.source === 'sample') assert.ok(archive.length >= 5, 'sample: four weeks of archive plus this week');
+  const msg = current.querySelector('.bulletin-message').rawText.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+  assert.ok(msg.length <= 1000);
+  assert.match(msg, new RegExp(`Full bulletin: \\S+/bulletin/${dated}/`));
+  assert.match(current.querySelector('title').text, /^This week in Rotary District 3110 – /);
+  const sitemap = read(join(SITE, 'sitemap.xml'));
+  assert.ok(sitemap.includes(`/bulletin/${dated}/<`));
+  assert.ok(!sitemap.includes('/bulletin/<'), 'the undated page points search engines to the dated one');
+});
+
+test('menu has no bulletin or campaigns entries; the footer links to them (campaigns only when there are any)', () => {
+  const home = parse(page(''));
+  const nav = home.querySelectorAll('nav[aria-label=Main] a').map((a) => a.getAttribute('href'));
+  assert.ok(!nav.some((h) => /\/(bulletin|campaigns)\//.test(h)));
+  const footer = home.querySelectorAll('.site-footer a').map((a) => a.getAttribute('href'));
+  assert.ok(footer.some((h) => h.endsWith('/bulletin/')));
+  assert.equal(footer.some((h) => h.endsWith('/campaigns/')), !!data.campaigns?.length);
+});
+
+test('event registration: cancelled events stay listed and say so, also in the calendar file; postponed never shows "Registration open"', () => {
+  for (const e of data.events) {
+    const html = page(`events/${e.id.toLowerCase()}`);
+    if (e.registration_status === 'Cancelled') {
+      assert.match(html, /class="reg-line reg-cancelled"/);
+      assert.match(read(join(SITE, 'events', e.id.toLowerCase() + '.ics')), /STATUS:CANCELLED/);
+    }
+    if (e.registration_status === 'Postponed') assert.doesNotMatch(html, /Registration open/);
+    if (e.fee) assert.ok(html.includes(e.fee));
+  }
+  if (data.source === 'sample') assert.ok(data.events.some((e) => e.registration_status === 'Cancelled'));
+});
+
+test('activities tagged to a campaign show the tag, linking to the campaign page', () => {
+  const tagged = data.activities.filter((a) => a.campaign_id);
+  if (data.source === 'sample') assert.ok(tagged.length >= 5);
+  for (const a of tagged) {
+    const c = data.campaigns.find((x) => x.campaign_id === a.campaign_id);
+    if (!core.Core_inCampaign(c, a.date)) continue;
+    assert.match(page(`activities/${a.id.toLowerCase()}`), new RegExp(`class="chip chip-campaign" href="[^"]*/campaigns/${c.slug}/"`), a.id);
+  }
 });

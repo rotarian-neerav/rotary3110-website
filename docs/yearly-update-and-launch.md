@@ -12,7 +12,8 @@
    - **club_history** (private Sheet): one row per member per club, with from and to dates.
 3. Update **settings → current_rotary_year**.
 4. **Rotary → Update form lists** (so the forms show the real clubs).
-5. **Rotary → Rebuild site now.**
+5. **settings → bulletin_start_date**: the Sunday of the public launch (e.g. `2026-11-01`). The bulletin archive starts there. Fill in **bulletin_emails** with whoever forwards the Sunday message.
+6. **Rotary → Rebuild site now.**
 
 ## Every July (new Rotary year)
 
@@ -24,7 +25,8 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 4. **clubs**: update member counts; mark closed clubs `inactive` (never delete them); add new clubs.
 5. **Members who moved clubs** (private Sheet): in **club_history**, put an end date on the old club row and add a new row for the new club. Change `club_id` in **members_master**.
 6. **Rotary → Check roles and member IDs**: fix anything in the **role_checks** tab, so each person's new roles join their member card. Last year's roles stay on the cards under last year.
-7. **Rotary → Update form lists**, then **Rotary → Rebuild site now**.
+7. **campaigns**: add the new year's district campaigns (see the moderator guide). Last year's campaign pages stay, under last year.
+8. **Rotary → Update form lists**, then **Rotary → Rebuild site now**.
 
 ## Launch checklist (from the brief, section 12)
 
@@ -44,3 +46,5 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Buy the domain and register the site with Google Search Console | District | Open (recommended before public launch) |
 | 2-step verification and recovery details on the district Google and GitHub accounts | District | Open |
 | Replace the sample data with the real data (above) | District + moderators | Open |
+| Name the person who forwards the Sunday bulletin message (`bulletin_emails`) | District | Open |
+| Consider a district WhatsApp Channel for the weekly bulletin (one post instead of forwarding to every group) | District | Later |

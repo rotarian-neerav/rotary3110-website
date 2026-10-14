@@ -12,11 +12,12 @@ eleventyComputed:
   description: "{{ a.description }}"
   ogImage: "{{ a.images[0].og.src if a.images.length else '' }}"
 ---
-{% from "macros.njk" import shareButton %}
+{% from "macros.njk" import shareButton, campaignTag %}
 <article class="wrap section activity-page">
   <p class="meta"><span class="chip theme-{{ a.themeSlug }}">{{ a.theme }}</span> <time datetime="{{ a.date }}">{{ a.dateLabel }}</time></p>
   <h1>{{ a.title }}</h1>
   <p class="club-line"><a href="{{ a.club.url }}">{{ a.club.name }}</a>{% if a.partners.length %} · {{ t.activity.with }} {% for p in a.partners %}<a href="{{ p.url }}">{{ p.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+  {%- if a.campaign %}<p class="campaign-tag-line">{{ campaignTag(a) }}</p>{% endif %}
 
   {%- if a.images.length %}
   <div class="photos photos-{{ a.images.length }}">

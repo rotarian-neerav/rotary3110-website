@@ -269,10 +269,143 @@ test('48-hour reminders go to the moderators', () => {
   assert.equal(mail.to, 'mod1@example.com,mod2@example.com');
 });
 
+/* ---------- club services and projects, campaigns, event registration, weekly bulletin ---------- */
+
+const settingsMap = () => Object.fromEntries(env.main.rows('settings').map((r) => [r.key, r.value]));
+const BLOOD = 'Blood Donation Drive 2026-27 (blood units)';
+
+test('Upgrade Sheet: adds the new questions to the existing forms in place, once; the campaigns tab, settings, lists and weekly emails', () => {
+  const ids = JSON.parse(env.props.get('FORM_IDS'));
+  const later = [Q.pProjects, Q.pServices, Q.aCampaign, Q.aCampaignCount, Q.eRegClose, Q.eFee];
+  // forms created before this change do not have the new questions
+  for (const id of [ids.activity, ids.club_profile]) env.forms[id].items = env.forms[id].items.filter((i) => !later.includes(i.title));
+  env.run('upgradeSheet');
+  env.run('upgradeSheet');
+  const act = env.forms[ids.activity].titles();
+  const prof = env.forms[ids.club_profile].titles();
+  for (const t of later) assert.equal(act.concat(prof).filter((x) => x === t).length, 1, `${t} added once`);
+  assert.equal(act[act.indexOf(Q.aHelped) + 1], Q.aCampaign);
+  assert.equal(act[act.indexOf(Q.aCampaign) + 1], Q.aCampaignCount);
+  assert.equal(act[act.indexOf(Q.eEnd) + 1], Q.eRegClose);
+  assert.equal(act[act.indexOf(Q.eRegClose) + 1], Q.eFee);
+  assert.deepEqual(prof.slice(prof.indexOf(Q.pConfirm) - 2, prof.indexOf(Q.pConfirm) + 1), [Q.pProjects, Q.pServices, Q.pConfirm]);
+  const campaignQ = env.forms[ids.activity].items.find((i) => i.title === Q.aCampaign);
+  assert.equal(campaignQ.choices[0], 'Not part of a district campaign');
+  assert.ok(campaignQ.choices.includes(BLOOD), 'running campaign offered');
+  assert.ok(!campaignQ.choices.some((c) => c.startsWith('School Health')), 'a campaign that ended more than 30 days ago is not offered');
+  assert.match(env.forms[ids.club_profile].description, /permanent projects and regular services/);
+  assert.ok(env.main.getSheetByName('campaigns'));
+  const s = settingsMap();
+  assert.equal(String(s.campaign_check_above), '1000');
+  for (const k of ['bulletin_start_date', 'bulletin_emails']) assert.ok(k in s, k);
+  assert.equal(env.main.rows('lists').filter((r) => r.list === 'registration_status').length, 4);
+  for (const fn of ['bulletinPreview', 'bulletinMessage']) assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === fn).length, 1, fn);
+});
+
+test('a campaign report is filed with its campaign and count; moderators get notes on what to check', () => {
+  const base = { [Q.club]: 'RC Kanpur', [Q.name]: 'Rtn C', [Q.role]: 'Secretary', [Q.mobile]: '9855555555', [Q.kind]: Q.kindActivity,
+    [Q.aTheme]: 'Fighting disease', [Q.aDesc]: 'z'.repeat(120), [Q.aLink]: 'https://example.com/camp', [Q.aConsent]: ['yes'] };
+  env.submit('activity', { ...base, [Q.aTitle]: 'Blood camp at the town hall', [Q.aDate]: '2026-10-04', [Q.aCampaign]: BLOOD, [Q.aCampaignCount]: '1,500' });
+  let row = env.main.rows('activities').at(-1);
+  assert.equal(row.campaign_id, 'BLOOD-2026-27');
+  assert.equal(row.campaign_count, 1500);
+  assert.match(row.moderator_note, /Check the campaign count/);
+  assert.match(row.moderator_note, /Another club reported this campaign on the same date \(ACT-\d{4}-\d{4}, RC Jhansi\)/);
+  env.submit('activity', { ...base, [Q.aTitle]: 'Second camp', [Q.aDate]: '2026-10-09', [Q.aCampaign]: 'Not part of a district campaign', [Q.aCampaignCount]: '40' });
+  row = env.main.rows('activities').at(-1);
+  assert.equal(row.campaign_id, '');
+  assert.match(row.moderator_note, /Count given without a campaign/);
+  env.submit('activity', { ...base, [Q.aTitle]: 'Old camp', [Q.aDate]: '2026-06-15', [Q.aCampaign]: BLOOD, [Q.aCampaignCount]: '10' });
+  assert.match(env.main.rows('activities').at(-1).moderator_note, /outside the campaign period/);
+});
+
+test('event registration answers are filed; a fee with payment details gets a note and never reaches the website', () => {
+  env.submit('activity', {
+    [Q.club]: 'RC Jhansi', [Q.name]: 'Rtn E', [Q.role]: 'President', [Q.mobile]: '9877777777', [Q.kind]: Q.kindEvent,
+    [Q.eTitle]: 'Charity walk to the fort', [Q.eType]: 'Club event open to all', [Q.eStart]: '2026-11-20', [Q.eVenue]: 'Jhansi Fort',
+    [Q.eCity]: 'Jhansi', [Q.eOrganiser]: 'RC Jhansi', [Q.eRegClose]: '2026-11-15', [Q.eFee]: '₹100, pay by UPI',
+  });
+  const rows = env.main.rows('events');
+  const e = rows.at(-1);
+  assert.equal(e.registration_close_date, '2026-11-15');
+  assert.equal(e.fee, '₹100, pay by UPI');
+  assert.match(e.moderator_note, /payment details/);
+  env.setActive('events', rows.length + 1);
+  env.run('approveSelected');
+  const d = data();
+  const pub = d.events.find((x) => x.id === e.id);
+  assert.equal(pub.registration_close_date, '2026-11-15');
+  assert.equal(pub.fee, '');
+  assert.ok(d.skipped_items.includes(`event ${e.id} fee`));
+});
+
+test('club profile: projects and services get notes; a blank answer keeps the list, "none" clears it, anything else replaces it', () => {
+  const jhansi = () => env.main.rows('clubs').find((c) => c.club_name === 'RC Jhansi');
+  const projectsBefore = jhansi().permanent_projects;
+  assert.ok(projectsBefore);
+  const send = (answers) => {
+    env.submit('club_profile', { [Q.club]: 'RC Jhansi', [Q.name]: 'Rtn P', [Q.role]: 'President', [Q.mobile]: '9866666666', ...answers });
+    const rows = env.main.rows('club_profile_requests');
+    env.setActive('club_profile_requests', rows.length + 1);
+    return rows.at(-1);
+  };
+  const req = send({ [Q.pServices]: 'Blood bank desk – Sundays – Rotary Bhawan\nCall 98765 43210 for help', [Q.pProjects]: '' });
+  assert.match(req.moderator_note, /phone number or email/);
+  env.run('approveSelected');
+  assert.equal(jhansi().permanent_projects, projectsBefore, 'blank answer keeps the list');
+  assert.match(jhansi().regular_services, /^Blood bank desk/, 'replaced');
+  const pub = data().clubs.find((c) => c.name === 'RC Jhansi');
+  assert.deepEqual(pub.services.map((s) => s.what), ['Blood bank desk'], 'the line with a phone number is kept off the website');
+  send({ [Q.pServices]: 'None' });
+  env.run('approveSelected');
+  assert.equal(jhansi().regular_services, '', '"none" clears the list');
+  assert.match(send({ [Q.pProjects]: 'y'.repeat(170) }).moderator_note, /longer than 160 characters/);
+});
+
+test('data link: campaigns, event registration, the bulletin start date and skipped items reach the website', () => {
+  const d = data();
+  assert.deepEqual(d.campaigns.map((c) => c.campaign_id).sort(), ['BLOOD-2026-27', 'SCHOOL-2025-26']);
+  assert.match(d.campaigns.find((c) => c.campaign_id === 'BLOOD-2026-27').chair_ref, /^P[0-9a-f]{12}$/);
+  assert.ok(d.events.some((e) => e.registration_status === 'Cancelled'));
+  assert.match(d.site.bulletin_start_date, /^\d{4}-\d{2}-\d{2}$/);
+  assert.ok(Array.isArray(d.skipped_items));
+  assert.ok(!JSON.stringify(d).includes('chair_member_id'), 'the chair\'s member ID is not published');
+});
+
+test('Saturday preview: the coming Sunday\'s bulletin with the row ids, to the moderators (the district account until they are named)', () => {
+  const before = env.mails.length;
+  env.run('bulletinPreview');
+  const mail = env.mails.slice(before).find((m) => /no action needed/.test(m.subject));
+  assert.ok(mail, 'preview sent');
+  const s = settingsMap();
+  assert.equal(mail.to, String(s.moderator_emails || '').split(/\s*,\s*/).filter(Boolean).join(',') || 'rotarian.neerav@gmail.com');
+  assert.match(mail.body, /Full bulletin: \S+\/bulletin\/\d{4}-\d{2}-\d{2}\//);
+  assert.match(mail.body, /set bulletin_exclude to TRUE/);
+});
+
+test('Sunday message: waits for this week\'s bulletin page and asks for a rebuild; then sends once, the same text the website shows', () => {
+  const sunday = core.Core_sundayOf(new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10));
+  env.pages.status = 404;
+  const before = env.mails.length;
+  assert.equal(env.run('bulletinMessage'), 'waiting for the website');
+  assert.equal(env.mails.length, before, 'nothing sent while the page is missing');
+  assert.ok(env.triggers.some((t) => t.getHandlerFunction() === 'bulletinMessageRetry'), 'tries again in an hour');
+  assert.ok(env.fetched.some((u) => u.endsWith(`/bulletin/${sunday}/`)));
+  env.pages.status = 200;
+  env.run('bulletinMessageRetry');
+  assert.ok(!env.triggers.some((t) => t.getHandlerFunction() === 'bulletinMessageRetry'), 'the one-off retry is removed');
+  const mail = env.mails.at(-1);
+  assert.match(mail.subject, /please forward/);
+  assert.equal(mail.body, core.Core_bulletinMessage(core.Core_bulletin(data(), sunday), settingsMap().site_url), 'same selection as the website');
+  assert.ok(mail.body.length <= 1000);
+  assert.equal(env.run('bulletinMessage'), 'already sent');
+});
+
 test('"Clear all sample data" leaves only real rows, and the site data is still valid', () => {
   env.run('clearSampleData');
   assert.equal(env.main.rows('clubs').length, 0, 'sample clubs removed');
   assert.equal(env.main.rows('functionaries').length, 0, 'Excel rows were marked sample, as agreed');
+  assert.equal(env.main.rows('campaigns').length, 0, 'sample campaigns removed too');
   assert.ok(env.main.rows('activities').some((a) => a.id === newActivityId), 'real (form) rows kept');
   assert.ok(env.priv.rows('members_master').some((m) => m.member_id === '7654321'), 'real member records kept');
   assert.ok(!env.priv.rows('members_master').some((m) => m.is_sample === true));

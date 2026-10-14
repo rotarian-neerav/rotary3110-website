@@ -19,6 +19,8 @@ GitHub Actions: Sundays 6 am IST, or within ~30 min of "Rebuild site now"
    fetch ─► privacy check (stops on unsafe data) ─► photos resized, location data removed ─► Eleventy ─► tests ─► GitHub Pages
 ```
 
+The Sheet also emails the moderators a preview of the weekly bulletin on Saturday evening, and on Sunday morning the WhatsApp message for someone to forward to the district groups.
+
 The rules for what may become public live in one file, [apps-script/Core.js](apps-script/Core.js), used by **both** the Sheet script and the website build, and covered by the tests.
 
 ## Folders

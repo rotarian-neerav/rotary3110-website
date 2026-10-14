@@ -16,7 +16,7 @@ eleventyComputed:
     name: "{{ e.title }}"
     startDate: "{{ e.start_date }}{% if e.start_time %}T{{ e.start_time }}:00+05:30{% endif %}"
     endDate: "{{ e.end_date or e.start_date }}"
-    eventStatus: "https://schema.org/EventScheduled"
+    eventStatus: "https://schema.org/{% if e.registration_status == 'Cancelled' %}EventCancelled{% elif e.registration_status == 'Postponed' %}EventPostponed{% else %}EventScheduled{% endif %}"
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode"
     location:
       "@type": "Place"
@@ -27,14 +27,16 @@ eleventyComputed:
       name: "{{ e.organiser }}"
     description: "{{ e.description }}"
 ---
-{% from "macros.njk" import shareButton %}
+{% from "macros.njk" import shareButton, registrationLine %}
 <article class="wrap section narrow">
   <p class="meta"><span class="chip">{{ e.event_type }}</span>{% if e.isPast %} <span class="chip muted-chip">Past event</span>{% endif %}</p>
-  <h1>{{ e.title }}</h1>
+  <h1{% if e.registration.state == 'cancelled' %} class="struck"{% endif %}>{{ e.title }}</h1>
+  {%- if not e.isPast %}{{ registrationLine(e.registration) }}{% endif %}
   <dl class="details">
     <dt>Date</dt><dd>{{ e.dateLabel }}{% if e.start_time %}, {{ e.start_time }}{% endif %}</dd>
     <dt>{{ t.events.venue }}</dt><dd>{{ e.venue }}, {{ e.city }}{% if e.map_link %} · <a href="{{ e.map_link }}" target="_blank" rel="noopener">{{ t.events.map }} ↗</a>{% endif %}</dd>
     <dt>{{ t.events.organiser }}</dt><dd>{{ e.organiser }}</dd>
+    {%- if e.fee %}<dt>{{ t.events.fee }}</dt><dd>{{ e.fee }}</dd>{% endif %}
   </dl>
   {%- if e.images.length %}
   <div class="photos photos-{{ e.images.length }}">

@@ -64,6 +64,14 @@ function dayMonthAnswer_(value) {
   return m ? m[2] + '-' + m[1] : '';
 }
 
+/** Moderator notes for free text that must not be published as it is. */
+function textNotes_(values, notes) {
+  if (values.some(function (v) { return Core_unsafeText(Core_str(v)); })) notes.push('Contains a phone number or email: remove it before approving');
+  if (values.some(function (v) { return Core_str(v).split(/\r?\n/).some(function (l) { return l.trim().length > CORE_LINE_MAX; }); })) {
+    notes.push('A line is longer than ' + CORE_LINE_MAX + ' characters');
+  }
+}
+
 function fileActivityOrEvent_(a, meta) {
   var ss = mainSs_();
   var clubName = Core_str(a[Q.club]);
@@ -73,6 +81,9 @@ function fileActivityOrEvent_(a, meta) {
   };
   if (Core_str(a[Q.kind]) === Q.kindEvent) {
     var events = readTab_(ss, 'events');
+    var fee = Core_str(a[Q.eFee]);
+    var eventNotes = [];
+    if (Core_unsafeText(fee) || CORE_PAYMENT_RE.test(fee)) eventNotes.push('Fee contains payment details: remove before approving');
     appendRow_(ss, 'events', Object.assign(sender, {
       id: nextId_(events, 'EVT-' + new Date().getFullYear() + '-'),
       title: Core_str(a[Q.eTitle]), event_type: Core_str(a[Q.eType]), start_date: Core_str(a[Q.eStart]),
@@ -81,6 +92,7 @@ function fileActivityOrEvent_(a, meta) {
       details_link: link_(a[Q.eDetails]),
       // the event page has its own photo question with the same title; only one of the two is ever answered
       photo_files: fileIds_(firstStartingWith_(a, 'Photos')),
+      registration_close_date: Core_str(a[Q.eRegClose]), fee: fee, moderator_note: eventNotes.join('; '),
     }));
     return;
   }
@@ -94,7 +106,12 @@ function fileActivityOrEvent_(a, meta) {
     people_helped: Core_str(a[Q.aHelped]), amount_spent: Core_str(a[Q.aSpent]), partner_clubs: partners.join(', '),
     photo_consent: checked_(a[Q.aConsent]),
   });
+  var campaignRows = readTab_(ss, 'campaigns');
+  var count = Core_str(a[Q.aCampaignCount]).replace(/[,\s]/g, '');
+  row.campaign_id = Core_campaignIdForLabel(a[Q.aCampaign], campaignRows);
+  row.campaign_count = /^\d+$/.test(count) ? Number(count) : '';
   var notes = [];
+  campaignNotes_(row, activities, campaignRows, notes);
   var dup = Core_findDuplicate(row, activities);
   if (dup) notes.push('Possible duplicate of ' + dup);
   if (!row.photo_files && !row.post_link) notes.push('No photo or link: reject or ask the club for one');
@@ -103,17 +120,41 @@ function fileActivityOrEvent_(a, meta) {
   appendRow_(ss, 'activities', row);
 }
 
+/** Notes for a campaign report: a count without a campaign, a date outside it, a large count, another club the same day. */
+function campaignNotes_(row, activities, campaignRows, notes) {
+  if (row.campaign_count !== '' && !row.campaign_id) notes.push('Count given without a campaign');
+  if (!row.campaign_id) return;
+  var c = Core_openCampaigns(campaignRows, '0000-00-00').filter(function (x) { return x.campaign_id === row.campaign_id; })[0];
+  var date = Core_isoDate(row.date);
+  if (c && !Core_inCampaign(c, date)) notes.push('Date is outside the campaign period: it will not count');
+  var limit = Number(settings_().campaign_check_above) || 1000;
+  if (row.campaign_count !== '' && row.campaign_count > limit) notes.push('Check the campaign count');
+  var other = activities.filter(function (x) {
+    return Core_str(x.campaign_id) === row.campaign_id && Core_isoDate(x.date) === date && Core_str(x.club_id) !== row.club_id &&
+      Core_str(x.status).toLowerCase() !== 'rejected';
+  })[0];
+  if (other) {
+    notes.push('Another club reported this campaign on the same date (' + other.id + ', ' + Core_str(other.club_name) +
+      '): check it is not one joint event counted twice');
+  }
+}
+
 function fileClubProfile_(a, meta) {
   var ss = mainSs_();
   var clubName = Core_str(a[Q.club]);
   var ans = function (t) { return Core_str(a[t + ' (optional)']); };
   var url = function (t) { return link_(a[t + ' (optional)']); };
+  var projects = Core_str(a[Q.pProjects]);
+  var services = Core_str(a[Q.pServices]);
+  var notes = [];
+  textNotes_([projects, services], notes);
   appendRow_(ss, 'club_profile_requests', {
     id: nextId_(readTab_(ss, 'club_profile_requests'), 'CPR-'), submitted_at: meta.submitted_at, submitter_email: meta.submitter_email,
     submitter_name: Core_str(a[Q.name]), submitter_role: Core_str(a[Q.role]), submitter_mobile: Core_str(a[Q.mobile]),
     club_id: clubIdByName_(clubName), club_name: clubName, website: url(Q.pWebsite), facebook: url(Q.pFacebook),
     instagram: url(Q.pInstagram), youtube: url(Q.pYoutube), x: url(Q.pX), linkedin: url(Q.pLinkedin),
-    meeting_day_place: ans(Q.pMeeting), status: 'pending',
+    meeting_day_place: ans(Q.pMeeting), permanent_projects: projects, regular_services: services, status: 'pending',
+    moderator_note: notes.join('; '),
   });
 }
 

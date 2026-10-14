@@ -290,3 +290,55 @@ img.avatar { width: auto; }
 .role-list { margin: 0 0 6px; padding-left: 18px; }
 .role-list li { margin-bottom: 4px; }
 @media (max-width: 480px) { .member-head { flex-direction: column; align-items: flex-start; } }
+
+/* Club page: regular services and permanent projects */
+.club-items { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 8px; }
+.club-items li { padding: 10px 12px; border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 0 var(--radius) var(--radius) 0; background: #fff; }
+.club-items strong { display: block; color: var(--royal); }
+.club-items span { display: block; font-size: .9rem; }
+.campaign-line { background: var(--bg-soft); border-radius: var(--radius); padding: 10px 14px; }
+
+/* Event registration */
+.reg-line { font-size: .875rem; margin: 2px 0 0; }
+.reg-open .reg-text { color: #0b6a2b; font-weight: 600; }
+.reg-full .reg-text, .reg-postponed .reg-text { color: var(--gold-dark); font-weight: 600; }
+.reg-closed .reg-text { color: var(--muted); }
+.reg-cancelled .reg-text { color: #9e1b1a; font-weight: 700; }
+.event.cancelled h3 a, .struck { text-decoration: line-through; }
+
+/* District campaigns */
+.chip-campaign { background: #fde8e8; color: #9e1b1a; text-decoration: none; }
+.campaign-tag-line { margin: 6px 0 0; }
+.chip-running { background: #e2f4e8; color: #0b6a2b; }
+.campaign-grid { display: grid; gap: 12px; }
+.campaign-card { border: 1px solid var(--line); border-top: 4px solid var(--cranberry); border-radius: var(--radius); padding: 12px 14px; background: #fff; }
+.campaign-card h3 { margin: 0 0 4px; }
+.campaign-number { margin: 0; color: var(--muted); }
+.campaign-number strong { font-size: 1.8rem; color: var(--royal); }
+.campaign-number.big strong { font-size: 2.6rem; }
+.campaign-total { background: var(--bg-soft); border-radius: var(--radius); padding: 14px 16px; margin: 12px 0; }
+.campaign-total p { margin-bottom: 4px; }
+.progress { height: 10px; background: #fff; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; margin: 8px 0 2px; }
+.progress span { display: block; height: 100%; background: var(--gold); }
+.campaign-table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.campaign-table th, .campaign-table td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+.campaign-table th:not(:first-child), .campaign-table td:not(:first-child) { text-align: right; white-space: nowrap; }
+.campaign-list, .report-list, .bulletin-archive { list-style: none; padding: 0; }
+.campaign-list li { border-bottom: 1px solid var(--line); padding: 10px 0; }
+.campaign-list h3, .campaign-list p { margin: 0 0 4px; }
+.report-list li, .bulletin-archive li { padding: 6px 0; border-bottom: 1px solid var(--line); }
+.how-to { border-top: 3px solid var(--gold); margin-top: 24px; }
+
+/* Weekly bulletin */
+.this-week { margin: 12px auto 0; font-weight: 600; }
+.this-week a { display: inline-block; padding: 8px 14px; border-radius: 999px; background: var(--bg-soft); text-decoration: none; }
+.bulletin section { margin-top: 8px; }
+.bulletin-message { width: 100%; font: .9rem/1.45 "Open Sans", Arial, sans-serif; padding: 10px 12px; border: 1px solid #b9c3d3; border-radius: 8px; background: var(--bg-soft); resize: vertical; }
+.bulletin-footer { border-top: 3px solid var(--gold); margin-top: 24px; }
+
+@media (min-width: 640px) {
+  .campaign-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 960px) {
+  .campaign-grid { grid-template-columns: repeat(3, 1fr); }
+}

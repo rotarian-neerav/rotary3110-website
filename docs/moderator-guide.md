@@ -20,9 +20,23 @@ You need edit access to the Sheet **3110Website** (and to the private members Sh
 
 **Story of the month:** tick `story_of_month` on the best activity of the month (judged on quality, not quantity).
 
+**Event registration:** clubs can give a closing date and a fee on the form. The website works out the registration line by itself ("Registration open till 20 Oct", then "Registration closed"). Use the `registration_status` column only for exceptions:
+- **Seats full**, **Postponed** or **Cancelled**: shown instead of the dates. A cancelled event stays listed with "Cancelled", so people who saw the poster find out; phone calendars that saved it are told too.
+- **Extended**: also change `registration_close_date` to the new date.
+
+A fee is shown as typed ("₹500 per person", "Free"). If the moderator note says the fee contains payment details (UPI, IFSC, a bank account or a phone number), remove them before approving; the website leaves such a fee out anyway.
+
 ## Club profile updates
 
 New ones appear in **club_profile_requests**. Check that the links work and belong to the club, then approve. The links are copied to the club's row in **clubs**.
+
+### Regular services and permanent projects
+
+Clubs list them on the club profile form, one per line:
+- **Regular services**: what – when – where, for example `Free eye check-up – every Thursday, 11 am–1 pm – Roshni Centre, Civil Lines`.
+- **Permanent projects**: name – what it is – where, for example `Rotary Eye Hospital – eye hospital under construction – Kasganj`.
+
+When approved, the club's list is **replaced** by the new one. A blank answer leaves the list as it is; "none" clears it. Read the moderator note: a line with a phone number or email must be removed before approving (the website leaves such a line out anyway), and lines over 160 characters are cut. You can also make light fixes in the `permanent_projects` and `regular_services` cells of the **clubs** tab.
 
 ## Member requests (consent and removal)
 
@@ -52,6 +66,37 @@ Every office bearer and district team member has a **member card** on the websit
 
 Titles do not matter: "DG", "PDG", "Rtn" are ignored when comparing names.
 
+## District campaigns
+
+Each Rotary year the Governor runs a few district-wide drives (blood donation, school health check-ups and so on). Clubs report their part through the ordinary activity form: they choose the campaign and give a count. The website adds up the counts and shows a page for each campaign, a band on the home page while it runs, and a line in the weekly bulletin.
+
+**Adding a campaign** (at the start of the year, or whenever one begins): add a row to the **campaigns** tab:
+
+| Column | What to type |
+|---|---|
+| `campaign_id` | A short id that never changes, e.g. `BLOOD-2026-27` |
+| `rotary_year` | e.g. `2026-27` |
+| `name` | e.g. `Blood Donation Drive` |
+| `unit` | What the count measures, plural: `blood units`, `students screened` |
+| `start_date`, `end_date` | Only work done between these dates counts |
+| `target` | Optional whole number; shows a progress bar |
+| `description` | Optional, 1–3 lines |
+| `chair`, `chair_member_id` | Optional: the chair's name and role, and their member ID so the name links to their member card. No contact details. |
+| `sort_order` | Optional number |
+
+Then **Rotary → Update form lists**, so the campaign appears on the activity form. The form keeps offering it until 30 days after `end_date`, for late reports; it drops off by itself after that.
+
+**Checking reports:** the moderator note warns about a count without a campaign, a date outside the campaign, a count above `campaign_check_above` (settings tab, 1000 to start with), and another club reporting the same campaign on the same date (it may be one joint event counted twice). You can correct `campaign_id` or `campaign_count` before approving. A joint activity counts only for the club that sent it. Only approved reports count, and only the website's running total is shown: never call it "live".
+
+## Weekly bulletin
+
+Every Sunday the website puts together **"This week in District 3110"** (`…/bulletin/`) from approved data: events in the next 14 days (district events first), registrations closing that week, up to 6 activities approved in the past week (one per club), and campaign totals. Nobody writes it. Past weeks stay at their own address (`…/bulletin/2026-10-18/`).
+
+- **Saturday 6 pm:** the moderators get an email "Tomorrow's bulletin – no action needed" with the WhatsApp message and the row ids chosen. Nothing to do if it looks right. To leave something out, set `bulletin_exclude` to `TRUE` on that row in the **activities** or **events** tab before Sunday 6 am.
+- **Sunday 8 am:** an email "This week's bulletin – please forward to the district groups" goes to `bulletin_emails` (settings tab; the moderators if blank). **Someone forwards that one message to the district WhatsApp groups**; WhatsApp has no free way to post into groups automatically. The email waits until the bulletin page is on the website: if the Sunday update is late, it asks for one and tries again every hour.
+- Each bulletin page also has **Copy message** and **Share on WhatsApp** buttons.
+- **Administrator → Send bulletin preview now / Send bulletin message now** send the two emails at any time.
+
 ## Magazine
 
 Put the PDF into the Drive folder **3110Magazines**, named by year and month: `2026-10.pdf`. Optional cover picture with the same name: `2026-10.jpg`. The site picks it up at the next update.
@@ -75,5 +120,6 @@ Every page has a preview card. If you change a photo after a link was already sh
 ## Never
 
 - Never type in **members_public**, **couples_public**, **dashboard** or **role_checks**: the script fills them in.
+- Never put a phone number, email or bank/UPI details in a club's services or projects, an event fee, or a campaign's description or chair.
 - Never share the private members Sheet or make the Drive folders public (except 3110Magazines).
 - The district never asks for money over WhatsApp. If someone reports such a message, it is a scam.

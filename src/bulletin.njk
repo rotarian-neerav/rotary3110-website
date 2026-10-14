@@ -1,0 +1,14 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.bulletins
+  size: 1
+  addAllPagesToCollections: true
+  alias: b
+permalink: "{{ b.url }}"
+scripts: ["bulletin.js"]
+eleventyComputed:
+  title: "This week in Rotary District 3110 – {{ b.dateLabel }}"
+  description: "{{ b.summary }}"
+---
+{% include "partials/bulletin.njk" %}

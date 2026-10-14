@@ -1,0 +1,62 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.campaigns
+  size: 1
+  addAllPagesToCollections: true
+  alias: c
+permalink: "{{ c.url }}"
+eleventyComputed:
+  title: "{{ c.name }} {{ c.rotary_year }}"
+  description: "{{ c.name }}, Rotary District 3110: {{ c.total | number }} {{ c.unit }} from {{ c.entries }} reports by {{ c.clubs }} clubs. {{ c.description }}"
+---
+{% from "macros.njk" import activityCard, progress %}
+<article class="wrap section">
+  <p class="meta">District campaign · Rotary year {{ c.rotary_year }}{% if c.isRunning %} · <span class="chip chip-running">{{ t.campaigns.running }}</span>{% endif %}</p>
+  <h1>{{ c.name }}</h1>
+  <p class="meta">{{ c.dateLabel }}{% if c.chair %} · {{ t.campaigns.chair }}: {% if c.chairCard %}<a href="{{ c.chairCard }}">{{ c.chair }}</a>{% else %}{{ c.chair }}{% endif %}{% endif %}</p>
+  {%- if c.description %}<p class="story">{{ c.description }}</p>{% endif %}
+
+  <div class="campaign-total">
+    <p class="campaign-number big"><strong>{{ c.total | number }}</strong> {{ c.unit }}</p>
+    <p>{{ t.campaigns.from_reports }} {{ c.entries }} {{ t.campaigns.report if c.entries == 1 else t.campaigns.reports }} {{ t.campaigns.by }} {{ c.clubs }} {{ t.campaigns.club_one if c.clubs == 1 else t.campaigns.clubs }}</p>
+    {%- if c.target %}{{ progress(c, t) }}{% endif %}
+    <p class="small muted">{{ t.campaigns.note }} {{ t.campaigns.updated }} {{ site.generatedAt | dateTime }}.</p>
+  </div>
+
+  {%- if c.byClub.length %}
+  <h2>{{ t.campaigns.by_club }}</h2>
+  <table class="campaign-table">
+    <thead><tr><th scope="col">Club</th><th scope="col">Reports</th><th scope="col">{{ c.unit | capitalize }}</th></tr></thead>
+    <tbody>
+      {%- for x in c.byClub %}
+      <tr><td>{% if x.club %}<a href="{{ x.club.url }}">{{ x.club.name }}</a>{% endif %}</td><td>{{ x.entries }}</td><td>{{ x.count | number }}</td></tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+  {%- endif %}
+
+  <h2>{{ t.campaigns.latest }}</h2>
+  {%- if c.activities.length %}
+  <div class="grid cards">{% for a in c.activities.slice(0, 12) %}{{ activityCard(a, t) }}{% endfor %}</div>
+  {%- if c.activities.length > 12 %}
+  <h3>{{ t.campaigns.more_reports }} ({{ c.activities.length - 12 }})</h3>
+  <ul class="report-list">
+    {%- for a in c.activities.slice(12) %}
+    <li><a href="{{ a.url }}">{{ a.title }}</a> <span class="small muted">{{ a.club.name }} · {{ a.dateLabel }}{% if a.campaign_count %} · {{ a.campaign_count | number }} {{ c.unit }}{% endif %}</span></li>
+    {%- endfor %}
+  </ul>
+  {%- endif %}
+  {%- else %}
+  <p>{{ t.campaigns.empty }}</p>
+  {%- endif %}
+
+  {%- if not c.isPast %}
+  <section class="how-to">
+    <h2>{{ t.campaigns.how }}</h2>
+    <p>{{ t.campaigns.how_text }}</p>
+    <p><a class="btn btn-gold" href="/submit/">{{ t.home.share_button }}</a></p>
+  </section>
+  {%- endif %}
+  <p><a href="/campaigns/">← {{ t.campaigns.title }}</a></p>
+</article>

@@ -9,7 +9,7 @@ eleventyComputed:
     url: "{{ '/' | absolute }}"
     logo: "{{ '/assets/img/logo.png' | absolute }}"
 ---
-{% from "macros.njk" import activityCard, eventItem, avatar %}
+{% from "macros.njk" import activityCard, eventItem, avatar, campaignCard %}
 <section class="hero">
   <div class="wrap">
     <h1>{{ t.tagline }}</h1>
@@ -22,8 +22,19 @@ eleventyComputed:
     <a class="btn btn-gold" href="/submit/">{{ t.home.share_button }}</a>
   </div>
 </section>
+{%- if site.bulletin %}
+<p class="wrap this-week" id="this-week"><a href="/bulletin/">{{ t.bulletin.home_line }} → {{ site.bulletin.dateLabel }}</a></p>
+{%- endif %}
 
-{#- Order agreed with the district: events, latest, recognition, spotlight, celebrations, magazine, messages -#}
+{#- Order agreed with the district: [campaigns while one runs], events, latest, recognition, spotlight, celebrations, magazine, messages -#}
+{%- if site.runningCampaigns.length %}
+<section class="wrap section campaign-band" id="campaigns">
+  <div class="section-head"><h2>{{ t.campaigns.home_heading }}</h2><a href="/campaigns/">{{ t.campaigns.title }} →</a></div>
+  <div class="campaign-grid">
+    {%- for c in site.runningCampaigns %}{{ campaignCard(c, t) }}{% endfor %}
+  </div>
+</section>
+{%- endif %}
 <section class="wrap section" id="upcoming-events">
   <div class="section-head"><h2>{{ t.home.upcoming }}</h2><a href="/events/">{{ t.home.all_events }}{% if site.upcomingEvents.length > site.homeEvents.length %} ({{ site.upcomingEvents.length }}){% endif %} →</a></div>
   <div class="event-grid">

@@ -12,7 +12,7 @@ permalink: /clubs/
     <h2>{{ zone }} Zone</h2>
     <ul class="club-list">
       {%- for c in site.clubs %}{% if c.zone == zone and c.status == 'active' %}
-      <li><a href="{{ c.url }}">{{ c.name }}</a> <span class="small muted">{{ c.city }}{% if c.activities.length %} · {{ c.activities.length }} {{ 'activity' if c.activities.length == 1 else 'activities' }}{% endif %}</span></li>
+      <li><a href="{{ c.url }}">{{ c.name }}</a> <span class="small muted">{{ c.city }}{% if c.activities.length %} · {{ c.activities.length }} {{ 'activity' if c.activities.length == 1 else 'activities' }}{% endif %}{% if c.services.length %} · {{ c.services.length }} {{ 'service' if c.services.length == 1 else 'services' }}{% endif %}{% if c.projects.length %} · {{ c.projects.length }} {{ 'project' if c.projects.length == 1 else 'projects' }}{% endif %}</span></li>
       {%- endif %}{% endfor %}
     </ul>
   </section>

@@ -1,0 +1,59 @@
+{#- One weekly bulletin, `b` (see lib/derive.mjs). Put together from approved data by fixed rules; nobody writes it. -#}
+{% from "macros.njk" import activityCard, eventItem, campaignCard %}
+<article class="wrap section bulletin">
+  <p class="meta">Weekly bulletin · Sunday {{ b.dateLabel }}</p>
+  <h1>{{ t.bulletin.title }}</h1>
+
+  {%- if b.empty %}
+  <p class="lead">{{ t.bulletin.quiet }}</p>
+  {%- endif %}
+
+  {%- if b.events.length %}
+  <section id="coming-up">
+    <div class="section-head"><h2>{{ t.bulletin.coming_up }}</h2><a href="/events/">{{ t.bulletin.all_events }} →</a></div>
+    {%- for e in b.events %}{{ eventItem(e, t) }}{% endfor %}
+  </section>
+  {%- endif %}
+
+  {%- if b.closing.length %}
+  <section id="closing">
+    <h2>{{ t.bulletin.closing }}</h2>
+    {%- for e in b.closing %}{{ eventItem(e, t) }}{% endfor %}
+  </section>
+  {%- endif %}
+
+  {%- if b.done.total %}
+  <section id="done">
+    <h2>{{ t.bulletin.done }}</h2>
+    <div class="grid cards">{% for a in b.done.items %}{{ activityCard(a, t) }}{% endfor %}</div>
+    {%- if b.done.more %}
+    <p>{{ t.bulletin.and_more | replace('{n}', b.done.more) | replace('{acts}', 'activity' if b.done.more == 1 else 'activities') | replace('{m}', b.done.more_clubs) | replace('{clubs}', 'club' if b.done.more_clubs == 1 else 'clubs') }} → <a href="/activities/">{{ t.bulletin.all_activities }}</a></p>
+    {%- endif %}
+  </section>
+  {%- endif %}
+
+  {%- if b.campaigns.length %}
+  <section id="bulletin-campaigns">
+    <h2>{{ t.bulletin.campaigns }}</h2>
+    <div class="campaign-grid">{% for c in b.campaigns %}{{ campaignCard(c, t) }}{% endfor %}</div>
+  </section>
+  {%- endif %}
+
+  <section class="bulletin-share">
+    <h2>{{ t.bulletin.message }}</h2>
+    {%- set message = b.raw | bulletinMessage %}
+    <textarea class="bulletin-message" readonly rows="10" aria-label="{{ t.bulletin.message }}">{{ message }}</textarea>
+    <p class="actions">
+      <button class="btn" type="button" data-copy=".bulletin-message" data-copied="{{ t.bulletin.copied }}">{{ t.bulletin.copy }}</button>
+      <a class="btn btn-wa" href="{{ message | waText }}" target="_blank" rel="noopener">{{ t.bulletin.share }}</a>
+    </p>
+  </section>
+
+  <footer class="bulletin-footer">
+    <h2>{{ t.bulletin.how_title }}</h2>
+    <p>{{ t.bulletin.how_text }}</p>
+    <p class="actions"><a class="btn btn-gold" href="/submit/">{{ t.home.share_button }}</a></p>
+    <p class="small">⚠ {{ t.bulletin.official }} {{ t.footer.scam }} <a href="/privacy/">{{ t.footer.privacy }}</a></p>
+    <p class="small"><a href="/bulletin/archive/">{{ t.bulletin.archive }} →</a></p>
+  </footer>
+</article>

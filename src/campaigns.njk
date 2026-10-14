@@ -1,0 +1,26 @@
+---
+layout: layouts/base.njk
+title: District campaigns
+description: District-wide drives in Rotary District 3110 and the running total our clubs have reported for each.
+permalink: /campaigns/
+---
+<div class="wrap section">
+  <h1>{{ t.campaigns.title }}</h1>
+  <p class="lead">{{ t.campaigns.intro }}</p>
+  {%- for g in site.campaignsByYear %}
+  <section class="campaign-year">
+    <h2>Rotary year {{ g.year }}</h2>
+    <ul class="campaign-list">
+      {%- for c in g.campaigns %}
+      <li>
+        <h3><a href="{{ c.url }}">{{ c.name }}</a>{% if c.isRunning %} <span class="chip chip-running">{{ t.campaigns.running }}</span>{% endif %}</h3>
+        <p class="meta">{{ c.dateLabel }}</p>
+        <p><strong>{{ c.total | number }}</strong> {{ c.unit }} · {{ c.clubs }} {{ t.campaigns.club_one if c.clubs == 1 else t.campaigns.clubs }}</p>
+      </li>
+      {%- endfor %}
+    </ul>
+  </section>
+  {%- else %}
+  <p>No district campaigns yet.</p>
+  {%- endfor %}
+</div>

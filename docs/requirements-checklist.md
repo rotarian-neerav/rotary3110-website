@@ -72,3 +72,26 @@ Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (
 | 54 | Home page events: at most 8, all district events first (the next 8 if there are more) | `homeEvents` in `lib/derive.mjs` | U: worked cases; S: home page | ✅ |
 | 55 | Moderators see roles whose member ID is missing or wrong | Rotary → Check roles and member IDs (and every morning), `role_checks` tab | U: role check cases; U(sim): tab filled | 🟡 live after the script update |
 | 56 | Search engines get every page (the sitemap had only the first club, activity and event) | `addAllPagesToCollections` | S: every club, activity and event in the sitemap | ✅ |
+
+### modifications1 (October 2026): club services and projects, district campaigns, weekly bulletin
+
+M = `tests/unit/modifications1.test.mjs`. Ten deliberate mistakes (ignoring `bulletin_exclude`, several activities per club, counting work after a campaign ends, "Postponed" showing "Registration open", "none" not clearing, the approval window, question placement, an over-long message, a phone line or a payment fee kept) were each caught by the tests.
+
+| # | Requirement | Feature | Proof | Status |
+|---|---|---|---|---|
+| M1.1 | Club profile form asks for permanent projects and regular services, one per line | Two questions before Confirmation (new forms and, through Upgrade Sheet, the existing form) | U(sim): questions added once, in place | 🟡 live after the upgrade |
+| M1.2 | Approval replaces the lists; blank keeps them; "none" clears them; notes for phone numbers, emails and long lines | `applyClubProfile_`, `fileClubProfile_` | U(sim): blank, none, replace, notes | 🟡 live after the upgrade |
+| M1.3 | Club page shows services and projects between office bearers and activities; clubs list shows counts; lines with a phone number or email are dropped without stopping the build | `Core_cleanLines`, `club.njk`, `clubs.njk` | M: cleaning, 160 characters, 12 lines; S: club pages; sample includes a phone line, listed in `skipped_items` | ✅ |
+| M2.1 | Moderators list campaigns in a `campaigns` tab; the activity form offers open campaigns (until 30 days after the end) and a count | Campaign questions, `Core_openCampaigns`, daily form-list refresh | M: label round trip, 30-day rule; U(sim): dropdown | 🟡 live after the upgrade |
+| M2.2 | Filing notes: count without campaign, date outside the campaign, large count, another club the same date | `campaignNotes_` | U(sim): each note | 🟡 live after the upgrade |
+| M2.3 | Running totals: approved reports only; work dated inside the campaign only (agreed correction); joint activities count for the submitting club only; a report without a count adds 0 | `Core_campaignTotals` | M: 204 + 22 + 65 = 291, partners no credit, pending/rejected/out-of-period excluded | ✅ |
+| M2.4 | Campaign pages by Rotary year; home band while running; tag on activities; line on club pages; chair links to their card; nothing when there are no campaigns | `campaigns.njk`, `campaign.njk`, `index.njk` | M: no campaigns → nothing; S: totals, home band, tags | ✅ |
+| M3.1 | Weekly bulletin assembled from approved data by fixed rules, shared by the website and the Sheet | `Core_bulletin` | M: approval window (Sat 11 pm in, Sun 9 am next week), one per club, zone rotation, story first, excluded rows, coming-up window, closing soon, campaign totals, quiet week | ✅ |
+| M3.2 | `/bulletin/`, a dated page per Sunday from `bulletin_start_date`, archive; dated pages in the sitemap; past bulletins keep their registration lines (agreed correction) | `bulletin*.njk` | M: archive, unchanged past bulletin; S: pages, canonical, sitemap | ✅ |
+| M3.3 | WhatsApp message of at most 1,000 characters, Copy and Share buttons | `Core_bulletinMessage`, `bulletin.js` | M: lines and length; S: message on the page | ✅ |
+| M3.4 | Event registration: closing date and fee on the form; status set by moderators; line worked out, never typed; cancelled events stay listed (and calendar files say cancelled) | `Core_registrationLine` | M: every case; S: cancelled, postponed, fee | ✅ / 🟡 form after the upgrade |
+| M3.5 | Fee never shows payment details; the privacy check refuses UPI, IFSC or A/c | `Core_buildPublicData`, `Core_validatePublic` | M: fee dropped and listed; check refuses | ✅ |
+| M3.6 | Saturday 6 pm preview to moderators; Sunday 8 am message to `bulletin_emails`, sent once the page is live (agreed correction), otherwise a rebuild and hourly retries | `bulletinPreview`, `bulletinMessage` | U(sim): preview; message waits, retries, sends once, same text as the website | 🟡 live after the upgrade |
+| M3.7 | `bulletin_exclude` is a TRUE/FALSE dropdown, not a tick box (agreed correction: tick boxes push new rows far down the tab) | `addValidation_` | Code review; U(sim): no empty rows above new entries | ✅ |
+| M3.8 | No menu entries for the bulletin or campaigns; footer links instead | `base.njk` | S: menu and footer | ✅ |
+| M4 | One upgrade step for the live Sheet, safe to run twice | Administrator → Upgrade Sheet | U(sim): run twice, everything once | 🟡 to run |

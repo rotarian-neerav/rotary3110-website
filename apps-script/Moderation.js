@@ -21,6 +21,9 @@ function onOpen() {
       .addItem('Clear all sample data…', 'clearSampleData'))
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Administrator')
       .addItem('Show data link details', 'showDataLink')
+      .addItem('Upgrade Sheet (new tabs, columns, questions)', 'upgradeSheet')
+      .addItem('Send bulletin preview now', 'bulletinPreview')
+      .addItem('Send bulletin message now', 'sendBulletinMessageNow')
       .addItem('Run setup again', 'setup'))
     .addToUi();
 }
@@ -91,6 +94,11 @@ function applyClubProfile_(r) {
   var fields = { profile_updated_at: nowIso_() };
   ['website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'meeting_day_place'].forEach(function (k) {
     if (Core_str(r[k])) fields[k] = Core_str(r[k]);
+  });
+  // Projects and services: a blank answer keeps the club's list, "none" clears it, anything else replaces it
+  ['permanent_projects', 'regular_services'].forEach(function (k) {
+    var v = Core_str(r[k]);
+    if (v) fields[k] = v.toLowerCase() === 'none' ? '' : v;
   });
   updateRow_(ss, 'clubs', club._row, fields);
 }

@@ -1,0 +1,15 @@
+---
+layout: layouts/base.njk
+title: Weekly bulletins
+description: Every weekly bulletin of Rotary District 3110, newest first.
+permalink: /bulletin/archive/
+---
+<div class="wrap section narrow">
+  <h1>{{ t.bulletin.archive_title }}</h1>
+  <p class="lead">{{ t.bulletin.archive_intro }}</p>
+  <ul class="bulletin-archive">
+    {%- for b in site.bulletins %}
+    <li><a href="{{ b.url }}">{{ t.bulletin.title }} – {{ b.dateLabel }}</a> <span class="small muted">{{ b.summary }}</span></li>
+    {%- endfor %}
+  </ul>
+</div>

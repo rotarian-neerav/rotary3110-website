@@ -62,6 +62,21 @@
     "key": "inactive_keys",
     "value": "k9999f805, k796b7120, k7fc50311",
     "notes": "Filled in by \"Refresh public members\"; never edit by hand"
+   },
+   {
+    "key": "campaign_check_above",
+    "value": "1000",
+    "notes": "A campaign count above this gets a note for the moderator"
+   },
+   {
+    "key": "bulletin_start_date",
+    "value": "2026-09-13",
+    "notes": "A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week's bulletin"
+   },
+   {
+    "key": "bulletin_emails",
+    "value": "",
+    "notes": "Comma-separated; they receive the Sunday WhatsApp message to forward. Blank: the moderators"
    }
   ],
   "lists": [
@@ -324,6 +339,22 @@
    {
     "list": "submitter_role",
     "value": "Member"
+   },
+   {
+    "list": "registration_status",
+    "value": "Seats full"
+   },
+   {
+    "list": "registration_status",
+    "value": "Extended"
+   },
+   {
+    "list": "registration_status",
+    "value": "Postponed"
+   },
+   {
+    "list": "registration_status",
+    "value": "Cancelled"
    }
   ],
   "clubs": [
@@ -345,7 +376,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-002",
@@ -365,7 +398,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-003",
@@ -385,7 +420,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-004",
@@ -405,7 +442,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-005",
@@ -425,7 +464,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-006",
@@ -445,7 +486,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "School libraries – 48 libraries in government schools – Aligarh district\nDialysis unit – two dialysis machines at the district hospital – Aligarh",
+    "regular_services": "Homeopathy camp – 30th of every month – Rotary Bhawan, Aligarh"
    },
    {
     "club_id": "S-007",
@@ -465,7 +508,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-008",
@@ -485,7 +530,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-009",
@@ -505,7 +552,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-010",
@@ -525,7 +574,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-011",
@@ -545,7 +596,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-012",
@@ -565,7 +618,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-013",
@@ -585,7 +640,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-014",
@@ -605,7 +662,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-015",
@@ -625,7 +684,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-016",
@@ -645,7 +706,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-017",
@@ -665,7 +728,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-018",
@@ -685,7 +750,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-019",
@@ -705,7 +772,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-020",
@@ -725,7 +794,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-021",
@@ -745,7 +816,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-022",
@@ -765,7 +838,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-023",
@@ -785,7 +860,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-024",
@@ -805,7 +882,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-025",
@@ -825,7 +904,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-026",
@@ -845,7 +926,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-027",
@@ -865,7 +948,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-028",
@@ -885,7 +970,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-029",
@@ -905,7 +992,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-030",
@@ -925,7 +1014,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-031",
@@ -945,7 +1036,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-032",
@@ -965,7 +1058,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-033",
@@ -985,7 +1080,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-034",
@@ -1005,7 +1102,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-035",
@@ -1025,7 +1124,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-036",
@@ -1045,7 +1146,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "Rotary Dental Clinic – dental clinic funded by a global grant – Sipri Bazar, Jhansi",
+    "regular_services": "Free eye check-up – every Thursday, 11 am–1 pm – Roshni Centre, Civil Lines\nSari bank – 2nd and 4th Saturday – Rotary Bhawan\nRoti bank – every evening – call +91 60000 00000 to donate"
    },
    {
     "club_id": "S-037",
@@ -1065,7 +1168,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-038",
@@ -1085,7 +1190,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-039",
@@ -1105,7 +1212,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-040",
@@ -1125,7 +1234,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-041",
@@ -1145,7 +1256,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-042",
@@ -1165,7 +1278,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-043",
@@ -1185,7 +1300,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-044",
@@ -1205,7 +1322,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-045",
@@ -1225,7 +1344,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-046",
@@ -1245,7 +1366,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-047",
@@ -1265,7 +1388,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-048",
@@ -1285,7 +1410,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-049",
@@ -1305,7 +1432,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-050",
@@ -1325,7 +1454,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-051",
@@ -1345,7 +1476,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-052",
@@ -1365,7 +1498,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-053",
@@ -1385,7 +1520,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-054",
@@ -1405,7 +1542,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-055",
@@ -1425,7 +1564,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "Rotary Eye Hospital – eye hospital under construction – Kasganj",
+    "regular_services": ""
    },
    {
     "club_id": "S-056",
@@ -1445,7 +1586,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-057",
@@ -1465,7 +1608,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-058",
@@ -1485,7 +1630,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-059",
@@ -1505,7 +1652,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-060",
@@ -1525,7 +1674,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-061",
@@ -1545,7 +1696,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-062",
@@ -1565,7 +1718,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-063",
@@ -1585,7 +1740,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-064",
@@ -1605,7 +1762,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-065",
@@ -1625,7 +1784,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-066",
@@ -1645,7 +1806,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-067",
@@ -1665,7 +1828,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-068",
@@ -1685,7 +1850,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-069",
@@ -1705,7 +1872,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    },
    {
     "club_id": "S-070",
@@ -1725,7 +1894,9 @@
     "x": "",
     "linkedin": "",
     "profile_updated_at": "",
-    "is_sample": true
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": ""
    }
   ],
   "officers": [
@@ -6146,7 +6317,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0002",
@@ -6175,7 +6349,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0003",
@@ -6204,7 +6381,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0004",
@@ -6233,7 +6413,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0005",
@@ -6262,7 +6445,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0006",
@@ -6291,7 +6477,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0007",
@@ -6320,7 +6509,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0008",
@@ -6349,7 +6541,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0009",
@@ -6378,7 +6573,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0010",
@@ -6407,7 +6605,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0011",
@@ -6436,7 +6637,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0012",
@@ -6465,7 +6669,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0013",
@@ -6494,7 +6701,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0014",
@@ -6523,7 +6733,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0015",
@@ -6552,7 +6765,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0016",
@@ -6581,7 +6797,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0017",
@@ -6610,7 +6829,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0018",
@@ -6639,7 +6861,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0019",
@@ -6668,7 +6893,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0020",
@@ -6697,7 +6925,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0021",
@@ -6726,7 +6957,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0022",
@@ -6755,7 +6989,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0023",
@@ -6784,7 +7021,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0024",
@@ -6813,7 +7053,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0025",
@@ -6842,7 +7085,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0026",
@@ -6871,7 +7117,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0027",
@@ -6900,7 +7149,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0028",
@@ -6929,7 +7181,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0029",
@@ -6958,7 +7213,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0030",
@@ -6987,7 +7245,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0031",
@@ -7016,7 +7277,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0032",
@@ -7045,7 +7309,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0033",
@@ -7074,7 +7341,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0034",
@@ -7103,7 +7373,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0035",
@@ -7132,7 +7405,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0036",
@@ -7161,7 +7437,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0037",
@@ -7190,7 +7469,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0038",
@@ -7219,7 +7501,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0039",
@@ -7248,7 +7533,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0040",
@@ -7277,7 +7565,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0041",
@@ -7306,7 +7597,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0042",
@@ -7335,7 +7629,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0043",
@@ -7364,7 +7661,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0044",
@@ -7393,7 +7693,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0045",
@@ -7422,7 +7725,10 @@
     "story_of_month": true,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0046",
@@ -7451,7 +7757,10 @@
     "story_of_month": true,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0047",
@@ -7480,7 +7789,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0048",
@@ -7509,7 +7821,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": true
    },
    {
     "id": "ACT-2026-0049",
@@ -7538,7 +7853,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": false,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0050",
@@ -7567,7 +7885,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": false,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0051",
@@ -7596,7 +7917,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": false,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0052",
@@ -7625,7 +7949,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": false,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0053",
@@ -7654,7 +7981,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": false,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0054",
@@ -7683,7 +8013,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0055",
@@ -7712,7 +8045,10 @@
     "story_of_month": false,
     "event_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0056",
@@ -7741,7 +8077,10 @@
     "story_of_month": false,
     "event_id": "EVT-2026-0001",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "ACT-2026-0057",
@@ -7770,7 +8109,234 @@
     "story_of_month": false,
     "event_id": "EVT-2026-0002",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "campaign_id": "",
+    "campaign_count": "",
+    "bulletin_exclude": ""
+   },
+   {
+    "id": "ACT-2026-0058",
+    "submitted_at": "2026-09-07T08:08:00+05:30",
+    "submitter_email": "manish.bansal@example.com",
+    "submitter_name": "Rtn Manish Bansal",
+    "submitter_role": "President",
+    "submitter_mobile": "5555274162",
+    "club_id": "S-036",
+    "club_name": "RC Jhansi",
+    "title": "Blood donation camp at the medical college",
+    "date": "2026-09-06",
+    "theme": "Fighting disease",
+    "description": "Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.",
+    "photo_files": "sample:activity-04.jpg, sample:activity-03.jpg",
+    "post_link": "",
+    "people_helped": "",
+    "amount_spent": "",
+    "partner_clubs": "",
+    "photo_consent": true,
+    "status": "approved",
+    "source": "form",
+    "approved_by": "moderator.a@example.com",
+    "approved_at": "2026-09-08T11:00:00+05:30",
+    "moderator_note": "",
+    "story_of_month": false,
+    "event_id": "",
+    "notified": true,
+    "is_sample": true,
+    "campaign_id": "BLOOD-2026-27",
+    "campaign_count": 204,
+    "bulletin_exclude": ""
+   },
+   {
+    "id": "ACT-2026-0059",
+    "submitted_at": "2026-10-04T20:27:00+05:30",
+    "submitter_email": "manish.bansal@example.com",
+    "submitter_name": "Rtn Manish Bansal",
+    "submitter_role": "Public Image Chair",
+    "submitter_mobile": "5555274162",
+    "club_id": "S-036",
+    "club_name": "RC Jhansi",
+    "title": "Second blood donation camp of the drive",
+    "date": "2026-10-04",
+    "theme": "Fighting disease",
+    "description": "Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.",
+    "photo_files": "sample:activity-03.jpg",
+    "post_link": "",
+    "people_helped": 281,
+    "amount_spent": "",
+    "partner_clubs": "",
+    "photo_consent": true,
+    "status": "approved",
+    "source": "form",
+    "approved_by": "moderator.c@example.com",
+    "approved_at": "2026-10-05T11:00:00+05:30",
+    "moderator_note": "",
+    "story_of_month": false,
+    "event_id": "",
+    "notified": true,
+    "is_sample": true,
+    "campaign_id": "BLOOD-2026-27",
+    "campaign_count": 22,
+    "bulletin_exclude": ""
+   },
+   {
+    "id": "ACT-2026-0060",
+    "submitted_at": "2026-09-27T14:54:00+05:30",
+    "submitter_email": "naveen.chaturvedi@example.com",
+    "submitter_name": "Rtn Naveen Chaturvedi",
+    "submitter_role": "Public Image Chair",
+    "submitter_mobile": "5555464460",
+    "club_id": "S-016",
+    "club_name": "RC Bareilly",
+    "title": "Joint blood donation camp of three Bareilly clubs",
+    "date": "2026-09-27",
+    "theme": "Fighting disease",
+    "description": "Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.",
+    "photo_files": "sample:activity-04.jpg",
+    "post_link": "",
+    "people_helped": 151,
+    "amount_spent": "",
+    "partner_clubs": "S-017, S-024",
+    "photo_consent": true,
+    "status": "approved",
+    "source": "form",
+    "approved_by": "moderator.c@example.com",
+    "approved_at": "2026-09-29T11:00:00+05:30",
+    "moderator_note": "",
+    "story_of_month": false,
+    "event_id": "",
+    "notified": true,
+    "is_sample": true,
+    "campaign_id": "BLOOD-2026-27",
+    "campaign_count": 65,
+    "bulletin_exclude": ""
+   },
+   {
+    "id": "ACT-2026-0061",
+    "submitted_at": "2026-10-02T13:20:00+05:30",
+    "submitter_email": "aarav.khanna@example.com",
+    "submitter_name": "Rtn Aarav Khanna",
+    "submitter_role": "Public Image Chair",
+    "submitter_mobile": "5555929747",
+    "club_id": "S-001",
+    "club_name": "RC Agra",
+    "title": "Voluntary Blood Donation Day camp",
+    "date": "2026-10-01",
+    "theme": "Fighting disease",
+    "description": "Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.",
+    "photo_files": "sample:activity-04.jpg",
+    "post_link": "",
+    "people_helped": 107,
+    "amount_spent": 76000,
+    "partner_clubs": "",
+    "photo_consent": true,
+    "status": "approved",
+    "source": "form",
+    "approved_by": "moderator.d@example.com",
+    "approved_at": "2026-10-03T11:00:00+05:30",
+    "moderator_note": "",
+    "story_of_month": false,
+    "event_id": "",
+    "notified": true,
+    "is_sample": true,
+    "campaign_id": "BLOOD-2026-27",
+    "campaign_count": 48,
+    "bulletin_exclude": ""
+   },
+   {
+    "id": "ACT-2026-0062",
+    "submitted_at": "2026-10-07T17:00:00+05:30",
+    "submitter_email": "sunita.mishra@example.com",
+    "submitter_name": "Rtn Sunita Mishra",
+    "submitter_role": "Secretary",
+    "submitter_mobile": "5555681688",
+    "club_id": "S-045",
+    "club_name": "RC Kanpur Greater",
+    "title": "Blood donation awareness talk",
+    "date": "2026-10-06",
+    "theme": "Fighting disease",
+    "description": "Members spoke to college students about regular blood donation and registered new donors.",
+    "photo_files": "",
+    "post_link": "https://www.facebook.com/example-kanpur-greater/posts/8992",
+    "people_helped": "",
+    "amount_spent": "",
+    "partner_clubs": "",
+    "photo_consent": true,
+    "status": "approved",
+    "source": "form",
+    "approved_by": "moderator.d@example.com",
+    "approved_at": "2026-10-07T11:00:00+05:30",
+    "moderator_note": "",
+    "story_of_month": false,
+    "event_id": "",
+    "notified": true,
+    "is_sample": true,
+    "campaign_id": "BLOOD-2026-27",
+    "campaign_count": "",
+    "bulletin_exclude": ""
+   },
+   {
+    "id": "ACT-2026-0063",
+    "submitted_at": "2025-11-14T16:54:00+05:30",
+    "submitter_email": "naveen.rastogi@example.com",
+    "submitter_name": "Rtn Naveen Rastogi",
+    "submitter_role": "Public Image Chair",
+    "submitter_mobile": "5555021568",
+    "club_id": "S-039",
+    "club_name": "RC Kanpur",
+    "title": "Children's Day health check-up",
+    "date": "2025-11-14",
+    "theme": "Supporting education",
+    "description": "Doctors from the club checked the health of children in three government schools.",
+    "photo_files": "sample:activity-10.jpg",
+    "post_link": "",
+    "people_helped": 273,
+    "amount_spent": 111000,
+    "partner_clubs": "",
+    "photo_consent": true,
+    "status": "approved",
+    "source": "form",
+    "approved_by": "moderator.a@example.com",
+    "approved_at": "2025-11-16T11:00:00+05:30",
+    "moderator_note": "",
+    "story_of_month": false,
+    "event_id": "",
+    "notified": true,
+    "is_sample": true,
+    "campaign_id": "SCHOOL-2025-26",
+    "campaign_count": 350,
+    "bulletin_exclude": ""
+   },
+   {
+    "id": "ACT-2026-0064",
+    "submitted_at": "2026-02-10T08:05:00+05:30",
+    "submitter_email": "manish.varshney@example.com",
+    "submitter_name": "Rtn Manish Varshney",
+    "submitter_role": "Public Image Chair",
+    "submitter_mobile": "5555295072",
+    "club_id": "S-031",
+    "club_name": "RC Firozabad",
+    "title": "Eye and dental check-up in schools",
+    "date": "2026-02-10",
+    "theme": "Supporting education",
+    "description": "Children were screened for eyesight and dental problems; spectacles were given free.",
+    "photo_files": "sample:activity-10.jpg",
+    "post_link": "",
+    "people_helped": 112,
+    "amount_spent": 64000,
+    "partner_clubs": "",
+    "photo_consent": true,
+    "status": "approved",
+    "source": "form",
+    "approved_by": "moderator.b@example.com",
+    "approved_at": "2026-02-11T11:00:00+05:30",
+    "moderator_note": "",
+    "story_of_month": false,
+    "event_id": "",
+    "notified": true,
+    "is_sample": true,
+    "campaign_id": "SCHOOL-2025-26",
+    "campaign_count": 120,
+    "bulletin_exclude": ""
    }
   ],
   "events": [
@@ -7800,7 +8366,11 @@
     "moderator_note": "",
     "report_activity_id": "ACT-2026-0056",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "",
+    "fee": "",
+    "registration_status": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0002",
@@ -7828,7 +8398,11 @@
     "moderator_note": "",
     "report_activity_id": "ACT-2026-0057",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "",
+    "fee": "",
+    "registration_status": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0003",
@@ -7856,7 +8430,11 @@
     "moderator_note": "",
     "report_activity_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "",
+    "fee": "",
+    "registration_status": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0004",
@@ -7884,7 +8462,11 @@
     "moderator_note": "",
     "report_activity_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "2026-10-20",
+    "fee": "Free",
+    "registration_status": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0005",
@@ -7912,7 +8494,11 @@
     "moderator_note": "",
     "report_activity_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "2026-11-03",
+    "fee": "₹500 per person",
+    "registration_status": "Seats full",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0006",
@@ -7940,7 +8526,11 @@
     "moderator_note": "",
     "report_activity_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "2026-10-15",
+    "fee": "₹300 per person",
+    "registration_status": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0007",
@@ -7968,7 +8558,11 @@
     "moderator_note": "",
     "report_activity_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "",
+    "fee": "",
+    "registration_status": "Postponed",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0008",
@@ -7996,7 +8590,11 @@
     "moderator_note": "",
     "report_activity_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "",
+    "fee": "",
+    "registration_status": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0009",
@@ -8024,7 +8622,11 @@
     "moderator_note": "",
     "report_activity_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "2026-12-10",
+    "fee": "₹2,500 per person",
+    "registration_status": "Extended",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0010",
@@ -8052,7 +8654,11 @@
     "moderator_note": "",
     "report_activity_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "",
+    "fee": "",
+    "registration_status": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0011",
@@ -8080,7 +8686,11 @@
     "moderator_note": "",
     "report_activity_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "",
+    "fee": "",
+    "registration_status": "",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0012",
@@ -8108,7 +8718,11 @@
     "moderator_note": "",
     "report_activity_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "",
+    "fee": "",
+    "registration_status": "Cancelled",
+    "bulletin_exclude": ""
    },
    {
     "id": "EVT-2026-0013",
@@ -8136,7 +8750,11 @@
     "moderator_note": "",
     "report_activity_id": "",
     "notified": true,
-    "is_sample": true
+    "is_sample": true,
+    "registration_close_date": "",
+    "fee": "",
+    "registration_status": "",
+    "bulletin_exclude": ""
    }
   ],
   "club_profile_requests": [
@@ -8160,6 +8778,40 @@
     "approved_by": "",
     "approved_at": "",
     "moderator_note": "",
+    "is_sample": true,
+    "permanent_projects": "",
+    "regular_services": "Blood bank help desk – every Sunday, 10 am–noon – Rotary Bhawan, Jhansi"
+   }
+  ],
+  "campaigns": [
+   {
+    "campaign_id": "BLOOD-2026-27",
+    "rotary_year": "2026-27",
+    "name": "Blood Donation Drive",
+    "slug": "",
+    "unit": "blood units",
+    "start_date": "2026-07-01",
+    "end_date": "2027-06-30",
+    "target": 2000,
+    "description": "Clubs hold blood donation camps with government blood banks through the year. (Sample campaign.)",
+    "chair": "Rtn Aarav Khanna, District Blood Donation Chair (sample)",
+    "chair_member_id": "9000001",
+    "sort_order": 1,
+    "is_sample": true
+   },
+   {
+    "campaign_id": "SCHOOL-2025-26",
+    "rotary_year": "2025-26",
+    "name": "School Health Check-ups",
+    "slug": "",
+    "unit": "students screened",
+    "start_date": "2025-07-01",
+    "end_date": "2026-06-30",
+    "target": "",
+    "description": "Free health check-ups for children in government schools. (Sample campaign.)",
+    "chair": "",
+    "chair_member_id": "",
+    "sort_order": 1,
     "is_sample": true
    }
   ],

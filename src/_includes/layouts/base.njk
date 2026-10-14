@@ -8,7 +8,7 @@
 {%- set shareImage = (ogImage | absolute) if ogImage else ("/assets/img/og-default.jpg" | absolute) %}
 <title>{{ pageTitle }}</title>
 <meta name="description" content="{{ pageDescription | truncate(180) }}">
-<link rel="canonical" href="{{ page.url | absolute }}">
+<link rel="canonical" href="{{ (canonical or page.url) | absolute }}">
 {%- if noindex %}
 <meta name="robots" content="noindex, noimageindex">
 {%- endif %}
@@ -76,6 +76,8 @@
         <li><a href="/remove/">{{ t.footer.remove }}</a></li>
       </ul>
       <ul>
+        <li><a href="/bulletin/">{{ t.footer.bulletin }}</a></li>
+        {%- if site.campaigns.length %}<li><a href="/campaigns/">{{ t.footer.campaigns }}</a></li>{% endif %}
         <li><a href="/spotlight/">{{ t.nav.spotlight }}</a></li>
         <li><a href="/celebrations/">Celebrations</a></li>
         <li><a href="/privacy/">{{ t.footer.privacy }}</a></li>

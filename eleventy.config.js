@@ -1,4 +1,5 @@
 import { HtmlBasePlugin } from '@11ty/eleventy';
+import { core } from './lib/core.mjs';
 import { formatDate, formatDayMonth, formatMonth } from './lib/derive.mjs';
 import shortLinks from './src/_data/shortLinks.js';
 
@@ -52,8 +53,18 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter('absolute', (path = '/') => SITE_URL + (PATH_PREFIX.replace(/\/$/, '') + path).replace(/\/{2,}/g, '/'));
   eleventyConfig.addFilter('waShare', (text, path) =>
     'https://wa.me/?text=' + encodeURIComponent(`${text}\n${SITE_URL}${(PATH_PREFIX.replace(/\/$/, '') + path).replace(/\/{2,}/g, '/')}`));
+  // WhatsApp share of a ready-made text (the bulletin message already carries its link)
+  eleventyConfig.addFilter('waText', (text) => 'https://wa.me/?text=' + encodeURIComponent(text));
+  eleventyConfig.addFilter('bulletinMessage', (raw) => core.Core_bulletinMessage(raw, SITE_URL + PATH_PREFIX));
   eleventyConfig.addFilter('tel', (wa = '') => 'tel:+' + wa.replace(/\D/g, ''));
   eleventyConfig.addFilter('xml', (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'));
+  // "14 Oct 2026, 6:05 am" in India time
+  eleventyConfig.addFilter('dateTime', (iso) => {
+    if (!iso) return '';
+    const d = new Date(new Date(iso).getTime() + 5.5 * 3600 * 1000);
+    const h = d.getUTCHours();
+    return `${formatDate(d.toISOString().slice(0, 10))}, ${h % 12 || 12}:${String(d.getUTCMinutes()).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`;
+  });
   eleventyConfig.addFilter('isoDateTime', (d) => (d ? new Date(d).toUTCString() : new Date().toUTCString()));
 
   // Google Calendar "add event" link (India time)
@@ -78,6 +89,8 @@ export default function (eleventyConfig) {
     } else {
       lines.push(`DTSTART;VALUE=DATE:${compact(e.start_date)}`, `DTEND;VALUE=DATE:${compact(nextDay(e.end_date || e.start_date))}`);
     }
+    // a cancelled event updates the calendars of people who saved it
+    if (e.registration_status === 'Cancelled') lines.push('STATUS:CANCELLED');
     lines.push(`SUMMARY:${icsEscape(e.title)}`, `LOCATION:${icsEscape([e.venue, e.city].filter(Boolean).join(', '))}`,
       `DESCRIPTION:${icsEscape([e.description, 'Organiser: ' + e.organiser].filter(Boolean).join('\n'))}`, 'END:VEVENT', 'END:VCALENDAR');
     return lines.join('\r\n') + '\r\n';

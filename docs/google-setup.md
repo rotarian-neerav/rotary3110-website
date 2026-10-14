@@ -59,3 +59,11 @@ Then **Actions → Build and publish → Run workflow**. In about 3 minutes the 
 ## If you change the script later
 
 Paste the new `Code.gs`, save, then **Deploy → Manage deployments → ✏ (edit) → Version: New version → Deploy**. The web app address stays the same.
+
+Then reload the Sheet and run **Rotary → Administrator → Upgrade Sheet (new tabs, columns, questions)**. It adds anything the new script needs and is safe to run more than once: new tabs and columns (at the end, never moving existing ones), settings, dropdowns, new form questions (added to the existing forms in their place, so the form links stay the same), and timed emails. It shows a list of what it changed.
+
+The October 2026 upgrade adds:
+- the **campaigns** tab; new columns in **clubs**, **club_profile_requests**, **activities** and **events**;
+- settings `campaign_check_above`, `bulletin_start_date` and `bulletin_emails`;
+- questions *Permanent projects*, *Regular services* (club profile form), *District campaign*, *Campaign count*, *Registration closes on* and *Fee* (activity and event form);
+- the bulletin emails on Saturday 6 pm and Sunday 8 am.

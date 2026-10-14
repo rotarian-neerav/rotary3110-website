@@ -469,6 +469,57 @@ addEvent({ title: 'Republic Day blood donation camp', event_type: 'Club event op
 activities.find((a) => a.id === pastReportA).event_id = events[0].id;
 activities.find((a) => a.id === pastReportB).event_id = events[1].id;
 
+/* ---------- club services and projects, campaigns, event registration, the weekly bulletin ---------- */
+// (added after everything that uses the seeded random numbers above, so earlier sample rows stay the same)
+const clubRow = (name) => clubs.find((c) => c.club_name === name);
+Object.assign(clubRow('RC Kasganj City'), { permanent_projects: 'Rotary Eye Hospital – eye hospital under construction – Kasganj' });
+Object.assign(clubRow('RC Jhansi'), {
+  permanent_projects: 'Rotary Dental Clinic – dental clinic funded by a global grant – Sipri Bazar, Jhansi',
+  regular_services: [
+    'Free eye check-up – every Thursday, 11 am–1 pm – Roshni Centre, Civil Lines',
+    'Sari bank – 2nd and 4th Saturday – Rotary Bhawan',
+    // a line with a phone number must be dropped from the website (the number is made up)
+    'Roti bank – every evening – call +91 60000 00000 to donate',
+  ].join('\n'),
+});
+Object.assign(clubRow('RC Aligarh'), {
+  permanent_projects: 'School libraries – 48 libraries in government schools – Aligarh district\nDialysis unit – two dialysis machines at the district hospital – Aligarh',
+  regular_services: 'Homeopathy camp – 30th of every month – Rotary Bhawan, Aligarh',
+});
+const clubProfileRequestsExtra = { regular_services: 'Blood bank help desk – every Sunday, 10 am–noon – Rotary Bhawan, Jhansi' };
+
+// Two district campaigns: one running now with a target, one from the previous Rotary year
+const chairPerson = officers.find((o) => o.rotary_year === ROTARY_YEAR);
+const campaigns = [
+  { campaign_id: 'BLOOD-2026-27', rotary_year: '2026-27', name: 'Blood Donation Drive', slug: '', unit: 'blood units', start_date: '2026-07-01',
+    end_date: '2027-06-30', target: 2000, description: 'Clubs hold blood donation camps with government blood banks through the year. (Sample campaign.)',
+    chair: `${chairPerson.name}, District Blood Donation Chair (sample)`, chair_member_id: chairPerson.member_id, sort_order: 1, is_sample: true },
+  { campaign_id: 'SCHOOL-2025-26', rotary_year: '2025-26', name: 'School Health Check-ups', slug: '', unit: 'students screened', start_date: '2025-07-01',
+    end_date: '2026-06-30', target: '', description: 'Free health check-ups for children in government schools. (Sample campaign.)', chair: '', chair_member_id: '',
+    sort_order: 1, is_sample: true },
+];
+const blood = ['Blood donation camp', 'Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.'];
+const tag = (id, campaignId, count) => Object.assign(activities.find((a) => a.id === id), { campaign_id: campaignId, campaign_count: count });
+tag(addActivity({ clubId: 'S-036', date: '2026-09-06', theme: 'Fighting disease', photos: 2, template: ['Blood donation camp at the medical college', blood[1]] }), 'BLOOD-2026-27', 204);
+tag(addActivity({ clubId: 'S-036', date: '2026-10-04', theme: 'Fighting disease', photos: 1, template: ['Second blood donation camp of the drive', blood[1]] }), 'BLOOD-2026-27', 22);
+tag(addActivity({ clubId: 'S-016', date: '2026-09-27', theme: 'Fighting disease', photos: 1, partners: ['S-017', 'S-024'], template: ['Joint blood donation camp of three Bareilly clubs', blood[1]] }), 'BLOOD-2026-27', 65);
+tag(addActivity({ clubId: 'S-001', date: '2026-10-01', theme: 'Fighting disease', photos: 1, template: ['Voluntary Blood Donation Day camp', blood[1]] }), 'BLOOD-2026-27', 48);
+// a report tagged without a count: listed, adds 0
+tag(addActivity({ clubId: 'S-045', date: '2026-10-06', theme: 'Fighting disease', link: true, photos: 0, template: ['Blood donation awareness talk', 'Members spoke to college students about regular blood donation and registered new donors.'] }), 'BLOOD-2026-27', '');
+tag(addActivity({ clubId: 'S-039', date: '2025-11-14', theme: 'Supporting education', photos: 1, template: ["Children's Day health check-up", 'Doctors from the club checked the health of children in three government schools.'] }), 'SCHOOL-2025-26', 350);
+tag(addActivity({ clubId: 'S-031', date: '2026-02-10', theme: 'Supporting education', photos: 1, template: ['Eye and dental check-up in schools', 'Children were screened for eyesight and dental problems; spectacles were given free.'] }), 'SCHOOL-2025-26', 120);
+// Kept out of the bulletin by a moderator
+activities.find((a) => a.club_id === 'S-059' && a.date === '2026-10-05').bulletin_exclude = true;
+
+// Event registration details, and the states a moderator can set
+const eventRow = (title) => events.find((e) => e.title === title);
+Object.assign(eventRow('Rotary Foundation Seminar'), { registration_close_date: '2026-10-20', fee: 'Free' });
+Object.assign(eventRow('District Learning Assembly'), { registration_close_date: '2026-10-15', fee: '₹300 per person' });
+Object.assign(eventRow('Business networking evening – Agra Zone'), { registration_close_date: '2026-11-03', fee: '₹500 per person', registration_status: 'Seats full' });
+Object.assign(eventRow('Free eye camp'), { registration_status: 'Postponed' });
+Object.assign(eventRow('Inter-club cricket match'), { registration_status: 'Cancelled' });
+Object.assign(eventRow('District Conference 2026'), { registration_close_date: '2026-12-10', fee: '₹2,500 per person', registration_status: 'Extended' });
+
 /* ---------- magazines, messages, spotlights ---------- */
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const magazines = ['2026-07', '2026-08', '2026-09'].map((m) => ({
@@ -525,6 +576,7 @@ const clubProfileRequests = [
     submitter_role: 'President', submitter_mobile: '5555000001', club_id: 'S-036', club_name: 'RC Jhansi', website: 'https://example.com/rc-jhansi',
     facebook: 'https://www.facebook.com/example-rc-jhansi', instagram: '', youtube: '', x: '', linkedin: '',
     meeting_day_place: 'Every Thursday, 7:30 pm, Hotel Sita, Jhansi', status: 'pending', approved_by: '', approved_at: '', moderator_note: '', is_sample: true,
+    ...clubProfileRequestsExtra,
   },
 ];
 
@@ -556,6 +608,10 @@ const settings = [
   ['form_removal_url', '', 'Filled in by the setup script'],
   ['rebuild_requested_at', '', 'Set by "Rebuild site now" and "Mark as deceased"'],
   ['inactive_keys', pub.inactiveKeys.join(', '), 'Filled in by "Refresh public members"; never edit by hand'],
+  ['campaign_check_above', '1000', 'A campaign count above this gets a note for the moderator'],
+  // four weeks of bulletins before the sample's "today", so the archive has something to show
+  ['bulletin_start_date', core.Core_addDays(core.Core_sundayOf(TODAY), -28), "A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week's bulletin"],
+  ['bulletin_emails', '', 'Comma-separated; they receive the Sunday WhatsApp message to forward. Blank: the moderators'],
 ].map(([key, value, notes]) => ({ key, value, notes }));
 
 const areas = [...new Set(clubs.map((c) => c.city))].sort();
@@ -565,6 +621,7 @@ const lists = [
   ...core.CORE_THEMES.map((v) => ({ list: 'theme', value: v })),
   ...core.CORE_EVENT_TYPES.map((v) => ({ list: 'event_type', value: v })),
   ...['President', 'Secretary', 'Treasurer', 'Public Image Chair', 'Other office bearer', 'Member'].map((v) => ({ list: 'submitter_role', value: v })),
+  ...core.CORE_REG_STATUSES.map((v) => ({ list: 'registration_status', value: v })),
 ];
 
 /* ---------- write ---------- */
@@ -589,6 +646,7 @@ const data = {
     activities: toTab(SCHEMA_MAIN.activities, activities),
     events: toTab(SCHEMA_MAIN.events, events),
     club_profile_requests: toTab(SCHEMA_MAIN.club_profile_requests, clubProfileRequests),
+    campaigns: toTab(SCHEMA_MAIN.campaigns, campaigns),
     magazines: toTab(SCHEMA_MAIN.magazines, magazines),
     messages: toTab(SCHEMA_MAIN.messages, messages),
     spotlights: toTab(SCHEMA_MAIN.spotlights, spotlights),
@@ -733,6 +791,15 @@ function writeReport() {
     ['Pending consent requests', consentRequests.length],
     ['Pending removal requests', removalRequests.length],
     ['Pending club profile updates', clubProfileRequests.length],
+    ['Clubs with regular services or permanent projects', clubs.filter((c) => c.regular_services || c.permanent_projects).length],
+    ['Service line with a phone number (must be dropped)', clubs.filter((c) => /\+91 6/.test(c.regular_services || '')).length],
+    ['District campaigns (one running, one from last year)', campaigns.length],
+    ['Activities tagged to the running campaign', acts.filter((a) => a.campaign_id === 'BLOOD-2026-27').length],
+    ['Joint activity tagged to a campaign (partners get no credit)', acts.filter((a) => a.campaign_id && a.partner_clubs).length],
+    ['Activities kept out of the bulletin', acts.filter((a) => a.bulletin_exclude).length],
+    ['Events with a registration closing date', data.main.events.filter((e) => e.registration_close_date).length],
+    ['Events with a fee', data.main.events.filter((e) => e.fee).length],
+    ['Events marked Seats full / Postponed / Cancelled / Extended', ['Seats full', 'Postponed', 'Cancelled', 'Extended'].every((st) => data.main.events.some((e) => e.registration_status === st)) ? 4 : 0],
   ];
   const missing = cases.filter(([, n]) => !n);
   const lines = [

@@ -34,7 +34,8 @@ function publicData_() {
   scanMagazines_();
   var ss = mainSs_();
   var tabs = {};
-  ['settings', 'clubs', 'officers', 'functionaries', 'activities', 'events', 'magazines', 'messages', 'spotlights', 'members_public', 'couples_public']
+  ['settings', 'clubs', 'officers', 'functionaries', 'activities', 'events', 'magazines', 'messages', 'spotlights', 'members_public', 'couples_public',
+    'campaigns']
     .forEach(function (name) { tabs[name] = readTab_(ss, name); });
   var data = Core_buildPublicData(tabs, nowIso_(), { personRef: personRefFn_(), inactiveIds: inactiveMemberIds_() });
   var problems = Core_validatePublic(data);

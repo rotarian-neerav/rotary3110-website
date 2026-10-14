@@ -27,7 +27,9 @@ function setup() {
     loadSampleData(true); // forms need the club list; sample rows can be cleared later in one step
     report.push('Loaded the sample data (clubs, teams, dummy activities and members)');
   }
+  ensureLists_(report);
   createForms_(report);
+  addLaterQuestions_(report);
   ensureMemberPhotosFolder_(report);
   checkSharing_(main, report);
   installTriggers_(report);
@@ -40,7 +42,39 @@ function setup() {
   try { SpreadsheetApp.getUi().alert(msg); } catch (e) { /* run from the editor */ }
 }
 
-var TEXT_COLUMNS = ['member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
+/**
+ * Administrator → Upgrade Sheet: brings a Sheet set up earlier up to date with the current script (new tabs and
+ * columns, settings, dropdowns, form questions and timed jobs), without touching existing data or recreating the
+ * forms. Safe to run more than once; a new install gets the same through setup().
+ */
+function upgradeSheet() {
+  var main = mainSs_();
+  var report = [];
+  ensureTabs_(main, SCHEMA_MAIN, report);
+  ensureTabs_(privateSs_(), SCHEMA_PRIVATE, report);
+  ensureSettings_(report);
+  addValidation_(main, privateSs_());
+  ensureLists_(report);
+  addLaterQuestions_(report);
+  installTriggers_(report);
+  updateFormLists(true);
+  var msg = 'Upgrade finished.\n\n' + (report.join('\n') || 'Everything was already up to date.');
+  Logger.log(msg);
+  try { SpreadsheetApp.getUi().alert(msg); } catch (e) { /* run from the editor */ }
+  return report;
+}
+
+/** Values for the dropdowns kept in the lists tab. */
+function ensureLists_(report) {
+  var ss = mainSs_();
+  var have = readTab_(ss, 'lists').filter(function (r) { return r.list === 'registration_status'; }).map(function (r) { return Core_str(r.value); });
+  CORE_REG_STATUSES.forEach(function (v) {
+    if (have.indexOf(v) < 0) appendRow_(ss, 'lists', { list: 'registration_status', value: v });
+  });
+  if (have.length < CORE_REG_STATUSES.length) report.push('Added the registration status list');
+}
+
+var TEXT_COLUMNS = ['member_id', 'chair_member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
   'person_b_id', 'spouse_id', 'spouse_member_id', 'matched_member_id', 'public_key', 'club_id', 'rotary_year', 'term', 'issue_month', 'month'];
 
 function ensureTabs_(ss, schema, report) {
@@ -91,6 +125,9 @@ var DEFAULT_SETTINGS = [
   ['form_removal_url', '', 'Filled in by setup'],
   ['rebuild_requested_at', '', 'Set by "Rebuild site now" and "Mark as deceased"'],
   ['inactive_keys', '', 'Filled in by "Refresh public members"; never edit by hand'],
+  ['campaign_check_above', '1000', 'A campaign count above this gets a note for the moderator'],
+  ['bulletin_start_date', '', 'A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week\'s bulletin'],
+  ['bulletin_emails', '', 'Comma-separated; they receive the Sunday WhatsApp message to forward. Blank: the moderators'],
 ];
 
 function ensureSettings_(report) {
@@ -123,6 +160,9 @@ function addValidation_(main, priv) {
   // A tick-box column would fill every empty row with FALSE, so new rows would land far down the tab.
   // A TRUE/FALSE dropdown leaves empty rows empty.
   apply(main, 'activities', 'story_of_month', listRule_(['TRUE', 'FALSE']));
+  apply(main, 'activities', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
+  apply(main, 'events', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
+  apply(main, 'events', 'registration_status', listRule_(CORE_REG_STATUSES));
   ['consent_requests', 'removal_requests'].forEach(function (t) {
     apply(priv, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
@@ -182,6 +222,14 @@ function installTriggers_(report) {
   if (!existing.some(function (e) { return e.indexOf('dailyJobs|') === 0; })) {
     ScriptApp.newTrigger('dailyJobs').timeBased().everyDays(1).atHour(7).inTimezone('Asia/Kolkata').create();
     report.push('Scheduled the daily reminders and dashboard (7 am)');
+  }
+  if (!existing.some(function (e) { return e.indexOf('bulletinPreview|') === 0; })) {
+    ScriptApp.newTrigger('bulletinPreview').timeBased().onWeekDay(ScriptApp.WeekDay.SATURDAY).atHour(18).inTimezone('Asia/Kolkata').create();
+    report.push('Scheduled the bulletin preview email (Saturday 6 pm)');
+  }
+  if (!existing.some(function (e) { return e.indexOf('bulletinMessage|') === 0; })) {
+    ScriptApp.newTrigger('bulletinMessage').timeBased().onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(8).inTimezone('Asia/Kolkata').create();
+    report.push('Scheduled the bulletin message email (Sunday 8 am)');
   }
 }
 

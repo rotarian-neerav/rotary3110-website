@@ -50,6 +50,17 @@ const useSheet = DATA_URL && DATA_TOKEN && !process.argv.includes('--sample');
 const data = useSheet ? await fromSheet(DATA_URL, DATA_TOKEN) : fromSample();
 data.source = useSheet ? 'sheet' : 'sample';
 
+// Also here, for a Sheet still running an older script: an ID used twice keeps its first row only
+data.duplicate_ids ??= [];
+for (const list of ['activities', 'events']) {
+  const seen = new Set();
+  data[list] = data[list].filter((row) => {
+    if (!seen.has(row.id)) return seen.add(row.id);
+    data.duplicate_ids.push(row.id);
+    return false;
+  });
+}
+
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, JSON.stringify(data, null, 1));
 console.log(

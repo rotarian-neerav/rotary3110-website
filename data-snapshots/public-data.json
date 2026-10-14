@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-10-13T16:46:42.284Z",
- "rebuild_requested_at": "2026-10-13T16:36:45.815Z",
+ "generated_at": "2026-10-14T11:01:54.415Z",
+ "rebuild_requested_at": "2026-10-14T10:29:31.437Z",
  "inactive_keys": [
   "k9999f805",
   "k796b7120",
@@ -13,7 +13,8 @@
    "Agra",
    "Bareilly",
    "Kanpur"
-  ]
+  ],
+  "bulletin_start_date": "2026-09-13"
  },
  "forms": {
   "activity": "https://docs.google.com/forms/d/e/1FAIpQLSdjosTFy5YI4EHpIJQbOwbxLES-KwLZAR03sdCd-j38JDjfHA/viewform",
@@ -86,7 +87,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-002",
@@ -106,7 +109,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-003",
@@ -126,7 +131,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-004",
@@ -146,7 +153,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-005",
@@ -166,7 +175,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-006",
@@ -186,7 +197,26 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [
+    {
+     "name": "School libraries",
+     "what": "48 libraries in government schools",
+     "where": "Aligarh district"
+    },
+    {
+     "name": "Dialysis unit",
+     "what": "two dialysis machines at the district hospital",
+     "where": "Aligarh"
+    }
+   ],
+   "services": [
+    {
+     "what": "Homeopathy camp",
+     "when": "30th of every month",
+     "where": "Rotary Bhawan, Aligarh"
+    }
+   ]
   },
   {
    "club_id": "S-007",
@@ -206,7 +236,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-008",
@@ -226,7 +258,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-009",
@@ -246,7 +280,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-010",
@@ -266,7 +302,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-011",
@@ -286,7 +324,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-012",
@@ -306,7 +346,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-013",
@@ -326,7 +368,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-014",
@@ -346,7 +390,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-015",
@@ -366,7 +412,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-016",
@@ -386,7 +434,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-017",
@@ -406,7 +456,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-018",
@@ -426,7 +478,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-019",
@@ -446,7 +500,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-020",
@@ -466,7 +522,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-021",
@@ -486,7 +544,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-022",
@@ -506,7 +566,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-023",
@@ -528,7 +590,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-024",
@@ -548,7 +612,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-025",
@@ -568,7 +634,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-026",
@@ -588,7 +656,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-027",
@@ -608,7 +678,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-028",
@@ -628,7 +700,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-029",
@@ -648,7 +722,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-030",
@@ -668,7 +744,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-031",
@@ -688,7 +766,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-032",
@@ -708,7 +788,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-033",
@@ -728,7 +810,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-034",
@@ -748,7 +832,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-035",
@@ -768,7 +854,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-036",
@@ -788,7 +876,26 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [
+    {
+     "name": "Rotary Dental Clinic",
+     "what": "dental clinic funded by a global grant",
+     "where": "Sipri Bazar, Jhansi"
+    }
+   ],
+   "services": [
+    {
+     "what": "Free eye check-up",
+     "when": "every Thursday, 11 am–1 pm",
+     "where": "Roshni Centre, Civil Lines"
+    },
+    {
+     "what": "Sari bank",
+     "when": "2nd and 4th Saturday",
+     "where": "Rotary Bhawan"
+    }
+   ]
   },
   {
    "club_id": "S-037",
@@ -808,7 +915,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-038",
@@ -828,7 +937,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-039",
@@ -848,7 +959,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-040",
@@ -868,7 +981,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-041",
@@ -888,7 +1003,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-042",
@@ -908,7 +1025,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-043",
@@ -928,7 +1047,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-044",
@@ -948,7 +1069,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-045",
@@ -968,7 +1091,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-046",
@@ -988,7 +1113,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-047",
@@ -1008,7 +1135,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-048",
@@ -1028,7 +1157,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-049",
@@ -1048,7 +1179,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-050",
@@ -1068,7 +1201,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-051",
@@ -1088,7 +1223,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-052",
@@ -1108,7 +1245,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-053",
@@ -1128,7 +1267,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-054",
@@ -1148,7 +1289,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-055",
@@ -1168,7 +1311,15 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [
+    {
+     "name": "Rotary Eye Hospital",
+     "what": "eye hospital under construction",
+     "where": "Kasganj"
+    }
+   ],
+   "services": []
   },
   {
    "club_id": "S-056",
@@ -1188,7 +1339,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-057",
@@ -1208,7 +1361,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-058",
@@ -1228,7 +1383,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-059",
@@ -1248,7 +1405,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-060",
@@ -1268,7 +1427,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-061",
@@ -1288,7 +1449,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-062",
@@ -1308,7 +1471,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-063",
@@ -1328,7 +1493,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-064",
@@ -1348,7 +1515,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-065",
@@ -1368,7 +1537,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-066",
@@ -1388,7 +1559,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-067",
@@ -1408,7 +1581,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-068",
@@ -1428,7 +1603,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-069",
@@ -1448,7 +1625,9 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   },
   {
    "club_id": "S-070",
@@ -1468,14 +1647,16 @@
     "youtube": "",
     "x": "",
     "linkedin": ""
-   }
+   },
+   "projects": [],
+   "services": []
   }
  ],
  "officers": [
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P473f9047",
+   "person_ref": "P6dfff7d1c866",
    "name": "Rtn Aarav Khanna",
    "role": "President",
    "club_id": "S-001",
@@ -1486,7 +1667,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "ka19a049d",
-   "person_ref": "P483f91da",
+   "person_ref": "P681695e8b578",
    "name": "Rtn Rajesh Sharma",
    "role": "Secretary",
    "club_id": "S-001",
@@ -1497,7 +1678,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P493f936d",
+   "person_ref": "P04583c35c647",
    "name": "Rtn Sameer Sharma",
    "role": "President",
    "club_id": "S-002",
@@ -1508,7 +1689,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P423f8868",
+   "person_ref": "P8172bba914e0",
    "name": "Rtn Deepak Saxena",
    "role": "Secretary",
    "club_id": "S-002",
@@ -1519,7 +1700,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P433f89fb",
+   "person_ref": "Pf1c1bb708c8e",
    "name": "Rtn Sachin Goel",
    "role": "President",
    "club_id": "S-003",
@@ -1530,7 +1711,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k9d99fe51",
-   "person_ref": "P443f8b8e",
+   "person_ref": "Pd2c2f202bc05",
    "name": "Rtn Rohit Pandey",
    "role": "Secretary",
    "club_id": "S-003",
@@ -1541,7 +1722,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P453f8d21",
+   "person_ref": "P8441d9e208ee",
    "name": "Rtn Tarun Kapoor",
    "role": "President",
    "club_id": "S-004",
@@ -1552,7 +1733,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3e3f821c",
+   "person_ref": "P048d56c771b6",
    "name": "Rtn Anuj Mehrotra",
    "role": "Secretary",
    "club_id": "S-004",
@@ -1563,7 +1744,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k9899f672",
-   "person_ref": "P4c41d6bd",
+   "person_ref": "Pd70d10d85177",
    "name": "Rtn Jyoti Singhal",
    "role": "President",
    "club_id": "S-005",
@@ -1574,7 +1755,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb227919b",
+   "person_ref": "Pec7c05e6c976",
    "name": "Rtn Swati Mittal",
    "role": "Secretary",
    "club_id": "S-005",
@@ -1585,7 +1766,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4a41d397",
+   "person_ref": "P2db77262650c",
    "name": "Rtn Nidhi Varshney",
    "role": "President",
    "club_id": "S-006",
@@ -1596,7 +1777,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4941d204",
+   "person_ref": "P8ac40ea1d22d",
    "name": "Rtn Priya Bhatia",
    "role": "Secretary",
    "club_id": "S-006",
@@ -1607,7 +1788,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4841d071",
+   "person_ref": "Pa7e74ce17879",
    "name": "Rtn Sameer Chaturvedi",
    "role": "President",
    "club_id": "S-007",
@@ -1618,7 +1799,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4741cede",
+   "person_ref": "P3e997303aa23",
    "name": "Rtn Rajesh Tandon",
    "role": "Secretary",
    "club_id": "S-007",
@@ -1629,7 +1810,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4641cd4b",
+   "person_ref": "P87cc765dfd7b",
    "name": "Rtn Sachin Verma",
    "role": "President",
    "club_id": "S-008",
@@ -1640,7 +1821,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4541cbb8",
+   "person_ref": "P70e7791a9228",
    "name": "Rtn Nisha Maheshwari",
    "role": "Secretary",
    "club_id": "S-008",
@@ -1651,7 +1832,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k0e75560b",
-   "person_ref": "P4441ca25",
+   "person_ref": "P7384345028b6",
    "name": "Rtn Jyoti Jain",
    "role": "President",
    "club_id": "S-009",
@@ -1662,7 +1843,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4341c892",
+   "person_ref": "Pbb08c77dbefa",
    "name": "Rtn Seema Maheshwari",
    "role": "Secretary",
    "club_id": "S-009",
@@ -1673,7 +1854,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3243ec66",
+   "person_ref": "P784e8f79c3ba",
    "name": "Rtn Sameer Goel",
    "role": "President",
    "club_id": "S-010",
@@ -1684,7 +1865,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3343edf9",
+   "person_ref": "P677cb7561922",
    "name": "Rtn Kavita Tiwari",
    "role": "Secretary",
    "club_id": "S-010",
@@ -1695,7 +1876,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k0f75579e",
-   "person_ref": "P3043e940",
+   "person_ref": "P7117132dfd31",
    "name": "Rtn Rohit Mishra",
    "role": "President",
    "club_id": "S-011",
@@ -1706,7 +1887,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3143ead3",
+   "person_ref": "P3714575b50ff",
    "name": "Rtn Pooja Tandon",
    "role": "Secretary",
    "club_id": "S-011",
@@ -1717,7 +1898,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3643f2b2",
+   "person_ref": "Pddc344b9fda7",
    "name": "Rtn Mamta Kapoor",
    "role": "President",
    "club_id": "S-012",
@@ -1728,7 +1909,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3743f445",
+   "person_ref": "P700ca3d2e17f",
    "name": "Rtn Pankaj Singhal",
    "role": "Secretary",
    "club_id": "S-012",
@@ -1739,7 +1920,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3543f11f",
+   "person_ref": "P734fc0b51e3a",
    "name": "Rtn Nisha Kapoor",
    "role": "President",
    "club_id": "S-013",
@@ -1750,7 +1931,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3a43f8fe",
+   "person_ref": "Paf23cdf8b8b2",
    "name": "Rtn Kunal Singhal",
    "role": "Secretary",
    "club_id": "S-013",
@@ -1761,7 +1942,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3b43fa91",
+   "person_ref": "Pa32a7562b3b4",
    "name": "Rtn Anuj Agarwal",
    "role": "President",
    "club_id": "S-014",
@@ -1772,7 +1953,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k836dbf75",
-   "person_ref": "Pb846fdef",
+   "person_ref": "Pd7b2cbbdc73f",
    "name": "Rtn Dinesh Agarwal",
    "role": "Secretary",
    "club_id": "S-014",
@@ -1783,7 +1964,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pba470115",
+   "person_ref": "Pdb6eaaac4afb",
    "name": "Rtn Vandana Pandey",
    "role": "President",
    "club_id": "S-015",
@@ -1794,7 +1975,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb946ff82",
+   "person_ref": "P1c519ee8f22c",
    "name": "Rtn Pankaj Agarwal",
    "role": "Secretary",
    "club_id": "S-015",
@@ -1805,7 +1986,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb346f610",
+   "person_ref": "P5421992f6d8c",
    "name": "Rtn Naveen Chaturvedi",
    "role": "President",
    "club_id": "S-016",
@@ -1816,7 +1997,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb646fac9",
+   "person_ref": "P942c69845ca0",
    "name": "Rtn Ritu Tiwari",
    "role": "Secretary",
    "club_id": "S-016",
@@ -1827,7 +2008,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k867002c5",
-   "person_ref": "Pc0470a87",
+   "person_ref": "Pdcbaeea7065f",
    "name": "Rtn Amit Bansal",
    "role": "President",
    "club_id": "S-017",
@@ -1838,7 +2019,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pbf4708f4",
+   "person_ref": "Pe97fe0945caa",
    "name": "Rtn Gaurav Goel",
    "role": "Secretary",
    "club_id": "S-017",
@@ -1849,7 +2030,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pae35a510",
+   "person_ref": "P589b8af1fd8b",
    "name": "Rtn Rohit Mishra",
    "role": "President",
    "club_id": "S-018",
@@ -1860,7 +2041,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Paf35a6a3",
+   "person_ref": "Pada51b4748ca",
    "name": "Rtn Komal Mishra",
    "role": "Secretary",
    "club_id": "S-018",
@@ -1871,7 +2052,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb135a9c9",
+   "person_ref": "P1bf039410047",
    "name": "Rtn Dinesh Sharma",
    "role": "President",
    "club_id": "S-020",
@@ -1882,7 +2063,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb235ab5c",
+   "person_ref": "P4c4f81ae2f28",
    "name": "Rtn Nisha Agarwal",
    "role": "Secretary",
    "club_id": "S-020",
@@ -1893,7 +2074,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb335acef",
+   "person_ref": "Pf69ea9e8fc4e",
    "name": "Rtn Alok Mehrotra",
    "role": "President",
    "club_id": "S-021",
@@ -1904,7 +2085,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k7f6ff7c0",
-   "person_ref": "Pb435ae82",
+   "person_ref": "P0d83d90d8b8f",
    "name": "Rtn Pankaj Gupta",
    "role": "Secretary",
    "club_id": "S-021",
@@ -1915,7 +2096,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb535b015",
+   "person_ref": "Pb2c5189c7c49",
    "name": "Rtn Lata Pandey",
    "role": "President",
    "club_id": "S-022",
@@ -1926,7 +2107,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb635b1a8",
+   "person_ref": "Pf67eea4f4fb1",
    "name": "Rtn Gaurav Varshney",
    "role": "Secretary",
    "club_id": "S-022",
@@ -1937,7 +2118,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb735b33b",
+   "person_ref": "P6cc8627787a8",
    "name": "Rtn Tarun Jain",
    "role": "President",
    "club_id": "S-023",
@@ -1948,7 +2129,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k8e700f5d",
-   "person_ref": "Pb437ed19",
+   "person_ref": "Pdef00fa1a6dc",
    "name": "Rtn Rahul Arora",
    "role": "Secretary",
    "club_id": "S-023",
@@ -1959,7 +2140,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb337eb86",
+   "person_ref": "P492b3f3469b5",
    "name": "Rtn Nitin Verma",
    "role": "President",
    "club_id": "S-024",
@@ -1970,7 +2151,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb237e9f3",
+   "person_ref": "P957f021bdcef",
    "name": "Rtn Jyoti Verma",
    "role": "Secretary",
    "club_id": "S-024",
@@ -1981,7 +2162,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb137e860",
+   "person_ref": "Pbe50b6c2973e",
    "name": "Rtn Usha Mehrotra",
    "role": "President",
    "club_id": "S-025",
@@ -1992,7 +2173,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k12689064",
-   "person_ref": "Pb837f365",
+   "person_ref": "Pfe8394e962d0",
    "name": "Rtn Aarti Jain",
    "role": "Secretary",
    "club_id": "S-025",
@@ -2003,7 +2184,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb737f1d2",
+   "person_ref": "P38baab1f2f35",
    "name": "Rtn Varun Maheshwari",
    "role": "President",
    "club_id": "S-026",
@@ -2014,7 +2195,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb637f03f",
+   "person_ref": "P2d874b77d6b0",
    "name": "Rtn Usha Verma",
    "role": "Secretary",
    "club_id": "S-026",
@@ -2025,7 +2206,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb537eeac",
+   "person_ref": "Pdb7c2ba787d3",
    "name": "Rtn Mamta Saxena",
    "role": "President",
    "club_id": "S-027",
@@ -2036,7 +2217,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k11688ed1",
-   "person_ref": "Pbc37f9b1",
+   "person_ref": "Pec5ead2756a2",
    "name": "Rtn Divya Agarwal",
    "role": "Secretary",
    "club_id": "S-027",
@@ -2047,7 +2228,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pba3a3522",
+   "person_ref": "Pa130fe332b9d",
    "name": "Rtn Deepak Bhatia",
    "role": "President",
    "club_id": "S-028",
@@ -2058,7 +2239,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pbb3a36b5",
+   "person_ref": "P6c9ddbb47b13",
    "name": "Rtn Swati Srivastava",
    "role": "Secretary",
    "club_id": "S-028",
@@ -2069,7 +2250,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k0c6886f2",
-   "person_ref": "Pb83a31fc",
+   "person_ref": "P1c376142c2b1",
    "name": "Rtn Ashwin Kapoor",
    "role": "President",
    "club_id": "S-029",
@@ -2080,7 +2261,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb93a338f",
+   "person_ref": "Pd2dd20e25f3c",
    "name": "Rtn Sunita Tiwari",
    "role": "Secretary",
    "club_id": "S-029",
@@ -2091,7 +2272,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb63a2ed6",
+   "person_ref": "P86a648ffd19d",
    "name": "Rtn Aarav Mishra",
    "role": "President",
    "club_id": "S-030",
@@ -2102,7 +2283,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb73a3069",
+   "person_ref": "P5c612bd005c9",
    "name": "Rtn Mamta Sharma",
    "role": "Secretary",
    "club_id": "S-030",
@@ -2113,7 +2294,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb53a2d43",
+   "person_ref": "Pc3c255aac730",
    "name": "Rtn Priya Agarwal",
    "role": "President",
    "club_id": "S-031",
@@ -2124,7 +2305,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc23a41ba",
+   "person_ref": "Pe422398e615a",
    "name": "Rtn Seema Saxena",
    "role": "Secretary",
    "club_id": "S-031",
@@ -2135,7 +2316,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc33a434d",
+   "person_ref": "P3550300b5165",
    "name": "Rtn Neha Kapoor",
    "role": "President",
    "club_id": "S-032",
@@ -2146,7 +2327,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc03c7d2b",
+   "person_ref": "P890bd36cf172",
    "name": "Rtn Sanjay Bansal",
    "role": "Secretary",
    "club_id": "S-032",
@@ -2157,7 +2338,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc23c8051",
+   "person_ref": "P354a5432e8c3",
    "name": "Rtn Nidhi Kapoor",
    "role": "President",
    "club_id": "S-033",
@@ -2168,7 +2349,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc13c7ebe",
+   "person_ref": "Pc5c36be1943d",
    "name": "Rtn Sunita Chaturvedi",
    "role": "Secretary",
    "club_id": "S-033",
@@ -2179,7 +2360,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k7f6b7a92",
-   "person_ref": "Pc43c8377",
+   "person_ref": "P5023258b1b5e",
    "name": "Rtn Divya Saxena",
    "role": "President",
    "club_id": "S-034",
@@ -2190,7 +2371,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc33c81e4",
+   "person_ref": "Pb34c25fa22a6",
    "name": "Rtn Anita Singhal",
    "role": "Secretary",
    "club_id": "S-034",
@@ -2201,7 +2382,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc63c869d",
+   "person_ref": "Pe02ec2c80fc9",
    "name": "Rtn Varun Bhatia",
    "role": "President",
    "club_id": "S-035",
@@ -2212,7 +2393,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc53c850a",
+   "person_ref": "P45c138ff7c3a",
    "name": "Rtn Divya Agarwal",
    "role": "Secretary",
    "club_id": "S-035",
@@ -2223,7 +2404,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb73c6f00",
+   "person_ref": "P81fcabc40cbf",
    "name": "Rtn Manish Bansal",
    "role": "President",
    "club_id": "S-036",
@@ -2234,7 +2415,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3652fd3c",
+   "person_ref": "Pe2bd6e05e1e0",
    "name": "Rtn Kavita Mehrotra",
    "role": "Secretary",
    "club_id": "S-036",
@@ -2245,7 +2426,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k0c6409c4",
-   "person_ref": "P38530062",
+   "person_ref": "P396958840006",
    "name": "Rtn Harsh Maheshwari",
    "role": "President",
    "club_id": "S-037",
@@ -2256,7 +2437,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P395301f5",
+   "person_ref": "P761d3c177c67",
    "name": "Rtn Sunita Pandey",
    "role": "Secretary",
    "club_id": "S-037",
@@ -2267,7 +2448,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3352f883",
+   "person_ref": "P9a4b468d0d0a",
    "name": "Rtn Pooja Tandon",
    "role": "President",
    "club_id": "S-038",
@@ -2278,7 +2459,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k0f640e7d",
-   "person_ref": "P3452fa16",
+   "person_ref": "Pe6c8bd5c64ae",
    "name": "Rtn Yogesh Tandon",
    "role": "Secretary",
    "club_id": "S-038",
@@ -2289,7 +2470,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3552fba9",
+   "person_ref": "P6c4c459e2498",
    "name": "Rtn Naveen Rastogi",
    "role": "President",
    "club_id": "S-039",
@@ -2300,7 +2481,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3e5309d4",
+   "person_ref": "P157fe493769b",
    "name": "Rtn Rajesh Sharma",
    "role": "Secretary",
    "club_id": "S-039",
@@ -2311,7 +2492,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k0d6649ee",
-   "person_ref": "P3c554545",
+   "person_ref": "P4ce1688b0d40",
    "name": "Rtn Divya Saxena",
    "role": "President",
    "club_id": "S-040",
@@ -2322,7 +2503,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3b5543b2",
+   "person_ref": "Paecedb01c55c",
    "name": "Rtn Dinesh Verma",
    "role": "Secretary",
    "club_id": "S-040",
@@ -2333,7 +2514,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3a55421f",
+   "person_ref": "P380bd315c97b",
    "name": "Rtn Gaurav Mehrotra",
    "role": "President",
    "club_id": "S-041",
@@ -2344,7 +2525,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3955408c",
+   "person_ref": "P0a1d389cbca7",
    "name": "Rtn Nidhi Saxena",
    "role": "Secretary",
    "club_id": "S-041",
@@ -2355,7 +2536,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P37553d66",
+   "person_ref": "Pc5911f64f438",
    "name": "Rtn Rahul Chaturvedi",
    "role": "President",
    "club_id": "S-042",
@@ -2366,7 +2547,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P36553bd3",
+   "person_ref": "P36a669c24591",
    "name": "Rtn Rajesh Pandey",
    "role": "Secretary",
    "club_id": "S-042",
@@ -2377,7 +2558,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P445551dd",
+   "person_ref": "P55f0a8c0e5c8",
    "name": "Rtn Geeta Bhatia",
    "role": "President",
    "club_id": "S-043",
@@ -2388,7 +2569,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4355504a",
+   "person_ref": "P6350eada988b",
    "name": "Rtn Rashmi Mittal",
    "role": "Secretary",
    "club_id": "S-043",
@@ -2399,7 +2580,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa513f56c",
+   "person_ref": "P457cabfd354e",
    "name": "Rtn Kunal Jain",
    "role": "President",
    "club_id": "S-044",
@@ -2410,7 +2591,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k7c5ea9e6",
-   "person_ref": "Pa813fa25",
+   "person_ref": "P72a7ce2dc89e",
    "name": "Rtn Anita Sharma",
    "role": "Secretary",
    "club_id": "S-044",
@@ -2421,7 +2602,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa713f892",
+   "person_ref": "P26a9def368a9",
    "name": "Rtn Sunita Mishra",
    "role": "President",
    "club_id": "S-045",
@@ -2432,7 +2613,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa213f0b3",
+   "person_ref": "P04c20952897d",
    "name": "Rtn Sachin Arora",
    "role": "Secretary",
    "club_id": "S-045",
@@ -2443,7 +2624,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k7b5ea853",
-   "person_ref": "Pa413f3d9",
+   "person_ref": "Pf564e53da19b",
    "name": "Rtn Gaurav Tandon",
    "role": "President",
    "club_id": "S-046",
@@ -2454,7 +2635,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa313f246",
+   "person_ref": "Pb579fbd77296",
    "name": "Rtn Sunita Mittal",
    "role": "Secretary",
    "club_id": "S-046",
@@ -2465,7 +2646,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pae140397",
+   "person_ref": "P381de52605be",
    "name": "Rtn Mohit Verma",
    "role": "President",
    "club_id": "S-047",
@@ -2476,7 +2657,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pad140204",
+   "person_ref": "Pe3aeda58b1e0",
    "name": "Rtn Dinesh Mishra",
    "role": "Secretary",
    "club_id": "S-047",
@@ -2487,7 +2668,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k7e5ead0c",
-   "person_ref": "Pa011aef6",
+   "person_ref": "P03de2683a85f",
    "name": "Rtn Ashwin Chaturvedi",
    "role": "President",
    "club_id": "S-048",
@@ -2498,7 +2679,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa111b089",
+   "person_ref": "P35050d7cc698",
    "name": "Rtn Kavita Mishra",
    "role": "Secretary",
    "club_id": "S-048",
@@ -2509,7 +2690,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P9e11abd0",
+   "person_ref": "P5ba8e432295f",
    "name": "Rtn Aarti Mehrotra",
    "role": "President",
    "club_id": "S-049",
@@ -2520,7 +2701,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P9f11ad63",
+   "person_ref": "P8fecb97a724b",
    "name": "Rtn Ashwin Pandey",
    "role": "Secretary",
    "club_id": "S-049",
@@ -2531,7 +2712,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k855eb811",
-   "person_ref": "Pa411b542",
+   "person_ref": "Pbf49c98e1588",
    "name": "Rtn Divya Agarwal",
    "role": "President",
    "club_id": "S-050",
@@ -2542,7 +2723,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa511b6d5",
+   "person_ref": "P682aee88827f",
    "name": "Rtn Divya Gupta",
    "role": "Secretary",
    "club_id": "S-050",
@@ -2553,7 +2734,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa311b3af",
+   "person_ref": "Pe0e4ab9b9c4c",
    "name": "Rtn Yogesh Goel",
    "role": "President",
    "club_id": "S-051",
@@ -2564,7 +2745,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k0461be95",
-   "person_ref": "Pa811bb8e",
+   "person_ref": "P9526477cdc23",
    "name": "Rtn Komal Arora",
    "role": "Secretary",
    "club_id": "S-051",
@@ -2575,7 +2756,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3a0ecfcd",
+   "person_ref": "Pf760ad548dd3",
    "name": "Rtn Deepak Pandey",
    "role": "President",
    "club_id": "S-052",
@@ -2586,7 +2767,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P390ece3a",
+   "person_ref": "Pe42f7c94e091",
    "name": "Rtn Gaurav Pandey",
    "role": "Secretary",
    "club_id": "S-052",
@@ -2597,7 +2778,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P370ecb14",
+   "person_ref": "Pff712ad20a56",
    "name": "Rtn Komal Khanna",
    "role": "President",
    "club_id": "S-053",
@@ -2608,7 +2789,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P360ec981",
+   "person_ref": "Pc176f8a20098",
    "name": "Rtn Aarav Agarwal",
    "role": "Secretary",
    "club_id": "S-053",
@@ -2619,7 +2800,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P350ec7ee",
+   "person_ref": "Pf660517618b3",
    "name": "Rtn Naveen Pandey",
    "role": "President",
    "club_id": "S-054",
@@ -2630,7 +2811,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P340ec65b",
+   "person_ref": "Pe6c2fab8bbe9",
    "name": "Rtn Jyoti Srivastava",
    "role": "Secretary",
    "club_id": "S-054",
@@ -2641,7 +2822,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P330ec4c8",
+   "person_ref": "P1c122e4d9462",
    "name": "Rtn Alok Tiwari",
    "role": "President",
    "club_id": "S-055",
@@ -2652,7 +2833,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P320ec335",
+   "person_ref": "P9a253c4ec594",
    "name": "Rtn Nidhi Mehrotra",
    "role": "Secretary",
    "club_id": "S-055",
@@ -2663,7 +2844,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P310ec1a2",
+   "person_ref": "P3c6c88143860",
    "name": "Rtn Lata Mittal",
    "role": "President",
    "club_id": "S-056",
@@ -2674,7 +2855,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k74c07492",
-   "person_ref": "P340c87c4",
+   "person_ref": "Pccfaebc24ca4",
    "name": "Rtn Nitin Mehrotra",
    "role": "Secretary",
    "club_id": "S-056",
@@ -2685,7 +2866,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P350c8957",
+   "person_ref": "Pcda76b84ea6c",
    "name": "Rtn Vikram Srivastava",
    "role": "President",
    "club_id": "S-057",
@@ -2696,7 +2877,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P360c8aea",
+   "person_ref": "Pc0f27db2cb8b",
    "name": "Rtn Priya Tiwari",
    "role": "Secretary",
    "club_id": "S-057",
@@ -2707,7 +2888,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k72c0716c",
-   "person_ref": "P300c8178",
+   "person_ref": "Pd321aaba2c71",
    "name": "Rtn Lata Chaturvedi",
    "role": "President",
    "club_id": "S-058",
@@ -2718,7 +2899,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P310c830b",
+   "person_ref": "P2d75757d24f9",
    "name": "Rtn Aarti Khanna",
    "role": "Secretary",
    "club_id": "S-058",
@@ -2729,7 +2910,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P320c849e",
+   "person_ref": "P0ad9d7e72b50",
    "name": "Rtn Shalini Jain",
    "role": "President",
    "club_id": "S-059",
@@ -2740,7 +2921,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P330c8631",
+   "person_ref": "P8811725a7a63",
    "name": "Rtn Mohit Maheshwari",
    "role": "Secretary",
    "club_id": "S-059",
@@ -2751,7 +2932,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "k6ec06b20",
-   "person_ref": "P2c0c7b2c",
+   "person_ref": "P4665823d5feb",
    "name": "Rtn Seema Arora",
    "role": "President",
    "club_id": "S-060",
@@ -2762,7 +2943,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P2d0c7cbf",
+   "person_ref": "Pae12290d3a2d",
    "name": "Rtn Sachin Varshney",
    "role": "Secretary",
    "club_id": "S-060",
@@ -2773,7 +2954,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P2e0a3fbb",
+   "person_ref": "P7b942ee0d270",
    "name": "Rtn Neha Bhatia",
    "role": "President",
    "club_id": "S-061",
@@ -2784,7 +2965,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P2d0a3e28",
+   "person_ref": "Pf9a764a11f21",
    "name": "Rtn Sanjay Khanna",
    "role": "Secretary",
    "club_id": "S-061",
@@ -2795,7 +2976,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P300a42e1",
+   "person_ref": "P0319173a2202",
    "name": "Rtn Pankaj Bhatia",
    "role": "President",
    "club_id": "S-062",
@@ -2806,7 +2987,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P2f0a414e",
+   "person_ref": "Pcb760f319be3",
    "name": "Rtn Rohit Singhal",
    "role": "Secretary",
    "club_id": "S-062",
@@ -2817,7 +2998,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P310a4474",
+   "person_ref": "P4da5eb5b4990",
    "name": "Rtn Alok Mittal",
    "role": "President",
    "club_id": "S-063",
@@ -2828,7 +3009,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P340a492d",
+   "person_ref": "P5f2609dd8d32",
    "name": "Rtn Nisha Goel",
    "role": "Secretary",
    "club_id": "S-063",
@@ -2839,7 +3020,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P330a479a",
+   "person_ref": "P8aeb1e8296fc",
    "name": "Rtn Pankaj Gupta",
    "role": "President",
    "club_id": "S-064",
@@ -2850,7 +3031,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P260a3323",
+   "person_ref": "P1f785abba4e1",
    "name": "Rtn Sameer Arora",
    "role": "Secretary",
    "club_id": "S-064",
@@ -2861,7 +3042,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa8072e32",
+   "person_ref": "P3119740ed0ea",
    "name": "Rtn Rahul Singhal",
    "role": "President",
    "club_id": "S-065",
@@ -2872,7 +3053,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa9072fc5",
+   "person_ref": "P3385a7e2c7af",
    "name": "Rtn Lata Tandon",
    "role": "Secretary",
    "club_id": "S-065",
@@ -2883,7 +3064,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa6072b0c",
+   "person_ref": "P04b76f9411cd",
    "name": "Rtn Ritu Arora",
    "role": "President",
    "club_id": "S-066",
@@ -2894,7 +3075,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa7072c9f",
+   "person_ref": "P412e73061805",
    "name": "Rtn Komal Rastogi",
    "role": "Secretary",
    "club_id": "S-066",
@@ -2905,7 +3086,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa40727e6",
+   "person_ref": "P95d4a3971946",
    "name": "Rtn Rekha Maheshwari",
    "role": "President",
    "club_id": "S-067",
@@ -2916,7 +3097,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa5072979",
+   "person_ref": "Pda22768d34f9",
    "name": "Rtn Pooja Tandon",
    "role": "Secretary",
    "club_id": "S-067",
@@ -2927,7 +3108,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa3072653",
+   "person_ref": "Pa31344cd96cb",
    "name": "Rtn Sunita Saxena",
    "role": "President",
    "club_id": "S-068",
@@ -2938,7 +3119,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb0073aca",
+   "person_ref": "P5af7a1106b0d",
    "name": "Rtn Nitin Varshney",
    "role": "Secretary",
    "club_id": "S-068",
@@ -2949,7 +3130,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa204e629",
+   "person_ref": "Pec76dfd6794c",
    "name": "Rtn Vandana Khanna",
    "role": "President",
    "club_id": "S-069",
@@ -2960,7 +3141,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa104e496",
+   "person_ref": "Pa342bdd5fc3d",
    "name": "Rtn Kunal Varshney",
    "role": "Secretary",
    "club_id": "S-069",
@@ -2971,7 +3152,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pa004e303",
+   "person_ref": "Pdc2aeed5483f",
    "name": "Rtn Mohit Arora",
    "role": "President",
    "club_id": "S-070",
@@ -2982,10 +3163,120 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P9f04e170",
+   "person_ref": "Pda15daaf68dc",
    "name": "Rtn Dinesh Tiwari",
    "role": "Secretary",
    "club_id": "S-070",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": ""
+  },
+  {
+   "rotary_year": "2023-24",
+   "person_key": "ka19a049d",
+   "person_ref": "P681695e8b578",
+   "name": "Rtn Rajesh Sharma",
+   "role": "President",
+   "club_id": "S-001",
+   "photo": "sample:member-01.jpg",
+   "contact_ok": false,
+   "contact_link": ""
+  },
+  {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "P8172bba914e0",
+   "name": "Rtn Deepak Saxena",
+   "role": "President",
+   "club_id": "S-002",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": ""
+  },
+  {
+   "rotary_year": "2023-24",
+   "person_key": "k9d99fe51",
+   "person_ref": "Pd2c2f202bc05",
+   "name": "Rtn Rohit Pandey",
+   "role": "President",
+   "club_id": "S-003",
+   "photo": "sample:member-02.jpg",
+   "contact_ok": false,
+   "contact_link": ""
+  },
+  {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "P048d56c771b6",
+   "name": "Rtn Anuj Mehrotra",
+   "role": "President",
+   "club_id": "S-004",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": ""
+  },
+  {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "Pec7c05e6c976",
+   "name": "Rtn Swati Mittal",
+   "role": "President",
+   "club_id": "S-005",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": ""
+  },
+  {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "P8ac40ea1d22d",
+   "name": "Rtn Priya Bhatia",
+   "role": "President",
+   "club_id": "S-006",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": ""
+  },
+  {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "P3e997303aa23",
+   "name": "Rtn Rajesh Tandon",
+   "role": "President",
+   "club_id": "S-007",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": ""
+  },
+  {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "P70e7791a9228",
+   "name": "Rtn Nisha Maheshwari",
+   "role": "President",
+   "club_id": "S-008",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": ""
+  },
+  {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "",
+   "name": "Rtn Sunita Singhal",
+   "role": "Treasurer",
+   "club_id": "S-005",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": ""
+  },
+  {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "P3cb6932fab5b",
+   "name": "PDG Sharat Chandra",
+   "role": "Club Trainer",
+   "club_id": "S-005",
    "photo": "",
    "contact_ok": false,
    "contact_link": ""
@@ -2995,7 +3286,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pdb73d35d",
+   "person_ref": "Pb58fdad4029e",
    "name": "DG Neerav N Agrawal",
    "role": "District Governor",
    "club_id": "S-059",
@@ -3010,9 +3301,26 @@
    "sort_order": 1
   },
   {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "Pb58fdad4029e",
+   "name": "DGE Neerav N Agrawal",
+   "role": "District Governor Elect",
+   "club_id": "S-059",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": "",
+   "page": "leadership",
+   "section": "Governor line",
+   "committee": "",
+   "zone": "",
+   "term": "2024-25",
+   "sort_order": 1
+  },
+  {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd873cea4",
+   "person_ref": "Pbd2bc3bc6598",
    "name": "PDG Ram Narain Agarwal",
    "role": "Past District Governor",
    "club_id": "S-004",
@@ -3027,9 +3335,26 @@
    "sort_order": 2
   },
   {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "P8642ae2a33e2",
+   "name": "DGN Rajan Vidhyarthi",
+   "role": "District Governor Nominee",
+   "club_id": "S-016",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": "",
+   "page": "leadership",
+   "section": "Governor line",
+   "committee": "",
+   "zone": "",
+   "term": "2025-26",
+   "sort_order": 2
+  },
+  {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd973d037",
+   "person_ref": "P14d33b6cd861",
    "name": "PDG Rajiv Tandon",
    "role": "Past District Governor",
    "club_id": "S-039",
@@ -3044,9 +3369,26 @@
    "sort_order": 3
   },
   {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "P3cb6932fab5b",
+   "name": "PDG Sharat Chandra",
+   "role": "District Counsellor",
+   "club_id": "S-005",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": "",
+   "page": "leadership",
+   "section": "District Counsellors",
+   "committee": "",
+   "zone": "",
+   "term": "",
+   "sort_order": 3
+  },
+  {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd673cb7e",
+   "person_ref": "P5b9a815bd251",
    "name": "PDG Mukund Hari Singhal",
    "role": "Past District Governor",
    "club_id": "S-006",
@@ -3061,9 +3403,26 @@
    "sort_order": 4
   },
   {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "",
+   "name": "Rtn Sunita Singhal",
+   "role": "District Secretary",
+   "club_id": "S-005",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": "",
+   "page": "leadership",
+   "section": "Governor's Office Team",
+   "committee": "District Secretariat",
+   "zone": "",
+   "term": "",
+   "sort_order": 4
+  },
+  {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd773cd11",
+   "person_ref": "Pad0da80fee3c",
    "name": "PDG Arun Khanna",
    "role": "Past District Governor",
    "club_id": "S-053",
@@ -3078,9 +3437,26 @@
    "sort_order": 5
   },
   {
+   "rotary_year": "2023-24",
+   "person_key": "",
+   "person_ref": "",
+   "name": "Rtn Manish Varshney",
+   "role": "District Treasurer",
+   "club_id": "S-031",
+   "photo": "",
+   "contact_ok": false,
+   "contact_link": "",
+   "page": "leadership",
+   "section": "Governor's Office Team",
+   "committee": "District Secretariat",
+   "zone": "",
+   "term": "",
+   "sort_order": 5
+  },
+  {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd473c858",
+   "person_ref": "Pe7e337ed0db9",
    "name": "PDG Hari Mohan Bansal",
    "role": "Past District Governor",
    "club_id": "S-036",
@@ -3097,7 +3473,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd573c9eb",
+   "person_ref": "P698de9d2f40f",
    "name": "PDG Dr Iqbal Singh Tomer",
    "role": "Past District Governor",
    "club_id": "S-026",
@@ -3114,7 +3490,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd273c532",
+   "person_ref": "P682322549bcd",
    "name": "PDG Dr D N. Raizaday",
    "role": "Past District Governor",
    "club_id": "S-040",
@@ -3131,7 +3507,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd373c6c5",
+   "person_ref": "P24bebce97026",
    "name": "PDG Ravi Prakash Agarwal",
    "role": "Past District Governor",
    "club_id": "S-026",
@@ -3148,7 +3524,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4076b0f3",
+   "person_ref": "P3efde92bc2d5",
    "name": "PDG Manmohan Singh Saluja",
    "role": "Past District Governor",
    "club_id": "S-048",
@@ -3165,7 +3541,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3f76af60",
+   "person_ref": "Pa083ee86a39d",
    "name": "PDG Naresh Sood",
    "role": "Past District Governor",
    "club_id": "S-004",
@@ -3182,7 +3558,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4276b419",
+   "person_ref": "P0af2557417b3",
    "name": "PDG Chander P. Rishi",
    "role": "Past District Governor",
    "club_id": "S-046",
@@ -3199,7 +3575,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4176b286",
+   "person_ref": "P0b344a79c398",
    "name": "PDG Tavinder Pal Singh Sethi",
    "role": "Past District Governor",
    "club_id": "S-019",
@@ -3216,7 +3592,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4476b73f",
+   "person_ref": "P4af7760fcc6b",
    "name": "PDG Dr Shailendra Kumar Raju",
    "role": "Past District Governor",
    "club_id": "S-034",
@@ -3233,7 +3609,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4376b5ac",
+   "person_ref": "Pca9250adab1d",
    "name": "PDG Pushp Pal Singh",
    "role": "Past District Governor",
    "club_id": "S-025",
@@ -3250,7 +3626,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4676ba65",
+   "person_ref": "Paffc9b124a05",
    "name": "PDG Arvind Kumar Srivastava",
    "role": "Past District Governor",
    "club_id": "S-070",
@@ -3267,7 +3643,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4576b8d2",
+   "person_ref": "P508586591164",
    "name": "PDG Laxmi Kant Bansal",
    "role": "Past District Governor",
    "club_id": "S-031",
@@ -3284,7 +3660,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4876bd8b",
+   "person_ref": "P3fce6e2e4be6",
    "name": "PDG Devendra Kumar Agarwal",
    "role": "Past District Governor",
    "club_id": "S-056",
@@ -3301,7 +3677,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4776bbf8",
+   "person_ref": "Pdbebbc193c75",
    "name": "PDG Ashok Jyoti",
    "role": "Past District Governor",
    "club_id": "S-051",
@@ -3318,7 +3694,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pce6f41b8",
+   "person_ref": "P3cb6932fab5b",
    "name": "PDG Sharat Chandra",
    "role": "Past District Governor",
    "club_id": "S-005",
@@ -3335,7 +3711,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pcf6f434b",
+   "person_ref": "Pcc375d22cebb",
    "name": "PDG Dr Ravi Mehra",
    "role": "Past District Governor",
    "club_id": "S-026",
@@ -3352,7 +3728,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd06f44de",
+   "person_ref": "P685affbb8b31",
    "name": "PDG Vinay Asthana",
    "role": "Past District Governor",
    "club_id": "S-050",
@@ -3369,7 +3745,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd16f4671",
+   "person_ref": "P1d43e976a14b",
    "name": "PDG Arun Kumar Jain",
    "role": "Past District Governor",
    "club_id": "S-034",
@@ -3386,7 +3762,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd26f4804",
+   "person_ref": "P3b39d0034583",
    "name": "PDG Kishore Katru",
    "role": "Past District Governor",
    "club_id": "S-017",
@@ -3403,7 +3779,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd36f4997",
+   "person_ref": "P319a1318708b",
    "name": "PDG Dinesh Chandra Shukla",
    "role": "Past District Governor",
    "club_id": "S-054",
@@ -3420,7 +3796,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd46f4b2a",
+   "person_ref": "Pb8d45dd3a95d",
    "name": "PDG Mukesh Singhal",
    "role": "Past District Governor",
    "club_id": "S-009",
@@ -3437,7 +3813,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd56f4cbd",
+   "person_ref": "Pdf5ec765dc34",
    "name": "PDG Pawan Agarwal",
    "role": "Past District Governor",
    "club_id": "S-056",
@@ -3454,7 +3830,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc66f3520",
+   "person_ref": "P8642ae2a33e2",
    "name": "DGE Rajan Vidhyarthi",
    "role": "District Governor Elect",
    "club_id": "S-016",
@@ -3471,7 +3847,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc76f36b3",
+   "person_ref": "Pefe3cc1ff9fa",
    "name": "DGN Jasbir Bhatia",
    "role": "District Governor Nominee",
    "club_id": "S-051",
@@ -3488,7 +3864,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd973d037",
+   "person_ref": "P14d33b6cd861",
    "name": "PDG Rajiv Tandon",
    "role": "District Counsellor",
    "club_id": "S-039",
@@ -3505,7 +3881,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd373c6c5",
+   "person_ref": "P24bebce97026",
    "name": "PDG Ravi Prakash Agarwal",
    "role": "District Counsellor",
    "club_id": "S-026",
@@ -3522,7 +3898,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4276b419",
+   "person_ref": "P0af2557417b3",
    "name": "PDG Chander P. Rishi",
    "role": "District Counsellor",
    "club_id": "S-046",
@@ -3539,7 +3915,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4876bd8b",
+   "person_ref": "P3fce6e2e4be6",
    "name": "PDG Devendra Kumar Agarwal",
    "role": "District Counsellor",
    "club_id": "S-056",
@@ -3556,7 +3932,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pce6f41b8",
+   "person_ref": "P3cb6932fab5b",
    "name": "PDG Sharat Chandra",
    "role": "District Counsellor",
    "club_id": "S-005",
@@ -3573,7 +3949,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd26f4804",
+   "person_ref": "P3b39d0034583",
    "name": "PDG Kishore Katru",
    "role": "District Counsellor",
    "club_id": "S-017",
@@ -3590,7 +3966,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd36f4997",
+   "person_ref": "P319a1318708b",
    "name": "PDG Dinesh Chandra Shukla",
    "role": "District Counsellor",
    "club_id": "S-054",
@@ -3607,7 +3983,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd56f4cbd",
+   "person_ref": "Pdf5ec765dc34",
    "name": "PDG Pawan Agarwal",
    "role": "District Counsellor",
    "club_id": "S-056",
@@ -3624,7 +4000,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd47189c1",
+   "person_ref": "P4c800caf6e3d",
    "name": "Rtn K D Agrawal",
    "role": "District Counsellor",
    "club_id": "S-059",
@@ -3641,7 +4017,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd371882e",
+   "person_ref": "P2ef2ef191f5a",
    "name": "Rtn O. P. Agarwal",
    "role": "District Counsellor",
    "club_id": "S-054",
@@ -3658,7 +4034,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd271869b",
+   "person_ref": "P4275b655b940",
    "name": "Rtn Vishwanath Gupta",
    "role": "District Counsellor",
    "club_id": "S-047",
@@ -3675,7 +4051,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd1718508",
+   "person_ref": "P5ba961ebbe9f",
    "name": "Rtn Ashish Agarwal",
    "role": "Assistant Governor",
    "club_id": "S-001",
@@ -3692,7 +4068,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd871900d",
+   "person_ref": "P545dcdd846e4",
    "name": "Rtn Ashok Tandon",
    "role": "Assistant Governor",
    "club_id": "S-002",
@@ -3709,7 +4085,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd7718e7a",
+   "person_ref": "P2c979c8b810d",
    "name": "Rtn Dr Rajnish Kumar Singh",
    "role": "Assistant Governor",
    "club_id": "S-003",
@@ -3726,7 +4102,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd6718ce7",
+   "person_ref": "P3b950935896b",
    "name": "Rtn Dr P N Asthana",
    "role": "Assistant Governor",
    "club_id": "S-004",
@@ -3743,7 +4119,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd5718b54",
+   "person_ref": "P3bb4cb1a1234",
    "name": "Rtn Anupam Gupta",
    "role": "Assistant Governor",
    "club_id": "S-006",
@@ -3760,7 +4136,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pcc717d29",
+   "person_ref": "P8d80eceecb77",
    "name": "Rtn CA Divakar Varshney",
    "role": "Assistant Governor",
    "club_id": "S-008",
@@ -3777,7 +4153,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pcb717b96",
+   "person_ref": "P0fb7e623be06",
    "name": "Rtn Vineet Sharma",
    "role": "Assistant Governor",
    "club_id": "S-010",
@@ -3794,7 +4170,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd27e528e",
+   "person_ref": "P1bfef73767a8",
    "name": "Rtn Saket Varshney",
    "role": "Assistant Governor",
    "club_id": "S-014",
@@ -3811,7 +4187,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd37e5421",
+   "person_ref": "Pbf781bf6e70c",
    "name": "Rtn Nirendra Sharma",
    "role": "Assistant Governor",
    "club_id": "S-011",
@@ -3828,7 +4204,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd07e4f68",
+   "person_ref": "Pe3555599eec7",
    "name": "Rtn Ashish Sahu",
    "role": "Assistant Governor",
    "club_id": "S-062",
@@ -3845,7 +4221,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd17e50fb",
+   "person_ref": "P9f3c48d9f157",
    "name": "Rtn Naresh Burman",
    "role": "Assistant Governor",
    "club_id": "S-059",
@@ -3862,7 +4238,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd67e58da",
+   "person_ref": "Pf1f0c37e6dcc",
    "name": "Rtn Pradeep Shankar Agarwal",
    "role": "Assistant Governor",
    "club_id": "S-055",
@@ -3879,7 +4255,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd77e5a6d",
+   "person_ref": "P31f30691d831",
    "name": "Rtn D.P. Singh",
    "role": "Assistant Governor",
    "club_id": "S-016",
@@ -3896,7 +4272,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd47e55b4",
+   "person_ref": "Pbab750a7f049",
    "name": "Rtn Vikash Gupta",
    "role": "Assistant Governor",
    "club_id": "S-017",
@@ -3913,7 +4289,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd57e5747",
+   "person_ref": "P82c7df8f4e9a",
    "name": "Rtn Gaurav Mittal",
    "role": "Assistant Governor",
    "club_id": "S-020",
@@ -3930,7 +4306,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pca7e45f6",
+   "person_ref": "P4890a12b06ed",
    "name": "Rtn Dr Kapil Agarwal",
    "role": "Assistant Governor",
    "club_id": "S-018",
@@ -3947,7 +4323,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pcb7e4789",
+   "person_ref": "P1dc706bfdfbc",
    "name": "Rtn Anju Gupta",
    "role": "Assistant Governor",
    "club_id": "S-022",
@@ -3964,7 +4340,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd8809a97",
+   "person_ref": "Pd9ab7f539895",
    "name": "Rtn Arjun Kumar Agrawal",
    "role": "Assistant Governor",
    "club_id": "S-035",
@@ -3981,7 +4357,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd7809904",
+   "person_ref": "P6f5b6421b44b",
    "name": "Rtn Surendra Chanakya",
    "role": "Assistant Governor",
    "club_id": "S-030",
@@ -3998,7 +4374,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pda809dbd",
+   "person_ref": "Pd8fcb3c5976d",
    "name": "Rtn Anurag Singh",
    "role": "Assistant Governor",
    "club_id": "S-056",
@@ -4015,7 +4391,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd9809c2a",
+   "person_ref": "Pcb3f354ea718",
    "name": "Rtn Brijesh Gupta",
    "role": "Assistant Governor",
    "club_id": "S-066",
@@ -4032,7 +4408,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd480944b",
+   "person_ref": "P1d11b517b1e1",
    "name": "Rtn Jagdish Singh Bisht",
    "role": "Assistant Governor",
    "club_id": "S-068",
@@ -4049,7 +4425,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd38092b8",
+   "person_ref": "Pceaeebdfcf54",
    "name": "Rtn Kapil Agarwal",
    "role": "Assistant Governor",
    "club_id": "S-026",
@@ -4066,7 +4442,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd6809771",
+   "person_ref": "P9f61f1266553",
    "name": "Rtn Ankur Shukla",
    "role": "Assistant Governor",
    "club_id": "S-032",
@@ -4083,7 +4459,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd58095de",
+   "person_ref": "P6598442cf174",
    "name": "Rtn Pradeep Kumar Bhatnagar",
    "role": "Assistant Governor",
    "club_id": "S-036",
@@ -4100,7 +4476,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd0808dff",
+   "person_ref": "P6de7809f1427",
    "name": "Rtn Anuj Tewari",
    "role": "Assistant Governor",
    "club_id": "S-049",
@@ -4117,7 +4493,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pcf808c6c",
+   "person_ref": "P82b406f9323a",
    "name": "Rtn Sunanda Karwa",
    "role": "Assistant Governor",
    "club_id": "S-042",
@@ -4134,7 +4510,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4678f8fc",
+   "person_ref": "Pf763b2c749f8",
    "name": "Rtn Amit Agarwal",
    "role": "Assistant Governor",
    "club_id": "S-044",
@@ -4151,7 +4527,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4778fa8f",
+   "person_ref": "P31eb06102d67",
    "name": "Rtn Behari Lal Gupta",
    "role": "Assistant Governor",
    "club_id": "S-046",
@@ -4168,7 +4544,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4878fc22",
+   "person_ref": "P330fc9f217dc",
    "name": "Rtn Shravan Lakhotia",
    "role": "Assistant Governor",
    "club_id": "S-047",
@@ -4185,7 +4561,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4978fdb5",
+   "person_ref": "P4797310827bf",
    "name": "Rtn Amit Khatri",
    "role": "Assistant Governor",
    "club_id": "S-051",
@@ -4202,7 +4578,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4278f2b0",
+   "person_ref": "Pc88d495e9b1a",
    "name": "Rtn Ashok Khandelwal",
    "role": "Assistant Governor",
    "club_id": "S-052",
@@ -4219,7 +4595,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4378f443",
+   "person_ref": "Pb45f115351c1",
    "name": "Rtn Rajender Singh",
    "role": "Assistant Governor",
    "club_id": "S-054",
@@ -4236,7 +4612,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4478f5d6",
+   "person_ref": "Pfe5a464bdd80",
    "name": "Rtn Sonal Agarwal",
    "role": "CDS Admin",
    "club_id": "S-059",
@@ -4253,7 +4629,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4578f769",
+   "person_ref": "Pa9851516089c",
    "name": "Rtn Ashutosh Kumar",
    "role": "EDS",
    "club_id": "S-059",
@@ -4270,7 +4646,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4e790594",
+   "person_ref": "Pa50e81c8d79b",
    "name": "Rtn Gaurav Agarwal Jain",
    "role": "CDS Kanpur Zone",
    "club_id": "S-039",
@@ -4287,7 +4663,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4f790727",
+   "person_ref": "P432f83158552",
    "name": "Rtn Vinay Krishna",
    "role": "CDS Bareilly Zone",
    "club_id": "S-016",
@@ -4304,7 +4680,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4c7b4105",
+   "person_ref": "Pc3ef62655239",
    "name": "Rtn Dr SPS Sandhu",
    "role": "CDS Rotaract",
    "club_id": "S-065",
@@ -4321,7 +4697,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4b7b3f72",
+   "person_ref": "Pd06c10a2af17",
    "name": "Rtn CA Ram Kumar",
    "role": "District Treasurer",
    "club_id": "S-059",
@@ -4338,7 +4714,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P4a7b3ddf",
+   "person_ref": "Pf0c2d3bdab20",
    "name": "Rtn S C Jain",
    "role": "Governor's Aide",
    "club_id": "S-004",
@@ -4355,7 +4731,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P497b3c4c",
+   "person_ref": "Pe0367b5641fb",
    "name": "Rtn Krishan Kr Gupta",
    "role": "Governor's Aide",
    "club_id": "S-007",
@@ -4372,7 +4748,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P487b3ab9",
+   "person_ref": "P257efeef4061",
    "name": "Rtn Mohan Singh",
    "role": "Governor's Aide",
    "club_id": "S-058",
@@ -4389,7 +4765,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P477b3926",
+   "person_ref": "Pf0d82521d7ee",
    "name": "Rtn Neeraj Agrawal",
    "role": "Governor's Aide",
    "club_id": "S-026",
@@ -4406,7 +4782,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P467b3793",
+   "person_ref": "P63bcf603548f",
    "name": "Rtn P N Jain",
    "role": "Governor's Aide",
    "club_id": "S-039",
@@ -4423,7 +4799,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P457b3600",
+   "person_ref": "P080fd5bae60b",
    "name": "Rtn Narender Lamba",
    "role": "Governor's Aide",
    "club_id": "S-063",
@@ -4440,7 +4816,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P547b4d9d",
+   "person_ref": "Pa64646fda841",
    "name": "Rtn Pradeep Agarwal",
    "role": "Chairman Udgam",
    "club_id": "S-059",
@@ -4457,7 +4833,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P537b4c0a",
+   "person_ref": "P04e3bc10971f",
    "name": "Rtn Ashutosh Garg",
    "role": "District Secretary",
    "club_id": "S-059",
@@ -4474,7 +4850,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pca6030e2",
+   "person_ref": "Pe23ac684c51b",
    "name": "Rtn Vikas Agrawal",
    "role": "District Secretary",
    "club_id": "S-061",
@@ -4491,7 +4867,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pcb603275",
+   "person_ref": "Pa6307c51e2b2",
    "name": "Rtn Ritu Jindal",
    "role": "District Secretary",
    "club_id": "S-060",
@@ -4508,7 +4884,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc8602dbc",
+   "person_ref": "P41ccbda1ffa7",
    "name": "Rtn Alok Pandey",
    "role": "District Secretary",
    "club_id": "S-039",
@@ -4525,7 +4901,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc9602f4f",
+   "person_ref": "Pfd7e1a958900",
    "name": "Rtn Ajit Agrawal",
    "role": "District Secretary",
    "club_id": "S-059",
@@ -4542,7 +4918,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pce6f41b8",
+   "person_ref": "P3cb6932fab5b",
    "name": "PDG Sharat Chandra",
    "role": "District Learning Facilitator",
    "club_id": "S-005",
@@ -4559,7 +4935,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc6602a96",
+   "person_ref": "P077c0f4bf0d1",
    "name": "Rtn Satish Jaiswal",
    "role": "Asst District Learning Facilitator",
    "club_id": "S-065",
@@ -4576,7 +4952,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc7602c29",
+   "person_ref": "Pa762f1f28c0e",
    "name": "Rtn Jitendra Kumar Katara",
    "role": "Asst District Learning Facilitator",
    "club_id": "S-059",
@@ -4593,7 +4969,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc4602770",
+   "person_ref": "P5fc3d464bb7c",
    "name": "Rtn Brij Bhushan Kalra",
    "role": "Asst District Learning Facilitator",
    "club_id": "S-059",
@@ -4610,7 +4986,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc5602903",
+   "person_ref": "P4aafc6345dc1",
    "name": "Rtn Vijai Purwar",
    "role": "Asst District Learning Facilitator",
    "club_id": "S-048",
@@ -4627,7 +5003,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd2603d7a",
+   "person_ref": "P4ee49bf4c1b7",
    "name": "Rtn Madhup Lehri",
    "role": "Asst District Learning Facilitator",
    "club_id": "S-006",
@@ -4644,7 +5020,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd3603f0d",
+   "person_ref": "P13810fc8a0fe",
    "name": "Rtn Suresh Govil",
    "role": "Asst District Learning Facilitator",
    "club_id": "S-006",
@@ -4661,7 +5037,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd06278eb",
+   "person_ref": "P499b7b2352c2",
    "name": "Rtn Arvind Gupta",
    "role": "Asst District Learning Facilitator",
    "club_id": "S-016",
@@ -4678,7 +5054,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pcf627758",
+   "person_ref": "Pc29b30229a3f",
    "name": "Rtn Ashok Mehra",
    "role": "Asst District Learning Facilitator",
    "club_id": "S-051",
@@ -4695,7 +5071,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd2627c11",
+   "person_ref": "P8d05200c5efd",
    "name": "Rtn Vinay Kumar Vaish",
    "role": "Chairman",
    "club_id": "S-015",
@@ -4712,7 +5088,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd1627a7e",
+   "person_ref": "Pbedcacae5c1a",
    "name": "Rtn Piyush Garg",
    "role": "Co-chairman",
    "club_id": "S-008",
@@ -4729,7 +5105,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd4627f37",
+   "person_ref": "P8d379d3533ee",
    "name": "Rtn Dilip Kumar Srivastava",
    "role": "Co-chairman",
    "club_id": "S-017",
@@ -4746,7 +5122,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd3627da4",
+   "person_ref": "Pd753d0647b39",
    "name": "Rtn Rochak Rohatgi",
    "role": "Co-chairman",
    "club_id": "S-045",
@@ -4763,7 +5139,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd662825d",
+   "person_ref": "Pd66ce6300084",
    "name": "Rtn Dr Naveen Mohini Nigam",
    "role": "Chairman",
    "club_id": "S-064",
@@ -4780,7 +5156,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pd56280ca",
+   "person_ref": "P13f7cefd5012",
    "name": "Rtn Dr Shadan Jafri",
    "role": "Co-chairman",
    "club_id": "S-002",
@@ -4797,7 +5173,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc8626c53",
+   "person_ref": "P861bc5482a9b",
    "name": "Rtn Dhirendra Agarwal",
    "role": "Co-chairman",
    "club_id": "S-067",
@@ -4814,7 +5190,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc7626ac0",
+   "person_ref": "P9d2d253ed5de",
    "name": "Rtn Sushila Singh",
    "role": "Co-chairman",
    "club_id": "S-054",
@@ -4831,7 +5207,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pba490395",
+   "person_ref": "Pc4ffd4375d4c",
    "name": "Rtn Amit Pandey",
    "role": "Chairman",
    "club_id": "S-043",
@@ -4848,7 +5224,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb9490202",
+   "person_ref": "P14a3745ffe3c",
    "name": "Rtn Dr Deepa Rawat",
    "role": "Co-chairman",
    "club_id": "S-004",
@@ -4865,7 +5241,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb849006f",
+   "person_ref": "Pcda4b33804a4",
    "name": "Rtn Deepika Guria Atray",
    "role": "Co-chairman",
    "club_id": "S-057",
@@ -4882,7 +5258,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb748fedc",
+   "person_ref": "Pcacc1b104b13",
    "name": "Rtn Tejinder Singh",
    "role": "Co-chairman",
    "club_id": "S-038",
@@ -4899,7 +5275,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb648fd49",
+   "person_ref": "Pb68041484bd7",
    "name": "Rtn Raj Gopal Khattar",
    "role": "Chairman",
    "club_id": "S-027",
@@ -4916,7 +5292,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb548fbb6",
+   "person_ref": "Pee307eaa6f67",
    "name": "Rtn Shalabh Agrawal",
    "role": "Co-chairman",
    "club_id": "S-013",
@@ -4933,7 +5309,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb448fa23",
+   "person_ref": "Pceade9e05d55",
    "name": "Rtn Anil Saxena Anni",
    "role": "Co-chairman",
    "club_id": "S-024",
@@ -4950,7 +5326,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb348f890",
+   "person_ref": "P7ba611e822f7",
    "name": "Rtn Mahesh Agarwal",
    "role": "Co-chairman",
    "club_id": "S-037",
@@ -4967,7 +5343,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pce6f41b8",
+   "person_ref": "P3cb6932fab5b",
    "name": "PDG Sharat Chandra",
    "role": "District Rotary Foundation Chair (DRFC)",
    "club_id": "S-005",
@@ -4984,7 +5360,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc249102d",
+   "person_ref": "Pd1def480e159",
    "name": "Rtn Atul Asawa",
    "role": "Chairman",
    "club_id": "S-056",
@@ -5001,7 +5377,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc1490e9a",
+   "person_ref": "Pd3eff17f1ebb",
    "name": "Rtn Ajay Bansal",
    "role": "Co-chairman",
    "club_id": "S-011",
@@ -5018,7 +5394,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3445f20c",
+   "person_ref": "P1e92d19b6d3c",
    "name": "Rtn Sumit Saraf",
    "role": "Co-chairman",
    "club_id": "S-010",
@@ -5035,7 +5411,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3545f39f",
+   "person_ref": "P4c0ef3917f22",
    "name": "Rtn Mudit Agarwal",
    "role": "Co-chairman",
    "club_id": "S-028",
@@ -5052,7 +5428,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3645f532",
+   "person_ref": "P51d44a67beda",
    "name": "Rtn Abhishek Katru",
    "role": "Co-chairman",
    "club_id": "S-021",
@@ -5069,7 +5445,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3745f6c5",
+   "person_ref": "P29e857c5947b",
    "name": "Rtn Uttam Kesarwani",
    "role": "Co-chairman",
    "club_id": "S-043",
@@ -5086,7 +5462,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3045ebc0",
+   "person_ref": "P6d33b71372a3",
    "name": "Rtn Atul Mehta",
    "role": "Co-chairman",
    "club_id": "S-054",
@@ -5103,7 +5479,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3145ed53",
+   "person_ref": "P3daddfc32ebb",
    "name": "Rtn Rajiv Mittal",
    "role": "Chairman",
    "club_id": "S-006",
@@ -5120,7 +5496,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3245eee6",
+   "person_ref": "Pb6f97d2056b8",
    "name": "Rtn Praveen Mangla",
    "role": "Co-chairman",
    "club_id": "S-006",
@@ -5137,7 +5513,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3345f079",
+   "person_ref": "Pf7d30ef72878",
    "name": "Rtn Rajesh Jain",
    "role": "Co-chairman",
    "club_id": "S-001",
@@ -5154,7 +5530,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3c45fea4",
+   "person_ref": "P87dd08c85d3a",
    "name": "Rtn Rajeev Agarwal Boobna",
    "role": "Co-chairman",
    "club_id": "S-026",
@@ -5171,7 +5547,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3d460037",
+   "person_ref": "Pa39c1b5d7d4c",
    "name": "Rtn Shahjahan Begum",
    "role": "Co-chairman",
    "club_id": "S-022",
@@ -5188,7 +5564,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc64d93a7",
+   "person_ref": "Pd5770f89603d",
    "name": "Rtn Atul Agarwal",
    "role": "Co-chairman",
    "club_id": "S-029",
@@ -5205,7 +5581,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc54d9214",
+   "person_ref": "P2f7ab873926c",
    "name": "Rtn Bajrang Lal Jindal",
    "role": "Co-chairman",
    "club_id": "S-046",
@@ -5222,7 +5598,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc84d96cd",
+   "person_ref": "P007415b8fb2d",
    "name": "Rtn Anil Agrawal",
    "role": "Chairman",
    "club_id": "S-054",
@@ -5239,7 +5615,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc74d953a",
+   "person_ref": "P7b1b3b5ad93f",
    "name": "Rtn Gagan Burman",
    "role": "Co-chairman",
    "club_id": "S-005",
@@ -5256,7 +5632,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc24d8d5b",
+   "person_ref": "P9f98dfe7a95f",
    "name": "Rtn Devendra Chaudhary",
    "role": "Co-chairman",
    "club_id": "S-062",
@@ -5273,7 +5649,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc14d8bc8",
+   "person_ref": "P771105b4d199",
    "name": "Rtn Dr DK Bhatt",
    "role": "Co-chairman",
    "club_id": "S-068",
@@ -5290,7 +5666,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc44d9081",
+   "person_ref": "P3a5aaea71533",
    "name": "Rtn Dinesh Goyal",
    "role": "Co-chairman",
    "club_id": "S-026",
@@ -5307,7 +5683,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc34d8eee",
+   "person_ref": "Pca17b57d3067",
    "name": "Rtn Jagdish Sharan Gupta",
    "role": "Co-chairman",
    "club_id": "S-046",
@@ -5324,7 +5700,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pbe4d870f",
+   "person_ref": "Peb15f6e78555",
    "name": "Rtn R. S. Roofi Waki",
    "role": "Co-chairman",
    "club_id": "S-039",
@@ -5341,7 +5717,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pcc717d29",
+   "person_ref": "P8d80eceecb77",
    "name": "Rtn CA Divakar Varshney",
    "role": "Chairman",
    "club_id": "S-008",
@@ -5358,7 +5734,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pbd4d857c",
+   "person_ref": "P3eecec5eea10",
    "name": "Rtn Vikas Jain",
    "role": "Co-chairman",
    "club_id": "S-012",
@@ -5375,7 +5751,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc04b4b9e",
+   "person_ref": "P70aebfd432ab",
    "name": "Rtn Deepak Saxena",
    "role": "Co-chairman",
    "club_id": "S-030",
@@ -5392,7 +5768,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc14b4d31",
+   "person_ref": "P9c0dc55ed1b6",
    "name": "Rtn SB Jhakotiya",
    "role": "Co-chairman",
    "club_id": "S-054",
@@ -5409,7 +5785,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pbe4b4878",
+   "person_ref": "P2bf694b26588",
    "name": "Rtn Akhilesh Garg",
    "role": "Co-chairman",
    "club_id": "S-041",
@@ -5426,7 +5802,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pbf4b4a0b",
+   "person_ref": "P3b5dd6ca7780",
    "name": "Rtn Ramesh Sharma",
    "role": "Co-chairman",
    "club_id": "S-033",
@@ -5443,7 +5819,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc44b51ea",
+   "person_ref": "P3eb455dbf2b6",
    "name": "Rtn Alok Bhargava",
    "role": "Co-chairman",
    "club_id": "S-002",
@@ -5460,7 +5836,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc54b537d",
+   "person_ref": "P3fed794d1758",
    "name": "Rtn Mukesh Srivastava",
    "role": "Chairman",
    "club_id": "S-043",
@@ -5477,7 +5853,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc24b4ec4",
+   "person_ref": "P682eb6cce460",
    "name": "Rtn Alok Jha",
    "role": "Co-chairman",
    "club_id": "S-011",
@@ -5494,7 +5870,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc34b5057",
+   "person_ref": "P4aefd8efe5c1",
    "name": "Rtn Devesh Aligarh",
    "role": "Co-chairman",
    "club_id": "S-006",
@@ -5511,7 +5887,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb84b3f06",
+   "person_ref": "Pbd79e8fee221",
    "name": "Rtn Manoj Shah",
    "role": "Co-chairman",
    "club_id": "S-033",
@@ -5528,7 +5904,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb94b4099",
+   "person_ref": "P5999f1cad7ff",
    "name": "Rtn Vishal Arora",
    "role": "Co-chairman",
    "club_id": "S-026",
@@ -5545,7 +5921,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc23e82d1",
+   "person_ref": "P30ce7abdd0cc",
    "name": "Rtn Bharat Seth",
    "role": "Co-chairman",
    "club_id": "S-045",
@@ -5562,7 +5938,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc13e813e",
+   "person_ref": "Pcdaf1438000f",
    "name": "Rtn Taufiq Ahmad",
    "role": "Co-chairman",
    "club_id": "S-039",
@@ -5579,7 +5955,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc03e7fab",
+   "person_ref": "Pe114877b5b06",
    "name": "Rtn Ajay Gupta",
    "role": "Chairman",
    "club_id": "S-048",
@@ -5596,7 +5972,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pbf3e7e18",
+   "person_ref": "P830a5763717c",
    "name": "Rtn Rahul Agarwal",
    "role": "Co-chairman",
    "club_id": "S-012",
@@ -5613,7 +5989,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc63e891d",
+   "person_ref": "P7457a40658e6",
    "name": "Rtn M M Agrawal",
    "role": "Co-chairman",
    "club_id": "S-059",
@@ -5630,7 +6006,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc53e878a",
+   "person_ref": "Pe0dc131a407f",
    "name": "Rtn Guru Mehrotra",
    "role": "Co-chairman",
    "club_id": "S-027",
@@ -5647,7 +6023,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc43e85f7",
+   "person_ref": "P0d3695af7307",
    "name": "Rtn Peeyush Agarwal",
    "role": "Co-chairman",
    "club_id": "S-023",
@@ -5664,7 +6040,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc33e8464",
+   "person_ref": "Pdff07646dd3d",
    "name": "Rtn Sanjay Singh",
    "role": "Co-chairman",
    "club_id": "S-041",
@@ -5681,7 +6057,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pba3e7639",
+   "person_ref": "Pc1ff4fd5ef08",
    "name": "Rtn Gulshan Dhupar",
    "role": "Co-chairman",
    "club_id": "S-054",
@@ -5698,7 +6074,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb93e74a6",
+   "person_ref": "Paa11cda9de0d",
    "name": "Rtn Madhukar Srivastava",
    "role": "Chairman",
    "club_id": "S-048",
@@ -5715,7 +6091,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pbc3c3ac8",
+   "person_ref": "P7a1b86246eeb",
    "name": "Rtn Ashok Agrawal",
    "role": "Co-chairman",
    "club_id": "S-069",
@@ -5732,7 +6108,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pbd3c3c5b",
+   "person_ref": "P7f79e5ca8937",
    "name": "Rtn Pradhir Gupta",
    "role": "Co-chairman",
    "club_id": "S-016",
@@ -5749,7 +6125,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pbe3c3dee",
+   "person_ref": "P7c592bbd7767",
    "name": "Rtn Sharad Shah",
    "role": "Co-chairman",
    "club_id": "S-054",
@@ -5766,7 +6142,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pbf3c3f81",
+   "person_ref": "P965286b3f757",
    "name": "Rtn Rajesh Bhargava",
    "role": "Chairman",
    "club_id": "S-002",
@@ -5783,7 +6159,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc03c4114",
+   "person_ref": "Pea498d5a767e",
    "name": "Rtn Mukesh Singh Panwar",
    "role": "Co-chairman",
    "club_id": "S-014",
@@ -5800,7 +6176,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc13c42a7",
+   "person_ref": "P4dce8a3756b1",
    "name": "Rtn Ashok Mittal",
    "role": "Co-chairman",
    "club_id": "S-033",
@@ -5817,7 +6193,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc23c443a",
+   "person_ref": "P4f6c7c746275",
    "name": "Rtn Prashant Garg",
    "role": "Co-chairman",
    "club_id": "S-045",
@@ -5834,7 +6210,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pc33c45cd",
+   "person_ref": "P27ccb6f5baec",
    "name": "Rtn Than Singh",
    "role": "District Membership Chair (DMC)",
    "club_id": "S-002",
@@ -5851,7 +6227,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb43c2e30",
+   "person_ref": "P5b567902b3b1",
    "name": "Rtn Arun Kumar Singh",
    "role": "Chairman",
    "club_id": "S-003",
@@ -5868,7 +6244,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "Pb53c2fc3",
+   "person_ref": "P6a2b2e884ba3",
    "name": "Rtn Manoj Kumar Jadon",
    "role": "Co-chairman",
    "club_id": "S-011",
@@ -5885,7 +6261,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P2e43aa03",
+   "person_ref": "Pfbd4edafa1fc",
    "name": "Rtn Dr Sanjay Gupta",
    "role": "Co-chairman",
    "club_id": "S-056",
@@ -5902,7 +6278,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P2d43a870",
+   "person_ref": "P36f69f787262",
    "name": "Rtn R K Gupta",
    "role": "Co-chairman",
    "club_id": "S-049",
@@ -5919,7 +6295,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3043ad29",
+   "person_ref": "P00c62ded26ff",
    "name": "Rtn Arun Singhal",
    "role": "Chairman",
    "club_id": "S-059",
@@ -5936,7 +6312,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P2f43ab96",
+   "person_ref": "P1802f92f52ff",
    "name": "Rtn Anurag Gupta",
    "role": "Co-chairman",
    "club_id": "S-007",
@@ -5953,7 +6329,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3243b04f",
+   "person_ref": "Pdf83abd59f8c",
    "name": "Rtn Dr S.V. Singh",
    "role": "Co-chairman",
    "club_id": "S-018",
@@ -5970,7 +6346,7 @@
   {
    "rotary_year": "2024-25",
    "person_key": "",
-   "person_ref": "P3143aebc",
+   "person_ref": "Pb89030e4cbe8",
    "name": "Rtn Sita Ram Shrivastava",
    "role": "Co-chairman",
    "club_id": "S-036",
@@ -5986,932 +6362,6 @@
   }
  ],
  "activities": [
-  {
-   "id": "ACT-2026-0001",
-   "club_id": "S-001",
-   "title": "Inter-school debate on peace and tolerance",
-   "date": "2026-07-02",
-   "theme": "Promoting peace",
-   "description": "Students from six schools debated how communities can resolve conflicts peacefully. Winners received certificates and books.",
-   "photos": [
-    "sample:activity-01.jpg"
-   ],
-   "post_link": "https://www.facebook.com/example-agra/posts/2213",
-   "people_helped": 23,
-   "amount_spent": 65000,
-   "partner_clubs": [
-    "S-002"
-   ],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-07-04T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0002",
-   "club_id": "S-008",
-   "title": "Polio awareness drive",
-   "date": "2026-07-05",
-   "theme": "Fighting disease",
-   "description": "Members joined health workers to remind families about the polio vaccination round. Posters were put up in markets and schools.",
-   "photos": [
-    "sample:activity-04.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 77,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-07-07T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0003",
-   "club_id": "S-015",
-   "title": "Water purifier installed in a government school",
-   "date": "2026-07-08",
-   "theme": "Providing clean water",
-   "description": "The club installed a water purifier and cooler so students have safe drinking water through the summer.",
-   "photos": [
-    "sample:activity-06.jpg",
-    "sample:activity-05.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 400,
-   "amount_spent": 52000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-07-10T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0004",
-   "club_id": "S-023",
-   "title": "Newborn care workshop",
-   "date": "2026-07-11",
-   "theme": "Saving mothers and children",
-   "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
-   "photos": [
-    "sample:activity-08.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 380,
-   "amount_spent": 114000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-07-12T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0005",
-   "club_id": "S-030",
-   "title": "Smart classroom handed over",
-   "date": "2026-07-14",
-   "theme": "Supporting education",
-   "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
-   "photos": [
-    "sample:activity-10.jpg",
-    "sample:activity-09.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 54,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-07-15T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0006",
-   "club_id": "S-037",
-   "title": "Sewing machines for women self-help group",
-   "date": "2026-07-17",
-   "theme": "Growing local economies",
-   "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
-   "photos": [
-    "sample:activity-12.jpg"
-   ],
-   "post_link": "https://www.facebook.com/example-jhansi-city/posts/3260",
-   "people_helped": 38,
-   "amount_spent": 105000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-07-19T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0007",
-   "club_id": "S-044",
-   "title": "Cloth bags distribution in vegetable market",
-   "date": "2026-07-20",
-   "theme": "Protecting the environment",
-   "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
-   "photos": [
-    "sample:activity-13.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 0,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-07-21T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0008",
-   "club_id": "S-051",
-   "title": "Club installation ceremony",
-   "date": "2026-07-23",
-   "theme": "Club service / Other",
-   "description": "The new board of directors was installed in the presence of the Assistant Governor and past presidents.",
-   "photos": [
-    "sample:activity-15.jpg",
-    "sample:activity-16.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 0,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-07-25T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0009",
-   "club_id": "S-058",
-   "title": "Peace walk on International Day of Peace",
-   "date": "2026-07-26",
-   "theme": "Promoting peace",
-   "description": "Club members, students and local residents walked together carrying messages of harmony. The walk ended with a pledge.",
-   "photos": [
-    "sample:activity-01.jpg",
-    "sample:activity-02.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 49,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-07-28T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0010",
-   "club_id": "S-065",
-   "title": "Free diabetes and blood pressure screening camp",
-   "date": "2026-07-29",
-   "theme": "Fighting disease",
-   "description": "Doctors from the club screened residents for diabetes and high blood pressure. People needing follow-up were referred to the district hospital.",
-   "photos": [
-    "sample:activity-03.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 0,
-   "amount_spent": 111000,
-   "partner_clubs": [
-    "S-066"
-   ],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-07-31T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0011",
-   "club_id": "S-002",
-   "title": "Water purifier installed in a government school",
-   "date": "2026-08-01",
-   "theme": "Providing clean water",
-   "description": "The club installed a water purifier and cooler so students have safe drinking water through the summer.",
-   "photos": [
-    "sample:activity-05.jpg",
-    "sample:activity-06.jpg"
-   ],
-   "post_link": "https://www.facebook.com/example-agra-greater/posts/5611",
-   "people_helped": 0,
-   "amount_spent": 94000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-08-02T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0012",
-   "club_id": "S-009",
-   "title": "Nutrition kits for expectant mothers",
-   "date": "2026-08-04",
-   "theme": "Saving mothers and children",
-   "description": "Nutrition kits and health booklets were given to expectant mothers registered at the primary health centre.",
-   "photos": [
-    "sample:activity-08.jpg",
-    "sample:activity-07.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 0,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-08-06T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0013",
-   "club_id": "S-016",
-   "title": "Career guidance talk for Class 12",
-   "date": "2026-08-07",
-   "theme": "Supporting education",
-   "description": "Chartered accountants and engineers from the club spoke to students about career choices after school.",
-   "photos": [
-    "sample:activity-09.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 71,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-08-09T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0014",
-   "club_id": "S-024",
-   "title": "Sewing machines for women self-help group",
-   "date": "2026-08-10",
-   "theme": "Growing local economies",
-   "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
-   "photos": [
-    "sample:activity-11.jpg",
-    "sample:activity-12.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 256,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-08-12T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0015",
-   "club_id": "S-031",
-   "title": "Cloth bags distribution in vegetable market",
-   "date": "2026-08-13",
-   "theme": "Protecting the environment",
-   "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
-   "photos": [
-    "sample:activity-14.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 0,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-08-15T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0016",
-   "club_id": "S-038",
-   "title": "Club installation ceremony",
-   "date": "2026-08-16",
-   "theme": "Club service / Other",
-   "description": "The new board of directors was installed in the presence of the Assistant Governor and past presidents.",
-   "photos": [
-    "sample:activity-15.jpg",
-    "sample:activity-16.jpg"
-   ],
-   "post_link": "https://www.facebook.com/example-jhansi-fort/posts/7365",
-   "people_helped": 298,
-   "amount_spent": 112000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-08-17T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0017",
-   "club_id": "S-045",
-   "title": "Peace walk on International Day of Peace",
-   "date": "2026-08-19",
-   "theme": "Promoting peace",
-   "description": "Club members, students and local residents walked together carrying messages of harmony. The walk ended with a pledge.",
-   "photos": [
-    "sample:activity-01.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 191,
-   "amount_spent": 77000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-08-21T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0018",
-   "club_id": "S-052",
-   "title": "Free diabetes and blood pressure screening camp",
-   "date": "2026-08-22",
-   "theme": "Fighting disease",
-   "description": "Doctors from the club screened residents for diabetes and high blood pressure. People needing follow-up were referred to the district hospital.",
-   "photos": [
-    "sample:activity-04.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 107,
-   "amount_spent": 24000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-08-24T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0019",
-   "club_id": "S-059",
-   "title": "Hand-pump repair in village",
-   "date": "2026-08-25",
-   "theme": "Providing clean water",
-   "description": "Three broken hand-pumps were repaired, restoring clean water for about forty families.",
-   "photos": [
-    "sample:activity-05.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 191,
-   "amount_spent": 0,
-   "partner_clubs": [
-    "S-060"
-   ],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-08-27T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0020",
-   "club_id": "S-066",
-   "title": "Nutrition kits for expectant mothers",
-   "date": "2026-08-28",
-   "theme": "Saving mothers and children",
-   "description": "Nutrition kits and health booklets were given to expectant mothers registered at the primary health centre.",
-   "photos": [
-    "sample:activity-08.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 130,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-08-29T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0021",
-   "club_id": "S-003",
-   "title": "School bags and stationery for students",
-   "date": "2026-08-31",
-   "theme": "Supporting education",
-   "description": "Students of a primary school received school bags, notebooks and stationery at the start of the term.",
-   "photos": [
-    "sample:activity-09.jpg"
-   ],
-   "post_link": "https://www.facebook.com/example-agra-neo/posts/5576",
-   "people_helped": 134,
-   "amount_spent": 5000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-02T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0022",
-   "club_id": "S-010",
-   "title": "Sewing machines for women self-help group",
-   "date": "2026-09-03",
-   "theme": "Growing local economies",
-   "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
-   "photos": [
-    "sample:activity-12.jpg",
-    "sample:activity-11.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 94,
-   "amount_spent": 42000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-04T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0023",
-   "club_id": "S-017",
-   "title": "Cloth bags distribution in vegetable market",
-   "date": "2026-09-06",
-   "theme": "Protecting the environment",
-   "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
-   "photos": [
-    "sample:activity-13.jpg",
-    "sample:activity-14.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 221,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-08T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0024",
-   "club_id": "S-025",
-   "title": "Club installation ceremony",
-   "date": "2026-09-09",
-   "theme": "Club service / Other",
-   "description": "The new board of directors was installed in the presence of the Assistant Governor and past presidents.",
-   "photos": [
-    "sample:activity-16.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 0,
-   "amount_spent": 34000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-11T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0025",
-   "club_id": "S-032",
-   "title": "Inter-school debate on peace and tolerance",
-   "date": "2026-09-12",
-   "theme": "Promoting peace",
-   "description": "Students from six schools debated how communities can resolve conflicts peacefully. Winners received certificates and books.",
-   "photos": [
-    "sample:activity-01.jpg",
-    "sample:activity-02.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 225,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-13T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0026",
-   "club_id": "S-039",
-   "title": "Polio awareness drive",
-   "date": "2026-09-15",
-   "theme": "Fighting disease",
-   "description": "Members joined health workers to remind families about the polio vaccination round. Posters were put up in markets and schools.",
-   "photos": [
-    "sample:activity-04.jpg"
-   ],
-   "post_link": "https://www.facebook.com/example-kanpur/posts/5998",
-   "people_helped": 255,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-17T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0027",
-   "club_id": "S-046",
-   "title": "Hand-pump repair in village",
-   "date": "2026-09-18",
-   "theme": "Providing clean water",
-   "description": "Three broken hand-pumps were repaired, restoring clean water for about forty families.",
-   "photos": [
-    "sample:activity-06.jpg",
-    "sample:activity-05.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 362,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-20T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0028",
-   "club_id": "S-053",
-   "title": "Newborn care workshop",
-   "date": "2026-09-21",
-   "theme": "Saving mothers and children",
-   "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
-   "photos": [
-    "sample:activity-08.jpg",
-    "sample:activity-07.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 364,
-   "amount_spent": 8000,
-   "partner_clubs": [
-    "S-054"
-   ],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-23T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0029",
-   "club_id": "S-060",
-   "title": "Smart classroom handed over",
-   "date": "2026-09-24",
-   "theme": "Supporting education",
-   "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
-   "photos": [
-    "sample:activity-09.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 376,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-26T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0030",
-   "club_id": "S-067",
-   "title": "Skill training for young electricians",
-   "date": "2026-09-27",
-   "theme": "Growing local economies",
-   "description": "Young people completed a two-week course in basic electrical repair, run with a local training institute.",
-   "photos": [
-    "sample:activity-11.jpg",
-    "sample:activity-12.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 233,
-   "amount_spent": 67000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-28T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0031",
-   "club_id": "S-004",
-   "title": "Tree plantation along the ring road",
-   "date": "2026-09-30",
-   "theme": "Protecting the environment",
-   "description": "Members planted saplings along the ring road and arranged tree guards and watering for the summer.",
-   "photos": [
-    "sample:activity-13.jpg",
-    "sample:activity-14.jpg"
-   ],
-   "post_link": "https://www.facebook.com/example-agra-north/posts/9626",
-   "people_helped": 0,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-10-01T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0032",
-   "club_id": "S-011",
-   "title": "Fellowship evening with families",
-   "date": "2026-10-03",
-   "theme": "Club service / Other",
-   "description": "Members and families came together for an evening of music and games to welcome new members.",
-   "photos": [
-    "sample:activity-15.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 0,
-   "amount_spent": 104000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-10-04T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0033",
-   "club_id": "S-018",
-   "title": "Inter-school debate on peace and tolerance",
-   "date": "2026-10-06",
-   "theme": "Promoting peace",
-   "description": "Students from six schools debated how communities can resolve conflicts peacefully. Winners received certificates and books.",
-   "photos": [
-    "sample:activity-02.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 21,
-   "amount_spent": 50000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-10-07T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0034",
-   "club_id": "S-026",
-   "title": "Blood donation camp",
-   "date": "2026-10-09",
-   "theme": "Fighting disease",
-   "description": "Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.",
-   "photos": [
-    "sample:activity-04.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 238,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-10-11T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0035",
-   "club_id": "S-033",
-   "title": "Water purifier installed in a government school",
-   "date": "2026-10-12",
-   "theme": "Providing clean water",
-   "description": "The club installed a water purifier and cooler so students have safe drinking water through the summer.",
-   "photos": [
-    "sample:activity-06.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 107,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-10-13T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0036",
-   "club_id": "S-042",
-   "title": "Free diabetes and blood pressure screening camp",
-   "date": "2026-09-05",
-   "theme": "Fighting disease",
-   "description": "Doctors from the club screened residents for diabetes and high blood pressure. People needing follow-up were referred to the district hospital.",
-   "photos": [
-    "sample:activity-04.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 207,
-   "amount_spent": 75000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-06T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0037",
-   "club_id": "S-042",
-   "title": "Hand-pump repair in village",
-   "date": "2026-09-14",
-   "theme": "Providing clean water",
-   "description": "Three broken hand-pumps were repaired, restoring clean water for about forty families.",
-   "photos": [
-    "sample:activity-06.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 385,
-   "amount_spent": 63000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-15T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0038",
-   "club_id": "S-042",
-   "title": "Newborn care workshop",
-   "date": "2026-09-26",
-   "theme": "Saving mothers and children",
-   "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
-   "photos": [
-    "sample:activity-08.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 320,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-27T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0039",
-   "club_id": "S-002",
-   "title": "Newborn care workshop",
-   "date": "2026-09-03",
-   "theme": "Saving mothers and children",
-   "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
-   "photos": [
-    "sample:activity-07.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 32,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-05T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0040",
-   "club_id": "S-002",
-   "title": "Career guidance talk for Class 12",
-   "date": "2026-09-11",
-   "theme": "Supporting education",
-   "description": "Chartered accountants and engineers from the club spoke to students about career choices after school.",
-   "photos": [
-    "sample:activity-10.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 353,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-13T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0041",
-   "club_id": "S-002",
-   "title": "Sewing machines for women self-help group",
-   "date": "2026-09-19",
-   "theme": "Growing local economies",
-   "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
-   "photos": [
-    "sample:activity-12.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 374,
-   "amount_spent": 102000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-20T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0042",
-   "club_id": "S-002",
-   "title": "Cloth bags distribution in vegetable market",
-   "date": "2026-09-27",
-   "theme": "Protecting the environment",
-   "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
-   "photos": [
-    "sample:activity-14.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 0,
-   "amount_spent": 96000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-28T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0043",
-   "club_id": "S-070",
-   "title": "Smart classroom handed over",
-   "date": "2026-09-08",
-   "theme": "Supporting education",
-   "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
-   "photos": [
-    "sample:activity-09.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 0,
-   "amount_spent": 73000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-10T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0044",
-   "club_id": "S-070",
-   "title": "School bags and stationery for students",
-   "date": "2026-09-22",
-   "theme": "Supporting education",
-   "description": "Students of a primary school received school bags, notebooks and stationery at the start of the term.",
-   "photos": [
-    "sample:activity-09.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 0,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-09-23T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0045",
-   "club_id": "S-006",
-   "title": "RO plant for a village of 600 families",
-   "date": "2026-08-20",
-   "theme": "Providing clean water",
-   "description": "The club installed a reverse-osmosis water plant in the village. A local committee will run it, and the water costs families one rupee a can.",
-   "photos": [
-    "sample:activity-06.jpg",
-    "sample:activity-05.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 650,
-   "amount_spent": 10000,
-   "partner_clubs": [],
-   "story_of_month": true,
-   "event_id": "",
-   "approved_at": "2026-08-22T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0046",
-   "club_id": "S-046",
-   "title": "Safe delivery kits for 120 mothers",
-   "date": "2026-09-17",
-   "theme": "Saving mothers and children",
-   "description": "Volunteers packed safe-delivery kits with the primary health centre and trained ASHA workers on newborn warning signs.",
-   "photos": [
-    "sample:activity-07.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 120,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": true,
-   "event_id": "",
-   "approved_at": "2026-09-18T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0047",
-   "club_id": "S-039",
-   "title": "Gandhi Jayanti clean-up of the Ganga ghat",
-   "date": "2026-10-02",
-   "theme": "Protecting the environment",
-   "description": "Three Kanpur clubs cleaned the ghat together and placed dustbins with the municipal corporation.",
-   "photos": [
-    "sample:activity-14.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 288,
-   "amount_spent": 57000,
-   "partner_clubs": [
-    "S-040",
-    "S-048"
-   ],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-10-03T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0048",
-   "club_id": "S-059",
-   "title": "Smart classroom handed over",
-   "date": "2026-10-05",
-   "theme": "Supporting education",
-   "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
-   "photos": [],
-   "post_link": "https://www.facebook.com/example-mathura-central/posts/4903",
-   "people_helped": 127,
-   "amount_spent": 21000,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "",
-   "approved_at": "2026-10-07T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0056",
-   "club_id": "S-059",
-   "title": "District Membership Seminar held in Mathura",
-   "date": "2026-08-24",
-   "theme": "Club service / Other",
-   "description": "Over 200 Rotarians attended sessions on attracting and keeping members. Clubs shared ideas that worked for them.",
-   "photos": [
-    "sample:activity-15.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 288,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "EVT-2026-0001",
-   "approved_at": "2026-08-26T11:00:00+05:30"
-  },
-  {
-   "id": "ACT-2026-0057",
-   "club_id": "S-017",
-   "title": "Mega health camp served 1,450 patients",
-   "date": "2026-09-13",
-   "theme": "Fighting disease",
-   "description": "Specialist doctors from across the zone examined patients; 60 were referred for free cataract surgery.",
-   "photos": [
-    "sample:activity-03.jpg",
-    "sample:activity-04.jpg"
-   ],
-   "post_link": "",
-   "people_helped": 1450,
-   "amount_spent": 0,
-   "partner_clubs": [],
-   "story_of_month": false,
-   "event_id": "EVT-2026-0002",
-   "approved_at": "2026-09-15T11:00:00+05:30"
-  },
   {
    "id": "ACT-2026-0058",
    "club_id": "S-059",
@@ -6932,10 +6382,1237 @@
    ],
    "story_of_month": false,
    "event_id": "",
-   "approved_at": "2026-10-13T15:25:11.870Z"
+   "approved_at": "2026-10-13T15:25:11.870Z",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0001",
+   "club_id": "S-001",
+   "title": "Inter-school debate on peace and tolerance",
+   "date": "2026-07-02",
+   "theme": "Promoting peace",
+   "description": "Students from six schools debated how communities can resolve conflicts peacefully. Winners received certificates and books.",
+   "photos": [
+    "sample:activity-01.jpg"
+   ],
+   "post_link": "https://www.facebook.com/example-agra/posts/2213",
+   "people_helped": 23,
+   "amount_spent": 65000,
+   "partner_clubs": [
+    "S-002"
+   ],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-07-04T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0002",
+   "club_id": "S-008",
+   "title": "Polio awareness drive",
+   "date": "2026-07-05",
+   "theme": "Fighting disease",
+   "description": "Members joined health workers to remind families about the polio vaccination round. Posters were put up in markets and schools.",
+   "photos": [
+    "sample:activity-04.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 77,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-07-07T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0003",
+   "club_id": "S-015",
+   "title": "Water purifier installed in a government school",
+   "date": "2026-07-08",
+   "theme": "Providing clean water",
+   "description": "The club installed a water purifier and cooler so students have safe drinking water through the summer.",
+   "photos": [
+    "sample:activity-06.jpg",
+    "sample:activity-05.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 400,
+   "amount_spent": 52000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-07-10T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0004",
+   "club_id": "S-023",
+   "title": "Newborn care workshop",
+   "date": "2026-07-11",
+   "theme": "Saving mothers and children",
+   "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
+   "photos": [
+    "sample:activity-08.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 380,
+   "amount_spent": 114000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-07-12T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0005",
+   "club_id": "S-030",
+   "title": "Smart classroom handed over",
+   "date": "2026-07-14",
+   "theme": "Supporting education",
+   "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
+   "photos": [
+    "sample:activity-10.jpg",
+    "sample:activity-09.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 54,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-07-15T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0006",
+   "club_id": "S-037",
+   "title": "Sewing machines for women self-help group",
+   "date": "2026-07-17",
+   "theme": "Growing local economies",
+   "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
+   "photos": [
+    "sample:activity-12.jpg"
+   ],
+   "post_link": "https://www.facebook.com/example-jhansi-city/posts/3260",
+   "people_helped": 38,
+   "amount_spent": 105000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-07-19T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0007",
+   "club_id": "S-044",
+   "title": "Cloth bags distribution in vegetable market",
+   "date": "2026-07-20",
+   "theme": "Protecting the environment",
+   "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
+   "photos": [
+    "sample:activity-13.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 0,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-07-21T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0008",
+   "club_id": "S-051",
+   "title": "Club installation ceremony",
+   "date": "2026-07-23",
+   "theme": "Club service / Other",
+   "description": "The new board of directors was installed in the presence of the Assistant Governor and past presidents.",
+   "photos": [
+    "sample:activity-15.jpg",
+    "sample:activity-16.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 0,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-07-25T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0009",
+   "club_id": "S-058",
+   "title": "Peace walk on International Day of Peace",
+   "date": "2026-07-26",
+   "theme": "Promoting peace",
+   "description": "Club members, students and local residents walked together carrying messages of harmony. The walk ended with a pledge.",
+   "photos": [
+    "sample:activity-01.jpg",
+    "sample:activity-02.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 49,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-07-28T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0010",
+   "club_id": "S-065",
+   "title": "Free diabetes and blood pressure screening camp",
+   "date": "2026-07-29",
+   "theme": "Fighting disease",
+   "description": "Doctors from the club screened residents for diabetes and high blood pressure. People needing follow-up were referred to the district hospital.",
+   "photos": [
+    "sample:activity-03.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 0,
+   "amount_spent": 111000,
+   "partner_clubs": [
+    "S-066"
+   ],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-07-31T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0011",
+   "club_id": "S-002",
+   "title": "Water purifier installed in a government school",
+   "date": "2026-08-01",
+   "theme": "Providing clean water",
+   "description": "The club installed a water purifier and cooler so students have safe drinking water through the summer.",
+   "photos": [
+    "sample:activity-05.jpg",
+    "sample:activity-06.jpg"
+   ],
+   "post_link": "https://www.facebook.com/example-agra-greater/posts/5611",
+   "people_helped": 0,
+   "amount_spent": 94000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-08-02T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0012",
+   "club_id": "S-009",
+   "title": "Nutrition kits for expectant mothers",
+   "date": "2026-08-04",
+   "theme": "Saving mothers and children",
+   "description": "Nutrition kits and health booklets were given to expectant mothers registered at the primary health centre.",
+   "photos": [
+    "sample:activity-08.jpg",
+    "sample:activity-07.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 0,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-08-06T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0013",
+   "club_id": "S-016",
+   "title": "Career guidance talk for Class 12",
+   "date": "2026-08-07",
+   "theme": "Supporting education",
+   "description": "Chartered accountants and engineers from the club spoke to students about career choices after school.",
+   "photos": [
+    "sample:activity-09.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 71,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-08-09T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0014",
+   "club_id": "S-024",
+   "title": "Sewing machines for women self-help group",
+   "date": "2026-08-10",
+   "theme": "Growing local economies",
+   "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
+   "photos": [
+    "sample:activity-11.jpg",
+    "sample:activity-12.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 256,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-08-12T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0015",
+   "club_id": "S-031",
+   "title": "Cloth bags distribution in vegetable market",
+   "date": "2026-08-13",
+   "theme": "Protecting the environment",
+   "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
+   "photos": [
+    "sample:activity-14.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 0,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-08-15T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0016",
+   "club_id": "S-038",
+   "title": "Club installation ceremony",
+   "date": "2026-08-16",
+   "theme": "Club service / Other",
+   "description": "The new board of directors was installed in the presence of the Assistant Governor and past presidents.",
+   "photos": [
+    "sample:activity-15.jpg",
+    "sample:activity-16.jpg"
+   ],
+   "post_link": "https://www.facebook.com/example-jhansi-fort/posts/7365",
+   "people_helped": 298,
+   "amount_spent": 112000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-08-17T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0017",
+   "club_id": "S-045",
+   "title": "Peace walk on International Day of Peace",
+   "date": "2026-08-19",
+   "theme": "Promoting peace",
+   "description": "Club members, students and local residents walked together carrying messages of harmony. The walk ended with a pledge.",
+   "photos": [
+    "sample:activity-01.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 191,
+   "amount_spent": 77000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-08-21T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0018",
+   "club_id": "S-052",
+   "title": "Free diabetes and blood pressure screening camp",
+   "date": "2026-08-22",
+   "theme": "Fighting disease",
+   "description": "Doctors from the club screened residents for diabetes and high blood pressure. People needing follow-up were referred to the district hospital.",
+   "photos": [
+    "sample:activity-04.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 107,
+   "amount_spent": 24000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-08-24T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0019",
+   "club_id": "S-059",
+   "title": "Hand-pump repair in village",
+   "date": "2026-08-25",
+   "theme": "Providing clean water",
+   "description": "Three broken hand-pumps were repaired, restoring clean water for about forty families.",
+   "photos": [
+    "sample:activity-05.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 191,
+   "amount_spent": 0,
+   "partner_clubs": [
+    "S-060"
+   ],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-08-27T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0020",
+   "club_id": "S-066",
+   "title": "Nutrition kits for expectant mothers",
+   "date": "2026-08-28",
+   "theme": "Saving mothers and children",
+   "description": "Nutrition kits and health booklets were given to expectant mothers registered at the primary health centre.",
+   "photos": [
+    "sample:activity-08.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 130,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-08-29T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0021",
+   "club_id": "S-003",
+   "title": "School bags and stationery for students",
+   "date": "2026-08-31",
+   "theme": "Supporting education",
+   "description": "Students of a primary school received school bags, notebooks and stationery at the start of the term.",
+   "photos": [
+    "sample:activity-09.jpg"
+   ],
+   "post_link": "https://www.facebook.com/example-agra-neo/posts/5576",
+   "people_helped": 134,
+   "amount_spent": 5000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-02T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0022",
+   "club_id": "S-010",
+   "title": "Sewing machines for women self-help group",
+   "date": "2026-09-03",
+   "theme": "Growing local economies",
+   "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
+   "photos": [
+    "sample:activity-12.jpg",
+    "sample:activity-11.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 94,
+   "amount_spent": 42000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-04T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0023",
+   "club_id": "S-017",
+   "title": "Cloth bags distribution in vegetable market",
+   "date": "2026-09-06",
+   "theme": "Protecting the environment",
+   "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
+   "photos": [
+    "sample:activity-13.jpg",
+    "sample:activity-14.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 221,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-08T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0024",
+   "club_id": "S-025",
+   "title": "Club installation ceremony",
+   "date": "2026-09-09",
+   "theme": "Club service / Other",
+   "description": "The new board of directors was installed in the presence of the Assistant Governor and past presidents.",
+   "photos": [
+    "sample:activity-16.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 0,
+   "amount_spent": 34000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-11T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0025",
+   "club_id": "S-032",
+   "title": "Inter-school debate on peace and tolerance",
+   "date": "2026-09-12",
+   "theme": "Promoting peace",
+   "description": "Students from six schools debated how communities can resolve conflicts peacefully. Winners received certificates and books.",
+   "photos": [
+    "sample:activity-01.jpg",
+    "sample:activity-02.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 225,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-13T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0026",
+   "club_id": "S-039",
+   "title": "Polio awareness drive",
+   "date": "2026-09-15",
+   "theme": "Fighting disease",
+   "description": "Members joined health workers to remind families about the polio vaccination round. Posters were put up in markets and schools.",
+   "photos": [
+    "sample:activity-04.jpg"
+   ],
+   "post_link": "https://www.facebook.com/example-kanpur/posts/5998",
+   "people_helped": 255,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-17T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0027",
+   "club_id": "S-046",
+   "title": "Hand-pump repair in village",
+   "date": "2026-09-18",
+   "theme": "Providing clean water",
+   "description": "Three broken hand-pumps were repaired, restoring clean water for about forty families.",
+   "photos": [
+    "sample:activity-06.jpg",
+    "sample:activity-05.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 362,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-20T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0028",
+   "club_id": "S-053",
+   "title": "Newborn care workshop",
+   "date": "2026-09-21",
+   "theme": "Saving mothers and children",
+   "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
+   "photos": [
+    "sample:activity-08.jpg",
+    "sample:activity-07.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 364,
+   "amount_spent": 8000,
+   "partner_clubs": [
+    "S-054"
+   ],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-23T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0029",
+   "club_id": "S-060",
+   "title": "Smart classroom handed over",
+   "date": "2026-09-24",
+   "theme": "Supporting education",
+   "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
+   "photos": [
+    "sample:activity-09.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 376,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-26T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0030",
+   "club_id": "S-067",
+   "title": "Skill training for young electricians",
+   "date": "2026-09-27",
+   "theme": "Growing local economies",
+   "description": "Young people completed a two-week course in basic electrical repair, run with a local training institute.",
+   "photos": [
+    "sample:activity-11.jpg",
+    "sample:activity-12.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 233,
+   "amount_spent": 67000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-28T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0031",
+   "club_id": "S-004",
+   "title": "Tree plantation along the ring road",
+   "date": "2026-09-30",
+   "theme": "Protecting the environment",
+   "description": "Members planted saplings along the ring road and arranged tree guards and watering for the summer.",
+   "photos": [
+    "sample:activity-13.jpg",
+    "sample:activity-14.jpg"
+   ],
+   "post_link": "https://www.facebook.com/example-agra-north/posts/9626",
+   "people_helped": 0,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-10-01T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0032",
+   "club_id": "S-011",
+   "title": "Fellowship evening with families",
+   "date": "2026-10-03",
+   "theme": "Club service / Other",
+   "description": "Members and families came together for an evening of music and games to welcome new members.",
+   "photos": [
+    "sample:activity-15.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 0,
+   "amount_spent": 104000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-10-04T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0033",
+   "club_id": "S-018",
+   "title": "Inter-school debate on peace and tolerance",
+   "date": "2026-10-06",
+   "theme": "Promoting peace",
+   "description": "Students from six schools debated how communities can resolve conflicts peacefully. Winners received certificates and books.",
+   "photos": [
+    "sample:activity-02.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 21,
+   "amount_spent": 50000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-10-07T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0034",
+   "club_id": "S-026",
+   "title": "Blood donation camp",
+   "date": "2026-10-09",
+   "theme": "Fighting disease",
+   "description": "Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.",
+   "photos": [
+    "sample:activity-04.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 238,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-10-11T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0035",
+   "club_id": "S-033",
+   "title": "Water purifier installed in a government school",
+   "date": "2026-10-12",
+   "theme": "Providing clean water",
+   "description": "The club installed a water purifier and cooler so students have safe drinking water through the summer.",
+   "photos": [
+    "sample:activity-06.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 107,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-10-13T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0036",
+   "club_id": "S-042",
+   "title": "Free diabetes and blood pressure screening camp",
+   "date": "2026-09-05",
+   "theme": "Fighting disease",
+   "description": "Doctors from the club screened residents for diabetes and high blood pressure. People needing follow-up were referred to the district hospital.",
+   "photos": [
+    "sample:activity-04.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 207,
+   "amount_spent": 75000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-06T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0037",
+   "club_id": "S-042",
+   "title": "Hand-pump repair in village",
+   "date": "2026-09-14",
+   "theme": "Providing clean water",
+   "description": "Three broken hand-pumps were repaired, restoring clean water for about forty families.",
+   "photos": [
+    "sample:activity-06.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 385,
+   "amount_spent": 63000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-15T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0038",
+   "club_id": "S-042",
+   "title": "Newborn care workshop",
+   "date": "2026-09-26",
+   "theme": "Saving mothers and children",
+   "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
+   "photos": [
+    "sample:activity-08.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 320,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-27T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0039",
+   "club_id": "S-002",
+   "title": "Newborn care workshop",
+   "date": "2026-09-03",
+   "theme": "Saving mothers and children",
+   "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
+   "photos": [
+    "sample:activity-07.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 32,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-05T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0040",
+   "club_id": "S-002",
+   "title": "Career guidance talk for Class 12",
+   "date": "2026-09-11",
+   "theme": "Supporting education",
+   "description": "Chartered accountants and engineers from the club spoke to students about career choices after school.",
+   "photos": [
+    "sample:activity-10.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 353,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-13T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0041",
+   "club_id": "S-002",
+   "title": "Sewing machines for women self-help group",
+   "date": "2026-09-19",
+   "theme": "Growing local economies",
+   "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
+   "photos": [
+    "sample:activity-12.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 374,
+   "amount_spent": 102000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-20T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0042",
+   "club_id": "S-002",
+   "title": "Cloth bags distribution in vegetable market",
+   "date": "2026-09-27",
+   "theme": "Protecting the environment",
+   "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
+   "photos": [
+    "sample:activity-14.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 0,
+   "amount_spent": 96000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-28T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0043",
+   "club_id": "S-070",
+   "title": "Smart classroom handed over",
+   "date": "2026-09-08",
+   "theme": "Supporting education",
+   "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
+   "photos": [
+    "sample:activity-09.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 0,
+   "amount_spent": 73000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-10T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0044",
+   "club_id": "S-070",
+   "title": "School bags and stationery for students",
+   "date": "2026-09-22",
+   "theme": "Supporting education",
+   "description": "Students of a primary school received school bags, notebooks and stationery at the start of the term.",
+   "photos": [
+    "sample:activity-09.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 0,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-23T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0045",
+   "club_id": "S-006",
+   "title": "RO plant for a village of 600 families",
+   "date": "2026-08-20",
+   "theme": "Providing clean water",
+   "description": "The club installed a reverse-osmosis water plant in the village. A local committee will run it, and the water costs families one rupee a can.",
+   "photos": [
+    "sample:activity-06.jpg",
+    "sample:activity-05.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 650,
+   "amount_spent": 10000,
+   "partner_clubs": [],
+   "story_of_month": true,
+   "event_id": "",
+   "approved_at": "2026-08-22T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0046",
+   "club_id": "S-046",
+   "title": "Safe delivery kits for 120 mothers",
+   "date": "2026-09-17",
+   "theme": "Saving mothers and children",
+   "description": "Volunteers packed safe-delivery kits with the primary health centre and trained ASHA workers on newborn warning signs.",
+   "photos": [
+    "sample:activity-07.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 120,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": true,
+   "event_id": "",
+   "approved_at": "2026-09-18T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0047",
+   "club_id": "S-039",
+   "title": "Gandhi Jayanti clean-up of the Ganga ghat",
+   "date": "2026-10-02",
+   "theme": "Protecting the environment",
+   "description": "Three Kanpur clubs cleaned the ghat together and placed dustbins with the municipal corporation.",
+   "photos": [
+    "sample:activity-14.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 288,
+   "amount_spent": 57000,
+   "partner_clubs": [
+    "S-040",
+    "S-048"
+   ],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-10-03T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0048",
+   "club_id": "S-059",
+   "title": "Smart classroom handed over",
+   "date": "2026-10-05",
+   "theme": "Supporting education",
+   "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
+   "photos": [],
+   "post_link": "https://www.facebook.com/example-mathura-central/posts/4903",
+   "people_helped": 127,
+   "amount_spent": 21000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-10-07T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": true
+  },
+  {
+   "id": "ACT-2026-0056",
+   "club_id": "S-059",
+   "title": "District Membership Seminar held in Mathura",
+   "date": "2026-08-24",
+   "theme": "Club service / Other",
+   "description": "Over 200 Rotarians attended sessions on attracting and keeping members. Clubs shared ideas that worked for them.",
+   "photos": [
+    "sample:activity-15.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 288,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "EVT-2026-0001",
+   "approved_at": "2026-08-26T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0057",
+   "club_id": "S-017",
+   "title": "Mega health camp served 1,450 patients",
+   "date": "2026-09-13",
+   "theme": "Fighting disease",
+   "description": "Specialist doctors from across the zone examined patients; 60 were referred for free cataract surgery.",
+   "photos": [
+    "sample:activity-03.jpg",
+    "sample:activity-04.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 1450,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "EVT-2026-0002",
+   "approved_at": "2026-09-15T11:00:00+05:30",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0060",
+   "club_id": "S-016",
+   "title": "Joint blood donation camp of three Bareilly clubs",
+   "date": "2026-09-27",
+   "theme": "Fighting disease",
+   "description": "Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.",
+   "photos": [
+    "sample:activity-04.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 151,
+   "amount_spent": 0,
+   "partner_clubs": [
+    "S-017",
+    "S-024"
+   ],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-09-29T11:00:00+05:30",
+   "campaign_id": "BLOOD-2026-27",
+   "campaign_count": 65,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0061",
+   "club_id": "S-001",
+   "title": "Voluntary Blood Donation Day camp",
+   "date": "2026-10-01",
+   "theme": "Fighting disease",
+   "description": "Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.",
+   "photos": [
+    "sample:activity-04.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 107,
+   "amount_spent": 76000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-10-03T11:00:00+05:30",
+   "campaign_id": "BLOOD-2026-27",
+   "campaign_count": 48,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0062",
+   "club_id": "S-045",
+   "title": "Blood donation awareness talk",
+   "date": "2026-10-06",
+   "theme": "Fighting disease",
+   "description": "Members spoke to college students about regular blood donation and registered new donors.",
+   "photos": [],
+   "post_link": "https://www.facebook.com/example-kanpur-greater/posts/8992",
+   "people_helped": 0,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-10-07T11:00:00+05:30",
+   "campaign_id": "BLOOD-2026-27",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0063",
+   "club_id": "S-039",
+   "title": "Children's Day health check-up",
+   "date": "2025-11-14",
+   "theme": "Supporting education",
+   "description": "Doctors from the club checked the health of children in three government schools.",
+   "photos": [
+    "sample:activity-10.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 273,
+   "amount_spent": 111000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2025-11-16T11:00:00+05:30",
+   "campaign_id": "SCHOOL-2025-26",
+   "campaign_count": 350,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0064",
+   "club_id": "S-031",
+   "title": "Eye and dental check-up in schools",
+   "date": "2026-02-10",
+   "theme": "Supporting education",
+   "description": "Children were screened for eyesight and dental problems; spectacles were given free.",
+   "photos": [
+    "sample:activity-10.jpg"
+   ],
+   "post_link": "",
+   "people_helped": 112,
+   "amount_spent": 64000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-02-11T11:00:00+05:30",
+   "campaign_id": "SCHOOL-2025-26",
+   "campaign_count": 120,
+   "bulletin_exclude": false
   }
  ],
  "events": [
+  {
+   "id": "EVT-2026-0011",
+   "title": "New Member Orientation",
+   "event_type": "Training or seminar",
+   "start_date": "2026-10-18",
+   "start_time": "09:00",
+   "end_date": "",
+   "venue": "Corbett",
+   "city": "Rudrapur",
+   "organiser": "RC Mathura Central",
+   "description": "New members will invited to share the experiences",
+   "map_link": "",
+   "details_link": "",
+   "photos": [],
+   "report_activity_id": "",
+   "registration_close_date": "",
+   "fee": "",
+   "registration_status": "",
+   "bulletin_exclude": false
+  },
+  {
+   "id": "EVT-2026-0012",
+   "title": "Eat Out at Barh",
+   "event_type": "Club event open to all",
+   "start_date": "2026-10-14",
+   "start_time": "19:00",
+   "end_date": "",
+   "venue": "Barh Farms",
+   "city": "Unnao",
+   "organiser": "RC Unnao",
+   "description": "XYZ",
+   "map_link": "",
+   "details_link": "https://aol1.co.in",
+   "photos": [
+    "drive:1B1JMKSKKVvJqotrKcf021mgCmcjYEoxt"
+   ],
+   "report_activity_id": "",
+   "registration_close_date": "",
+   "fee": "",
+   "registration_status": "",
+   "bulletin_exclude": false
+  },
   {
    "id": "EVT-2026-0001",
    "title": "District Membership Seminar",
@@ -6950,7 +7627,11 @@
    "map_link": "",
    "details_link": "",
    "photos": [],
-   "report_activity_id": "ACT-2026-0056"
+   "report_activity_id": "ACT-2026-0056",
+   "registration_close_date": "",
+   "fee": "",
+   "registration_status": "",
+   "bulletin_exclude": false
   },
   {
    "id": "EVT-2026-0002",
@@ -6966,7 +7647,11 @@
    "map_link": "",
    "details_link": "",
    "photos": [],
-   "report_activity_id": "ACT-2026-0057"
+   "report_activity_id": "ACT-2026-0057",
+   "registration_close_date": "",
+   "fee": "",
+   "registration_status": "",
+   "bulletin_exclude": false
   },
   {
    "id": "EVT-2026-0003",
@@ -6982,7 +7667,11 @@
    "map_link": "",
    "details_link": "",
    "photos": [],
-   "report_activity_id": ""
+   "report_activity_id": "",
+   "registration_close_date": "",
+   "fee": "",
+   "registration_status": "",
+   "bulletin_exclude": false
   },
   {
    "id": "EVT-2026-0004",
@@ -6998,7 +7687,11 @@
    "map_link": "https://maps.google.com/?q=Kanpur",
    "details_link": "",
    "photos": [],
-   "report_activity_id": ""
+   "report_activity_id": "",
+   "registration_close_date": "2026-10-20",
+   "fee": "Free",
+   "registration_status": "",
+   "bulletin_exclude": false
   },
   {
    "id": "EVT-2026-0005",
@@ -7013,8 +7706,14 @@
    "description": "Members introduce their professions and businesses to each other. No sales pitches.",
    "map_link": "",
    "details_link": "",
-   "photos": [],
-   "report_activity_id": ""
+   "photos": [
+    "sample:activity-11.jpg"
+   ],
+   "report_activity_id": "",
+   "registration_close_date": "2026-11-03",
+   "fee": "₹500 per person",
+   "registration_status": "Seats full",
+   "bulletin_exclude": false
   },
   {
    "id": "EVT-2026-0006",
@@ -7029,8 +7728,15 @@
    "description": "Two-day training for incoming club officers.",
    "map_link": "",
    "details_link": "",
-   "photos": [],
-   "report_activity_id": ""
+   "photos": [
+    "sample:activity-15.jpg",
+    "sample:activity-16.jpg"
+   ],
+   "report_activity_id": "",
+   "registration_close_date": "2026-10-15",
+   "fee": "₹300 per person",
+   "registration_status": "",
+   "bulletin_exclude": false
   },
   {
    "id": "EVT-2026-0007",
@@ -7046,7 +7752,11 @@
    "map_link": "",
    "details_link": "",
    "photos": [],
-   "report_activity_id": ""
+   "report_activity_id": "",
+   "registration_close_date": "",
+   "fee": "",
+   "registration_status": "Postponed",
+   "bulletin_exclude": false
   },
   {
    "id": "EVT-2026-0008",
@@ -7062,7 +7772,11 @@
    "map_link": "",
    "details_link": "",
    "photos": [],
-   "report_activity_id": ""
+   "report_activity_id": "",
+   "registration_close_date": "",
+   "fee": "",
+   "registration_status": "",
+   "bulletin_exclude": false
   },
   {
    "id": "EVT-2026-0009",
@@ -7078,41 +7792,31 @@
    "map_link": "",
    "details_link": "",
    "photos": [],
-   "report_activity_id": ""
+   "report_activity_id": "",
+   "registration_close_date": "2026-12-10",
+   "fee": "₹2,500 per person",
+   "registration_status": "Extended",
+   "bulletin_exclude": false
   },
   {
-   "id": "EVT-2026-0011",
-   "title": "New Member Orientation",
-   "event_type": "Training or seminar",
-   "start_date": "2026-10-18",
-   "start_time": "09:00",
+   "id": "EVT-2026-0013",
+   "title": "Republic Day blood donation camp",
+   "event_type": "Club event open to all",
+   "start_date": "2027-01-26",
+   "start_time": "10:00",
    "end_date": "",
-   "venue": "Corbett",
-   "city": "Rudrapur",
-   "organiser": "RC Mathura Central",
-   "description": "New members will invited to share the experiences",
+   "venue": "Government Medical College",
+   "city": "Aligarh",
+   "organiser": "RC Aligarh",
+   "description": "Blood donation camp with the medical college blood bank.",
    "map_link": "",
    "details_link": "",
    "photos": [],
-   "report_activity_id": ""
-  },
-  {
-   "id": "EVT-2026-0012",
-   "title": "Eat Out at Barh",
-   "event_type": "Club event open to all",
-   "start_date": "2026-10-14",
-   "start_time": "19:08",
-   "end_date": "",
-   "venue": "Barh Farms",
-   "city": "Unnao",
-   "organiser": "RC Unnao",
-   "description": "XYZ",
-   "map_link": "",
-   "details_link": "https://aol1.co.in",
-   "photos": [
-    "drive:1B1JMKSKKVvJqotrKcf021mgCmcjYEoxt"
-   ],
-   "report_activity_id": ""
+   "report_activity_id": "",
+   "registration_close_date": "",
+   "fee": "",
+   "registration_status": "",
+   "bulletin_exclude": false
   }
  ],
  "magazines": [
@@ -7189,17 +7893,38 @@
   {
    "month": "2026-09",
    "public_key": "k14755f7d",
+   "member_name": "",
    "headline": "Eye surgeon who serves through their profession (sample)",
    "story": "Sachin Verma is a eye surgeon from Aligarh. Cataract and retina surgeon; leads free eye camps in rural areas with the club. This is a sample spotlight story; the moderators will choose and write the real one each month."
   },
   {
    "month": "2026-10",
    "public_key": "k806dbabc",
+   "member_name": "",
    "headline": "Textile trader who serves through their profession (sample)",
    "story": "Pankaj Goel is a textile trader from Aligarh. Wholesale cloth merchant who donates uniforms for school children every year. This is a sample spotlight story; the moderators will choose and write the real one each month."
   }
  ],
  "members": [
+  {
+   "public_key": "k75cd90ffe0",
+   "name": "XYZ1",
+   "club_id": "S-006",
+   "directory_ok": true,
+   "profession": "Software developer",
+   "area": "Aligarh",
+   "description": "Kuchh bhi",
+   "website": "https://aol3.com",
+   "contact_ok": true,
+   "contact_link": "https://wa.me/919987654321",
+   "photo_ok": true,
+   "photo": "drive:17AAlZeCtxwayDi8cVcKlp44iEJDpYexq",
+   "birthday_ok": false,
+   "birthday": "",
+   "spotlight_ok": false,
+   "sample": false,
+   "person_ref": "P736a3bdd9e92"
+  },
   {
    "public_key": "ka19a049d",
    "name": "Rtn Rajesh Sharma",
@@ -7216,7 +7941,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P681695e8b578"
   },
   {
    "public_key": "k9e99ffe4",
@@ -7234,7 +7960,8 @@
    "birthday_ok": true,
    "birthday": "10-12",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P04583c35c647"
   },
   {
    "public_key": "k9f9a0177",
@@ -7252,7 +7979,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P8172bba914e0"
   },
   {
    "public_key": "k9c99fcbe",
@@ -7270,7 +7998,8 @@
    "birthday_ok": true,
    "birthday": "10-13",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pf1c1bb708c8e"
   },
   {
    "public_key": "k9d99fe51",
@@ -7288,7 +8017,8 @@
    "birthday_ok": true,
    "birthday": "10-14",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pd2c2f202bc05"
   },
   {
    "public_key": "k9a99f998",
@@ -7306,7 +8036,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P048d56c771b6"
   },
   {
    "public_key": "k9b99fb2b",
@@ -7324,7 +8055,8 @@
    "birthday_ok": true,
    "birthday": "10-15",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P9c4b909d31b7"
   },
   {
    "public_key": "k9899f672",
@@ -7342,7 +8074,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pd70d10d85177"
   },
   {
    "public_key": "k12755c57",
@@ -7360,7 +8093,8 @@
    "birthday_ok": true,
    "birthday": "10-19",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P8ac40ea1d22d"
   },
   {
    "public_key": "k11755ac4",
@@ -7378,7 +8112,8 @@
    "birthday_ok": true,
    "birthday": "10-20",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P3e997303aa23"
   },
   {
    "public_key": "k14755f7d",
@@ -7396,7 +8131,8 @@
    "birthday_ok": true,
    "birthday": "10-22",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "P87cc765dfd7b"
   },
   {
    "public_key": "k13755dea",
@@ -7414,7 +8150,8 @@
    "birthday_ok": true,
    "birthday": "10-25",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P70e7791a9228"
   },
   {
    "public_key": "k0e75560b",
@@ -7432,7 +8169,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P7384345028b6"
   },
   {
    "public_key": "k0d755478",
@@ -7450,7 +8188,8 @@
    "birthday_ok": true,
    "birthday": "10-28",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pbb08c77dbefa"
   },
   {
    "public_key": "k10755931",
@@ -7468,7 +8207,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P784e8f79c3ba"
   },
   {
    "public_key": "k0f75579e",
@@ -7486,7 +8226,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P7117132dfd31"
   },
   {
    "public_key": "k0a754fbf",
@@ -7504,7 +8245,8 @@
    "birthday_ok": true,
    "birthday": "11-02",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P3714575b50ff"
   },
   {
    "public_key": "k09754e2c",
@@ -7522,7 +8264,8 @@
    "birthday_ok": true,
    "birthday": "11-05",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P700ca3d2e17f"
   },
   {
    "public_key": "k806dbabc",
@@ -7540,7 +8283,8 @@
    "birthday_ok": true,
    "birthday": "10-28",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pd04a6cbb22f6"
   },
   {
    "public_key": "k816dbc4f",
@@ -7558,7 +8302,8 @@
    "birthday_ok": true,
    "birthday": "10-06",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P734fc0b51e3a"
   },
   {
    "public_key": "k826dbde2",
@@ -7576,7 +8321,8 @@
    "birthday_ok": true,
    "birthday": "08-09",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pa32a7562b3b4"
   },
   {
    "public_key": "k836dbf75",
@@ -7594,7 +8340,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pd7b2cbbdc73f"
   },
   {
    "public_key": "k7c6db470",
@@ -7612,7 +8359,8 @@
    "birthday_ok": true,
    "birthday": "04-27",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "P6a9f6ec7a243"
   },
   {
    "public_key": "k7d6db603",
@@ -7630,7 +8378,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pdb6eaaac4afb"
   },
   {
    "public_key": "k7e6db796",
@@ -7648,7 +8397,8 @@
    "birthday_ok": true,
    "birthday": "12-24",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P1c519ee8f22c"
   },
   {
    "public_key": "k7f6db929",
@@ -7666,7 +8416,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pe93574a5f821"
   },
   {
    "public_key": "k886dc754",
@@ -7684,7 +8435,8 @@
    "birthday_ok": true,
    "birthday": "12-24",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P942c69845ca0"
   },
   {
    "public_key": "k896dc8e7",
@@ -7702,7 +8454,8 @@
    "birthday_ok": true,
    "birthday": "09-17",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P60506aed23f4"
   },
   {
    "public_key": "k867002c5",
@@ -7720,7 +8473,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pdcbaeea7065f"
   },
   {
    "public_key": "k85700132",
@@ -7738,7 +8492,8 @@
    "birthday_ok": true,
    "birthday": "04-23",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pe97fe0945caa"
   },
   {
    "public_key": "k846fff9f",
@@ -7756,7 +8511,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P589b8af1fd8b"
   },
   {
    "public_key": "k836ffe0c",
@@ -7774,7 +8530,8 @@
    "birthday_ok": true,
    "birthday": "02-04",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pada51b4748ca"
   },
   {
    "public_key": "k826ffc79",
@@ -7792,7 +8549,8 @@
    "birthday_ok": true,
    "birthday": "03-27",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P1bf039410047"
   },
   {
    "public_key": "k816ffae6",
@@ -7810,7 +8568,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P4c4f81ae2f28"
   },
   {
    "public_key": "k806ff953",
@@ -7828,7 +8587,8 @@
    "birthday_ok": true,
    "birthday": "05-01",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pf69ea9e8fc4e"
   },
   {
    "public_key": "k7f6ff7c0",
@@ -7846,7 +8606,8 @@
    "birthday_ok": true,
    "birthday": "01-11",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "P0d83d90d8b8f"
   },
   {
    "public_key": "k8e700f5d",
@@ -7864,7 +8625,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pdef00fa1a6dc"
   },
   {
    "public_key": "k8d700dca",
@@ -7882,7 +8644,8 @@
    "birthday_ok": true,
    "birthday": "04-24",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P492b3f3469b5"
   },
   {
    "public_key": "k1468938a",
@@ -7900,7 +8663,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P957f021bdcef"
   },
   {
    "public_key": "k1568951d",
@@ -7918,7 +8682,8 @@
    "birthday_ok": true,
    "birthday": "09-06",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pbe50b6c2973e"
   },
   {
    "public_key": "k12689064",
@@ -7936,7 +8701,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pfe8394e962d0"
   },
   {
    "public_key": "k136891f7",
@@ -7954,7 +8720,8 @@
    "birthday_ok": true,
    "birthday": "07-25",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P38baab1f2f35"
   },
   {
    "public_key": "k10688d3e",
@@ -7972,7 +8739,8 @@
    "birthday_ok": true,
    "birthday": "03-09",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pdb7c2ba787d3"
   },
   {
    "public_key": "k11688ed1",
@@ -7990,7 +8758,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pec5ead2756a2"
   },
   {
    "public_key": "k0e688a18",
@@ -8008,7 +8777,8 @@
    "birthday_ok": true,
    "birthday": "10-16",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P3fe83886ccc6"
   },
   {
    "public_key": "k0f688bab",
@@ -8026,7 +8796,8 @@
    "birthday_ok": true,
    "birthday": "09-01",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "P6c9ddbb47b13"
   },
   {
    "public_key": "k0c6886f2",
@@ -8044,7 +8815,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P1c376142c2b1"
   },
   {
    "public_key": "k0d688885",
@@ -8062,7 +8834,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P86a648ffd19d"
   },
   {
    "public_key": "k7a6b72b3",
@@ -8080,7 +8853,8 @@
    "birthday_ok": true,
    "birthday": "01-08",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P5c612bd005c9"
   },
   {
    "public_key": "k7c6b75d9",
@@ -8098,7 +8872,8 @@
    "birthday_ok": true,
    "birthday": "06-05",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pc3c255aac730"
   },
   {
    "public_key": "k7b6b7446",
@@ -8116,7 +8891,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pe422398e615a"
   },
   {
    "public_key": "k7e6b78ff",
@@ -8134,7 +8910,8 @@
    "birthday_ok": true,
    "birthday": "03-27",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P3550300b5165"
   },
   {
    "public_key": "k7d6b776c",
@@ -8152,7 +8929,8 @@
    "birthday_ok": true,
    "birthday": "09-17",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pee3dbd0deb77"
   },
   {
    "public_key": "k806b7c25",
@@ -8170,7 +8948,8 @@
    "birthday_ok": true,
    "birthday": "07-15",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pc5c36be1943d"
   },
   {
    "public_key": "k7f6b7a92",
@@ -8188,7 +8967,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P5023258b1b5e"
   },
   {
    "public_key": "k826b7f4b",
@@ -8206,7 +8986,8 @@
    "birthday_ok": true,
    "birthday": "01-23",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pb34c25fa22a6"
   },
   {
    "public_key": "k816b7db8",
@@ -8224,7 +9005,8 @@
    "birthday_ok": true,
    "birthday": "11-01",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pe02ec2c80fc9"
   },
   {
    "public_key": "k08640378",
@@ -8242,7 +9024,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P6e64fa01ddd6"
   },
   {
    "public_key": "k0964050b",
@@ -8260,7 +9043,8 @@
    "birthday_ok": true,
    "birthday": "02-03",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P81fcabc40cbf"
   },
   {
    "public_key": "k0a64069e",
@@ -8278,7 +9062,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pe2bd6e05e1e0"
   },
   {
    "public_key": "k0b640831",
@@ -8296,7 +9081,8 @@
    "birthday_ok": true,
    "birthday": "01-09",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P4b21506b3333"
   },
   {
    "public_key": "k0c6409c4",
@@ -8314,7 +9100,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P396958840006"
   },
   {
    "public_key": "k0d640b57",
@@ -8332,7 +9119,8 @@
    "birthday_ok": true,
    "birthday": "03-05",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P761d3c177c67"
   },
   {
    "public_key": "k0e640cea",
@@ -8350,7 +9138,8 @@
    "birthday_ok": true,
    "birthday": "01-04",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P9a4b468d0d0a"
   },
   {
    "public_key": "k0f640e7d",
@@ -8368,7 +9157,8 @@
    "birthday_ok": true,
    "birthday": "10-09",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pe6c8bd5c64ae"
   },
   {
    "public_key": "k0063f6e0",
@@ -8386,7 +9176,8 @@
    "birthday_ok": true,
    "birthday": "02-08",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P6c4c459e2498"
   },
   {
    "public_key": "k0163f873",
@@ -8404,7 +9195,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P157fe493769b"
   },
   {
    "public_key": "k0e664b81",
@@ -8422,7 +9214,8 @@
    "birthday_ok": true,
    "birthday": "09-20",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P8573ab03c811"
   },
   {
    "public_key": "k0d6649ee",
@@ -8440,7 +9233,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P4ce1688b0d40"
   },
   {
    "public_key": "k0c66485b",
@@ -8458,7 +9252,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P380bd315c97b"
   },
   {
    "public_key": "k0b6646c8",
@@ -8476,7 +9271,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P2fda49261bb9"
   },
   {
    "public_key": "k126651cd",
@@ -8494,7 +9290,8 @@
    "birthday_ok": true,
    "birthday": "07-01",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pc5911f64f438"
   },
   {
    "public_key": "k1166503a",
@@ -8512,7 +9309,8 @@
    "birthday_ok": true,
    "birthday": "12-27",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P36a669c24591"
   },
   {
    "public_key": "k10664ea7",
@@ -8530,7 +9328,8 @@
    "birthday_ok": true,
    "birthday": "07-27",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P48511014402d"
   },
   {
    "public_key": "k0f664d14",
@@ -8548,7 +9347,8 @@
    "birthday_ok": true,
    "birthday": "06-20",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P6350eada988b"
   },
   {
    "public_key": "k06663ee9",
@@ -8566,7 +9366,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P0b6bd3f1fa8f"
   },
   {
    "public_key": "k05663d56",
@@ -8584,7 +9385,8 @@
    "birthday_ok": true,
    "birthday": "08-03",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "P457cabfd354e"
   },
   {
    "public_key": "k7c5ea9e6",
@@ -8602,7 +9404,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P72a7ce2dc89e"
   },
   {
    "public_key": "k7d5eab79",
@@ -8620,7 +9423,8 @@
    "birthday_ok": true,
    "birthday": "11-15",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P26a9def368a9"
   },
   {
    "public_key": "k7a5ea6c0",
@@ -8638,7 +9442,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P04c20952897d"
   },
   {
    "public_key": "k7b5ea853",
@@ -8656,7 +9461,8 @@
    "birthday_ok": true,
    "birthday": "11-19",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pf564e53da19b"
   },
   {
    "public_key": "k805eb032",
@@ -8674,7 +9480,8 @@
    "birthday_ok": true,
    "birthday": "08-24",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pb579fbd77296"
   },
   {
    "public_key": "k815eb1c5",
@@ -8692,7 +9499,8 @@
    "birthday_ok": true,
    "birthday": "05-12",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pe3aeda58b1e0"
   },
   {
    "public_key": "k7e5ead0c",
@@ -8710,7 +9518,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P03de2683a85f"
   },
   {
    "public_key": "k7f5eae9f",
@@ -8728,7 +9537,8 @@
    "birthday_ok": true,
    "birthday": "05-25",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P35050d7cc698"
   },
   {
    "public_key": "k845eb67e",
@@ -8746,7 +9556,8 @@
    "birthday_ok": true,
    "birthday": "08-28",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P8fecb97a724b"
   },
   {
    "public_key": "k855eb811",
@@ -8764,7 +9575,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pbf49c98e1588"
   },
   {
    "public_key": "k0261bb6f",
@@ -8782,7 +9594,8 @@
    "birthday_ok": true,
    "birthday": "10-16",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P682aee88827f"
   },
   {
    "public_key": "k0161b9dc",
@@ -8800,7 +9613,8 @@
    "birthday_ok": true,
    "birthday": "08-15",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pe0e4ab9b9c4c"
   },
   {
    "public_key": "k0461be95",
@@ -8818,7 +9632,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P9526477cdc23"
   },
   {
    "public_key": "k0361bd02",
@@ -8836,7 +9651,8 @@
    "birthday_ok": true,
    "birthday": "07-14",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pe42f7c94e091"
   },
   {
    "public_key": "kfe61b523",
@@ -8854,7 +9670,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P52537c6e16a8"
   },
   {
    "public_key": "kfd61b390",
@@ -8872,7 +9689,8 @@
    "birthday_ok": true,
    "birthday": "06-28",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pff712ad20a56"
   },
   {
    "public_key": "k0061b849",
@@ -8890,7 +9708,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pc176f8a20098"
   },
   {
    "public_key": "kff61b6b6",
@@ -8908,7 +9727,8 @@
    "birthday_ok": true,
    "birthday": "08-23",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pf660517618b3"
   },
   {
    "public_key": "k0a61c807",
@@ -8926,7 +9746,8 @@
    "birthday_ok": true,
    "birthday": "05-07",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P1c122e4d9462"
   },
   {
    "public_key": "k0961c674",
@@ -8944,7 +9765,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P9a253c4ec594"
   },
   {
    "public_key": "k75c07625",
@@ -8962,7 +9784,8 @@
    "birthday_ok": true,
    "birthday": "01-27",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P3c6c88143860"
   },
   {
    "public_key": "k74c07492",
@@ -8980,7 +9803,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pccfaebc24ca4"
   },
   {
    "public_key": "k73c072ff",
@@ -8998,7 +9822,8 @@
    "birthday_ok": true,
    "birthday": "05-22",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pcda76b84ea6c"
   },
   {
    "public_key": "k72c0716c",
@@ -9016,7 +9841,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pd321aaba2c71"
   },
   {
    "public_key": "k71c06fd9",
@@ -9034,7 +9860,8 @@
    "birthday_ok": true,
    "birthday": "11-19",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P2d75757d24f9"
   },
   {
    "public_key": "k70c06e46",
@@ -9052,7 +9879,8 @@
    "birthday_ok": true,
    "birthday": "04-02",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "P0ad9d7e72b50"
   },
   {
    "public_key": "k6fc06cb3",
@@ -9070,7 +9898,8 @@
    "birthday_ok": true,
    "birthday": "12-22",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P8811725a7a63"
   },
   {
    "public_key": "k6ec06b20",
@@ -9088,7 +9917,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P4665823d5feb"
   },
   {
    "public_key": "k7dc082bd",
@@ -9106,7 +9936,8 @@
    "birthday_ok": true,
    "birthday": "02-05",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pf9a764a11f21"
   },
   {
    "public_key": "k7cc0812a",
@@ -9124,7 +9955,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P0319173a2202"
   },
   {
    "public_key": "k6fbe2e1c",
@@ -9142,7 +9974,8 @@
    "birthday_ok": true,
    "birthday": "08-04",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pcb760f319be3"
   },
   {
    "public_key": "k70be2faf",
@@ -9160,7 +9993,8 @@
    "birthday_ok": true,
    "birthday": "03-26",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P4da5eb5b4990"
   },
   {
    "public_key": "k71be3142",
@@ -9178,7 +10012,8 @@
    "birthday_ok": true,
    "birthday": "01-19",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "P5f2609dd8d32"
   },
   {
    "public_key": "k72be32d5",
@@ -9196,7 +10031,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P1f785abba4e1"
   },
   {
    "public_key": "k6bbe27d0",
@@ -9214,7 +10050,8 @@
    "birthday_ok": true,
    "birthday": "02-04",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pff93df29dcc7"
   },
   {
    "public_key": "k6cbe2963",
@@ -9232,7 +10069,8 @@
    "birthday_ok": true,
    "birthday": "04-07",
    "spotlight_ok": true,
-   "sample": true
+   "sample": true,
+   "person_ref": "P3385a7e2c7af"
   },
   {
    "public_key": "k6dbe2af6",
@@ -9250,7 +10088,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P04b76f9411cd"
   },
   {
    "public_key": "k6ebe2c89",
@@ -9268,7 +10107,8 @@
    "birthday_ok": true,
    "birthday": "02-28",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P412e73061805"
   },
   {
    "public_key": "k77be3ab4",
@@ -9286,7 +10126,8 @@
    "birthday_ok": true,
    "birthday": "09-19",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pda22768d34f9"
   },
   {
    "public_key": "k78be3c47",
@@ -9304,7 +10145,8 @@
    "birthday_ok": true,
    "birthday": "01-21",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P559c4645f5d9"
   },
   {
    "public_key": "k81c50637",
@@ -9322,7 +10164,8 @@
    "birthday_ok": true,
    "birthday": "11-17",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pa31344cd96cb"
   },
   {
    "public_key": "k80c504a4",
@@ -9340,7 +10183,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P5af7a1106b0d"
   },
   {
    "public_key": "k83c5095d",
@@ -9358,7 +10202,8 @@
    "birthday_ok": true,
    "birthday": "11-07",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Peccc3eb6da3c"
   },
   {
    "public_key": "k82c507ca",
@@ -9376,7 +10221,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pec76dfd6794c"
   },
   {
    "public_key": "k7dc4ffeb",
@@ -9394,7 +10240,8 @@
    "birthday_ok": true,
    "birthday": "09-16",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pda15daaf68dc"
   },
   {
    "public_key": "k7cc4fe58",
@@ -9412,7 +10259,8 @@
    "birthday_ok": false,
    "birthday": "",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P75d726510912"
   },
   {
    "public_key": "k7ec5017e",
@@ -9430,7 +10278,8 @@
    "birthday_ok": true,
    "birthday": "09-27",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P543f85dad252"
   },
   {
    "public_key": "k79c4f99f",
@@ -9448,7 +10297,8 @@
    "birthday_ok": true,
    "birthday": "12-12",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P916204bad4bc"
   },
   {
    "public_key": "k78c4f80c",
@@ -9466,7 +10316,8 @@
    "birthday_ok": true,
    "birthday": "03-01",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "Pb8c377c8ccf5"
   },
   {
    "public_key": "k7bc2be2e",
@@ -9484,7 +10335,8 @@
    "birthday_ok": true,
    "birthday": "04-04",
    "spotlight_ok": false,
-   "sample": true
+   "sample": true,
+   "person_ref": "P54b3cb8e330e"
   },
   {
    "public_key": "k7cc2bfc1",
@@ -9502,25 +10354,8 @@
    "birthday_ok": true,
    "birthday": "06-25",
    "spotlight_ok": false,
-   "sample": true
-  },
-  {
-   "public_key": "k75cd90ffe0",
-   "name": "XYZ1",
-   "club_id": "S-006",
-   "directory_ok": true,
-   "profession": "Software developer",
-   "area": "Aligarh",
-   "description": "Kuchh bhi",
-   "website": "https://aol3.com",
-   "contact_ok": true,
-   "contact_link": "https://wa.me/919987654321",
-   "photo_ok": true,
-   "photo": "drive:17AAlZeCtxwayDi8cVcKlp44iEJDpYexq",
-   "birthday_ok": false,
-   "birthday": "",
-   "spotlight_ok": false,
-   "sample": false
+   "sample": true,
+   "person_ref": "Pee8ee6f570d1"
   }
  ],
  "couples": [
@@ -9693,8 +10528,42 @@
    "couple_photo": ""
   }
  ],
+ "campaigns": [
+  {
+   "campaign_id": "BLOOD-2026-27",
+   "rotary_year": "2026-27",
+   "name": "Blood Donation Drive",
+   "unit": "blood units",
+   "start_date": "2026-07-01",
+   "end_date": "2027-06-30",
+   "slug": "blood-donation-drive-2026-27",
+   "target": 2000,
+   "description": "Clubs hold blood donation camps with government blood banks through the year. (Sample campaign.)",
+   "chair": "Rtn Aarav Khanna, District Blood Donation Chair (sample)",
+   "chair_ref": "P6dfff7d1c866",
+   "sort_order": 1
+  },
+  {
+   "campaign_id": "SCHOOL-2025-26",
+   "rotary_year": "2025-26",
+   "name": "School Health Check-ups",
+   "unit": "students screened",
+   "start_date": "2025-07-01",
+   "end_date": "2026-06-30",
+   "slug": "school-health-check-ups-2025-26",
+   "target": 0,
+   "description": "Free health check-ups for children in government schools. (Sample campaign.)",
+   "chair": "",
+   "chair_ref": "",
+   "sort_order": 1
+  }
+ ],
  "skipped_activities": [
   "ACT-2026-0055"
  ],
+ "skipped_items": [
+  "club S-036 line"
+ ],
+ "duplicate_ids": [],
  "source": "sheet"
 }

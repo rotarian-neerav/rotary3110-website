@@ -25,6 +25,13 @@ const headerMeta = await sharp(resolve(OUT, 'logo.png')).metadata();
 const wheel = await sharp(trimmed.data).extract({ left: width - height, top: 0, width: height, height }).png().toBuffer();
 await sharp(wheel).resize(32, 32).png().toFile(resolve(OUT, 'favicon-32.png'));
 await sharp(wheel).resize(180, 180, { fit: 'contain', background: '#ffffff' }).flatten({ background: '#ffffff' }).png().toFile(resolve(OUT, 'apple-touch-icon.png'));
+// App icons for "Add to home screen"; the maskable one keeps the wheel inside the safe circle phones crop to
+for (const size of [192, 512]) {
+  await sharp(wheel).resize(size, size, { fit: 'contain', background: '#ffffff' }).flatten({ background: '#ffffff' }).png({ compressionLevel: 9 }).toFile(resolve(OUT, `icon-${size}.png`));
+}
+const inner = await sharp(wheel).resize(336, 336, { fit: 'contain', background: '#ffffff' }).flatten({ background: '#ffffff' }).png().toBuffer();
+await sharp({ create: { width: 512, height: 512, channels: 3, background: '#ffffff' } }).composite([{ input: inner, left: 88, top: 88 }])
+  .png({ compressionLevel: 9 }).toFile(resolve(OUT, 'icon-maskable-512.png'));
 
 // Default preview card: white with the logo, a gold rule and the district's line
 const cardLogo = await sharp(trimmed.data).resize({ width: 760 }).png().toBuffer();

@@ -13,7 +13,7 @@ eleventyComputed:
 <section class="hero">
   <div class="wrap">
     <h1>{{ t.tagline }}</h1>
-    <p class="lead">Service projects, events and stories from {{ site.activeClubs.length }} Rotary clubs across Agra, Bareilly and Kanpur zones.</p>
+    <p class="lead">Service projects, events and stories from {{ site.activeClubs.length }} Rotary clubs in {{ site.cities.length }} cities and towns of Uttar Pradesh and Uttarakhand.</p>
     <ul class="stats">
       <li><strong>{{ site.activities.length | number }}</strong> activities shared</li>
       <li><strong>{{ site.stats.clubsPosting }}</strong> clubs posting</li>
@@ -25,6 +25,17 @@ eleventyComputed:
 {%- if site.bulletin %}
 <p class="wrap this-week" id="this-week"><a href="/bulletin/">{{ t.bulletin.home_line }} → {{ site.bulletin.dateLabel }}</a></p>
 {%- endif %}
+{#- The visitor's phone picks this month's entry; without JavaScript the build month shows -#}
+{%- set buildMonth = site.today.slice(5, 7) | int %}
+<section class="wrap rotary-month" id="rotary-month" data-rotary-months>
+  {%- for m in rotaryMonths %}
+  <div class="month-card" data-month="{{ m.month }}"{% if m.month != buildMonth %} hidden{% endif %}>
+    <p class="meta">{{ t.home.month_prefix }}</p>
+    <p class="month-name">{{ m.name }}</p>
+    <p class="small">{{ m.text }} <a href="{{ m.link }}">{{ m.linkText }} →</a></p>
+  </div>
+  {%- endfor %}
+</section>
 
 {#- Order agreed with the district: [campaigns while one runs], events, latest, recognition, spotlight, celebrations, magazine, messages -#}
 {%- if site.runningCampaigns.length %}

@@ -1,0 +1,24 @@
+---
+layout: layouts/base.njk
+title: In the news
+description: Service activities of the Rotary clubs of District 3110 reported by newspapers and news websites, with links to each news item.
+permalink: /news/
+---
+<div class="wrap section narrow">
+  <h1>{{ t.news.title }}</h1>
+  <p class="lead">{{ t.news.intro }}</p>
+  {%- if site.news.length %}
+  <ul class="news-list">
+    {%- for a in site.news %}
+    <li>
+      <p class="meta">{{ a.press.paper }}{% if a.press.dateLabel %} · {{ a.press.dateLabel }}{% endif %}</p>
+      <h2><a href="{{ a.url }}">{{ a.title }}</a></h2>
+      <p class="small">{{ a.club.name }}{% if a.press.link %} · <a href="{{ a.press.link }}" target="_blank" rel="noopener">{{ t.activity.press_read }} ↗</a>{% endif %}</p>
+    </li>
+    {%- endfor %}
+  </ul>
+  {%- else %}
+  <p>{{ t.news.empty }}</p>
+  {%- endif %}
+  <p class="small">Was your club's activity in the news? Add the paper's name, date and link when you <a href="/submit/">send the activity</a>.</p>
+</div>

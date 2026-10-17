@@ -3,13 +3,27 @@ layout: layouts/base.njk
 title: Events calendar
 description: Upcoming district events, vocational visits and networking evenings in Rotary District 3110, with past events linked to their reports.
 permalink: /events/
+scripts: ["events.js"]
 ---
 {% from "macros.njk" import eventItem %}
 <div class="wrap section narrow">
   <h1>Events calendar</h1>
   <p class="lead">Tap an event to add it to your phone's calendar.</p>
+  <section class="subscribe-box" id="subscribe">
+    <h2>{{ t.events.subscribe_title }}</h2>
+    <p>{{ t.events.subscribe_text }}</p>
+    <p class="actions">
+      <a class="btn" href="{{ '/events/calendar.ics' | webcal }}">{{ t.events.subscribe_phone }}</a>
+      <a class="btn" href="https://calendar.google.com/calendar/r?cid={{ ('/events/calendar.ics' | webcal) | urlencode }}" target="_blank" rel="noopener">{{ t.events.subscribe_google }} ↗</a>
+      <button class="btn" type="button" data-copy="{{ '/events/calendar.ics' | absolute }}" data-copied="{{ t.bulletin.copied }}" hidden>{{ t.events.subscribe_copy }}</button>
+    </p>
+    <p class="small muted">{{ t.events.subscribe_note }}</p>
+  </section>
   <h2>{{ t.events.upcoming }}</h2>
+  <p class="filter-toggle" data-open-filter hidden><label><input type="checkbox" name="open"> {{ t.events.only_open }}</label></p>
+  <div data-event-list>
   {%- for e in site.upcomingEvents %}{{ eventItem(e, t) }}{% else %}<p>{{ t.events.empty }}</p>{% endfor %}
+  </div>
   {%- if site.pastEvents.length %}
   <h2>{{ t.events.past }}</h2>
   {%- for e in site.pastEvents %}{{ eventItem(e, t) }}{% endfor %}

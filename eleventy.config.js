@@ -1,6 +1,8 @@
 import { HtmlBasePlugin } from '@11ty/eleventy';
 import { core } from './lib/core.mjs';
 import { formatDate, formatDayMonth, formatMonth } from './lib/derive.mjs';
+import { glossHtml } from './lib/gloss.mjs';
+import glossary from './src/_data/glossary.js';
 import shortLinks from './src/_data/shortLinks.js';
 
 // The site lives at /rotary3110-website/ on GitHub's free address until the domain is bought.
@@ -20,6 +22,28 @@ const plusHours = (iso, time, hours) => {
   return d.toISOString().slice(0, 16).replace(/[-:]/g, '') + '00';
 };
 
+const ICS_HEAD = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Rotary District 3110//Events//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
+const ICS_TZ = ['BEGIN:VTIMEZONE', 'TZID:Asia/Kolkata', 'BEGIN:STANDARD', 'DTSTART:19700101T000000', 'TZOFFSETFROM:+0530', 'TZOFFSETTO:+0530', 'TZNAME:IST', 'END:STANDARD', 'END:VTIMEZONE'];
+// Long lines are folded at 75 characters, as the calendar standard asks
+const fold = (line) => (line.length <= 74 ? line : line.match(/.{1,74}/g).join('\r\n '));
+
+/** One event as calendar lines (India time); a cancelled event updates the calendars of people who saved it. */
+function icsEvent(e, stamp, url) {
+  const lines = ['BEGIN:VEVENT', `UID:${e.id}@rotary3110`, `DTSTAMP:${stamp}`];
+  if (e.start_time) {
+    lines.push(`DTSTART;TZID=Asia/Kolkata:${compact(e.start_date, e.start_time)}`);
+    lines.push(`DTEND;TZID=Asia/Kolkata:${e.end_date && e.end_date !== e.start_date ? compact(e.end_date, '18:00') : plusHours(e.start_date, e.start_time, 3)}`);
+  } else {
+    lines.push(`DTSTART;VALUE=DATE:${compact(e.start_date)}`, `DTEND;VALUE=DATE:${compact(nextDay(e.end_date || e.start_date))}`);
+  }
+  if (e.registration_status === 'Cancelled') lines.push('STATUS:CANCELLED');
+  lines.push(`SUMMARY:${icsEscape((e.registration_status === 'Postponed' ? 'Postponed: ' : '') + e.title)}`, `LOCATION:${icsEscape([e.venue, e.city].filter(Boolean).join(', '))}`,
+    `DESCRIPTION:${icsEscape([e.description, 'Organiser: ' + e.organiser].filter(Boolean).join('\n'))}`);
+  if (url) lines.push(`URL:${url}`);
+  lines.push('END:VEVENT');
+  return lines.map(fold);
+}
+
 export default function (eleventyConfig) {
   eleventyConfig.addPlugin(HtmlBasePlugin);
 
@@ -28,6 +52,13 @@ export default function (eleventyConfig) {
   eleventyConfig.addTransform('form-links-new-tab', function (content) {
     if (!(this.page.outputPath || '').endsWith('.html')) return content;
     return content.replace(formLink, '<a target="_blank" rel="noopener"$1');
+  });
+
+  // Rotary abbreviations are explained where they first appear on each page
+  const abbreviations = glossary.filter((g) => g.abbr);
+  eleventyConfig.addTransform('explain-abbreviations', function (content) {
+    if (!(this.page.outputPath || '').endsWith('.html')) return content;
+    return glossHtml(content, abbreviations);
   });
 
   eleventyConfig.addPassthroughCopy({ 'src/assets/img': 'assets/img' });
@@ -77,25 +108,23 @@ export default function (eleventyConfig) {
     return 'https://calendar.google.com/calendar/render?' + p.toString();
   });
 
-  // .ics file content for phone calendars
-  eleventyConfig.addFilter('ics', (e) => {
-    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
-    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Rotary District 3110//Events//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
-      'BEGIN:VTIMEZONE', 'TZID:Asia/Kolkata', 'BEGIN:STANDARD', 'DTSTART:19700101T000000', 'TZOFFSETFROM:+0530', 'TZOFFSETTO:+0530', 'TZNAME:IST', 'END:STANDARD', 'END:VTIMEZONE',
-      'BEGIN:VEVENT',
-      `UID:${e.id}@rotary3110`, `DTSTAMP:${stamp}`];
-    if (e.start_time) {
-      lines.push(`DTSTART;TZID=Asia/Kolkata:${compact(e.start_date, e.start_time)}`);
-      lines.push(`DTEND;TZID=Asia/Kolkata:${e.end_date && e.end_date !== e.start_date ? compact(e.end_date, '18:00') : plusHours(e.start_date, e.start_time, 3)}`);
-    } else {
-      lines.push(`DTSTART;VALUE=DATE:${compact(e.start_date)}`, `DTEND;VALUE=DATE:${compact(nextDay(e.end_date || e.start_date))}`);
-    }
-    // a cancelled event updates the calendars of people who saved it
-    if (e.registration_status === 'Cancelled') lines.push('STATUS:CANCELLED');
-    lines.push(`SUMMARY:${icsEscape(e.title)}`, `LOCATION:${icsEscape([e.venue, e.city].filter(Boolean).join(', '))}`,
-      `DESCRIPTION:${icsEscape([e.description, 'Organiser: ' + e.organiser].filter(Boolean).join('\n'))}`, 'END:VEVENT', 'END:VCALENDAR');
-    return lines.join('\r\n') + '\r\n';
+  // .ics file content for phone calendars: one event
+  const icsStamp = () => new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const eventUrl = (e) => SITE_URL + (PATH_PREFIX.replace(/\/$/, '') + e.url).replace(/\/{2,}/g, '/');
+  eleventyConfig.addFilter('ics', (e) => [...ICS_HEAD, ...ICS_TZ, ...icsEvent(e, icsStamp(), eventUrl(e)), 'END:VCALENDAR'].join('\r\n') + '\r\n');
+  // The whole district calendar, to subscribe to once: upcoming events and those of the last 90 days
+  eleventyConfig.addFilter('icsCalendar', (events, today) => {
+    const from = new Date(Date.parse(today + 'T00:00:00Z') - 90 * 86400000).toISOString().slice(0, 10);
+    const stamp = icsStamp();
+    const body = events.filter((e) => (e.end_date || e.start_date) >= from).flatMap((e) => icsEvent(e, stamp, eventUrl(e)));
+    const head = [...ICS_HEAD, 'X-WR-CALNAME:Rotary District 3110', 'X-WR-TIMEZONE:Asia/Kolkata', 'X-WR-CALDESC:Events of Rotary District 3110',
+      'REFRESH-INTERVAL;VALUE=DURATION:PT12H', 'X-PUBLISHED-TTL:PT12H'];
+    return [...head, ...ICS_TZ, ...body, 'END:VCALENDAR'].join('\r\n') + '\r\n';
   });
+  // webcal:// address of the calendar, which phones open as "subscribe"
+  eleventyConfig.addFilter('webcal', (path) => (SITE_URL + (PATH_PREFIX.replace(/\/$/, '') + path).replace(/\/{2,}/g, '/')).replace(/^https?:/, 'webcal:'));
+  // YouTube video id -> the privacy-enhanced (no-cookie) player address
+  eleventyConfig.addFilter('ytEmbed', (id) => `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`);
 
   return {
     dir: { input: 'src', includes: '_includes', data: '_data', output: '_site' },

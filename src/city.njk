@@ -1,0 +1,50 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.cities
+  size: 1
+  addAllPagesToCollections: true
+  alias: city
+permalink: "{{ city.url }}"
+eleventyComputed:
+  title: "Rotary in {{ city.name }}"
+  description: "{{ city.clubs.length }} Rotary {{ 'club' if city.clubs.length == 1 else 'clubs' }} in {{ city.name }}: when they meet, upcoming events, recent service activities{% if city.services.length %} and services the public can use{% endif %}. Rotary District 3110."
+---
+{% from "macros.njk" import activityCard, eventItem, serviceCard %}
+<div class="wrap section">
+  <p class="meta"><a href="/cities/">{{ t.cities.title }}</a></p>
+  <h1>Rotary in {{ city.name }}</h1>
+  <p class="lead">{{ city.clubs.length }} Rotary {{ 'club' if city.clubs.length == 1 else 'clubs' }}{% if city.activityCount %} · {{ city.activityCount }} {{ 'activity' if city.activityCount == 1 else 'activities' }} shared{% endif %}</p>
+
+  <section id="clubs">
+    <h2>{{ t.cities.clubs }}</h2>
+    <ul class="club-list">
+      {%- for c in city.clubs %}
+      <li><a href="{{ c.url }}">{{ c.name }}</a> <span class="small muted">{% if c.meeting %}{{ c.meeting }}{% elif c.meeting_day %}{{ t.clubs.meets }} {{ c.meeting_day }}{% endif %}</span></li>
+      {%- endfor %}
+    </ul>
+  </section>
+
+  <section id="events">
+    <h2>{{ t.cities.events }}</h2>
+    {%- if city.events.length %}
+    <div class="event-grid">{% for e in city.events %}{{ eventItem(e, t) }}{% endfor %}</div>
+    {%- else %}
+    <p>{{ t.cities.no_events }} <a href="/events/">All district events →</a></p>
+    {%- endif %}
+  </section>
+
+  {%- if city.services.length %}
+  <section id="services">
+    <h2>{{ t.cities.services }}</h2>
+    <div class="service-grid">{% for x in city.services %}{{ serviceCard(x, t) }}{% endfor %}</div>
+  </section>
+  {%- endif %}
+
+  {%- if city.activities.length %}
+  <section id="activities">
+    <h2>{{ t.cities.activities }}</h2>
+    <div class="grid cards">{% for a in city.activities %}{{ activityCard(a, t) }}{% endfor %}</div>
+  </section>
+  {%- endif %}
+</div>

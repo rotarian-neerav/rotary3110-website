@@ -1,0 +1,15 @@
+---
+layout: layouts/base.njk
+title: Rotary in your city
+description: The Rotary clubs, events, service activities and public services in each city and town of Rotary District 3110.
+permalink: /cities/
+---
+<div class="wrap section">
+  <h1>{{ t.cities.title }}</h1>
+  <p class="lead">{{ t.cities.intro }}</p>
+  <ul class="city-index">
+    {%- for city in site.cities %}
+    <li><a href="{{ city.url }}"><strong>{{ city.name }}</strong></a> <span class="small muted">{{ city.clubs.length }} {{ 'club' if city.clubs.length == 1 else 'clubs' }}{% if city.events.length %} · {{ city.events.length }} upcoming {{ 'event' if city.events.length == 1 else 'events' }}{% endif %}{% if city.services.length %} · {{ city.services.length }} {{ 'service' if city.services.length == 1 else 'services' }}{% endif %}</span></li>
+    {%- endfor %}
+  </ul>
+</div>

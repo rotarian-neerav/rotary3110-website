@@ -1,0 +1,18 @@
+---
+layout: layouts/base.njk
+title: Each Rotary year in review
+description: What the Rotary clubs of District 3110 did in each Rotary year, by area of focus, Avenue of Service and club.
+permalink: /years/
+---
+<div class="wrap section narrow">
+  <h1>{{ t.years.title }}</h1>
+  <p class="lead">{{ t.years.intro }}</p>
+  <ul class="report-list">
+    {%- for y in site.years %}
+    <li><a href="{{ y.url }}"><strong>Rotary year {{ y.year }}</strong></a>{% if y.current %} <span class="chip chip-running">{{ t.years.so_far }}</span>{% endif %}<br>
+      <span class="small muted">{{ y.activities | number }} {{ 'activity' if y.activities == 1 else 'activities' }} from {{ y.clubsPosting }} {{ 'club' if y.clubsPosting == 1 else 'clubs' }}{% if y.peopleHelped %} · {{ y.peopleHelped | number }} people helped{% endif %}</span></li>
+    {%- else %}
+    <li>No activities yet.</li>
+    {%- endfor %}
+  </ul>
+</div>

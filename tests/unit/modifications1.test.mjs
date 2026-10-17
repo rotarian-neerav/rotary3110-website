@@ -167,11 +167,11 @@ test('a fee with payment details or a phone number is left out; the privacy chec
 /* ---------- the weekly bulletin ---------- */
 
 const CLUBS = [
-  { club_id: 'A1', name: 'RC A One', zone: 'Agra' }, { club_id: 'A2', name: 'RC A Two', zone: 'Agra' },
-  { club_id: 'B1', name: 'RC B One', zone: 'Bareilly' }, { club_id: 'K1', name: 'RC K One', zone: 'Kanpur' },
+  { club_id: 'A1', name: 'RC A One', city: 'Agra' }, { club_id: 'A2', name: 'RC A Two', city: 'Agra' },
+  { club_id: 'B1', name: 'RC B One', city: 'Bareilly' }, { club_id: 'K1', name: 'RC K One', city: 'Kanpur' },
 ];
 const S = '2026-10-18'; // a Sunday
-const pub = (over = {}) => ({ site: { district: 'Rotary District 3110', zones: ['Agra', 'Bareilly', 'Kanpur'] }, clubs: CLUBS, events: [], activities: [], campaigns: [], ...over });
+const pub = (over = {}) => ({ site: { district: 'Rotary District 3110' }, clubs: CLUBS, events: [], activities: [], campaigns: [], ...over });
 const act = (id, club, approvedAt, extra = {}) => ({ id, club_id: club, title: `Activity ${id}`, date: approvedAt.slice(0, 10), photos: ['sample:x.jpg'], post_link: '',
   story_of_month: false, bulletin_exclude: false, approved_at: approvedAt, campaign_id: '', campaign_count: 0, ...extra });
 const evt = (id, start, extra = {}) => ({ id, title: `Event ${id}`, event_type: 'Club event open to all', start_date: start, end_date: '', start_time: '', city: 'Agra',
@@ -205,7 +205,7 @@ test('done last week: at most one per club; 10 activities from 3 clubs show 3, "
   assert.equal(b.done.more_clubs, 3);
 });
 
-test('done last week: story of the month first, then photos before links; ties go round the zones, newest first; ticked rows left out', () => {
+test('done last week: story of the month first, then photos before links; ties go round the cities, newest first; ticked rows left out', () => {
   const b = bulletin(pub({ activities: [
     act('A1-new', 'A1', '2026-10-16T06:00:00Z'),
     act('A2-newer', 'A2', '2026-10-17T06:00:00Z'),

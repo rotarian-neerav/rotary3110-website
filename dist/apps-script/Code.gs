@@ -164,21 +164,24 @@ var SCHEMA_MAIN = {
   lists: ['list', 'value'],
   clubs: ['club_id', 'club_name', 'display_name', 'slug', 'former_names', 'city', 'zone', 'status', 'member_count',
     'meeting_day_place', 'website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'profile_updated_at', 'is_sample',
-    'permanent_projects', 'regular_services'],
+    'permanent_projects', 'regular_services',
+    // added in Release A (17 October 2026); new columns always go at the end
+    'meeting_day', 'activity_form_link'],
   officers: ['rotary_year', 'club_id', 'member_id', 'name', 'role', 'contact_ok', 'contact_link', 'is_sample'],
   functionaries: ['rotary_year', 'page', 'section', 'committee', 'member_id', 'name', 'role', 'zone', 'club_id', 'term',
-    'sort_order', 'contact_ok', 'contact_link', 'is_sample'],
+    'sort_order', 'contact_ok', 'contact_link', 'is_sample', 'ag_clubs'],
   activities: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'club_id',
     'club_name', 'title', 'date', 'theme', 'description', 'photo_files', 'post_link', 'people_helped', 'amount_spent', 'partner_clubs',
     'photo_consent', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'story_of_month', 'event_id',
-    'notified', 'is_sample', 'campaign_id', 'campaign_count', 'bulletin_exclude'],
+    'notified', 'is_sample', 'campaign_id', 'campaign_count', 'bulletin_exclude',
+    'avenue', 'video_link', 'press_paper', 'press_date', 'press_link'],
   events: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'title',
     'event_type', 'start_date', 'start_time', 'end_date', 'venue', 'city', 'organiser', 'description', 'map_link',
     'details_link', 'photo_files', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'report_activity_id', 'notified',
-    'is_sample', 'registration_close_date', 'fee', 'registration_status', 'bulletin_exclude'],
+    'is_sample', 'registration_close_date', 'fee', 'registration_status', 'bulletin_exclude', 'open_to_all'],
   club_profile_requests: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile',
     'club_id', 'club_name', 'website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'meeting_day_place', 'status',
-    'approved_by', 'approved_at', 'moderator_note', 'is_sample', 'permanent_projects', 'regular_services'],
+    'approved_by', 'approved_at', 'moderator_note', 'is_sample', 'permanent_projects', 'regular_services', 'meeting_day'],
   campaigns: ['campaign_id', 'rotary_year', 'name', 'slug', 'unit', 'start_date', 'end_date', 'target', 'description', 'chair',
     'chair_member_id', 'sort_order', 'is_sample'],
   magazines: ['issue_month', 'title', 'pdf_file', 'pdf_url', 'cover_image', 'is_sample'],
@@ -188,6 +191,14 @@ var SCHEMA_MAIN = {
     'website', 'contact_ok', 'contact_link', 'photo_ok', 'photo_file', 'birthday_ok', 'birthday', 'spotlight_ok', 'is_sample'],
   couples_public: ['couple_key', 'person_a_key', 'person_a_name', 'person_a_club_id', 'person_b_key', 'person_b_name',
     'person_b_club_id', 'anniversary', 'both_consented', 'couple_photo_file', 'is_sample'],
+  // lasting facilities the public can use (blood banks, eye care, dialysis…), sent through the public service form
+  public_services: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'club_id',
+    'club_name', 'name', 'service_type', 'timings', 'phone', 'address', 'city', 'map_link', 'about', 'status', 'approved_by',
+    'approved_at', 'moderator_note', 'notified', 'is_sample'],
+  // the About page: the RI President and the District Governor (role, year, name, theme, short profile, photo)
+  profiles: ['role', 'rotary_year', 'name', 'theme', 'profile', 'photo', 'link', 'sort_order', 'is_sample'],
+  // every Past District Governor, including those no longer with us (member_id only links a card; never shown)
+  past_governors: ['rotary_year', 'name', 'club', 'member_id', 'is_sample'],
   dashboard: ['club_id', 'club_name', 'zone', 'member_count', 'last_activity_date', 'activities_this_month',
     'activities_last_month', 'activities_this_rotary_year', 'months_posted_this_rotary_year', 'needs_nudge'],
   role_checks: ['checked_at', 'tab', 'row', 'rotary_year', 'name', 'member_id', 'problem'],
@@ -206,6 +217,8 @@ var SCHEMA_PRIVATE = {
     'birthday_ok', 'birthday', 'anniversary_ok', 'spouse_is_rotarian', 'spouse_name', 'spouse_club_id', 'spouse_member_id',
     'spouse_agrees', 'anniversary', 'couple_photo_file', 'couple_photo_spouse_agrees', 'declaration', 'status',
     'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
+  // messages from the website's contact form; the reply details stay here and are never published
+  contact_messages: ['id', 'submitted_at', 'name', 'reply_to', 'topic', 'city', 'message', 'status', 'forwarded_to', 'note', 'is_sample'],
   removal_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'name', 'member_id', 'mobile', 'remove_items',
     'reason', 'status', 'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
 };
@@ -257,6 +270,14 @@ var CORE_LIST_MAX = 12;
 // Payment details are never shown with an event's fee
 var CORE_PAYMENT_RE = /\b(upi|ifsc)\b|\ba\/c\b/i;
 var MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// Rotary's five Avenues of Service (asked on the activity form, alongside the area of focus)
+var CORE_AVENUES = ['Club Service', 'Vocational Service', 'Community Service', 'International Service', 'Youth Service'];
+// Kinds of lasting facility the public can use (the public service form)
+var CORE_SERVICE_TYPES = ['Blood bank', 'Eye care', 'Dialysis', 'Clinic / health centre', 'Library', 'Skill / vocational centre', 'Ambulance', 'Other'];
+var CORE_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+// The contact form: at most this many messages are emailed on, per day, unless the setting says otherwise
+var CORE_CONTACT_DAILY_LIMIT = 20;
 
 function Core_isTrue(v) {
   if (v === true) return true;
@@ -430,10 +451,6 @@ function Core_safeText(v, where, skipped) {
 }
 
 /**
- * A club's list of projects or services: one item per line. Blank lines go; a line with a phone number
- * or email goes (listed in skipped); each line is cut to 160 characters; at most 12 lines.
- */
-/**
  * Rows whose ID was already used are left out, so two rows with one ID cannot stop the build.
  * A real row wins over a sample row; otherwise the first row wins. Left-out IDs go to `duplicates`.
  */
@@ -453,6 +470,10 @@ function Core_uniqueRows(rows, duplicates) {
   });
 }
 
+/**
+ * A club's list of projects or services: one item per line. Blank lines go; a line with a phone number
+ * or email goes (listed in skipped); each line is cut to 160 characters; at most 12 lines.
+ */
 function Core_cleanLines(cell, where, skipped) {
   var out = [];
   Core_str(cell).split(/\r?\n/).forEach(function (line) {
@@ -477,6 +498,99 @@ function Core_lineParts(line, keys) {
   var o = {};
   keys.forEach(function (k, i) { o[k] = Core_str(parts[i]); });
   return o;
+}
+
+/**
+ * A club's meeting weekday: the answer to the weekday question, or, until the club answers it, the first
+ * weekday named in its meeting text ("Every Thursday, 7:30 pm…" -> "Thursday"). '' if neither gives one.
+ */
+function Core_meetingDay(day, meetingText) {
+  var d = Core_str(day).toLowerCase();
+  for (var i = 0; i < CORE_WEEKDAYS.length; i++) if (CORE_WEEKDAYS[i].toLowerCase() === d) return CORE_WEEKDAYS[i];
+  var m = Core_str(meetingText).match(/\b(mon|tue|wed|thu|fri|sat|sun)[a-z]*\b/i);
+  if (!m) return '';
+  var short = m[1].toLowerCase();
+  for (var j = 0; j < CORE_WEEKDAYS.length; j++) if (CORE_WEEKDAYS[j].toLowerCase().indexOf(short) === 0) return CORE_WEEKDAYS[j];
+  return '';
+}
+
+/**
+ * A public service's own phone number (a blood bank's or hospital's, never a person's), for display and a
+ * tap-to-call link. Digits, spaces, +, - and brackets only; 3 to 13 digits (108 and 1800 numbers too).
+ * Returns { display, tel } or null.
+ */
+function Core_servicePhone(v) {
+  var s = Core_str(v).replace(/\s+/g, ' ');
+  if (!s || !/^[\d\s+()\-]{3,24}$/.test(s)) return null;
+  var digits = s.replace(/\D/g, '');
+  if (digits.length < 3 || digits.length > 13) return null;
+  var tel = digits;
+  if (s.charAt(0) === '+') tel = '+' + digits;
+  else if (digits.length === 10 && /^[6-9]/.test(digits)) tel = '+91' + digits;
+  else if (digits.length === 11 && digits.charAt(0) === '0') tel = '+91' + digits.slice(1);
+  return { display: s, tel: tel };
+}
+
+/** A video link: YouTube gets its video id (played on the page); Instagram, Facebook and others stay links. */
+function Core_videoLink(v) {
+  var url = Core_url(v);
+  if (!url) return null;
+  var yt = url.match(/^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?![A-Za-z0-9_-])/i);
+  if (yt) return { kind: 'youtube', id: yt[1], url: url };
+  var host = (url.match(/^https?:\/\/([^/?#]+)/i) || [])[1] || '';
+  host = host.toLowerCase().replace(/^www\.|^m\./, '');
+  var kind = /(^|\.)instagram\.com$/.test(host) ? 'instagram' : /(^|\.)(facebook\.com|fb\.watch)$/.test(host) ? 'facebook' : 'other';
+  return { kind: kind, id: '', url: url };
+}
+
+/** A club id from a club id or a club name ("RC Agra" or "Agra"); '' if it matches no club. */
+function Core_clubRef(value, clubs) {
+  var v = Core_str(value);
+  if (!v) return '';
+  var plain = function (s) { return Core_str(s).toLowerCase().replace(/^(rc|rotary club of)\s+/, '').replace(/\s+/g, ' '); };
+  for (var i = 0; i < clubs.length; i++) {
+    var c = clubs[i];
+    if (Core_str(c.club_id) === v || plain(c.club_name || c.name) === plain(v)) return Core_str(c.club_id);
+  }
+  return '';
+}
+
+/**
+ * The contact form: a message is held back (not emailed on) when it looks like spam: more than two links,
+ * or hardly any words. Returns '' when it may be forwarded, or the reason it was held back.
+ */
+function Core_contactCheck(message) {
+  var m = Core_str(message);
+  var links = (m.match(/https?:\/\/|www\./gi) || []).length;
+  if (links > 2) return 'more than two links';
+  if ((m.match(/[A-Za-zऀ-ॿ]{2,}/g) || []).length < 3) return 'too short to be a real message';
+  return '';
+}
+
+/**
+ * Active clubs with no activity (approved or waiting for a moderator) dated in the given month ("YYYY-MM"),
+ * with the date of their last activity: clubs that have never posted first, then the oldest last activity.
+ * For the private monthly email to the district.
+ */
+function Core_clubsNotPosting(clubs, activities, month) {
+  var last = {};
+  var posted = {};
+  (activities || []).forEach(function (a) {
+    var st = Core_str(a.status).toLowerCase();
+    if (st !== 'approved' && st !== 'pending') return;
+    var d = Core_isoDate(a.date);
+    var id = Core_str(a.club_id);
+    if (!d || !id || d.slice(0, 7) > month) return;
+    if (d.slice(0, 7) === month) posted[id] = true;
+    if (!last[id] || d > last[id]) last[id] = d;
+  });
+  return (clubs || []).filter(function (c) {
+    return Core_str(c.club_id) && Core_str(c.status || 'active').toLowerCase() === 'active' && !posted[Core_str(c.club_id)];
+  }).map(function (c) {
+    return { club_id: Core_str(c.club_id), club_name: Core_str(c.club_name || c.name), last_activity_date: last[Core_str(c.club_id)] || '' };
+  }).sort(function (a, b) {
+    return (a.last_activity_date || '').localeCompare(b.last_activity_date || '') || a.club_name.localeCompare(b.club_name);
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -583,7 +697,7 @@ function Core_campaignTotals(c, activities, beforeMs) {
  *  - coming up: events starting in the 14 days from Sunday, or still running; district events first; at most 10
  *  - registration closing soon: other events whose registration closes in the 7 days from Sunday
  *  - done last week: activities approved in the 7 days before Sunday; story of the month first, then those
- *    with photos; one per club; ties go round the zones in turn, newest first; at most 6
+ *    with photos; one per club; ties go round the cities in turn, newest first; at most 6
  *  - campaign totals: campaigns running on Sunday, counting reports approved before Sunday
  */
 function Core_bulletin(data, sunday) {
@@ -625,8 +739,6 @@ function Core_bulletin(data, sunday) {
     var t = Date.parse(a.approved_at);
     return !isNaN(t) && t >= from && t < to;
   });
-  var zones = (data.site && data.site.zones) || [];
-  var zoneRank = function (zone) { var i = zones.indexOf(zone); return i < 0 ? zones.length : i; };
   var newestFirst = function (a, b) { return b.date.localeCompare(a.date) || b.id.localeCompare(a.id); };
   var tiers = [
     acts.filter(function (a) { return a.story_of_month; }),
@@ -636,13 +748,15 @@ function Core_bulletin(data, sunday) {
   var picked = [];
   var usedClubs = {};
   tiers.forEach(function (tier) {
-    // the newest activity of each club not yet picked, then round the zones in turn
+    // the newest activity of each club not yet picked, then round the cities in turn (the city with the newest first)
     var queues = [];
+    var cityQueue = {};
     tier.slice().sort(newestFirst).forEach(function (a) {
       if (usedClubs[a.club_id]) return;
       usedClubs[a.club_id] = true;
-      var z = zoneRank(clubById[a.club_id] ? clubById[a.club_id].zone : '');
-      (queues[z] = queues[z] || []).push(a);
+      var city = clubById[a.club_id] ? Core_str(clubById[a.club_id].city) : '';
+      if (!cityQueue[city]) queues.push((cityQueue[city] = []));
+      cityQueue[city].push(a);
     });
     for (var more = true; more;) {
       more = false;
@@ -858,7 +972,8 @@ function Core_photoRefs(v) {
 /**
  * Turns the main sheet's tabs into the data the website is built from.
  * tabs: { settings, clubs, officers, functionaries, activities, events, magazines,
- *         messages, spotlights, members_public, couples_public, campaigns, lists }
+ *         messages, spotlights, members_public, couples_public, campaigns, public_services,
+ *         profiles, past_governors }
  * Each is an array of row objects (see Core_rows).
  * options.personRef(memberId): the scrambled reference that links one person's roles and listing
  *   (the Sheet uses a keyed hash, so the member ID cannot be worked back from it).
@@ -883,11 +998,12 @@ function Core_buildPublicData(tabs, nowIso, options) {
       name: Core_str(c.club_name),
       display_name: Core_str(c.display_name) || Core_str(c.club_name).replace(/^RC\s+/, 'Rotary Club of '),
       former_names: Core_list(c.former_names),
+      // zones are the district's internal grouping and may change, so they never reach the website
       city: Core_str(c.city),
-      zone: Core_str(c.zone),
       status: Core_str(c.status || 'active').toLowerCase(),
       member_count: Number(c.member_count) || 0,
-      meeting: Core_str(c.meeting_day_place),
+      meeting: Core_safeText(c.meeting_day_place, where + ' meeting', skippedItems),
+      meeting_day: Core_meetingDay(c.meeting_day, c.meeting_day_place),
       links: {
         website: Core_url(c.website),
         facebook: Core_url(c.facebook),
@@ -956,13 +1072,16 @@ function Core_buildPublicData(tabs, nowIso, options) {
 
   var officers = (tabs.officers || []).filter(current).map(roleRow);
 
+  var clubRows = tabs.clubs || [];
   var functionaries = (tabs.functionaries || []).filter(current).map(function (f) {
     var row = roleRow(f);
     row.page = Core_str(f.page);
     row.section = Core_str(f.section);
     row.committee = Core_str(f.committee);
-    row.zone = Core_str(f.zone);
     row.term = Core_str(f.term);
+    // an Assistant Governor's clubs, given by club name or club id
+    row.clubs = Core_list(f.ag_clubs).map(function (v) { return Core_clubRef(v, clubRows); })
+      .filter(function (id, i, a) { return id && clubIds[id] && a.indexOf(id) === i; });
     row.sort_order = Number(f.sort_order) || 0;
     return row;
   }).sort(function (a, b) { return a.sort_order - b.sort_order; });
@@ -987,12 +1106,19 @@ function Core_buildPublicData(tabs, nowIso, options) {
   var activities = Core_uniqueRows((tabs.activities || []).filter(function (a) {
     return Core_str(a.status).toLowerCase() === 'approved';
   }), duplicates).map(function (a) {
+    var avenue = '';
+    CORE_AVENUES.forEach(function (v) { if (v.toLowerCase() === Core_str(a.avenue).toLowerCase()) avenue = v; });
+    var paper = Core_safeText(a.press_paper, 'activity ' + Core_str(a.id) + ' press', skippedItems);
     return {
       id: Core_str(a.id),
       club_id: Core_str(a.club_id),
       title: Core_str(a.title),
       date: Core_isoDate(a.date),
       theme: Core_str(a.theme),
+      avenue: avenue,
+      // press coverage: the paper's name, the date and a link only (never a picture of the clipping)
+      press: paper ? { paper: paper, date: Core_isoDate(a.press_date), link: Core_url(a.press_link) } : null,
+      video: Core_videoLink(a.video_link),
       description: Core_str(a.description),
       photos: Core_photoRefs(a.photo_files).slice(0, 3),
       post_link: Core_url(a.post_link),
@@ -1048,8 +1174,66 @@ function Core_buildPublicData(tabs, nowIso, options) {
       fee: fee,
       registration_status: status,
       bulletin_exclude: Core_isTrue(e.bulletin_exclude),
+      // anyone may come: the organiser said so, or it is a club event open to all
+      open_to_all: Core_isTrue(e.open_to_all) || Core_str(e.event_type) === 'Club event open to all',
     };
   }).filter(function (e) { return e.id && e.title && e.start_date; });
+
+  // Lasting facilities the public can use, with the institution's own phone number, address and map link
+  var publicServices = Core_uniqueRows((tabs.public_services || []).filter(function (s) {
+    return Core_str(s.status).toLowerCase() === 'approved';
+  }), duplicates).map(function (s) {
+    var where = 'public service ' + Core_str(s.id);
+    var phone = Core_servicePhone(s.phone);
+    if (Core_str(s.phone) && !phone) skippedItems.push(where + ' phone');
+    var type = 'Other';
+    CORE_SERVICE_TYPES.forEach(function (t) { if (t.toLowerCase() === Core_str(s.service_type).toLowerCase()) type = t; });
+    return {
+      id: Core_str(s.id),
+      club_id: Core_str(s.club_id),
+      name: Core_safeText(s.name, where + ' name', skippedItems),
+      type: type,
+      timings: Core_safeText(s.timings, where + ' timings', skippedItems),
+      phone: phone ? phone.display : '',
+      tel: phone ? phone.tel : '',
+      address: Core_safeText(s.address, where + ' address', skippedItems),
+      city: Core_str(s.city),
+      map_link: Core_url(s.map_link),
+      about: Core_safeText(s.about, where + ' about', skippedItems),
+    };
+  }).filter(function (s) { return s.id && s.name && clubIds[s.club_id]; });
+
+  // The About page: the RI President and the District Governor (the latest row of each)
+  var profileByRole = {};
+  (tabs.profiles || []).forEach(function (p) {
+    var role = Core_str(p.role);
+    if (!role || !Core_str(p.name)) return;
+    var year = Core_str(p.rotary_year);
+    if (profileByRole[role] && profileByRole[role].rotary_year >= year) return;
+    profileByRole[role] = {
+      role: role,
+      rotary_year: year,
+      name: Core_str(p.name),
+      theme: Core_safeText(p.theme, 'profile ' + role + ' theme', skippedItems),
+      profile: Core_safeText(p.profile, 'profile ' + role, skippedItems),
+      photo: Core_photoRefs(p.photo)[0] || '',
+      link: Core_url(p.link),
+      sort_order: Number(p.sort_order) || 0,
+    };
+  });
+  var profiles = Object.keys(profileByRole).map(function (k) { return profileByRole[k]; })
+    .sort(function (a, b) { return a.sort_order - b.sort_order || a.role.localeCompare(b.role); });
+
+  // Past District Governors, newest first; a card link only for someone still with us
+  var pastGovernors = (tabs.past_governors || []).filter(function (g) { return Core_str(g.name) && Core_str(g.rotary_year); }).map(function (g) {
+    var id = Core_str(g.member_id);
+    return {
+      term: Core_str(g.rotary_year),
+      name: Core_str(g.name),
+      club_id: Core_clubRef(g.club, clubRows),
+      person_ref: id && !inactiveIds[id] ? personRef(id) : '',
+    };
+  }).sort(function (a, b) { return b.term.localeCompare(a.term) || a.name.localeCompare(b.name); });
 
   var magazines = (tabs.magazines || []).map(function (m) {
     return {
@@ -1120,7 +1304,6 @@ function Core_buildPublicData(tabs, nowIso, options) {
     site: {
       rotary_year: rotaryYear,
       district: Core_str(settings.district_name) || 'Rotary District 3110',
-      zones: Core_list(settings.zones),
       bulletin_start_date: Core_isoDate(settings.bulletin_start_date),
     },
     forms: {
@@ -1128,9 +1311,13 @@ function Core_buildPublicData(tabs, nowIso, options) {
       club_profile: Core_url(settings.form_club_profile_url),
       consent: Core_url(settings.form_consent_url),
       removal: Core_url(settings.form_removal_url),
+      public_service: Core_url(settings.form_public_service_url),
+      contact: Core_url(settings.form_contact_url),
     },
     lists: {
       themes: CORE_THEMES.slice(),
+      avenues: CORE_AVENUES.slice(),
+      service_types: CORE_SERVICE_TYPES.slice(),
       event_types: CORE_EVENT_TYPES.slice(),
       professions: Core_list(settings.professions),
     },
@@ -1145,6 +1332,9 @@ function Core_buildPublicData(tabs, nowIso, options) {
     members: members,
     couples: couples,
     campaigns: campaigns,
+    public_services: publicServices,
+    profiles: profiles,
+    past_governors: pastGovernors,
     skipped_activities: skipped,
     skipped_items: skippedItems,
     duplicate_ids: duplicates,
@@ -1221,12 +1411,29 @@ function Core_validatePublic(data) {
   (data.events || []).forEach(function (e, i) {
     if (CORE_PAYMENT_RE.test(Core_str(e.fee))) err('events[' + i + '] ' + e.title, 'fee contains payment details (UPI, IFSC or A/c)');
   });
+  (data.past_governors || []).forEach(function (g, i) {
+    if (g.person_ref && !/^P[0-9a-f]{12}$/.test(g.person_ref)) err('past_governors[' + i + '] ' + g.name, 'person reference is not a scrambled reference');
+  });
+  // A public service's phone is the institution's own number, approved by a moderator, in its own field only
+  (data.public_services || []).forEach(function (s, i) {
+    var w = 'public_services[' + i + '] ' + (s.name || '');
+    if (!s.phone && !s.tel) return;
+    var ok = Core_servicePhone(s.phone);
+    if (!ok || ok.tel !== s.tel) err(w, 'phone is not a plain phone number');
+  });
+  // Zones are internal and may change: never on the website
+  (data.clubs || []).concat(data.functionaries || []).forEach(function (r, i) {
+    if (r && 'zone' in r) err('clubs/roles[' + i + '] ' + (r.name || ''), 'zone must not be published');
+  });
 
-  // No phone numbers or emails anywhere, except consented WhatsApp links
+  // No phone numbers or emails anywhere, except consented WhatsApp links and public services' own numbers
   var scan = JSON.parse(JSON.stringify(data));
   delete scan.forms; // form links are Google addresses, not personal data
   (scan.members || []).forEach(function (m) { if (m.contact_ok) delete m.contact_link; });
   (scan.officers || []).concat(scan.functionaries || []).forEach(function (p) { if (p.contact_ok) delete p.contact_link; });
+  (scan.public_services || []).forEach(function (s) {
+    if (Core_servicePhone(s.phone)) { delete s.phone; delete s.tel; }
+  });
   Core_walk(scan, '', function (path, value) {
     if (typeof value !== 'string') return;
     if (/^(drive|sample|thumb):/.test(value) || /^https?:\/\//.test(value)) {
@@ -1385,6 +1592,9 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_bulletin: Core_bulletin, Core_bulletinMessage: Core_bulletinMessage, Core_sundayOf: Core_sundayOf, Core_addDays: Core_addDays,
     Core_dateLabel: Core_dateLabel, Core_rotaryYearOf: Core_rotaryYearOf, Core_formatNumber: Core_formatNumber,
     CORE_REG_STATUSES: CORE_REG_STATUSES, CORE_NO_CAMPAIGN: CORE_NO_CAMPAIGN,
+    Core_meetingDay: Core_meetingDay, Core_servicePhone: Core_servicePhone, Core_videoLink: Core_videoLink, Core_clubRef: Core_clubRef,
+    Core_contactCheck: Core_contactCheck, Core_clubsNotPosting: Core_clubsNotPosting,
+    CORE_AVENUES: CORE_AVENUES, CORE_SERVICE_TYPES: CORE_SERVICE_TYPES, CORE_WEEKDAYS: CORE_WEEKDAYS,
   };
 }
 
@@ -1447,6 +1657,7 @@ function upgradeSheet() {
   ensureSettings_(report);
   addValidation_(main, privateSs_());
   ensureLists_(report);
+  createForms_(report); // new forms only; existing forms are kept
   addLaterQuestions_(report);
   installTriggers_(report);
   updateFormLists(true);
@@ -1467,7 +1678,8 @@ function ensureLists_(report) {
 }
 
 var TEXT_COLUMNS = ['member_id', 'chair_member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
-  'person_b_id', 'spouse_id', 'spouse_member_id', 'matched_member_id', 'public_key', 'club_id', 'rotary_year', 'term', 'issue_month', 'month'];
+  'person_b_id', 'spouse_id', 'spouse_member_id', 'matched_member_id', 'public_key', 'club_id', 'rotary_year', 'term', 'issue_month', 'month',
+  'phone', 'reply_to'];
 
 function ensureTabs_(ss, schema, report) {
   Object.keys(schema).forEach(function (name) {
@@ -1507,7 +1719,7 @@ function ensureTabs_(ss, schema, report) {
 var DEFAULT_SETTINGS = [
   ['district_name', 'Rotary District 3110', 'Shown in the header and footer'],
   ['current_rotary_year', '2024-25', 'Rotary year shown for office bearers, teams and committees'],
-  ['zones', 'Agra, Bareilly, Kanpur', 'District zones'],
+  ['zones', 'Agra, Bareilly, Kanpur', 'District zones: for the district\'s own use only, never shown on the website'],
   ['professions', '', 'Comma-separated list for the directory; placeholder until the real list is agreed'],
   ['moderator_emails', '', 'Comma-separated; they receive the 48-hour reminders'],
   ['site_url', 'https://rotarian-neerav.github.io/rotary3110-website/', 'Used in emails to people who send activities'],
@@ -1520,6 +1732,11 @@ var DEFAULT_SETTINGS = [
   ['campaign_check_above', '1000', 'A campaign count above this gets a note for the moderator'],
   ['bulletin_start_date', '', 'A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week\'s bulletin'],
   ['bulletin_emails', '', 'Comma-separated; they receive the Sunday WhatsApp message to forward. Blank: the moderators'],
+  ['form_public_service_url', '', 'Filled in by setup'],
+  ['form_contact_url', '', 'Filled in by setup; shown inside the website\'s Contact page'],
+  ['contact_email', '', 'Where messages from the website\'s contact form are emailed (never shown on the website). Blank: the moderators'],
+  ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
+  ['not_posting_emails', 'not-posting@example.com', 'Receives the monthly list of clubs that did not post (private). A dummy address until the district names someone'],
 ];
 
 function ensureSettings_(report) {
@@ -1543,10 +1760,15 @@ function addValidation_(main, priv) {
     var idx = headers_(ss, tab).indexOf(col);
     if (idx >= 0) sh.getRange(2, idx + 1, sh.getMaxRows() - 1, 1).setDataValidation(rule);
   }
-  ['activities', 'events', 'club_profile_requests'].forEach(function (t) {
+  ['activities', 'events', 'club_profile_requests', 'public_services'].forEach(function (t) {
     apply(main, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
   apply(main, 'activities', 'theme', listRule_(CORE_THEMES));
+  apply(main, 'activities', 'avenue', listRule_(CORE_AVENUES));
+  apply(main, 'public_services', 'service_type', listRule_(CORE_SERVICE_TYPES));
+  apply(main, 'events', 'open_to_all', listRule_(['TRUE', 'FALSE']));
+  apply(main, 'clubs', 'meeting_day', listRule_(CORE_WEEKDAYS));
+  apply(main, 'club_profile_requests', 'meeting_day', listRule_(CORE_WEEKDAYS));
   apply(main, 'events', 'event_type', listRule_(CORE_EVENT_TYPES));
   apply(main, 'clubs', 'status', listRule_(['active', 'inactive']));
   // A tick-box column would fill every empty row with FALSE, so new rows would land far down the tab.
@@ -1559,6 +1781,7 @@ function addValidation_(main, priv) {
     apply(priv, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
   apply(priv, 'members_master', 'status', listRule_(['active', 'deceased', 'left']));
+  apply(priv, 'contact_messages', 'status', listRule_(['new', 'answered', 'spam']));
   apply(priv, 'couples', 'status', listRule_(['active', 'awaiting_spouse', 'check_dates', 'withdrawn']));
 }
 
@@ -1623,6 +1846,10 @@ function installTriggers_(report) {
     ScriptApp.newTrigger('bulletinMessage').timeBased().onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(8).inTimezone('Asia/Kolkata').create();
     report.push('Scheduled the bulletin message email (Sunday 8 am)');
   }
+  if (!existing.some(function (e) { return e.indexOf('notPostingReport|') === 0; })) {
+    ScriptApp.newTrigger('notPostingReport').timeBased().onMonthDay(1).atHour(9).inTimezone('Asia/Kolkata').create();
+    report.push('Scheduled the monthly clubs-not-posting email (1st of the month, 9 am)');
+  }
 }
 
 /**
@@ -1648,8 +1875,9 @@ function tidyBlankRows_(ss, report) {
 
 // ===== Forms.js =====
 /**
- * The four Google Forms. Questions are found again by their titles, so keep titles in Q unchanged.
- * Forms 1–2 send answers to the main Sheet; forms 3–4 (members' personal details) to the private Sheet.
+ * The six Google Forms. Questions are found again by their titles, so keep titles in Q unchanged.
+ * The activity, club profile and public service forms send answers to the main Sheet; the consent and removal
+ * forms (members' personal details) and the website's contact form (visitors' reply details) to the private Sheet.
  * Each form's raw answers stay untouched in a "raw_…" tab; the script copies them into the working tabs.
  */
 
@@ -1726,7 +1954,38 @@ var Q = {
   aCampaignCount: 'Campaign count (optional)',
   eRegClose: 'Registration closes on (optional)',
   eFee: 'Fee (optional)',
+  // added in Release A (17 October 2026)
+  aAvenue: 'Avenue of Service',
+  aVideo: 'Video link (optional)',
+  aPressPaper: 'Covered in the press: newspaper or news website (optional)',
+  aPressDate: 'Covered in the press: date it appeared (optional)',
+  aPressLink: 'Covered in the press: link to the news item (optional)',
+  eOpen: 'Open to everyone?',
+  pMeetingDay: 'Meeting day (optional)',
+  sName: 'Name of the service or facility',
+  sType: 'Type of service',
+  sTimings: 'Days and times it is open',
+  sPhone: "The facility's own phone number",
+  sAddress: 'Address',
+  sCity: 'City or town',
+  sMap: 'Google Maps link (optional)',
+  sAbout: 'What it offers, in one or two lines (optional)',
+  sConfirm: 'Confirmation',
+  kName: 'Your name',
+  kReply: 'Your email or mobile number, so we can reply',
+  kTopic: 'What is it about?',
+  kCity: 'Your city or town (optional)',
+  kMessage: 'Your message',
 };
+
+var CONTACT_TOPICS = ['I need help from Rotary', 'I want to volunteer', 'Partnership or CSR', 'Media', 'Something else'];
+
+/** The activity form's description, with the link to the posting guide. */
+function activityDescription_() {
+  var site = Core_str(settings_().site_url).replace(/\/?$/, '/');
+  return 'Share what your club did, or an upcoming event. A moderator checks every entry before it appears on the district website.\n' +
+    'Please do not write the names of children.\nTips for a good entry: ' + site + 'how-to-post/';
+}
 
 var CLUB_PROFILE_DESCRIPTION = "For club office bearers: your club's website, social media pages, meeting details, permanent projects and " +
   "regular services, shown on your club's page. Send it again any time to update.";
@@ -1748,6 +2007,19 @@ var LATER_QUESTIONS = [
     help: 'The number in the campaign\'s unit, shown in brackets in the campaign name, e.g. blood units collected. Count only what your own club did.' },
   { form: 'activity', title: Q.eRegClose, type: 'date', after: Q.eEnd, help: 'Leave blank if no registration is needed.' },
   { form: 'activity', title: Q.eFee, type: 'text', after: Q.eRegClose, help: 'For example: Free, or ₹500 per person. Please do not add bank or UPI details.' },
+  // Release A
+  { form: 'activity', title: Q.aAvenue, type: 'avenue', after: Q.aTheme, required: true,
+    help: "Rotary's five Avenues of Service. Club Service: within the club (fellowship, meetings, training). Vocational: through members' " +
+      'professions. Community: for the local community. International: with clubs or people abroad. Youth: for young people (Interact, Rotaract, RYLA).' },
+  { form: 'activity', title: Q.aVideo, type: 'url', after: Q.aLink,
+    help: 'A YouTube, Instagram or Facebook video of this activity, if your club posted one. YouTube videos play on the website.' },
+  { form: 'activity', title: Q.aPressPaper, type: 'text', after: Q.aVideo, help: 'For example: Dainik Jagran, Agra edition. Only if a newspaper or news website reported it.' },
+  { form: 'activity', title: Q.aPressDate, type: 'date', after: Q.aPressPaper, help: 'The day the news item appeared.' },
+  { form: 'activity', title: Q.aPressLink, type: 'url', after: Q.aPressDate,
+    help: "A link to the news item on the paper's website or e-paper. Please do not upload photos of the clipping." },
+  { form: 'activity', title: Q.eOpen, type: 'yesno', after: Q.eType, help: 'Yes if anyone, not only Rotarians, may come. The website marks it "Open to everyone".' },
+  { form: 'club_profile', title: Q.pMeetingDay, type: 'weekday', after: Q.pMeeting + ' (optional)',
+    help: 'The weekday your club usually meets, so visitors can find a club meeting on a day that suits them.' },
 ];
 
 function laterQuestion_(title) {
@@ -1756,12 +2028,21 @@ function laterQuestion_(title) {
 
 function addLaterQuestion_(form, title, L) {
   var q = laterQuestion_(title);
-  if (q.type === 'paragraph') return form.addParagraphTextItem().setTitle(q.title).setHelpText(q.help);
-  if (q.type === 'campaign') return form.addListItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(L.campaigns);
-  if (q.type === 'number') return form.addTextItem().setTitle(q.title).setHelpText(q.help).setValidation(numberRule_());
-  if (q.type === 'date') return form.addDateItem().setTitle(q.title).setHelpText(q.help);
-  return form.addTextItem().setTitle(q.title).setHelpText(q.help)
-    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
+  var item;
+  if (q.type === 'paragraph') item = form.addParagraphTextItem().setTitle(q.title).setHelpText(q.help);
+  else if (q.type === 'campaign') item = form.addListItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(L.campaigns);
+  else if (q.type === 'avenue') item = form.addListItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(CORE_AVENUES);
+  else if (q.type === 'weekday') item = form.addListItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(CORE_WEEKDAYS);
+  else if (q.type === 'yesno') item = form.addMultipleChoiceItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(YES_NO);
+  else if (q.type === 'number') item = form.addTextItem().setTitle(q.title).setHelpText(q.help).setValidation(numberRule_());
+  else if (q.type === 'date') item = form.addDateItem().setTitle(q.title).setHelpText(q.help);
+  else if (q.type === 'url') item = form.addTextItem().setTitle(q.title).setHelpText(q.help).setValidation(urlRule_());
+  else {
+    item = form.addTextItem().setTitle(q.title).setHelpText(q.help)
+      .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
+  }
+  if (q.required) item.setRequired(true);
+  return item;
 }
 
 /** Adds any missing later question to the existing forms, in its place. Safe to run more than once. */
@@ -1779,6 +2060,7 @@ function addLaterQuestions_(report) {
     report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
   });
   if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
+  if (ids.activity) FormApp.openById(ids.activity).setDescription(activityDescription_());
 }
 
 var YES_NO = ['Yes', 'No'];
@@ -1812,6 +2094,7 @@ function formLists_() {
     professions: professions.length ? professions.concat(['Other']) : ['Other'],
     organisers: activeClubs.concat(teams.length ? teams : ["Governor's Office Team"]),
     roles: ['President', 'Secretary', 'Public Image Chair', 'Other office bearer', 'Member'],
+    serviceTypes: CORE_SERVICE_TYPES.slice(),
     campaigns: [CORE_NO_CAMPAIGN].concat(Core_openCampaigns(readTab_(mainSs_(), 'campaigns'), today_()).map(Core_campaignLabel)),
   };
 }
@@ -1819,9 +2102,12 @@ function formLists_() {
 function createForms_(report) {
   var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
   var L = formLists_();
-  var makers = { activity: makeActivityForm_, club_profile: makeClubProfileForm_, consent: makeConsentForm_, removal: makeRemovalForm_ };
-  var destinations = { activity: mainSs_().getId(), club_profile: mainSs_().getId(), consent: CONFIG.PRIVATE_SHEET_ID, removal: CONFIG.PRIVATE_SHEET_ID };
-  var rawNames = { activity: 'raw_activity_form', club_profile: 'raw_club_profile_form', consent: 'raw_consent_form', removal: 'raw_removal_form' };
+  var makers = { activity: makeActivityForm_, club_profile: makeClubProfileForm_, consent: makeConsentForm_, removal: makeRemovalForm_,
+    public_service: makePublicServiceForm_, contact: makeContactForm_ };
+  var destinations = { activity: mainSs_().getId(), club_profile: mainSs_().getId(), consent: CONFIG.PRIVATE_SHEET_ID, removal: CONFIG.PRIVATE_SHEET_ID,
+    public_service: mainSs_().getId(), contact: CONFIG.PRIVATE_SHEET_ID };
+  var rawNames = { activity: 'raw_activity_form', club_profile: 'raw_club_profile_form', consent: 'raw_consent_form', removal: 'raw_removal_form',
+    public_service: 'raw_public_service_form', contact: 'raw_contact_form' };
 
   Object.keys(makers).forEach(function (key) {
     var form = null;
@@ -1872,9 +2158,7 @@ function addSender_(form, L) {
 }
 
 function makeActivityForm_(L) {
-  var form = baseForm_('Club activity or event – Rotary District 3110',
-    'Share what your club did, or an upcoming event. A moderator checks every entry before it appears on the district website.\n' +
-    'Please do not write the names of children.');
+  var form = baseForm_('Club activity or event – Rotary District 3110', activityDescription_());
   addSender_(form, L);
   var kind = form.addMultipleChoiceItem().setTitle(Q.kind).setRequired(true);
 
@@ -1884,6 +2168,7 @@ function makeActivityForm_(L) {
   form.addDateItem().setTitle(Q.aDate).setRequired(true);
   form.addListItem().setTitle(Q.aTheme).setChoiceValues(CORE_THEMES).setRequired(true)
     .setHelpText("Rotary's seven Areas of Focus, or Club service / Other for installations, fellowship, training and similar.");
+  addLaterQuestion_(form, Q.aAvenue, L);
   form.addParagraphTextItem().setTitle(Q.aDesc).setRequired(true)
     .setHelpText('Two to five lines. Please do not write the names of children.')
     .setValidation(FormApp.createParagraphTextValidation().requireTextMatchesPattern('^[\\s\\S]{100,600}$')
@@ -1891,6 +2176,10 @@ function makeActivityForm_(L) {
   // The photo question is added here by hand (Google does not allow scripts to add file uploads)
   form.addTextItem().setTitle(Q.aLink).setHelpText('If your club already posted this on its website or social page, paste the link instead of photos.')
     .setValidation(urlRule_());
+  addLaterQuestion_(form, Q.aVideo, L);
+  addLaterQuestion_(form, Q.aPressPaper, L);
+  addLaterQuestion_(form, Q.aPressDate, L);
+  addLaterQuestion_(form, Q.aPressLink, L);
   form.addTextItem().setTitle(Q.aHelped).setValidation(numberRule_());
   addLaterQuestion_(form, Q.aCampaign, L);
   addLaterQuestion_(form, Q.aCampaignCount, L);
@@ -1903,6 +2192,7 @@ function makeActivityForm_(L) {
   form.addTextItem().setTitle(Q.eTitle).setRequired(true)
     .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
   form.addListItem().setTitle(Q.eType).setChoiceValues(CORE_EVENT_TYPES).setRequired(true);
+  addLaterQuestion_(form, Q.eOpen, L);
   form.addDateItem().setTitle(Q.eStart).setRequired(true);
   form.addTimeItem().setTitle(Q.eTime);
   form.addDateItem().setTitle(Q.eEnd);
@@ -1929,6 +2219,7 @@ function makeClubProfileForm_(L) {
     form.addTextItem().setTitle(t + ' (optional)').setValidation(urlRule_());
   });
   form.addTextItem().setTitle(Q.pMeeting + ' (optional)').setHelpText('For example: Every Tuesday, 7:30 pm, Hotel Grand, Agra');
+  addLaterQuestion_(form, Q.pMeetingDay, L);
   addLaterQuestion_(form, Q.pProjects, L);
   addLaterQuestion_(form, Q.pServices, L);
   form.addCheckboxItem().setTitle(Q.pConfirm).setRequired(true)
@@ -2000,6 +2291,88 @@ function makeRemovalForm_(L) {
 }
 
 /**
+ * A blood bank, eye hospital, dialysis unit or similar that a club runs and the public can use. One per form.
+ * The phone number is the facility's own; it is shown on the website with a tap-to-call link.
+ */
+function makePublicServiceForm_(L) {
+  var form = baseForm_('Public service run by a club – Rotary District 3110',
+    'For club office bearers: a lasting facility the public can use, such as a blood bank, eye hospital, dialysis unit, clinic, ' +
+    'library, skill centre or ambulance. Send one form per facility. A moderator checks it before it appears on the website.');
+  addSender_(form, L);
+  form.getItems()[2].asListItem().setChoiceValues(['President', 'Secretary', 'Other office bearer']);
+  form.addTextItem().setTitle(Q.sName).setRequired(true).setHelpText('For example: Rotary Blood Bank, Civil Lines')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
+  form.addListItem().setTitle(Q.sType).setChoiceValues(L.serviceTypes).setRequired(true);
+  form.addTextItem().setTitle(Q.sTimings).setRequired(true).setHelpText('For example: Every day, 9 am–8 pm; or Open 24 hours')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
+  form.addTextItem().setTitle(Q.sPhone).setRequired(true)
+    .setHelpText("The facility's public number (reception or helpline), never a member's personal mobile. It will be shown on the website.")
+    .setValidation(textRule_('^[0-9 +()-]{3,24}$', 'Digits only, with spaces or dashes if you like, e.g. 0562 222 3344'));
+  form.addTextItem().setTitle(Q.sAddress).setRequired(true)
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(150).setHelpText('Up to 150 characters').build());
+  form.addListItem().setTitle(Q.sCity).setChoiceValues(L.areas).setRequired(true);
+  form.addTextItem().setTitle(Q.sMap).setHelpText('Open the place in Google Maps, tap Share and paste the link here.').setValidation(urlRule_());
+  form.addTextItem().setTitle(Q.sAbout).setHelpText('For example: Free dialysis for patients below the poverty line; nominal charge for others.')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(200).setHelpText('Up to 200 characters').build());
+  form.addCheckboxItem().setTitle(Q.sConfirm).setRequired(true)
+    .setChoiceValues(["I am an office bearer of this club, the club runs or supports this facility, and the phone number is the facility's own public number."]);
+  return form;
+}
+
+/**
+ * The website's contact form, shown inside the Contact page. No Google sign-in, so anyone can write.
+ * Messages go to the private Sheet and are emailed on to the district; the reply details are never published.
+ */
+function makeContactForm_() {
+  var form = FormApp.create('Contact Rotary District 3110');
+  form.setDescription('Write to Rotary District 3110. The district office reads every message. Your details are used only to reply to you.');
+  form.setCollectEmail(false);
+  form.setAllowResponseEdits(false);
+  form.setConfirmationMessage('Thank you. Your message has reached the district office. Someone will reply to you.');
+  form.addTextItem().setTitle(Q.kName).setRequired(true)
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
+  form.addTextItem().setTitle(Q.kReply).setRequired(true).setHelpText('Only the district office sees this. It is never shown on the website.')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(100).setHelpText('Up to 100 characters').build());
+  form.addListItem().setTitle(Q.kTopic).setChoiceValues(CONTACT_TOPICS).setRequired(true);
+  form.addTextItem().setTitle(Q.kCity)
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
+  form.addParagraphTextItem().setTitle(Q.kMessage).setRequired(true)
+    .setValidation(FormApp.createParagraphTextValidation().requireTextMatchesPattern('^[\\s\\S]{20,1500}$')
+      .setHelpText('Please write between 20 and 1,500 characters').build());
+  return form;
+}
+
+/**
+ * Each club's own link to the activity form with the club already chosen, kept in the clubs tab
+ * (activity_form_link) for the district to send to club secretaries. Never published.
+ */
+function makeClubFormLinks_() {
+  var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
+  if (!ids.activity) return 0;
+  var form = FormApp.openById(ids.activity);
+  var clubItem = form.getItems().filter(function (it) { return it.getTitle() === Q.club; })[0];
+  if (!clubItem) return 0;
+  var ss = mainSs_();
+  var sh = ss.getSheetByName('clubs');
+  var headers = headers_(ss, 'clubs');
+  var col = headers.indexOf('activity_form_link');
+  if (col < 0 || sh.getLastRow() < 2) return 0;
+  var rows = readTab_(ss, 'clubs');
+  var values = [];
+  for (var r = 2; r <= sh.getLastRow(); r++) values.push(['']);
+  var made = 0;
+  rows.forEach(function (c) {
+    if (!Core_str(c.club_name) || Core_str(c.status || 'active') !== 'active') return;
+    try {
+      values[c._row - 2] = [form.createResponse().withItemResponse(clubItem.asListItem().createResponse(Core_str(c.club_name))).toPrefilledUrl()];
+      made++;
+    } catch (e) { /* a club name the form does not list yet: refreshed with the form lists */ }
+  });
+  sh.getRange(2, col + 1, values.length, 1).setValues(values);
+  return made;
+}
+
+/**
  * Menu: refresh the club, area, profession and campaign lists in the forms after the clubs, lists or campaigns tabs
  * change. Also runs every morning, so campaigns drop off the form 30 days after they end.
  */
@@ -2009,7 +2382,7 @@ function updateFormLists(silent) {
   var lists = {};
   lists[Q.club] = L.clubs; lists[Q.cClub] = L.clubs; lists[Q.aPartners] = L.clubs; lists[Q.cSpouseClub] = L.clubs;
   lists[Q.eCity] = L.areas; lists[Q.cArea] = L.areas; lists[Q.cProfession] = L.professions; lists[Q.eOrganiser] = L.organisers;
-  lists[Q.aCampaign] = L.campaigns;
+  lists[Q.aCampaign] = L.campaigns; lists[Q.sCity] = L.areas;
   Object.keys(ids).forEach(function (k) {
     var form = FormApp.openById(ids[k]);
     form.getItems().forEach(function (item) {
@@ -2019,6 +2392,7 @@ function updateFormLists(silent) {
       if (item.getType() === FormApp.ItemType.CHECKBOX) item.asCheckboxItem().setChoiceValues(values);
     });
   });
+  try { makeClubFormLinks_(); } catch (e) { Logger.log('Club form links not made: ' + e.message); }
   if (silent === true) return;
   try { SpreadsheetApp.getUi().alert('Form lists updated.'); } catch (e) { /* editor */ }
 }
@@ -2045,6 +2419,8 @@ function onAnyFormSubmit(e) {
     else if (formId === ids.club_profile) fileClubProfile_(answers, meta);
     else if (formId === ids.consent) fileConsent_(answers, meta);
     else if (formId === ids.removal) fileRemoval_(answers, meta);
+    else if (formId === ids.public_service) filePublicService_(answers, meta);
+    else if (formId === ids.contact) fileContact_(answers, meta);
   } finally {
     lock.releaseLock();
   }
@@ -2120,6 +2496,7 @@ function fileActivityOrEvent_(a, meta) {
       // the event page has its own photo question with the same title; only one of the two is ever answered
       photo_files: fileIds_(firstStartingWith_(a, 'Photos')),
       registration_close_date: Core_str(a[Q.eRegClose]), fee: fee, moderator_note: eventNotes.join('; '),
+      open_to_all: Core_str(a[Q.eOpen]) ? yes_(a[Q.eOpen]) : '',
     }));
     return;
   }
@@ -2132,6 +2509,8 @@ function fileActivityOrEvent_(a, meta) {
     photo_files: fileIds_(firstStartingWith_(a, 'Photos')), post_link: link_(a[Q.aLink]),
     people_helped: Core_str(a[Q.aHelped]), amount_spent: Core_str(a[Q.aSpent]), partner_clubs: partners.join(', '),
     photo_consent: checked_(a[Q.aConsent]),
+    avenue: Core_str(a[Q.aAvenue]), video_link: link_(a[Q.aVideo]),
+    press_paper: Core_str(a[Q.aPressPaper]), press_date: Core_str(a[Q.aPressDate]), press_link: link_(a[Q.aPressLink]),
   });
   var campaignRows = readTab_(ss, 'campaigns');
   var count = Core_str(a[Q.aCampaignCount]).replace(/[,\s]/g, '');
@@ -2143,6 +2522,9 @@ function fileActivityOrEvent_(a, meta) {
   if (dup) notes.push('Possible duplicate of ' + dup);
   if (!row.photo_files && !row.post_link) notes.push('No photo or link: reject or ask the club for one');
   if (Core_isoDate(row.date) > today_()) notes.push('Date is in the future');
+  if (row.press_link && !row.press_paper) notes.push('Press link without the newspaper\'s name: add it in press_paper');
+  if (row.video_link && !Core_videoLink(row.video_link)) notes.push('Video link is not a web address');
+  textNotes_([row.press_paper], notes);
   row.moderator_note = notes.join('; ');
   appendRow_(ss, 'activities', row);
 }
@@ -2181,8 +2563,62 @@ function fileClubProfile_(a, meta) {
     club_id: clubIdByName_(clubName), club_name: clubName, website: url(Q.pWebsite), facebook: url(Q.pFacebook),
     instagram: url(Q.pInstagram), youtube: url(Q.pYoutube), x: url(Q.pX), linkedin: url(Q.pLinkedin),
     meeting_day_place: ans(Q.pMeeting), permanent_projects: projects, regular_services: services, status: 'pending',
-    moderator_note: notes.join('; '),
+    meeting_day: Core_str(a[Q.pMeetingDay]), moderator_note: notes.join('; '),
   });
+}
+
+/** A facility the public can use: filed as pending, with notes on anything the moderator should check. */
+function filePublicService_(a, meta) {
+  var ss = mainSs_();
+  var clubName = Core_str(a[Q.club]);
+  var phone = Core_str(a[Q.sPhone]);
+  var notes = [];
+  if (!Core_servicePhone(phone)) notes.push('The phone number is not a plain number: correct it before approving');
+  else if (Core_mobile(phone)) notes.push('The phone number is a mobile: check it is the facility\'s own number, not a member\'s');
+  textNotes_([a[Q.sName], a[Q.sTimings], a[Q.sAddress], a[Q.sAbout]], notes);
+  appendRow_(ss, 'public_services', {
+    id: nextId_(readTab_(ss, 'public_services'), 'SRV-'), submitted_at: meta.submitted_at, submitter_email: meta.submitter_email,
+    submitter_name: Core_str(a[Q.name]), submitter_role: Core_str(a[Q.role]), submitter_mobile: Core_str(a[Q.mobile]),
+    club_id: clubIdByName_(clubName), club_name: clubName, name: Core_str(a[Q.sName]), service_type: Core_str(a[Q.sType]),
+    timings: Core_str(a[Q.sTimings]), phone: phone, address: Core_str(a[Q.sAddress]), city: Core_str(a[Q.sCity]),
+    map_link: link_(a[Q.sMap]), about: Core_str(a[Q.sAbout]), status: 'pending', moderator_note: notes.join('; '),
+  });
+}
+
+/**
+ * A message from the website's contact form: kept in the private Sheet and emailed on to the district
+ * (contact_email; blank: the moderators, or the district account until they are named). Messages that look
+ * like spam, and any beyond the daily limit, are kept but not emailed.
+ */
+function fileContact_(a, meta) {
+  var ps = privateSs_();
+  var s = settings_();
+  var message = Core_str(a[Q.kMessage]);
+  var spam = Core_contactCheck(message);
+  var today = today_();
+  var limit = Number(s.contact_daily_limit) || CORE_CONTACT_DAILY_LIMIT;
+  var sentToday = readTab_(ps, 'contact_messages').filter(function (m) {
+    return Core_str(m.forwarded_to) && Core_isoDate(new Date(m.submitted_at)) === today;
+  }).length;
+  var to = Core_list(s.contact_email).join(',') || moderatorRecipients_(s);
+  var row = {
+    id: nextId_(readTab_(ps, 'contact_messages'), 'MSG-'), submitted_at: meta.submitted_at, name: Core_str(a[Q.kName]),
+    reply_to: Core_str(a[Q.kReply]), topic: Core_str(a[Q.kTopic]), city: Core_str(a[Q.kCity]), message: message,
+    status: spam ? 'spam' : 'new', forwarded_to: '', note: spam ? 'Not emailed: ' + spam : '',
+  };
+  if (!spam && sentToday >= limit) row.note = 'Not emailed: more than ' + limit + ' messages today';
+  if (!spam && sentToday < limit) {
+    try {
+      MailApp.sendEmail(to, 'Website message: ' + row.topic + ' – from ' + row.name,
+        'A message from the contact form on the district website.\n\nFrom: ' + row.name + '\nReply to: ' + row.reply_to +
+        (row.city ? '\nCity: ' + row.city : '') + '\nAbout: ' + row.topic + '\n\n' + message +
+        '\n\nPlease reply to the person directly. All messages are kept in the contact_messages tab of the private Sheet.');
+      row.forwarded_to = to;
+    } catch (e) {
+      row.note = 'Email failed: ' + e.message;
+    }
+  }
+  appendRow_(ps, 'contact_messages', row);
 }
 
 function fileConsent_(a, meta) {
@@ -2241,17 +2677,18 @@ function onOpen() {
       .addItem('Upgrade Sheet (new tabs, columns, questions)', 'upgradeSheet')
       .addItem('Send bulletin preview now', 'bulletinPreview')
       .addItem('Send bulletin message now', 'sendBulletinMessageNow')
+      .addItem('Send clubs-not-posting email now', 'sendNotPostingNow')
       .addItem('Run setup again', 'setup'))
     .addToUi();
 }
 
-var MODERATED_TABS = ['activities', 'events', 'club_profile_requests'];
+var MODERATED_TABS = ['activities', 'events', 'club_profile_requests', 'public_services'];
 
 function selectedRows_() {
   var sh = SpreadsheetApp.getActiveSheet();
   var name = sh.getName();
   if (MODERATED_TABS.indexOf(name) < 0) {
-    throw new Error('Select one or more rows in the activities, events or club_profile_requests tab first.');
+    throw new Error('Select one or more rows in the activities, events, club_profile_requests or public_services tab first.');
   }
   var rows = [];
   sh.getActiveRangeList().getRanges().forEach(function (r) {
@@ -2275,8 +2712,12 @@ function approveSelected() {
       refused.push(r.id + ' (needs a photo or a link to the club\'s post)');
       return;
     }
-    if (sel.tab === 'activities' && !Core_str(r.club_id)) {
+    if ((sel.tab === 'activities' || sel.tab === 'public_services') && !Core_str(r.club_id)) {
       refused.push(r.id + ' (club not recognised: fill in club_id)');
+      return;
+    }
+    if (sel.tab === 'public_services' && !Core_servicePhone(r.phone)) {
+      refused.push(r.id + ' (the phone number is not a plain number: correct it first)');
       return;
     }
     updateRow_(ss, sel.tab, r._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
@@ -2309,7 +2750,7 @@ function applyClubProfile_(r) {
   var club = readTab_(ss, 'clubs').filter(function (c) { return Core_str(c.club_id) === Core_str(r.club_id); })[0];
   if (!club) return;
   var fields = { profile_updated_at: nowIso_() };
-  ['website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'meeting_day_place'].forEach(function (k) {
+  ['website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'meeting_day_place', 'meeting_day'].forEach(function (k) {
     if (Core_str(r[k])) fields[k] = Core_str(r[k]);
   });
   // Projects and services: a blank answer keeps the club's list, "none" clears it, anything else replaces it
@@ -2324,9 +2765,10 @@ function notifySubmitter_(tab, r, approved, reason) {
   var to = Core_str(r.submitter_email);
   if (!to || Core_isTrue(r.is_sample)) return;
   var site = Core_str(settings_().site_url);
-  var what = tab === 'events' ? 'event "' + r.title + '"' : tab === 'activities' ? 'activity "' + r.title + '"' : 'club profile update';
+  var what = tab === 'events' ? 'event "' + r.title + '"' : tab === 'activities' ? 'activity "' + r.title + '"'
+    : tab === 'public_services' ? 'public service "' + r.name + '"' : 'club profile update';
   var link = tab === 'activities' ? site + 'activities/' + Core_str(r.id).toLowerCase() + '/'
-    : tab === 'events' ? site + 'events/' + Core_str(r.id).toLowerCase() + '/' : site + 'clubs/';
+    : tab === 'events' ? site + 'events/' + Core_str(r.id).toLowerCase() + '/' : tab === 'public_services' ? site + 'services/' : site + 'clubs/';
   var body = approved
     ? 'Thank you! Your ' + what + ' has been approved by a district moderator.\n\nIt will appear on the district website at the next update (every Sunday):\n' + link +
       '\n\nPlease share it in your club\'s WhatsApp group once it is live.\n\nRotary District 3110'
@@ -2734,7 +3176,7 @@ function publicData_() {
   var ss = mainSs_();
   var tabs = {};
   ['settings', 'clubs', 'officers', 'functionaries', 'activities', 'events', 'magazines', 'messages', 'spotlights', 'members_public', 'couples_public',
-    'campaigns']
+    'campaigns', 'public_services', 'profiles', 'past_governors']
     .forEach(function (name) { tabs[name] = readTab_(ss, name); });
   var data = Core_buildPublicData(tabs, nowIso_(), { personRef: personRefFn_(), inactiveIds: inactiveMemberIds_() });
   var problems = Core_validatePublic(data);
@@ -2915,8 +3357,8 @@ function sendReminders_() {
   var main = mainSs_();
   var ps = privateSs_();
   var overdue = [];
-  ['activities', 'events', 'club_profile_requests'].forEach(function (t) {
-    Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { overdue.push(t + ': ' + r.id + ' – ' + (r.title || r.club_name || '')); });
+  ['activities', 'events', 'club_profile_requests', 'public_services'].forEach(function (t) {
+    Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { overdue.push(t + ': ' + r.id + ' – ' + (r.title || r.name || r.club_name || '')); });
   });
   ['consent_requests', 'removal_requests'].forEach(function (t) {
     Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { overdue.push(t + ': ' + r.id + ' – ' + r.name); });
@@ -2927,6 +3369,36 @@ function sendReminders_() {
     'These are waiting for a moderator:\n\n' + overdue.join('\n') +
     '\n\nOpen the Sheet and use the Rotary menu to approve or reject:\n' + main.getUrl() +
     '\n\nRemoval requests should be handled within two days.');
+}
+
+/**
+ * 1st of each month: a private email listing the active clubs with no activity dated in the month just ended,
+ * with each club's last activity, so the district team can follow up. Never shown on the website.
+ * Goes to not_posting_emails (a dummy address until the district names someone).
+ */
+function notPostingReport() {
+  var s = settings_();
+  var today = today_();
+  var y = +today.slice(0, 4);
+  var mo = +today.slice(5, 7);
+  var month = mo === 1 ? (y - 1) + '-12' : y + '-' + ('0' + (mo - 1)).slice(-2);
+  var list = Core_clubsNotPosting(clubs_(), readTab_(mainSs_(), 'activities'), month);
+  var names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var label = names[+month.slice(5) - 1] + ' ' + month.slice(0, 4);
+  var to = Core_list(s.not_posting_emails).join(',') || moderatorRecipients_(s);
+  var body = list.length
+    ? list.length + ' club(s) posted no activity dated in ' + label + ':\n\n' + list.map(function (c) {
+      return '• ' + c.club_name + (c.last_activity_date ? ' (last activity ' + Core_dateLabel(c.last_activity_date) + ')' : ' (no activity yet)');
+    }).join('\n') + '\n\nThis list is private and is not shown on the website.'
+    : 'Every active club posted at least one activity dated in ' + label + '.';
+  MailApp.sendEmail(to, 'Clubs that did not post in ' + label, body + '\n\nRotary District 3110 website');
+  return list.length;
+}
+
+function sendNotPostingNow() {
+  var n = notPostingReport();
+  var s = settings_();
+  try { SpreadsheetApp.getUi().alert('Sent to ' + (Core_list(s.not_posting_emails).join(',') || moderatorRecipients_(s)) + ': ' + n + ' club(s) listed.'); } catch (e) { /* editor */ }
 }
 
 /** Per-club activity counts for the monthly nudge and the "half of clubs posting" measure. */
@@ -3006,6 +3478,7 @@ function loadSampleData(silent) {
 var SAMPLE_ID_KEYS = {
   clubs: 'club_id', activities: 'id', events: 'id', club_profile_requests: 'id', campaigns: 'campaign_id',
   messages: 'id', members_master: 'member_id', couples: 'couple_id', consent_requests: 'id', removal_requests: 'id',
+  public_services: 'id', contact_messages: 'id',
 };
 
 function loadTabs_(ss, tabs, counts) {

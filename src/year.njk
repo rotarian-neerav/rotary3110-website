@@ -1,0 +1,73 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.years
+  size: 1
+  addAllPagesToCollections: true
+  alias: y
+permalink: "{{ y.url }}"
+eleventyComputed:
+  title: "Rotary year {{ y.year }} in review"
+  description: "{{ y.activities }} service activities from {{ y.clubsPosting }} Rotary clubs of District 3110 in {{ y.year }}{% if y.current %} so far{% endif %}, by area of focus, Avenue of Service and club."
+---
+{% from "macros.njk" import activityCard, campaignCard %}
+<div class="wrap section">
+  <p class="meta"><a href="/years/">{{ t.years.title }}</a></p>
+  <h1>Rotary year {{ y.year }}{% if y.current %} <span class="muted">{{ t.years.so_far }}</span>{% endif %}</h1>
+  <ul class="stats stats-dark">
+    <li><strong>{{ y.activities | number }}</strong> activities</li>
+    <li><strong>{{ y.clubsPosting }}</strong> clubs posting</li>
+    {%- if y.peopleHelped %}<li><strong>{{ y.peopleHelped | number }}</strong> people helped</li>{% endif %}
+    {%- if y.amountSpent %}<li><strong>₹{{ y.amountSpent | number }}</strong> spent</li>{% endif %}
+    {%- if y.events.length %}<li><strong>{{ y.events.length }}</strong> events</li>{% endif %}
+  </ul>
+  <p class="small"><a href="/activities/?year={{ y.year }}">See every activity of {{ y.year }} →</a></p>
+
+  <div class="two-col">
+    <section id="areas-of-focus">
+      <h2>By area of focus</h2>
+      <table class="campaign-table">
+        <tbody>{% for th in y.themes %}<tr><th scope="row"><a href="/activities/?year={{ y.year }}&amp;theme={{ th.slug }}">{{ th.name }}</a></th><td>{{ th.count }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </section>
+    <section id="avenues">
+      <h2>By Avenue of Service</h2>
+      {%- if y.avenues.length %}
+      <table class="campaign-table">
+        <tbody>{% for av in y.avenues %}<tr><th scope="row"><a href="/activities/?year={{ y.year }}&amp;avenue={{ av.slug }}">{{ av.name }}</a></th><td>{{ av.count }}</td></tr>{% endfor %}</tbody>
+      </table>
+      {%- endif %}
+      {%- if y.noAvenue %}<p class="small muted">{{ y.noAvenue }} {{ 'activity was' if y.noAvenue == 1 else 'activities were' }} sent before clubs were asked the avenue.</p>{% endif %}
+    </section>
+  </div>
+
+  {%- if y.campaigns.length %}
+  <section id="campaigns">
+    <h2>District campaigns</h2>
+    <div class="campaign-grid">{% for c in y.campaigns %}{{ campaignCard(c, t) }}{% endfor %}</div>
+  </section>
+  {%- endif %}
+
+  {%- if y.stories.length %}
+  <section id="stories">
+    <h2>Stories of the month</h2>
+    <div class="grid cards">{% for a in y.stories %}{{ activityCard(a, t) }}{% endfor %}</div>
+  </section>
+  {%- endif %}
+
+  {%- if y.districtEvents.length %}
+  <section id="district-events">
+    <h2>District events</h2>
+    <ul class="report-list">{% for e in y.districtEvents %}<li><a href="{{ e.url }}">{{ e.title }}</a> <span class="small muted">{{ e.dateLabel }}, {{ e.city }}</span></li>{% endfor %}</ul>
+  </section>
+  {%- endif %}
+
+  <section id="clubs">
+    <h2>Activities by club</h2>
+    <table class="campaign-table">
+      <thead><tr><th scope="col">Club</th><th scope="col">Activities</th></tr></thead>
+      <tbody>{% for x in y.clubs %}<tr><th scope="row"><a href="{{ x.club.url }}">{{ x.club.name }}</a></th><td>{{ x.count }}</td></tr>{% endfor %}</tbody>
+    </table>
+  </section>
+  {%- if y.press %}<p class="small"><a href="/news/">{{ y.press }} {{ 'activity' if y.press == 1 else 'activities' }} in the news →</a></p>{% endif %}
+</div>

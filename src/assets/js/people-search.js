@@ -1,4 +1,4 @@
-// District Leadership and Teams pages: one search over name, team, committee, role, club and zone,
+// District Leadership and Teams pages: one search over name, team, committee, role and club,
 // club office bearers included. Each person appears once, with all their roles and a link to their card.
 (function () {
   var form = document.querySelector('[data-people-search]');
@@ -14,13 +14,13 @@
 
   function haystack(p) {
     return norm([p.name, p.club].concat(p.roles.map(function (r) {
-      return [r.role, r.section, r.committee, r.zone ? r.zone + ' zone' : '', r.term].join(' ');
+      return [r.role, r.section, r.committee, r.term].join(' ');
     })).join(' '));
   }
 
   function roleText(r) {
     var where = r.committee || r.section;
-    var role = r.role + (r.zone ? ' – ' + r.zone + ' Zone' : '') + (r.term ? ' (' + r.term + ')' : '');
+    var role = r.role + (r.term ? ' (' + r.term + ')' : '');
     // "Assistant Governor · Assistant Governors" says the same thing twice
     var repeat = !where || where.toLowerCase().indexOf(r.role.toLowerCase()) === 0;
     return escapeHtml(role) + (repeat ? '' : ' · <span class="muted">' + escapeHtml(where) + '</span>');

@@ -30,7 +30,7 @@ The rules for what may become public live in one file, [apps-script/Core.js](app
 | `apps-script/` | The Google Sheet script (setup, forms, moderation, members, data link). `npm run bundle-script` joins it into `dist/apps-script/Code.gs` to paste into the Sheet. |
 | `src/` | Website pages (Nunjucks templates), styles, small scripts, and `_data/t.json` with all page wording (a Hindi file can be added later). |
 | `lib/` | Shapes the data for pages; recognition maths. |
-| `scripts/` | Build steps: fetch data, privacy check, photos. |
+| `scripts/` | Build steps: fetch data, privacy check, photos, emptying `_site/` before each build. |
 | `sample/` | Sample (dummy) data and placeholder images. Every row is marked `is_sample`. |
 | `tools/` | One-off tools: Excel conversion, sample generator, brand assets, script bundler. |
 | `tests/` | Unit tests (rules, recognition, Sheet script in a simulated Google environment) and checks on the built site. |
@@ -42,7 +42,7 @@ The rules for what may become public live in one file, [apps-script/Core.js](app
 ```bash
 npm install            # once
 npm test               # unit tests (privacy rules, recognition, Sheet script)
-npm run build          # fetch → privacy check → photos → site in _site/
+npm run build          # fetch → privacy check → photos → site in _site/ → search index (Pagefind)
 npm run test:site      # checks on the built site
 npm run serve          # local preview at http://localhost:8080
 npm run bundle-script  # make dist/apps-script/Code.gs for the Sheet

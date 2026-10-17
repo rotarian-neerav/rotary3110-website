@@ -31,7 +31,7 @@
     var found = members.filter(function (m) {
       if (prof && m.profession !== prof) return false;
       if (area && m.area !== area) return false;
-      var h = m._h || (m._h = norm([m.name, m.profession, m.area, m.zone, m.club, m.text].join(' ')));
+      var h = m._h || (m._h = norm([m.name, m.profession, m.area, m.club, m.text].join(' ')));
       return words.every(function (w) { return h.indexOf(w) >= 0; });
     });
     countEl.textContent = found.length ? found.length + (found.length === 1 ? ' member found' : ' members found') : 'No members match. Try a wider search.';

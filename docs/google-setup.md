@@ -19,7 +19,7 @@ You will need two files from this project: `dist/apps-script/Code.gs` and `dist/
 3. You will see **"Google hasn't verified this app"**. That is normal for a script you wrote yourself. Click **Advanced → Go to (project name) (unsafe)** → **Allow**.
    The script asks to manage your spreadsheets, forms and Drive files, send email as you (for moderator reminders and replies to clubs), and connect to an external service (to download the sample data from GitHub).
 4. Wait about a minute. The log at the bottom says **Setup finished** and lists what it did:
-   tabs in both Sheets, sample data loaded, four forms created, sharing checked, daily reminders scheduled.
+   tabs in both Sheets, sample data loaded, six forms created (activity, club profile, public service, consent, removal and the website's contact form), sharing checked, daily reminders scheduled.
 5. Go back to the Sheet and reload the page. A **Rotary** menu appears.
 
 ## 3. Add the four photo questions by hand (5 minutes)
@@ -67,3 +67,11 @@ The October 2026 upgrade adds:
 - settings `campaign_check_above`, `bulletin_start_date` and `bulletin_emails`;
 - questions *Permanent projects*, *Regular services* (club profile form), *District campaign*, *Campaign count*, *Registration closes on* and *Fee* (activity and event form);
 - the bulletin emails on Saturday 6 pm and Sunday 8 am.
+
+The **Release A** upgrade (17 October 2026) adds:
+- two new forms: **Public service run by a club** (answers in the main Sheet's `public_services` tab) and **Contact Rotary District 3110** (shown inside the website's Contact page; answers in the private Sheet's `contact_messages` tab). Neither needs a photo question. The contact form asks for no Google sign-in, so anyone can write;
+- the tabs **public_services**, **profiles** and **past_governors** (main Sheet) and **contact_messages** (private Sheet); new columns at the end of **clubs** (`meeting_day`, `activity_form_link`), **functionaries** (`ag_clubs`), **activities** (`avenue`, `video_link`, `press_paper`, `press_date`, `press_link`), **events** (`open_to_all`) and **club_profile_requests** (`meeting_day`);
+- settings `form_public_service_url`, `form_contact_url`, `contact_email` (where contact messages are emailed; blank = the moderators), `contact_daily_limit` (20) and `not_posting_emails` (a dummy address until the district names someone);
+- questions *Avenue of Service* (required), *Video link*, three *Covered in the press* questions and *Open to everyone?* (activity and event form), and *Meeting day* (club profile form). The activity form's description now links to the posting guide;
+- each club's own activity-form link with the club already chosen, in the clubs tab's `activity_form_link` column (refreshed with the form lists; never published);
+- the monthly clubs-not-posting email on the 1st at 9 am.

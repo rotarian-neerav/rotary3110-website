@@ -1,0 +1,21 @@
+---
+layout: layouts/base.njk
+title: Contact the district
+description: Write to Rotary District 3110 for help from a Rotary club, to volunteer, or to partner on a service project.
+permalink: /contact/
+---
+{%- set url = site.forms.contact %}
+<div class="wrap section narrow">
+  <h1>{{ t.contact.title }}</h1>
+  <p class="lead">{{ t.contact.intro }}</p>
+  <p class="small">{{ t.contact.privacy }} <a href="/privacy/">Privacy notice</a></p>
+  {%- if url %}
+  <div class="form-embed">
+    <iframe src="{{ url }}{{ '&' if '?' in url else '?' }}embedded=true" title="{{ t.contact.title }}" width="100%" height="1150" loading="lazy">{{ t.contact.title }}</iframe>
+  </div>
+  <p class="small"><a href="{{ url }}" target="_blank" rel="noopener">{{ t.contact.open }} ↗</a></p>
+  {%- else %}
+  <p class="callout">{{ t.contact.soon }}</p>
+  {%- endif %}
+  <p class="small">Looking for a club? <a href="/clubs/">Find one by city or meeting day</a>. Need a blood bank, eye care or dialysis? See <a href="/services/">services you can use</a>.</p>
+</div>

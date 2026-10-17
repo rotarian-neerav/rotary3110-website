@@ -17,8 +17,8 @@ Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (
 | 4 | §2 | Events calendar with date, place, organiser; past events link to reports; add to phone calendar | `events.njk`, `event.njk`, `.ics` files, Google Calendar link | S: valid calendar files in India time; browser | ✅ |
 | 5 | §2 | Monthly magazine: newest on home with cover, archive by year/month, PDF | `magazine.njk`; Sheet script scans the 3110Magazines folder | S: links; U(sim): data link | ✅ / 🟡 folder scan |
 | 6 | §2 | Messages page, DG featured on top | `messages.njk` | browser | ✅ (sample messages, no real names) |
-| 7 | §2 | District Leadership page (Governor line, office team, AGs by zone, Counsellors, College of Governors) | `leadership.njk` | S: every Excel person listed | ✅ |
-| 8 | §2 | Teams & Committees page: team leader, committees with chairmen and co-chairmen by zone; "Past years" | `teams.njk`, year switch | S: every Excel person listed; browser | ✅ |
+| 7 | §2 | District Leadership page (Governor line, office team, AGs with the clubs they look after (by zone until Release A), Counsellors, College of Governors) | `leadership.njk` | S: every Excel person listed | ✅ |
+| 8 | §2 | Teams & Committees page: team leader, committees with chairmen and co-chairmen; "Past years" | `teams.njk`, year switch | S: every Excel person listed; browser | ✅ |
 | 9 | §2 | One search over name, team, committee, role, club; a person appears once with all roles | `people-search.js` | browser: PDG Sharat Chandra → 1 person, 4 roles | ✅ |
 | 10 | §2 | Professional directory: profession + place search, ~20-word line, optional website, contact only if agreed | `directory.njk`, `directory.js` | S: WhatsApp links only where agreed; browser | ✅ |
 | 11 | §2 | Directory listing follows a member who moves club | Listings keyed by member, club looked up at build | U: public members | ✅ |
@@ -86,7 +86,7 @@ M = `tests/unit/modifications1.test.mjs`. Ten deliberate mistakes (ignoring `bul
 | M2.2 | Filing notes: count without campaign, date outside the campaign, large count, another club the same date | `campaignNotes_` | U(sim): each note | 🟡 live after the upgrade |
 | M2.3 | Running totals: approved reports only; work dated inside the campaign only (agreed correction); joint activities count for the submitting club only; a report without a count adds 0 | `Core_campaignTotals` | M: 204 + 22 + 65 = 291, partners no credit, pending/rejected/out-of-period excluded | ✅ |
 | M2.4 | Campaign pages by Rotary year; home band while running; tag on activities; line on club pages; chair links to their card; nothing when there are no campaigns | `campaigns.njk`, `campaign.njk`, `index.njk` | M: no campaigns → nothing; S: totals, home band, tags | ✅ |
-| M3.1 | Weekly bulletin assembled from approved data by fixed rules, shared by the website and the Sheet | `Core_bulletin` | M: approval window (Sat 11 pm in, Sun 9 am next week), one per club, zone rotation, story first, excluded rows, coming-up window, closing soon, campaign totals, quiet week | ✅ |
+| M3.1 | Weekly bulletin assembled from approved data by fixed rules, shared by the website and the Sheet | `Core_bulletin` | M: approval window (Sat 11 pm in, Sun 9 am next week), one per club, rotation by city (by zone until Release A), story first, excluded rows, coming-up window, closing soon, campaign totals, quiet week | ✅ |
 | M3.2 | `/bulletin/`, a dated page per Sunday from `bulletin_start_date`, archive; dated pages in the sitemap; past bulletins keep their registration lines (agreed correction) | `bulletin*.njk` | M: archive, unchanged past bulletin; S: pages, canonical, sitemap | ✅ |
 | M3.3 | WhatsApp message of at most 1,000 characters, Copy and Share buttons | `Core_bulletinMessage`, `bulletin.js` | M: lines and length; S: message on the page | ✅ |
 | M3.4 | Event registration: closing date and fee on the form; status set by moderators; line worked out, never typed; cancelled events stay listed (and calendar files say cancelled) | `Core_registrationLine` | M: every case; S: cancelled, postponed, fee | ✅ / 🟡 form after the upgrade |
@@ -95,3 +95,30 @@ M = `tests/unit/modifications1.test.mjs`. Ten deliberate mistakes (ignoring `bul
 | M3.7 | `bulletin_exclude` is a TRUE/FALSE dropdown, not a tick box (agreed correction: tick boxes push new rows far down the tab) | `addValidation_` | Code review; U(sim): no empty rows above new entries | ✅ |
 | M3.8 | No menu entries for the bulletin or campaigns; footer links instead | `base.njk` | S: menu and footer | ✅ |
 | M4 | One upgrade step for the live Sheet, safe to run twice | Administrator → Upgrade Sheet | U(sim): run twice, everything once | 🟡 to run |
+
+### Release A (17 October 2026)
+
+A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim) = the Sheet script in the simulated Google environment.
+
+| # | Requirement | Feature | Proof | Status |
+|---|---|---|---|---|
+| A1 | Clubs page by city, with search and a meeting-day filter; meeting day asked on the club profile form, else read from the meeting text | `clubs.njk`, `clubs.js`, `Core_meetingDay` | A: day rules; SA: every club once, its day; U(sim): weekday applied on approval; browser | ✅ / 🟡 form after the upgrade |
+| A2 | Rotary-year and Avenue of Service filters on Activities; avenue asked on the activity form (required) | `activities.njk`, `filters.js`, `CORE_AVENUES` | SA: filters match cards; U(sim): question in place, required; browser | ✅ / 🟡 form after the upgrade |
+| A3 | About page: RI President and DG profiles, every Past District Governor, glossary | `about.njk`, `profiles` and `past_governors` tabs | A: latest profile, PDGs newest first, cards only with an ID, fallback to the College of Governors; SA: page | ✅ (sample rows) |
+| A4 | Rotary abbreviations explained where first used on each page | `lib/gloss.mjs`, `site.js` | A: first use, longest match, never in tags/scripts/glossary; SA: once per page; browser: tap shows meaning | ✅ |
+| A5 | Year summary page for each Rotary year | `years.njk`, `year.njk` | A: totals add up; SA: matches data | ✅ |
+| A6 | "More like this" on activity and event pages | `derive.mjs`, `activity.njk`, `event.njk` | A, SA: never the page itself; browser | ✅ |
+| A7 | City pages for every city, one-club towns included | `cities.njk`, `city.njk` | A, SA: every active club in one city | ✅ |
+| A8 | Services the public can use, with the facility's own phone, address and map; the privacy check allows only these numbers | Public service form, `public_services` tab, `services.njk`, `Core_servicePhone`, `Core_validatePublic` | A: phone rules, bad numbers and emails left out, check refuses a number elsewhere; U(sim): notes, refused approval, public; SA: tap-to-call; browser | ✅ / 🟡 form after the upgrade |
+| A9 | "Open to everyone" on events, with a filter | `open_to_all`, `events.js` | A, U(sim), SA, browser | ✅ |
+| A10 | Contact form inside the Contact page; messages to the district email, kept privately; spam and a daily limit | Contact form, `contact_messages` (private), `fileContact_` | U(sim): emailed, spam held, limit, never public; SA: no email address on the site | 🟡 live after the upgrade; `contact_email` to set |
+| A11 | One calendar subscription for all events | `/events/calendar.ics`, webcal and Google links | SA: valid calendar, cancellations | ✅ |
+| A12 | In the news: paper, date and link on the activity, and a news page | `press_*` columns, `news.njk` | A, U(sim), SA | ✅ / 🟡 form after the upgrade |
+| A13 | Rotary month banner, picked by the visitor's own date | `rotaryMonths.js`, `index.njk`, `site.js` | SA: 12 months, one showing; browser | ✅ |
+| A14 | Video links: YouTube plays on tap (no-cookie player); others are links | `Core_videoLink`, `videoBlock` | A: link kinds; SA: nothing loads until tapped; browser | ✅ |
+| A15 | Add to home screen, larger text, recent pages offline | `manifest.webmanifest`, icons, `sw.js`, text-size button | SA: manifest and icons, offline page; browser: installed, pages kept, text size remembered | ✅ |
+| A16 | Posting guide; each club's own form link with the club chosen (private) | `how-to-post.njk`, `makeClubFormLinks_` | U(sim): every active club, never published; SA: page | ✅ |
+| A17 | Activity pages marked as news articles for Google | NewsArticle JSON-LD | SA: every activity page | ✅ |
+| A18 | Monthly private email of clubs not posting (dummy receiver for now) | `notPostingReport`, `Core_clubsNotPosting` | A: rules; U(sim): email | 🟡 live after the upgrade |
+| A19 | Site search | Pagefind, `search.njk` | SA: only listable pages indexed; browser: results | ✅ |
+| A20 | Zones off the website; Assistant Governors with their clubs; bulletin rotates by city | `Core_buildPublicData`, `Core_validatePublic`, `leadership.njk` | A: no zone in the data, check refuses one; SA: no zone on any page; M: city rotation | ✅ (`ag_clubs` to fill) |

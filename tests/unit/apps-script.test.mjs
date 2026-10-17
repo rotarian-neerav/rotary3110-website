@@ -28,17 +28,17 @@ const data = () => {
   return r.data;
 };
 
-test('setup creates every tab, loads the sample, makes four forms and fills their links', () => {
+test('setup creates every tab, loads the sample, makes six forms and fills their links', () => {
   for (const t of ['settings', 'clubs', 'activities', 'events', 'functionaries', 'members_public', 'couples_public', 'dashboard', 'role_checks']) assert.ok(env.main.getSheetByName(t), t);
   for (const t of ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests']) assert.ok(env.priv.getSheetByName(t), t);
   assert.equal(env.main.getSheetByName('Sheet1'), null, 'empty default tab removed');
   assert.equal(env.main.rows('clubs').length, 70);
   assert.equal(env.main.rows('functionaries').length, 181, '176 from the Excel plus 5 sample roles from last year');
   const s = Object.fromEntries(env.main.rows('settings').map((r) => [r.key, r.value]));
-  for (const k of ['form_activity_url', 'form_club_profile_url', 'form_consent_url', 'form_removal_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
+  for (const k of ['form_activity_url', 'form_club_profile_url', 'form_consent_url', 'form_removal_url', 'form_public_service_url', 'form_contact_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
   assert.ok(env.main.getSheetByName('raw_activity_form'), 'raw answers tab for the activity form');
   assert.ok(env.priv.getSheetByName('raw_consent_form'), 'consent answers go to the private Sheet');
-  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 4);
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 6);
   assert.ok(env.triggers.some((t) => t.getHandlerFunction() === 'dailyJobs'));
   assert.ok(token && token.length >= 32);
   assert.equal(env.main.rows('dashboard').length, 69, 'one dashboard row per active club');
@@ -47,7 +47,7 @@ test('setup creates every tab, loads the sample, makes four forms and fills thei
 test('running setup again does not duplicate forms, tabs or sample rows', () => {
   env.run('setup');
   assert.equal(env.main.rows('clubs').length, 70);
-  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 4);
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 6);
 });
 
 test('data link: refuses without the token; same result as the website build on the sample', () => {
@@ -401,11 +401,198 @@ test('Sunday message: waits for this week\'s bulletin page and asks for a rebuil
   assert.equal(env.run('bulletinMessage'), 'already sent');
 });
 
+/* ---------- Release A (17 October 2026) ---------- */
+
+test('Upgrade Sheet on a Sheet set up before Release A: new questions in place, once; the public service and contact forms; the monthly email; club form links', () => {
+  const ids = JSON.parse(env.props.get('FORM_IDS'));
+  const later = [Q.aAvenue, Q.aVideo, Q.aPressPaper, Q.aPressDate, Q.aPressLink, Q.eOpen, Q.pMeetingDay];
+  for (const id of [ids.activity, ids.club_profile]) env.forms[id].items = env.forms[id].items.filter((i) => !later.includes(i.title));
+  // the two new forms, their settings and the monthly job did not exist yet
+  const gone = [ids.public_service, ids.contact];
+  delete ids.public_service;
+  delete ids.contact;
+  env.props.set('FORM_IDS', JSON.stringify(ids));
+  for (let i = env.triggers.length - 1; i >= 0; i--) {
+    const t = env.triggers[i];
+    if (t.getHandlerFunction() === 'notPostingReport' || gone.includes(t.getTriggerSourceId())) env.triggers.splice(i, 1);
+  }
+  env.run('upgradeSheet');
+  env.run('upgradeSheet');
+  const after = JSON.parse(env.props.get('FORM_IDS'));
+  assert.ok(after.public_service && after.contact, 'the two new forms were made');
+  const act = env.forms[after.activity].titles();
+  const prof = env.forms[after.club_profile].titles();
+  for (const t of later) assert.equal(act.concat(prof).filter((x) => x === t).length, 1, `${t} added once`);
+  assert.equal(act[act.indexOf(Q.aTheme) + 1], Q.aAvenue);
+  assert.equal(act[act.indexOf(Q.aLink) + 1], Q.aVideo);
+  assert.deepEqual(act.slice(act.indexOf(Q.aVideo), act.indexOf(Q.aVideo) + 4), [Q.aVideo, Q.aPressPaper, Q.aPressDate, Q.aPressLink]);
+  assert.equal(act[act.indexOf(Q.eType) + 1], Q.eOpen);
+  assert.equal(prof[prof.indexOf(Q.pMeeting + ' (optional)') + 1], Q.pMeetingDay);
+  const avenue = env.forms[after.activity].items.find((i) => i.title === Q.aAvenue);
+  assert.equal(avenue.required, true, 'the avenue is asked of every activity');
+  assert.deepEqual([...avenue.choices], ['Club Service', 'Vocational Service', 'Community Service', 'International Service', 'Youth Service']);
+  assert.match(env.forms[after.activity].description, /how-to-post\//, 'the form links to the posting guide');
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 6);
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'notPostingReport').length, 1);
+  const s = settingsMap();
+  for (const k of ['form_public_service_url', 'form_contact_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
+  assert.equal(s.not_posting_emails, 'not-posting@example.com', 'a dummy receiver until the district names one');
+  assert.equal(String(s.contact_daily_limit), '20');
+  assert.ok('contact_email' in s);
+  assert.ok(env.main.getSheetByName('raw_public_service_form'), 'service answers go to the main Sheet');
+  assert.ok(env.priv.getSheetByName('raw_contact_form'), "visitors' reply details go to the private Sheet");
+  const contact = env.forms[after.contact];
+  assert.deepEqual(contact.titles(), [Q.kName, Q.kReply, Q.kTopic, Q.kCity, Q.kMessage]);
+  const links = env.main.rows('clubs').filter((c) => c.status === 'active').map((c) => c.activity_form_link);
+  assert.ok(links.length > 60 && links.every((l) => /^https:\/\/docs\.google\.com\/forms\/d\/e\/.+entry\.\d+=/.test(l)), 'every active club has its own form link');
+  const agra = env.main.rows('clubs').find((c) => c.club_name === 'RC Agra');
+  assert.ok(agra.activity_form_link.endsWith('=' + encodeURIComponent('RC Agra')), 'with the club already chosen');
+  assert.ok(!JSON.stringify(data()).includes('activity_form_link') && !JSON.stringify(data()).includes('entry.'), 'the links are never published');
+});
+
+test('an activity with its avenue, a video and press coverage; notes when the press link has no paper', () => {
+  const base = { [Q.club]: 'RC Mathura', [Q.name]: 'Rtn V', [Q.role]: 'Secretary', [Q.mobile]: '9844444444', [Q.kind]: Q.kindActivity,
+    [Q.aDate]: '2026-10-08', [Q.aTheme]: 'Supporting education', [Q.aDesc]: 'Members gave library books and shelves to a government school and trained two teachers to run it.',
+    [Q.aLink]: 'https://example.com/library', [Q.aConsent]: ['yes'] };
+  env.submit('activity', { ...base, [Q.aTitle]: 'Library for a village school', [Q.aAvenue]: 'Youth Service', [Q.aVideo]: 'youtu.be/dQw4w9WgXcQ',
+    [Q.aPressPaper]: 'Amar Ujala, Mathura', [Q.aPressDate]: '2026-10-09', [Q.aPressLink]: 'https://example.com/news/1' });
+  let rows = env.main.rows('activities');
+  const row = rows.at(-1);
+  assert.deepEqual([row.avenue, row.video_link, row.press_paper, row.press_date, row.press_link],
+    ['Youth Service', 'https://youtu.be/dQw4w9WgXcQ', 'Amar Ujala, Mathura', '2026-10-09', 'https://example.com/news/1']);
+  env.setActive('activities', rows.length + 1);
+  env.run('approveSelected');
+  const pub = data().activities.find((a) => a.id === row.id);
+  assert.equal(pub.avenue, 'Youth Service');
+  assert.deepEqual(pub.video, { kind: 'youtube', id: 'dQw4w9WgXcQ', url: 'https://youtu.be/dQw4w9WgXcQ' });
+  assert.deepEqual(pub.press, { paper: 'Amar Ujala, Mathura', date: '2026-10-09', link: 'https://example.com/news/1' });
+  env.submit('activity', { ...base, [Q.aTitle]: 'Second library', [Q.aDate]: '2026-10-10', [Q.aAvenue]: 'Youth Service', [Q.aPressLink]: 'https://example.com/news/2' });
+  assert.match(env.main.rows('activities').at(-1).moderator_note, /Press link without the newspaper's name/);
+});
+
+test('events: "Open to everyone?" is filed and reaches the website', () => {
+  const ev = { [Q.club]: 'RC Jhansi', [Q.name]: 'Rtn E', [Q.role]: 'President', [Q.mobile]: '9877777777', [Q.kind]: Q.kindEvent,
+    [Q.eType]: 'District event', [Q.eStart]: '2026-12-01', [Q.eVenue]: 'Town Hall', [Q.eCity]: 'Jhansi', [Q.eOrganiser]: 'RC Jhansi' };
+  env.submit('activity', { ...ev, [Q.eTitle]: 'Health walk for all', [Q.eOpen]: 'Yes' });
+  env.submit('activity', { ...ev, [Q.eTitle]: 'Officers meeting', [Q.eOpen]: 'No' });
+  const rows = env.main.rows('events');
+  assert.equal(rows.at(-2).open_to_all, true);
+  assert.equal(rows.at(-1).open_to_all, false);
+  env.setActive('events', rows.length, 2);
+  env.run('approveSelected');
+  const d = data();
+  assert.equal(d.events.find((e) => e.title === 'Health walk for all').open_to_all, true);
+  assert.equal(d.events.find((e) => e.title === 'Officers meeting').open_to_all, false);
+});
+
+test('club profile: the meeting weekday applies to the club when approved, and the clubs page can filter by it', () => {
+  env.submit('club_profile', { [Q.club]: 'RC Agra Greater', [Q.name]: 'Rtn P', [Q.role]: 'President', [Q.mobile]: '9866666666', [Q.pMeetingDay]: 'Friday' });
+  const rows = env.main.rows('club_profile_requests');
+  assert.equal(rows.at(-1).meeting_day, 'Friday');
+  env.setActive('club_profile_requests', rows.length + 1);
+  env.run('approveSelected');
+  assert.equal(env.main.rows('clubs').find((c) => c.club_name === 'RC Agra Greater').meeting_day, 'Friday');
+  assert.equal(data().clubs.find((c) => c.name === 'RC Agra Greater').meeting_day, 'Friday');
+});
+
+test("public services: filed as pending with notes; a mobile number is flagged; a bad number cannot be approved; approved ones are public with a tap-to-call number", () => {
+  const svc = (answers) => {
+    env.submit('public_service', { [Q.club]: 'RC Aligarh', [Q.name]: 'Rtn S', [Q.role]: 'Secretary', [Q.mobile]: '9833333333', [Q.sType]: 'Eye care',
+      [Q.sTimings]: 'Every day, 9 am–5 pm', [Q.sAddress]: 'Marris Road', [Q.sCity]: 'Aligarh', [Q.sMap]: 'maps.google.com/?q=Aligarh', [Q.sConfirm]: ['yes'], ...answers });
+    return env.main.rows('public_services').at(-1);
+  };
+  const good = svc({ [Q.sName]: 'Rotary Eye Centre', [Q.sPhone]: '0571 270 0000' });
+  assert.match(good.id, /^SRV-\d{4}$/);
+  assert.deepEqual([good.status, good.club_id, good.city, good.map_link, good.moderator_note], ['pending', 'S-006', 'Aligarh', 'https://maps.google.com/?q=Aligarh', '']);
+  assert.ok(!data().public_services.some((x) => x.id === good.id), 'not public while pending');
+  const mobile = svc({ [Q.sName]: 'Rotary Night Clinic', [Q.sPhone]: '98765 43210' });
+  assert.match(mobile.moderator_note, /is a mobile: check it is the facility's own number/);
+  const bad = svc({ [Q.sName]: 'Rotary Library', [Q.sPhone]: 'call the club' });
+  assert.match(bad.moderator_note, /not a plain number/);
+  const rows = env.main.rows('public_services');
+  env.setActive('public_services', rows.length - 1, 3);
+  env.run('approveSelected');
+  assert.match(env.alerts.at(-1), /Not approved: SRV-\d{4} \(the phone number is not a plain number/);
+  const after = env.main.rows('public_services');
+  assert.equal(after.find((x) => x.id === bad.id).status, 'pending');
+  assert.ok(env.mails.some((m) => /^Approved: public service "Rotary Eye Centre"/.test(m.subject) && /\/services\//.test(m.body)));
+  const pub = data().public_services.find((x) => x.id === good.id);
+  assert.deepEqual([pub.phone, pub.tel, pub.type], ['0571 270 0000', '+915712700000', 'Eye care']);
+  assert.ok(!JSON.stringify(data()).includes('9833333333'), "the sender's mobile is never public");
+});
+
+test('48-hour reminders include public services waiting for a moderator', () => {
+  const sh = env.main.getSheetByName('public_services');
+  const headers = sh.data[0];
+  const row = env.main.rows('public_services').findIndex((x) => x.status === 'pending' && /Library/.test(x.name)) + 2;
+  sh.getRange(row, headers.indexOf('submitted_at') + 1).setValue('2026-01-01T00:00:00Z');
+  const before = env.mails.length;
+  env.run('sendReminders_');
+  const mail = env.mails.slice(before).find((m) => /waiting more than 48 hours/.test(m.subject));
+  assert.match(mail.body, /public_services: SRV-\d{4} – Rotary Library/);
+});
+
+test('contact form: kept in the private Sheet and emailed on; spam and messages beyond the daily limit are kept but not emailed; never public', () => {
+  const send = (message, name = 'Asha Verma') => {
+    env.submit('contact', { [Q.kName]: name, [Q.kReply]: 'asha.v@example.com', [Q.kTopic]: 'I want to volunteer', [Q.kCity]: 'Agra', [Q.kMessage]: message });
+    return env.priv.rows('contact_messages').at(-1);
+  };
+  const before = env.mails.length;
+  const first = send('I would like to help at the next blood donation camp in Agra. How can I join?');
+  const moderators = String(settingsMap().moderator_emails || '').split(/\s*,\s*/).filter(Boolean).join(',') || 'rotarian.neerav@gmail.com';
+  assert.deepEqual([first.status, first.forwarded_to, first.reply_to, first.topic], ['new', moderators, 'asha.v@example.com', 'I want to volunteer'], 'contact_email blank: the moderators');
+  const mail = env.mails.at(-1);
+  assert.equal(env.mails.length, before + 1);
+  assert.match(mail.subject, /^Website message: I want to volunteer – from Asha Verma/);
+  assert.match(mail.body, /Reply to: asha\.v@example\.com/);
+  const spam = send('cheap http://a.example http://b.example http://c.example deals', 'Bot');
+  assert.equal(spam.status, 'spam');
+  assert.equal(spam.forwarded_to, '');
+  assert.equal(env.mails.length, before + 1, 'spam is not emailed');
+  // today's forwarded messages count towards the limit
+  env.context.setSetting_('contact_daily_limit', '1');
+  const sh = env.priv.getSheetByName('contact_messages');
+  const col = sh.data[0].indexOf('submitted_at') + 1;
+  for (let r = 2; r <= sh.getLastRow(); r++) sh.getRange(r, col).setValue(new Date().toISOString());
+  const third = send('Our company would like to support a school project in Kanpur next month.');
+  assert.match(third.note, /Not emailed: more than 1 messages today/);
+  assert.equal(env.mails.length, before + 1);
+  env.context.setSetting_('contact_daily_limit', '20');
+  const d = JSON.stringify(data());
+  assert.ok(!d.includes('asha.v@example.com') && !d.includes('Asha Verma'), 'contact messages never reach the website');
+});
+
+test('monthly email: the clubs with no activity dated last month, to the dummy receiver; private', () => {
+  const before = env.mails.length;
+  const n = env.run('notPostingReport');
+  const mail = env.mails.at(-1);
+  assert.equal(env.mails.length, before + 1);
+  assert.equal(mail.to, 'not-posting@example.com');
+  assert.match(mail.subject, /^Clubs that did not post in [A-Z][a-z]+ \d{4}$/);
+  assert.ok(n > 10);
+  assert.equal((mail.body.match(/^• /gm) || []).length, n);
+  assert.match(mail.body, /not shown on the website/);
+});
+
+test('data link: public services, profiles and Past District Governors reach the website; zones and member IDs do not', () => {
+  const d = data();
+  assert.ok(d.public_services.length >= 7);
+  assert.deepEqual(d.profiles.map((p) => p.role), ['President of Rotary International', 'District Governor']);
+  assert.equal(d.past_governors.length, 28);
+  const text = JSON.stringify(d);
+  assert.ok(!/"zones?"/.test(text), 'no zones');
+  assert.ok(!/T-00\d\d/.test(text), 'no member IDs of past governors');
+  assert.deepEqual(plain(core.Core_validatePublic(d)), []);
+});
+
 test('"Clear all sample data" leaves only real rows, and the site data is still valid', () => {
   env.run('clearSampleData');
   assert.equal(env.main.rows('clubs').length, 0, 'sample clubs removed');
   assert.equal(env.main.rows('functionaries').length, 0, 'Excel rows were marked sample, as agreed');
   assert.equal(env.main.rows('campaigns').length, 0, 'sample campaigns removed too');
+  assert.ok(!env.main.rows('public_services').some((x) => x.is_sample === true), 'sample services removed; real ones kept');
+  assert.ok(env.main.rows('public_services').some((x) => x.name === 'Rotary Eye Centre'));
+  assert.equal(env.main.rows('past_governors').length, 0);
   assert.ok(env.main.rows('activities').some((a) => a.id === newActivityId), 'real (form) rows kept');
   assert.ok(env.priv.rows('members_master').some((m) => m.member_id === '7654321'), 'real member records kept');
   assert.ok(!env.priv.rows('members_master').some((m) => m.is_sample === true));

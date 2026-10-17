@@ -1,0 +1,32 @@
+---
+layout: layouts/base.njk
+title: Services you can use
+description: Blood banks, eye care, dialysis units, clinics, libraries, skill centres and ambulances run or supported by the Rotary clubs of District 3110, with timings, phone numbers and maps.
+permalink: /services/
+scripts: ["services.js"]
+---
+{% from "macros.njk" import serviceCard %}
+<div class="wrap section">
+  <h1>{{ t.services.title }}</h1>
+  <p class="lead">{{ t.services.intro }}</p>
+  {%- if site.publicServices.length %}
+  <form class="filters" onsubmit="return false" data-service-filter hidden>
+    <label>{{ t.services.city }}
+      <select name="city">
+        <option value="">{{ t.services.all_cities }}</option>
+        {%- for c in site.cities %}{% if c.services.length %}<option value="{{ c.name }}">{{ c.name }}</option>{% endif %}{% endfor %}
+      </select>
+    </label>
+  </form>
+  <nav class="jump" aria-label="Types">{% for g in site.servicesByType %}<a href="#{{ g.slug }}">{{ g.type }}</a>{% endfor %}</nav>
+  {%- for g in site.servicesByType %}
+  <section id="{{ g.slug }}" data-service-group>
+    <h2>{{ g.type }}</h2>
+    <div class="service-grid">{% for x in g.services %}{{ serviceCard(x, t) }}{% endfor %}</div>
+  </section>
+  {%- endfor %}
+  {%- else %}
+  <p>{{ t.services.empty }}</p>
+  {%- endif %}
+  <p class="small"><a href="/public-service/">{{ t.services.add }}</a></p>
+</div>

@@ -21,7 +21,7 @@ eleventyComputed:
   <section class="role-section" id="{{ s.id }}">
     <h2>{{ s.section }}</h2>
     {%- for g in s.groups %}
-    {%- if g.label %}<h3>{{ g.label }}{% if s.section == 'Assistant Governors' %} Zone{% endif %}</h3>{% endif %}
+    {%- if g.label %}<h3>{{ g.label }}</h3>{% endif %}
     <ul class="people-grid">{% for r in g.people %}{{ personCard(r) }}{% endfor %}</ul>
     {%- endfor %}
   </section>

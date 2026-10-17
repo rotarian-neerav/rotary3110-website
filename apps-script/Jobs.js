@@ -96,8 +96,8 @@ function sendReminders_() {
   var main = mainSs_();
   var ps = privateSs_();
   var overdue = [];
-  ['activities', 'events', 'club_profile_requests'].forEach(function (t) {
-    Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { overdue.push(t + ': ' + r.id + ' – ' + (r.title || r.club_name || '')); });
+  ['activities', 'events', 'club_profile_requests', 'public_services'].forEach(function (t) {
+    Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { overdue.push(t + ': ' + r.id + ' – ' + (r.title || r.name || r.club_name || '')); });
   });
   ['consent_requests', 'removal_requests'].forEach(function (t) {
     Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { overdue.push(t + ': ' + r.id + ' – ' + r.name); });
@@ -108,6 +108,36 @@ function sendReminders_() {
     'These are waiting for a moderator:\n\n' + overdue.join('\n') +
     '\n\nOpen the Sheet and use the Rotary menu to approve or reject:\n' + main.getUrl() +
     '\n\nRemoval requests should be handled within two days.');
+}
+
+/**
+ * 1st of each month: a private email listing the active clubs with no activity dated in the month just ended,
+ * with each club's last activity, so the district team can follow up. Never shown on the website.
+ * Goes to not_posting_emails (a dummy address until the district names someone).
+ */
+function notPostingReport() {
+  var s = settings_();
+  var today = today_();
+  var y = +today.slice(0, 4);
+  var mo = +today.slice(5, 7);
+  var month = mo === 1 ? (y - 1) + '-12' : y + '-' + ('0' + (mo - 1)).slice(-2);
+  var list = Core_clubsNotPosting(clubs_(), readTab_(mainSs_(), 'activities'), month);
+  var names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var label = names[+month.slice(5) - 1] + ' ' + month.slice(0, 4);
+  var to = Core_list(s.not_posting_emails).join(',') || moderatorRecipients_(s);
+  var body = list.length
+    ? list.length + ' club(s) posted no activity dated in ' + label + ':\n\n' + list.map(function (c) {
+      return '• ' + c.club_name + (c.last_activity_date ? ' (last activity ' + Core_dateLabel(c.last_activity_date) + ')' : ' (no activity yet)');
+    }).join('\n') + '\n\nThis list is private and is not shown on the website.'
+    : 'Every active club posted at least one activity dated in ' + label + '.';
+  MailApp.sendEmail(to, 'Clubs that did not post in ' + label, body + '\n\nRotary District 3110 website');
+  return list.length;
+}
+
+function sendNotPostingNow() {
+  var n = notPostingReport();
+  var s = settings_();
+  try { SpreadsheetApp.getUi().alert('Sent to ' + (Core_list(s.not_posting_emails).join(',') || moderatorRecipients_(s)) + ': ' + n + ' club(s) listed.'); } catch (e) { /* editor */ }
 }
 
 /** Per-club activity counts for the monthly nudge and the "half of clubs posting" measure. */

@@ -450,12 +450,12 @@ function addEvent(e) {
 const pastReportA = addActivity({ clubId: 'S-059', date: '2026-08-24', theme: 'Club service / Other', photos: 2,
   template: ['District Membership Seminar held in Mathura', 'Over 200 Rotarians attended sessions on attracting and keeping members. Clubs shared ideas that worked for them.'] });
 const pastReportB = addActivity({ clubId: 'S-017', date: '2026-09-13', theme: 'Fighting disease', photos: 3, helped: 1450,
-  template: ['Mega health camp served 1,450 patients', 'Specialist doctors from across the zone examined patients; 60 were referred for free cataract surgery.'] });
+  template: ['Mega health camp served 1,450 patients', 'Specialist doctors from across the district examined patients; 60 were referred for free cataract surgery.'] });
 addEvent({ title: 'District Membership Seminar', event_type: 'District event', start_date: '2026-08-24', start_time: '10:00', venue: 'Hotel Brijwasi Royal', city: 'Mathura', organiser: 'District Membership Team', description: 'Sessions on attracting and keeping members, for club presidents and membership chairs.', report: pastReportA });
-addEvent({ title: 'Bareilly Zone mega health camp', event_type: 'Club event open to all', start_date: '2026-09-13', start_time: '09:00', venue: 'Rotary Bhawan', city: 'Bareilly', organiser: 'RC Bareilly Central', description: 'Free consultations with specialist doctors; medicines provided free.', report: pastReportB });
+addEvent({ title: 'Bareilly mega health camp', event_type: 'Club event open to all', start_date: '2026-09-13', start_time: '09:00', venue: 'Rotary Bhawan', city: 'Bareilly', organiser: 'RC Bareilly Central', description: 'Free consultations with specialist doctors; medicines provided free.', report: pastReportB });
 addEvent({ title: 'Vocational visit to a leather footwear unit', event_type: 'Vocational visit', start_date: '2026-09-20', start_time: '16:00', venue: 'Foundry Nagar industrial area', city: 'Agra', organiser: 'RC Agra North', description: 'Members saw how footwear is made for export and discussed skill training for workers.' });
 addEvent({ title: 'Rotary Foundation Seminar', event_type: 'Training or seminar', start_date: '2026-10-25', start_time: '10:00', venue: 'Hotel Landmark', city: 'Kanpur', organiser: 'District Rotary Foundation Team', description: 'Global grants, district grants and stewardship for club Foundation chairs.', map_link: 'https://maps.google.com/?q=Kanpur' });
-addEvent({ title: 'Business networking evening – Agra Zone', event_type: 'Business networking evening', start_date: '2026-11-07', start_time: '18:30', venue: 'Hotel Clarks Shiraz', city: 'Agra', organiser: 'RC Agra Greater', description: 'Members introduce their professions and businesses to each other. No sales pitches.', photos: 'sample:activity-11.jpg' });
+addEvent({ title: 'Business networking evening – Agra', event_type: 'Business networking evening', start_date: '2026-11-07', start_time: '18:30', venue: 'Hotel Clarks Shiraz', city: 'Agra', organiser: 'RC Agra Greater', description: 'Members introduce their professions and businesses to each other. No sales pitches.', photos: 'sample:activity-11.jpg' });
 addEvent({ title: 'District Learning Assembly', event_type: 'District event', start_date: '2026-11-15', end_date: '2026-11-16', start_time: '09:30', venue: 'Convention Centre', city: 'Bareilly', organiser: 'District Learning Facilitation Team', description: 'Two-day training for incoming club officers.', photos: 'sample:activity-15.jpg, sample:activity-16.jpg' });
 addEvent({ title: 'Free eye camp', event_type: 'Club event open to all', start_date: '2026-11-22', start_time: '09:00', venue: 'Government Inter College', city: 'Aligarh', organiser: 'RC Aligarh', description: 'Eye check-ups and free spectacles; cataract patients referred for surgery.' });
 addEvent({ title: 'Career guidance day for Class 12 students', event_type: 'Vocational visit', start_date: '2026-12-05', start_time: '11:00', venue: 'City Montessori School', city: 'Kanpur', organiser: 'RC Kanpur South' });
@@ -487,6 +487,7 @@ Object.assign(clubRow('RC Aligarh'), {
   regular_services: 'Homeopathy camp – 30th of every month – Rotary Bhawan, Aligarh',
 });
 const clubProfileRequestsExtra = { regular_services: 'Blood bank help desk – every Sunday, 10 am–noon – Rotary Bhawan, Jhansi' };
+let clubProfileRequests_meetingDay = '';
 
 // Two district campaigns: one running now with a target, one from the previous Rotary year
 const chairPerson = officers.find((o) => o.rotary_year === ROTARY_YEAR);
@@ -515,10 +516,103 @@ activities.find((a) => a.club_id === 'S-059' && a.date === '2026-10-05').bulleti
 const eventRow = (title) => events.find((e) => e.title === title);
 Object.assign(eventRow('Rotary Foundation Seminar'), { registration_close_date: '2026-10-20', fee: 'Free' });
 Object.assign(eventRow('District Learning Assembly'), { registration_close_date: '2026-10-15', fee: '₹300 per person' });
-Object.assign(eventRow('Business networking evening – Agra Zone'), { registration_close_date: '2026-11-03', fee: '₹500 per person', registration_status: 'Seats full' });
+Object.assign(eventRow('Business networking evening – Agra'), { registration_close_date: '2026-11-03', fee: '₹500 per person', registration_status: 'Seats full' });
 Object.assign(eventRow('Free eye camp'), { registration_status: 'Postponed' });
 Object.assign(eventRow('Inter-club cricket match'), { registration_status: 'Cancelled' });
 Object.assign(eventRow('District Conference 2026'), { registration_close_date: '2026-12-10', fee: '₹2,500 per person', registration_status: 'Extended' });
+
+/* ---------- Release A: avenues, press, videos, open events, meeting days, AGs' clubs, public services, About ---------- */
+// (also added after everything that uses the seeded random numbers, so earlier sample rows stay the same)
+
+// Avenue of Service from the area of focus; activities from before late July were sent before the question existed
+const AVENUE_BY_THEME = { 'Club service / Other': 'Club Service', 'Growing local economies': 'Vocational Service', 'Supporting education': 'Youth Service' };
+activities.forEach((a) => { if (a.date >= '2026-07-20') a.avenue = AVENUE_BY_THEME[a.theme] || 'Community Service'; });
+activities.find((a) => a.title === 'RO plant for a village of 600 families').avenue = 'International Service';
+// Press coverage (the paper's name, date and link only) and videos
+const actRow = (title) => activities.find((a) => a.title === title);
+Object.assign(actRow('Safe delivery kits for 120 mothers'), { press_paper: 'Sample Daily News, Kanpur edition', press_date: '2026-09-19', press_link: 'https://example.com/news/safe-delivery-kits' });
+Object.assign(actRow('Gandhi Jayanti clean-up of the Ganga ghat'), { press_paper: 'Sample Times, Kanpur', press_date: '2026-10-03', press_link: '' });
+Object.assign(actRow('Mega health camp served 1,450 patients'), { press_paper: 'Sample Samachar, Bareilly', press_date: '2026-09-14', press_link: 'https://example.com/epaper/health-camp' });
+Object.assign(actRow('RO plant for a village of 600 families'), { video_link: 'https://www.youtube.com/watch?v=SAMPLEvideo' });
+Object.assign(actRow('Blood donation camp at the medical college'), { video_link: 'https://youtu.be/SAMPLEvide2' });
+Object.assign(actRow('Second blood donation camp of the drive'), { video_link: 'https://www.instagram.com/reel/SAMPLEreel1/' });
+// "Open to everyone" given on the form (club events open to all are open anyway)
+Object.assign(eventRow('Career guidance day for Class 12 students'), { open_to_all: true });
+Object.assign(eventRow('Vocational visit to a leather footwear unit'), { open_to_all: false });
+// The weekday question on the club profile form (other clubs' days are read from their meeting text)
+clubRow('RC Jhansi').meeting_day = 'Thursday';
+Object.assign(clubRow('RC Kanpur'), { meeting_day: 'Saturday', meeting_day_place: '1st and 3rd Saturday, 7 pm, Rotary Bhawan, Kanpur' });
+clubProfileRequests_meetingDay = 'Thursday';
+// Each Assistant Governor looks after a few clubs of their own zone (zones stay in the Sheet only)
+const agRows = functionaries.filter((f) => f.section === 'Assistant Governors' && f.rotary_year === ROTARY_YEAR);
+for (const zone of [...new Set(agRows.map((f) => f.zone))]) {
+  const ags = agRows.filter((f) => f.zone === zone);
+  const zoneClubs = activeClubs.filter((c) => c.zone === zone && !ags.some((f) => f.club_id === c.club_id));
+  ags.forEach((f, i) => {
+    const own = clubById[f.club_id];
+    const others = zoneClubs.filter((_, j) => j % ags.length === i).slice(0, 2);
+    // given by club name, as a district office would type it
+    f.ag_clubs = [own, ...others].filter(Boolean).map((c) => c.club_name).join(', ');
+  });
+}
+
+// Facilities clubs run that the public can use; numbers are made up (0000 / 60000 numbers are nobody's)
+const publicServices = [];
+let srvSeq = 1;
+function addService(clubName, service, extra = {}) {
+  const c = clubRow(clubName);
+  publicServices.push({
+    id: `SRV-S${pad(srvSeq++, 3)}`, submitted_at: '2026-10-01T10:00:00+05:30', submitter_email: 'president.sample@example.com',
+    submitter_name: 'Rtn Sample President', submitter_role: 'President', submitter_mobile: '5555000002', club_id: c.club_id, club_name: c.club_name,
+    city: c.city, map_link: `https://maps.google.com/?q=${encodeURIComponent(service.name + ', ' + c.city)}`, about: '', status: 'approved',
+    approved_by: 'moderator.a@example.com', approved_at: '2026-10-02T11:00:00+05:30', moderator_note: '', notified: true, is_sample: true,
+    ...service, ...extra,
+  });
+}
+addService('RC Agra', { name: 'Rotary Blood Bank', service_type: 'Blood bank', timings: 'Open 24 hours', phone: '+91 60000 00001',
+  address: 'Rotary Bhawan, Sanjay Place', about: 'Blood and blood components for any patient; free for thalassaemia patients.' },
+  { moderator_note: 'The phone number is a mobile: check it is the facility\'s own number, not a member\'s' });
+addService('RC Aligarh', { name: 'Rotary Dialysis Unit', service_type: 'Dialysis', timings: 'Monday to Saturday, 8 am–8 pm', phone: '0571 000 0000',
+  address: 'District Hospital, Marris Road', about: 'Two dialysis machines; free for patients below the poverty line.' });
+addService('RC Kasganj City', { name: 'Rotary Eye Hospital', service_type: 'Eye care', timings: 'Monday to Saturday, 10 am–4 pm', phone: '05744 000 000',
+  address: 'Soron Road' });
+addService('RC Jhansi', { name: 'Rotary Dental Clinic', service_type: 'Clinic / health centre', timings: 'Every day except Sunday, 10 am–1 pm',
+  phone: '0510 000 0000', address: 'Sipri Bazar', about: 'Dental check-ups and treatment at a nominal charge.' });
+addService('RC Kanpur', { name: 'Rotary Ambulance Service', service_type: 'Ambulance', timings: 'Open 24 hours', phone: '1800 000 0000',
+  address: 'Rotary Bhawan, Civil Lines', about: 'Ambulance with oxygen for patients going to hospital in Kanpur.' });
+addService('RC Bareilly Central', { name: 'Rotary Children\'s Library', service_type: 'Library', timings: 'Tuesday to Sunday, 3 pm–7 pm',
+  phone: '0581 000 0000', address: 'Rotary Bhawan, Civil Lines', about: 'Books and a reading room for school children; free membership.' });
+// a line with a personal email in "about" is kept off the website; a facility with no valid number shows without one
+addService('RC Mathura', { name: 'Rotary Skill Centre', service_type: 'Skill / vocational centre', timings: 'Monday to Friday, 10 am–5 pm',
+  phone: 'ask at the gate', address: 'Krishna Nagar', about: 'Write to sample.person@example.com for admissions' });
+addService('RC Jhansi', { name: 'PENDING-SAMPLE service awaiting approval', service_type: 'Other', timings: 'Sundays', phone: '0510 000 0001', address: 'Town Hall' },
+  { status: 'pending', approved_by: '', approved_at: '', notified: false });
+addService('RC Agra', { name: 'REJECTED-SAMPLE duplicate blood bank', service_type: 'Blood bank', timings: 'Open 24 hours', phone: '+91 60000 00001', address: 'Sanjay Place' },
+  { status: 'rejected', moderator_note: 'Duplicate of SRV-S001' });
+
+// The About page: the RI President and the District Governor (sample profiles; the district gives the real ones)
+const profiles = [
+  { role: 'President of Rotary International', rotary_year: '2026-27', name: 'Sample: RI President', theme: 'Sample theme of the year',
+    profile: 'This is a sample profile used while the website is being tested. The district will give the RI President\'s official profile and photo.',
+    photo: 'sample:message-1.jpg', link: 'https://www.rotary.org/en/about-rotary/rotary-leadership', sort_order: 1, is_sample: true },
+  { role: 'District Governor', rotary_year: '2026-27', name: 'Sample: District Governor', theme: 'Sample district theme',
+    profile: 'This is a sample profile used while the website is being tested. The District Governor\'s profile and photo will replace it.',
+    photo: 'sample:message-2.jpg', link: '', sort_order: 2, is_sample: true },
+];
+
+// Every Past District Governor: those in the College of Governors (real names from the Excel), plus two years
+// of governors no longer with us (sample placeholders), who have no member ID and so no card
+const pastGovernors = converted.functionaries.filter((f) => f.section === 'College of Governors' && f.rotary_year === ROTARY_YEAR)
+  .map((f) => ({ rotary_year: f.term, name: f.name, club: clubById[f.club_id]?.club_name || '', member_id: f.member_id, is_sample: true }));
+pastGovernors.push({ rotary_year: '1984-85', name: 'Sample: Late PDG (1984-85)', club: 'RC Agra', member_id: '', is_sample: true });
+pastGovernors.push({ rotary_year: '1985-86', name: 'Sample: Late PDG (1985-86)', club: 'RC Kanpur', member_id: '', is_sample: true });
+
+// One message from the website's contact form (private Sheet)
+const contactMessages = [
+  { id: 'MSG-S001', submitted_at: '2026-10-12T15:30:00+05:30', name: 'Sample Visitor', reply_to: 'visitor.sample@example.com', topic: 'I want to volunteer',
+    city: 'Agra', message: 'I would like to help at the next blood donation camp in Agra. Please tell me how to join. (Sample message.)',
+    status: 'new', forwarded_to: 'moderators', note: '', is_sample: true },
+];
 
 /* ---------- magazines, messages, spotlights ---------- */
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -577,6 +671,7 @@ const clubProfileRequests = [
     facebook: 'https://www.facebook.com/example-rc-jhansi', instagram: '', youtube: '', x: '', linkedin: '',
     meeting_day_place: 'Every Thursday, 7:30 pm, Hotel Sita, Jhansi', status: 'pending', approved_by: '', approved_at: '', moderator_note: '', is_sample: true,
     ...clubProfileRequestsExtra,
+    meeting_day: clubProfileRequests_meetingDay,
   },
 ];
 
@@ -598,7 +693,7 @@ const spotlights = spotlightMembers.map((m, i) => ({
 const settings = [
   ['district_name', 'Rotary District 3110', 'Shown in the header and footer'],
   ['current_rotary_year', ROTARY_YEAR, 'Rotary year shown for office bearers, teams and committees'],
-  ['zones', 'Agra, Bareilly, Kanpur', 'District zones'],
+  ['zones', 'Agra, Bareilly, Kanpur', "District zones: for the district's own use only, never shown on the website"],
   ['professions', PROFESSIONS.join(', '), 'Placeholder list; replace with the real list'],
   ['moderator_emails', '', 'Comma-separated; receive the 48-hour reminders'],
   ['site_url', 'https://rotarian-neerav.github.io/rotary3110-website/', 'Used in emails to submitters'],
@@ -612,6 +707,11 @@ const settings = [
   // four weeks of bulletins before the sample's "today", so the archive has something to show
   ['bulletin_start_date', core.Core_addDays(core.Core_sundayOf(TODAY), -28), "A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week's bulletin"],
   ['bulletin_emails', '', 'Comma-separated; they receive the Sunday WhatsApp message to forward. Blank: the moderators'],
+  ['form_public_service_url', '', 'Filled in by the setup script'],
+  ['form_contact_url', '', "Filled in by the setup script; shown inside the website's Contact page"],
+  ['contact_email', '', "Where messages from the website's contact form are emailed (never shown on the website). Blank: the moderators"],
+  ['contact_daily_limit', '20', 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
+  ['not_posting_emails', 'not-posting@example.com', 'Receives the monthly list of clubs that did not post (private). A dummy address until the district names someone'],
 ].map(([key, value, notes]) => ({ key, value, notes }));
 
 const areas = [...new Set(clubs.map((c) => c.city))].sort();
@@ -622,6 +722,8 @@ const lists = [
   ...core.CORE_EVENT_TYPES.map((v) => ({ list: 'event_type', value: v })),
   ...['President', 'Secretary', 'Treasurer', 'Public Image Chair', 'Other office bearer', 'Member'].map((v) => ({ list: 'submitter_role', value: v })),
   ...core.CORE_REG_STATUSES.map((v) => ({ list: 'registration_status', value: v })),
+  ...core.CORE_AVENUES.map((v) => ({ list: 'avenue', value: v })),
+  ...core.CORE_SERVICE_TYPES.map((v) => ({ list: 'service_type', value: v })),
 ];
 
 /* ---------- write ---------- */
@@ -647,6 +749,9 @@ const data = {
     events: toTab(SCHEMA_MAIN.events, events),
     club_profile_requests: toTab(SCHEMA_MAIN.club_profile_requests, clubProfileRequests),
     campaigns: toTab(SCHEMA_MAIN.campaigns, campaigns),
+    public_services: toTab(SCHEMA_MAIN.public_services, publicServices),
+    profiles: toTab(SCHEMA_MAIN.profiles, profiles),
+    past_governors: toTab(SCHEMA_MAIN.past_governors, pastGovernors),
     magazines: toTab(SCHEMA_MAIN.magazines, magazines),
     messages: toTab(SCHEMA_MAIN.messages, messages),
     spotlights: toTab(SCHEMA_MAIN.spotlights, spotlights),
@@ -659,6 +764,7 @@ const data = {
     couples: toTab(SCHEMA_PRIVATE.couples, couples),
     consent_requests: toTab(SCHEMA_PRIVATE.consent_requests, consentRequests),
     removal_requests: toTab(SCHEMA_PRIVATE.removal_requests, removalRequests),
+    contact_messages: toTab(SCHEMA_PRIVATE.contact_messages, contactMessages),
   },
 };
 
@@ -800,6 +906,24 @@ function writeReport() {
     ['Events with a registration closing date', data.main.events.filter((e) => e.registration_close_date).length],
     ['Events with a fee', data.main.events.filter((e) => e.fee).length],
     ['Events marked Seats full / Postponed / Cancelled / Extended', ['Seats full', 'Postponed', 'Cancelled', 'Extended'].every((st) => data.main.events.some((e) => e.registration_status === st)) ? 4 : 0],
+    ['Activities with an Avenue of Service', acts.filter((a) => a.avenue).length],
+    ['Approved activities sent before the avenue question (no avenue)', acts.filter((a) => a.status === 'approved' && !a.avenue).length],
+    ['Activities covered in the press', acts.filter((a) => a.press_paper).length],
+    ['Press coverage without a link', acts.filter((a) => a.press_paper && !a.press_link).length],
+    ['YouTube videos', acts.filter((a) => /youtu/.test(a.video_link || '')).length],
+    ['Other video links (Instagram)', acts.filter((a) => /instagram/.test(a.video_link || '')).length],
+    ['Events marked open to everyone on the form', data.main.events.filter((e) => e.open_to_all === true).length],
+    ['Clubs with a meeting weekday given', clubs.filter((c) => c.meeting_day).length],
+    ['Assistant Governors with their clubs listed', functionaries.filter((f) => f.ag_clubs).length],
+    ['Approved public services', publicServices.filter((x) => x.status === 'approved').length],
+    ['Public service with a mobile-format number (moderator note)', publicServices.filter((x) => /^\+91 6/.test(x.phone)).length],
+    ['Public service with no valid number (shown without one)', publicServices.filter((x) => !/\d{3}/.test(x.phone)).length],
+    ['Public service with an email in its text (kept off the site)', publicServices.filter((x) => /@/.test(x.about)).length],
+    ['Pending and rejected public services', publicServices.filter((x) => x.status !== 'approved').length],
+    ['About page profiles (RI President, DG)', profiles.length],
+    ['Past District Governors', pastGovernors.length],
+    ['Past District Governors no longer with us (no card)', pastGovernors.filter((g) => !g.member_id).length],
+    ['Contact form messages (private)', contactMessages.length],
   ];
   const missing = cases.filter(([, n]) => !n);
   const lines = [

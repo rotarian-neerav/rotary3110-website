@@ -1,0 +1,5 @@
+---
+permalink: /events/calendar.ics
+eleventyExcludeFromCollections: true
+---
+{{ site.events | icsCalendar(site.today) | safe }}

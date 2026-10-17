@@ -25,6 +25,8 @@
 <meta name="theme-color" content="#17458F">
 <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script>try{if(localStorage.getItem('textSize')==='large')document.documentElement.classList.add('text-large')}catch(e){}</script>
 <link rel="alternate" type="application/rss+xml" title="{{ t.district }} – activities and events" href="/feed.xml">
 <link rel="preload" href="/assets/fonts/open-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css">
@@ -39,6 +41,10 @@
     <a class="brand" href="/" aria-label="{{ t.district }} home">
       <picture><source srcset="/assets/img/logo.webp" type="image/webp"><img src="/assets/img/logo.png" alt="Rotary District 3110" width="128" height="48"></picture>
     </a>
+    <div class="header-tools">
+      <a class="tool search-link" href="/search/" aria-label="{{ t.header.search }}"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span class="tool-label">{{ t.nav.search }}</span></a>
+      <button class="tool text-size" type="button" data-text-size aria-pressed="false" data-label-large="{{ t.header.larger_text }}" data-label-normal="{{ t.header.normal_text }}" hidden><span aria-hidden="true">A+</span><span class="tool-label">{{ t.header.larger_text }}</span></button>
+    </div>
     <details class="nav-menu">
       <summary><span class="burger" aria-hidden="true"></span>{{ t.menu }}</summary>
       <nav aria-label="Main">
@@ -46,7 +52,7 @@
           {%- set navItems = [
             ["/", t.nav.home], ["/activities/", t.nav.activities], ["/events/", t.nav.events], ["/clubs/", t.nav.clubs],
             ["/magazine/", t.nav.magazine], ["/leadership/", t.nav.leadership], ["/teams/", t.nav.teams],
-            ["/directory/", t.nav.directory], ["/recognition/", t.nav.recognition], ["/messages/", t.nav.messages] ] %}
+            ["/directory/", t.nav.directory], ["/recognition/", t.nav.recognition], ["/messages/", t.nav.messages], ["/about/", t.nav.about] ] %}
           {%- for item in navItems %}
           <li><a href="{{ item[0] }}"{% if page.url == item[0] or (item[0] != '/' and page.url.startsWith(item[0])) %} aria-current="page"{% endif %}>{{ item[1] }}</a></li>
           {%- endfor %}
@@ -58,7 +64,7 @@
 {%- if site.source == 'sample' or sampleBanner %}
 <p class="sample-banner">Test version with sample data. Names in teams and committees are real; everything else is dummy.</p>
 {%- endif %}
-<main id="main">
+<main id="main"{% if not noindex %} data-pagefind-body{% endif %}>
 {{ content | safe }}
 </main>
 <footer class="site-footer">
@@ -71,16 +77,27 @@
       </div>
       <ul>
         <li><a href="/submit/">{{ t.footer.submit }}</a></li>
+        <li><a href="/how-to-post/">{{ t.footer.guide }}</a></li>
         <li><a href="/club-profile/">{{ t.footer.club_profile }}</a></li>
+        <li><a href="/public-service/">{{ t.footer.public_service }}</a></li>
         <li><a href="/consent/">{{ t.footer.consent }}</a></li>
         <li><a href="/remove/">{{ t.footer.remove }}</a></li>
       </ul>
       <ul>
+        <li><a href="/services/">{{ t.footer.services }}</a></li>
+        <li><a href="/cities/">{{ t.footer.cities }}</a></li>
         <li><a href="/bulletin/">{{ t.footer.bulletin }}</a></li>
         {%- if site.campaigns.length %}<li><a href="/campaigns/">{{ t.footer.campaigns }}</a></li>{% endif %}
+        <li><a href="/news/">{{ t.footer.news }}</a></li>
+        <li><a href="/years/">{{ t.footer.years }}</a></li>
         <li><a href="/spotlight/">{{ t.nav.spotlight }}</a></li>
         <li><a href="/celebrations/">Celebrations</a></li>
+      </ul>
+      <ul>
+        <li><a href="/about/">{{ t.footer.about_link }}</a></li>
+        <li><a href="/contact/">{{ t.footer.contact }}</a></li>
         <li><a href="/privacy/">{{ t.footer.privacy }}</a></li>
+        <li><a href="/events/calendar.ics">District calendar (subscribe)</a></li>
         <li><a href="/feed.xml">Updates feed (RSS)</a></li>
       </ul>
     </div>

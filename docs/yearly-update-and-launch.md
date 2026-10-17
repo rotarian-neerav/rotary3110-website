@@ -5,9 +5,12 @@
 1. In the Sheet: **Rotary → Sample data → Clear all sample data…** removes every row marked `is_sample` from both Sheets.
    This also removes the 2024-25 teams and committees loaded from the district Excel, because they were marked as sample as agreed.
 2. Load the real data (paste into each tab, keeping the column order; leave `is_sample` empty):
-   - **clubs**: real Rotary club IDs, names, city, zone, member count.
+   - **clubs**: real Rotary club IDs, names, city, zone (for the district's own use; never shown on the website), member count, and meeting day if known.
    - **officers**: one row per office bearer: Rotary year, club ID, member ID, name, role.
-   - **functionaries**: teams and committees, one row per person per role (see the `page`, `section`, `committee`, `role`, `zone`, `term` columns).
+   - **functionaries**: teams and committees, one row per person per role (see the `page`, `section`, `committee`, `role`, `zone`, `term` columns). For each Assistant Governor, list the clubs they look after in `ag_clubs` (club names or IDs, separated by commas).
+   - **past_governors**: every Past District Governor, including those no longer with us: Rotary year, name, club, and member ID if they are living (the member ID only links their card; it is never shown).
+   - **profiles**: the RI President and the District Governor for the About page: role, Rotary year, name, theme, a short profile, a photo the district may use (Drive file), and a link.
+   - **public_services**: facilities the clubs run (or ask clubs to send the public service form).
    - **members_master** (private Sheet): the full member list, with Rotary member IDs, club, mobile, date of birth, marriage date.
    - **club_history** (private Sheet): one row per member per club, with from and to dates.
 3. Update **settings → current_rotary_year**.
@@ -26,7 +29,8 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 5. **Members who moved clubs** (private Sheet): in **club_history**, put an end date on the old club row and add a new row for the new club. Change `club_id` in **members_master**.
 6. **Rotary → Check roles and member IDs**: fix anything in the **role_checks** tab, so each person's new roles join their member card. Last year's roles stay on the cards under last year.
 7. **campaigns**: add the new year's district campaigns (see the moderator guide). Last year's campaign pages stay, under last year.
-8. **Rotary → Update form lists**, then **Rotary → Rebuild site now**.
+8. **past_governors**: add the governor who has just finished. **profiles**: add the new RI President and District Governor (the newest row of each role is shown). **functionaries**: fill in `ag_clubs` for the new Assistant Governors.
+9. **Rotary → Update form lists** (this also renews each club's own form link), then **Rotary → Rebuild site now**.
 
 ## Launch checklist (from the brief, section 12)
 
@@ -36,7 +40,13 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Real names and Google emails of the four moderators (add them to the Sheet as editors and to `settings → moderator_emails`) | District | Open |
 | Real Rotary club IDs | District | Open (dummy S-001…) |
 | Rotary member IDs for office bearers and district team members | District | Open (temporary T-… IDs) |
-| Check the club-to-zone list (`docs/data-conversion-report.md`) | District | Open |
+| List the clubs each Assistant Governor looks after (`functionaries → ag_clubs`) | District | Open (sample: own zone's clubs) |
+| Every Past District Governor (`past_governors`), and the RI President's and DG's profiles and photos with permission to use them (`profiles`) | District | Open (sample rows) |
+| The email the contact form forwards to (`settings → contact_email`) and who gets the monthly clubs-not-posting list (`not_posting_emails`) | District | Open (moderators / dummy address) |
+| Clubs send their public services (blood banks, eye care…) through the public service form | Clubs | Open |
+| Two role titles from the team Excel contain zone names ("CDS Bareilly Zone", "CDS Kanpur Zone"): rename them if zones should not show at all | District | Open |
+| Release B before going public: test site and test Sheet, fresh production Sheet, lock on sample data, Sheet backup, build-failure email, visitor counts, broken-link check, "Start new Rotary year" | Developer + district | Open |
+| Let search engines in: set the repository variable `HIDE_FROM_SEARCH` to `false` | District | Open (hidden since 17 Oct) |
 | Real profession list (`lists` tab and `settings → professions`) | District | Open (placeholder) |
 | Lawyer checks the consent form wording and privacy notice, including spouse consent | District | Open |
 | Decide the photo policy for identifiable children | DG's office | Open |

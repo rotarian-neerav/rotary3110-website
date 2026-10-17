@@ -11,8 +11,9 @@
     "fetch": "node scripts/fetch-data.mjs",
     "validate": "node scripts/validate-public.mjs",
     "media": "node scripts/fetch-media.mjs",
-    "eleventy": "eleventy",
-    "build": "npm run fetch && npm run validate && npm run media && npm run eleventy",
+    "eleventy": "node scripts/clean-site.mjs && eleventy",
+    "build": "npm run fetch && npm run validate && npm run media && npm run eleventy && npm run search",
+    "search": "pagefind --site _site",
     "serve": "node scripts/serve.mjs",
     "test": "node --test \"tests/unit/*.test.mjs\"",
     "test:site": "node --test \"tests/site/*.test.mjs\"",
@@ -24,6 +25,7 @@
   "dependencies": {
     "@11ty/eleventy": "3.1.6",
     "@fontsource/open-sans": "5.3.0",
+    "pagefind": "1.3.0",
     "qrcode": "1.5.4",
     "sharp": "0.35.5"
   },

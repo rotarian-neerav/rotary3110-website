@@ -11,10 +11,28 @@ eleventyComputed:
   title: "{{ a.title }} – {{ a.club.name }}"
   description: "{{ a.description }}"
   ogImage: "{{ a.images[0].og.src if a.images.length else '' }}"
+  jsonld:
+    "@context": "https://schema.org"
+    "@type": "NewsArticle"
+    headline: "{{ a.title }}"
+    description: "{{ a.description }}"
+    datePublished: "{{ a.approved_at or a.date }}"
+    image: "{{ (a.images[0].og.src if a.images.length else '/assets/img/og-default.jpg') | absolute }}"
+    mainEntityOfPage: "{{ a.url | absolute }}"
+    author:
+      "@type": "Organization"
+      name: "{{ a.club.display_name }}"
+      url: "{{ a.club.url | absolute }}"
+    publisher:
+      "@type": "Organization"
+      name: "Rotary District 3110"
+      logo:
+        "@type": "ImageObject"
+        url: "{{ '/assets/img/logo.png' | absolute }}"
 ---
-{% from "macros.njk" import shareButton, campaignTag %}
+{% from "macros.njk" import shareButton, campaignTag, activityCard, eventItem, videoBlock %}
 <article class="wrap section activity-page">
-  <p class="meta"><span class="chip theme-{{ a.themeSlug }}">{{ a.theme }}</span> <time datetime="{{ a.date }}">{{ a.dateLabel }}</time></p>
+  <p class="meta"><span class="chip theme-{{ a.themeSlug }}">{{ a.theme }}</span>{% if a.avenue %} <a class="chip chip-avenue" href="/activities/?avenue={{ a.avenueSlug }}">{{ a.avenue }}</a>{% endif %} <time datetime="{{ a.date }}">{{ a.dateLabel }}</time></p>
   <h1>{{ a.title }}</h1>
   <p class="club-line"><a href="{{ a.club.url }}">{{ a.club.name }}</a>{% if a.partners.length %} · {{ t.activity.with }} {% for p in a.partners %}<a href="{{ p.url }}">{{ p.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</p>
   {%- if a.campaign %}<p class="campaign-tag-line">{{ campaignTag(a) }}</p>{% endif %}
@@ -28,6 +46,7 @@ eleventyComputed:
   {%- endif %}
 
   <p class="story">{{ a.description }}</p>
+  {%- if a.video %}{{ videoBlock(a.video, a.title, t) }}{% endif %}
 
   {%- if a.people_helped or a.amount_spent %}
   <ul class="facts">
@@ -40,9 +59,31 @@ eleventyComputed:
     {%- if a.post_link %}<a class="btn" href="{{ a.post_link }}" target="_blank" rel="noopener">{{ t.activity.read_post }} ↗</a>{% endif %}
     {{ shareButton(a.title + ' – ' + a.club.name, a.url, t) }}
   </p>
+  {%- if a.press %}
+  <p class="press-line"><strong>{{ t.activity.press }}:</strong> {{ a.press.paper }}{% if a.press.dateLabel %}, {{ a.press.dateLabel }}{% endif %}{% if a.press.link %} · <a href="{{ a.press.link }}" target="_blank" rel="noopener">{{ t.activity.press_read }} ↗</a>{% endif %}</p>
+  {%- endif %}
   {%- for e in site.events %}{% if e.report_activity_id == a.id %}
   <p class="small">{{ t.activity.report_of }}: <a href="{{ e.url }}">{{ e.title }}</a></p>
   {%- endif %}{% endfor %}
   <p class="small muted">Approved by a district moderator{% if a.story_of_month %} · ★ Story of the month{% endif %}</p>
-  <p><a href="/activities/">← All activities</a></p>
 </article>
+{%- set m = a.more %}
+{%- if m.clubRecent.length or m.similar.length or m.nextEvent %}
+<aside class="wrap section more-like-this" aria-label="More like this">
+  {%- if m.nextEvent %}
+  <h2>{{ t.activity.next_event }} {{ a.club.name }}</h2>
+  <div class="event-grid">{{ eventItem(m.nextEvent, t) }}</div>
+  {%- endif %}
+  {%- if m.clubRecent.length %}
+  <h2>{{ t.activity.more_club }} {{ a.club.name }}</h2>
+  <div class="grid cards">{% for x in m.clubRecent %}{{ activityCard(x, t) }}{% endfor %}</div>
+  {%- endif %}
+  {%- if m.similar.length %}
+  <h2>{{ t.activity.similar }}</h2>
+  <div class="grid cards">{% for x in m.similar %}{{ activityCard(x, t) }}{% endfor %}</div>
+  {%- endif %}
+  <p><a href="/activities/">← All activities</a> · <a href="{{ a.club.url }}">{{ a.club.name }}</a></p>
+</aside>
+{%- else %}
+<p class="wrap"><a href="/activities/">← All activities</a></p>
+{%- endif %}

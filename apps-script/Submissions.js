@@ -18,6 +18,8 @@ function onAnyFormSubmit(e) {
     else if (formId === ids.club_profile) fileClubProfile_(answers, meta);
     else if (formId === ids.consent) fileConsent_(answers, meta);
     else if (formId === ids.removal) fileRemoval_(answers, meta);
+    else if (formId === ids.public_service) filePublicService_(answers, meta);
+    else if (formId === ids.contact) fileContact_(answers, meta);
   } finally {
     lock.releaseLock();
   }
@@ -93,6 +95,7 @@ function fileActivityOrEvent_(a, meta) {
       // the event page has its own photo question with the same title; only one of the two is ever answered
       photo_files: fileIds_(firstStartingWith_(a, 'Photos')),
       registration_close_date: Core_str(a[Q.eRegClose]), fee: fee, moderator_note: eventNotes.join('; '),
+      open_to_all: Core_str(a[Q.eOpen]) ? yes_(a[Q.eOpen]) : '',
     }));
     return;
   }
@@ -105,6 +108,8 @@ function fileActivityOrEvent_(a, meta) {
     photo_files: fileIds_(firstStartingWith_(a, 'Photos')), post_link: link_(a[Q.aLink]),
     people_helped: Core_str(a[Q.aHelped]), amount_spent: Core_str(a[Q.aSpent]), partner_clubs: partners.join(', '),
     photo_consent: checked_(a[Q.aConsent]),
+    avenue: Core_str(a[Q.aAvenue]), video_link: link_(a[Q.aVideo]),
+    press_paper: Core_str(a[Q.aPressPaper]), press_date: Core_str(a[Q.aPressDate]), press_link: link_(a[Q.aPressLink]),
   });
   var campaignRows = readTab_(ss, 'campaigns');
   var count = Core_str(a[Q.aCampaignCount]).replace(/[,\s]/g, '');
@@ -116,6 +121,9 @@ function fileActivityOrEvent_(a, meta) {
   if (dup) notes.push('Possible duplicate of ' + dup);
   if (!row.photo_files && !row.post_link) notes.push('No photo or link: reject or ask the club for one');
   if (Core_isoDate(row.date) > today_()) notes.push('Date is in the future');
+  if (row.press_link && !row.press_paper) notes.push('Press link without the newspaper\'s name: add it in press_paper');
+  if (row.video_link && !Core_videoLink(row.video_link)) notes.push('Video link is not a web address');
+  textNotes_([row.press_paper], notes);
   row.moderator_note = notes.join('; ');
   appendRow_(ss, 'activities', row);
 }
@@ -154,8 +162,62 @@ function fileClubProfile_(a, meta) {
     club_id: clubIdByName_(clubName), club_name: clubName, website: url(Q.pWebsite), facebook: url(Q.pFacebook),
     instagram: url(Q.pInstagram), youtube: url(Q.pYoutube), x: url(Q.pX), linkedin: url(Q.pLinkedin),
     meeting_day_place: ans(Q.pMeeting), permanent_projects: projects, regular_services: services, status: 'pending',
-    moderator_note: notes.join('; '),
+    meeting_day: Core_str(a[Q.pMeetingDay]), moderator_note: notes.join('; '),
   });
+}
+
+/** A facility the public can use: filed as pending, with notes on anything the moderator should check. */
+function filePublicService_(a, meta) {
+  var ss = mainSs_();
+  var clubName = Core_str(a[Q.club]);
+  var phone = Core_str(a[Q.sPhone]);
+  var notes = [];
+  if (!Core_servicePhone(phone)) notes.push('The phone number is not a plain number: correct it before approving');
+  else if (Core_mobile(phone)) notes.push('The phone number is a mobile: check it is the facility\'s own number, not a member\'s');
+  textNotes_([a[Q.sName], a[Q.sTimings], a[Q.sAddress], a[Q.sAbout]], notes);
+  appendRow_(ss, 'public_services', {
+    id: nextId_(readTab_(ss, 'public_services'), 'SRV-'), submitted_at: meta.submitted_at, submitter_email: meta.submitter_email,
+    submitter_name: Core_str(a[Q.name]), submitter_role: Core_str(a[Q.role]), submitter_mobile: Core_str(a[Q.mobile]),
+    club_id: clubIdByName_(clubName), club_name: clubName, name: Core_str(a[Q.sName]), service_type: Core_str(a[Q.sType]),
+    timings: Core_str(a[Q.sTimings]), phone: phone, address: Core_str(a[Q.sAddress]), city: Core_str(a[Q.sCity]),
+    map_link: link_(a[Q.sMap]), about: Core_str(a[Q.sAbout]), status: 'pending', moderator_note: notes.join('; '),
+  });
+}
+
+/**
+ * A message from the website's contact form: kept in the private Sheet and emailed on to the district
+ * (contact_email; blank: the moderators, or the district account until they are named). Messages that look
+ * like spam, and any beyond the daily limit, are kept but not emailed.
+ */
+function fileContact_(a, meta) {
+  var ps = privateSs_();
+  var s = settings_();
+  var message = Core_str(a[Q.kMessage]);
+  var spam = Core_contactCheck(message);
+  var today = today_();
+  var limit = Number(s.contact_daily_limit) || CORE_CONTACT_DAILY_LIMIT;
+  var sentToday = readTab_(ps, 'contact_messages').filter(function (m) {
+    return Core_str(m.forwarded_to) && Core_isoDate(new Date(m.submitted_at)) === today;
+  }).length;
+  var to = Core_list(s.contact_email).join(',') || moderatorRecipients_(s);
+  var row = {
+    id: nextId_(readTab_(ps, 'contact_messages'), 'MSG-'), submitted_at: meta.submitted_at, name: Core_str(a[Q.kName]),
+    reply_to: Core_str(a[Q.kReply]), topic: Core_str(a[Q.kTopic]), city: Core_str(a[Q.kCity]), message: message,
+    status: spam ? 'spam' : 'new', forwarded_to: '', note: spam ? 'Not emailed: ' + spam : '',
+  };
+  if (!spam && sentToday >= limit) row.note = 'Not emailed: more than ' + limit + ' messages today';
+  if (!spam && sentToday < limit) {
+    try {
+      MailApp.sendEmail(to, 'Website message: ' + row.topic + ' – from ' + row.name,
+        'A message from the contact form on the district website.\n\nFrom: ' + row.name + '\nReply to: ' + row.reply_to +
+        (row.city ? '\nCity: ' + row.city : '') + '\nAbout: ' + row.topic + '\n\n' + message +
+        '\n\nPlease reply to the person directly. All messages are kept in the contact_messages tab of the private Sheet.');
+      row.forwarded_to = to;
+    } catch (e) {
+      row.note = 'Email failed: ' + e.message;
+    }
+  }
+  appendRow_(ps, 'contact_messages', row);
 }
 
 function fileConsent_(a, meta) {

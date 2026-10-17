@@ -24,17 +24,18 @@ function onOpen() {
       .addItem('Upgrade Sheet (new tabs, columns, questions)', 'upgradeSheet')
       .addItem('Send bulletin preview now', 'bulletinPreview')
       .addItem('Send bulletin message now', 'sendBulletinMessageNow')
+      .addItem('Send clubs-not-posting email now', 'sendNotPostingNow')
       .addItem('Run setup again', 'setup'))
     .addToUi();
 }
 
-var MODERATED_TABS = ['activities', 'events', 'club_profile_requests'];
+var MODERATED_TABS = ['activities', 'events', 'club_profile_requests', 'public_services'];
 
 function selectedRows_() {
   var sh = SpreadsheetApp.getActiveSheet();
   var name = sh.getName();
   if (MODERATED_TABS.indexOf(name) < 0) {
-    throw new Error('Select one or more rows in the activities, events or club_profile_requests tab first.');
+    throw new Error('Select one or more rows in the activities, events, club_profile_requests or public_services tab first.');
   }
   var rows = [];
   sh.getActiveRangeList().getRanges().forEach(function (r) {
@@ -58,8 +59,12 @@ function approveSelected() {
       refused.push(r.id + ' (needs a photo or a link to the club\'s post)');
       return;
     }
-    if (sel.tab === 'activities' && !Core_str(r.club_id)) {
+    if ((sel.tab === 'activities' || sel.tab === 'public_services') && !Core_str(r.club_id)) {
       refused.push(r.id + ' (club not recognised: fill in club_id)');
+      return;
+    }
+    if (sel.tab === 'public_services' && !Core_servicePhone(r.phone)) {
+      refused.push(r.id + ' (the phone number is not a plain number: correct it first)');
       return;
     }
     updateRow_(ss, sel.tab, r._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
@@ -92,7 +97,7 @@ function applyClubProfile_(r) {
   var club = readTab_(ss, 'clubs').filter(function (c) { return Core_str(c.club_id) === Core_str(r.club_id); })[0];
   if (!club) return;
   var fields = { profile_updated_at: nowIso_() };
-  ['website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'meeting_day_place'].forEach(function (k) {
+  ['website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'meeting_day_place', 'meeting_day'].forEach(function (k) {
     if (Core_str(r[k])) fields[k] = Core_str(r[k]);
   });
   // Projects and services: a blank answer keeps the club's list, "none" clears it, anything else replaces it
@@ -107,9 +112,10 @@ function notifySubmitter_(tab, r, approved, reason) {
   var to = Core_str(r.submitter_email);
   if (!to || Core_isTrue(r.is_sample)) return;
   var site = Core_str(settings_().site_url);
-  var what = tab === 'events' ? 'event "' + r.title + '"' : tab === 'activities' ? 'activity "' + r.title + '"' : 'club profile update';
+  var what = tab === 'events' ? 'event "' + r.title + '"' : tab === 'activities' ? 'activity "' + r.title + '"'
+    : tab === 'public_services' ? 'public service "' + r.name + '"' : 'club profile update';
   var link = tab === 'activities' ? site + 'activities/' + Core_str(r.id).toLowerCase() + '/'
-    : tab === 'events' ? site + 'events/' + Core_str(r.id).toLowerCase() + '/' : site + 'clubs/';
+    : tab === 'events' ? site + 'events/' + Core_str(r.id).toLowerCase() + '/' : tab === 'public_services' ? site + 'services/' : site + 'clubs/';
   var body = approved
     ? 'Thank you! Your ' + what + ' has been approved by a district moderator.\n\nIt will appear on the district website at the next update (every Sunday):\n' + link +
       '\n\nPlease share it in your club\'s WhatsApp group once it is live.\n\nRotary District 3110'

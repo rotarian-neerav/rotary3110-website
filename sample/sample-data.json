@@ -16,7 +16,7 @@
    {
     "key": "zones",
     "value": "Agra, Bareilly, Kanpur",
-    "notes": "District zones"
+    "notes": "District zones: for the district's own use only, never shown on the website"
    },
    {
     "key": "professions",
@@ -77,6 +77,31 @@
     "key": "bulletin_emails",
     "value": "",
     "notes": "Comma-separated; they receive the Sunday WhatsApp message to forward. Blank: the moderators"
+   },
+   {
+    "key": "form_public_service_url",
+    "value": "",
+    "notes": "Filled in by the setup script"
+   },
+   {
+    "key": "form_contact_url",
+    "value": "",
+    "notes": "Filled in by the setup script; shown inside the website's Contact page"
+   },
+   {
+    "key": "contact_email",
+    "value": "",
+    "notes": "Where messages from the website's contact form are emailed (never shown on the website). Blank: the moderators"
+   },
+   {
+    "key": "contact_daily_limit",
+    "value": "20",
+    "notes": "At most this many contact messages are emailed per day; the rest wait in the private Sheet"
+   },
+   {
+    "key": "not_posting_emails",
+    "value": "not-posting@example.com",
+    "notes": "Receives the monthly list of clubs that did not post (private). A dummy address until the district names someone"
    }
   ],
   "lists": [
@@ -355,6 +380,58 @@
    {
     "list": "registration_status",
     "value": "Cancelled"
+   },
+   {
+    "list": "avenue",
+    "value": "Club Service"
+   },
+   {
+    "list": "avenue",
+    "value": "Vocational Service"
+   },
+   {
+    "list": "avenue",
+    "value": "Community Service"
+   },
+   {
+    "list": "avenue",
+    "value": "International Service"
+   },
+   {
+    "list": "avenue",
+    "value": "Youth Service"
+   },
+   {
+    "list": "service_type",
+    "value": "Blood bank"
+   },
+   {
+    "list": "service_type",
+    "value": "Eye care"
+   },
+   {
+    "list": "service_type",
+    "value": "Dialysis"
+   },
+   {
+    "list": "service_type",
+    "value": "Clinic / health centre"
+   },
+   {
+    "list": "service_type",
+    "value": "Library"
+   },
+   {
+    "list": "service_type",
+    "value": "Skill / vocational centre"
+   },
+   {
+    "list": "service_type",
+    "value": "Ambulance"
+   },
+   {
+    "list": "service_type",
+    "value": "Other"
    }
   ],
   "clubs": [
@@ -378,7 +455,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-002",
@@ -400,7 +479,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-003",
@@ -422,7 +503,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-004",
@@ -444,7 +527,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-005",
@@ -466,7 +551,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-006",
@@ -488,7 +575,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "School libraries – 48 libraries in government schools – Aligarh district\nDialysis unit – two dialysis machines at the district hospital – Aligarh",
-    "regular_services": "Homeopathy camp – 30th of every month – Rotary Bhawan, Aligarh"
+    "regular_services": "Homeopathy camp – 30th of every month – Rotary Bhawan, Aligarh",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-007",
@@ -510,7 +599,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-008",
@@ -532,7 +623,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-009",
@@ -554,7 +647,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-010",
@@ -576,7 +671,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-011",
@@ -598,7 +695,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-012",
@@ -620,7 +719,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-013",
@@ -642,7 +743,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-014",
@@ -664,7 +767,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-015",
@@ -686,7 +791,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-016",
@@ -708,7 +815,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-017",
@@ -730,7 +839,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-018",
@@ -752,7 +863,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-019",
@@ -774,7 +887,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-020",
@@ -796,7 +911,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-021",
@@ -818,7 +935,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-022",
@@ -840,7 +959,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-023",
@@ -862,7 +983,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-024",
@@ -884,7 +1007,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-025",
@@ -906,7 +1031,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-026",
@@ -928,7 +1055,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-027",
@@ -950,7 +1079,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-028",
@@ -972,7 +1103,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-029",
@@ -994,7 +1127,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-030",
@@ -1016,7 +1151,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-031",
@@ -1038,7 +1175,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-032",
@@ -1060,7 +1199,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-033",
@@ -1082,7 +1223,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-034",
@@ -1104,7 +1247,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-035",
@@ -1126,7 +1271,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-036",
@@ -1148,7 +1295,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "Rotary Dental Clinic – dental clinic funded by a global grant – Sipri Bazar, Jhansi",
-    "regular_services": "Free eye check-up – every Thursday, 11 am–1 pm – Roshni Centre, Civil Lines\nSari bank – 2nd and 4th Saturday – Rotary Bhawan\nRoti bank – every evening – call +91 60000 00000 to donate"
+    "regular_services": "Free eye check-up – every Thursday, 11 am–1 pm – Roshni Centre, Civil Lines\nSari bank – 2nd and 4th Saturday – Rotary Bhawan\nRoti bank – every evening – call +91 60000 00000 to donate",
+    "meeting_day": "Thursday",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-037",
@@ -1170,7 +1319,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-038",
@@ -1192,7 +1343,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-039",
@@ -1204,7 +1357,7 @@
     "zone": "Kanpur",
     "status": "active",
     "member_count": 45,
-    "meeting_day_place": "",
+    "meeting_day_place": "1st and 3rd Saturday, 7 pm, Rotary Bhawan, Kanpur",
     "website": "",
     "facebook": "",
     "instagram": "",
@@ -1214,7 +1367,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "Saturday",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-040",
@@ -1236,7 +1391,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-041",
@@ -1258,7 +1415,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-042",
@@ -1280,7 +1439,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-043",
@@ -1302,7 +1463,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-044",
@@ -1324,7 +1487,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-045",
@@ -1346,7 +1511,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-046",
@@ -1368,7 +1535,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-047",
@@ -1390,7 +1559,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-048",
@@ -1412,7 +1583,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-049",
@@ -1434,7 +1607,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-050",
@@ -1456,7 +1631,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-051",
@@ -1478,7 +1655,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-052",
@@ -1500,7 +1679,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-053",
@@ -1522,7 +1703,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-054",
@@ -1544,7 +1727,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-055",
@@ -1566,7 +1751,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "Rotary Eye Hospital – eye hospital under construction – Kasganj",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-056",
@@ -1588,7 +1775,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-057",
@@ -1610,7 +1799,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-058",
@@ -1632,7 +1823,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-059",
@@ -1654,7 +1847,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-060",
@@ -1676,7 +1871,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-061",
@@ -1698,7 +1895,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-062",
@@ -1720,7 +1919,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-063",
@@ -1742,7 +1943,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-064",
@@ -1764,7 +1967,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-065",
@@ -1786,7 +1991,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-066",
@@ -1808,7 +2015,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-067",
@@ -1830,7 +2039,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-068",
@@ -1852,7 +2063,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-069",
@@ -1874,7 +2087,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    },
    {
     "club_id": "S-070",
@@ -1896,7 +2111,9 @@
     "profile_updated_at": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": ""
+    "regular_services": "",
+    "meeting_day": "",
+    "activity_form_link": ""
    }
   ],
   "officers": [
@@ -3406,7 +3623,8 @@
     "sort_order": 1,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3422,7 +3640,8 @@
     "sort_order": 2,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3438,7 +3657,8 @@
     "sort_order": 3,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3454,7 +3674,8 @@
     "sort_order": 4,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3470,7 +3691,8 @@
     "sort_order": 5,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3486,7 +3708,8 @@
     "sort_order": 6,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3502,7 +3725,8 @@
     "sort_order": 7,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3518,7 +3742,8 @@
     "sort_order": 8,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3534,7 +3759,8 @@
     "sort_order": 9,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3550,7 +3776,8 @@
     "sort_order": 10,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3566,7 +3793,8 @@
     "sort_order": 11,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3582,7 +3810,8 @@
     "sort_order": 12,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3598,7 +3827,8 @@
     "sort_order": 13,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3614,7 +3844,8 @@
     "sort_order": 14,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3630,7 +3861,8 @@
     "sort_order": 15,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3646,7 +3878,8 @@
     "sort_order": 16,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3662,7 +3895,8 @@
     "sort_order": 17,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3678,7 +3912,8 @@
     "sort_order": 18,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3694,7 +3929,8 @@
     "sort_order": 19,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3710,7 +3946,8 @@
     "sort_order": 20,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3726,7 +3963,8 @@
     "sort_order": 21,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3742,7 +3980,8 @@
     "sort_order": 22,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3758,7 +3997,8 @@
     "sort_order": 23,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3774,7 +4014,8 @@
     "sort_order": 24,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3790,7 +4031,8 @@
     "sort_order": 25,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3806,7 +4048,8 @@
     "sort_order": 26,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3822,7 +4065,8 @@
     "sort_order": 27,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3838,7 +4082,8 @@
     "sort_order": 28,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3854,7 +4099,8 @@
     "sort_order": 29,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3870,7 +4116,8 @@
     "sort_order": 30,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3886,7 +4133,8 @@
     "sort_order": 31,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3902,7 +4150,8 @@
     "sort_order": 32,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3918,7 +4167,8 @@
     "sort_order": 33,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3934,7 +4184,8 @@
     "sort_order": 34,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3950,7 +4201,8 @@
     "sort_order": 35,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3966,7 +4218,8 @@
     "sort_order": 36,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3982,7 +4235,8 @@
     "sort_order": 37,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -3998,7 +4252,8 @@
     "sort_order": 38,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4014,7 +4269,8 @@
     "sort_order": 39,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4030,7 +4286,8 @@
     "sort_order": 40,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4046,7 +4303,8 @@
     "sort_order": 41,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Agra, RC Agra Sapphire"
    },
    {
     "rotary_year": "2024-25",
@@ -4062,7 +4320,8 @@
     "sort_order": 42,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Agra Greater, RC Aligarh Aura"
    },
    {
     "rotary_year": "2024-25",
@@ -4078,7 +4337,8 @@
     "sort_order": 43,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Agra Neo, RC Aligarh City"
    },
    {
     "rotary_year": "2024-25",
@@ -4094,7 +4354,8 @@
     "sort_order": 44,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Agra North, RC Aligarh Pride"
    },
    {
     "rotary_year": "2024-25",
@@ -4110,7 +4371,8 @@
     "sort_order": 45,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Aligarh, RC Aligarh Royal"
    },
    {
     "rotary_year": "2024-25",
@@ -4126,7 +4388,8 @@
     "sort_order": 46,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Aligarh Central, RC Aligarh Smart City"
    },
    {
     "rotary_year": "2024-25",
@@ -4142,7 +4405,8 @@
     "sort_order": 47,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Aligarh Friends, RC Firozabad"
    },
    {
     "rotary_year": "2024-25",
@@ -4158,7 +4422,8 @@
     "sort_order": 48,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Aligarh Rudra, RC Hathras Heritage"
    },
    {
     "rotary_year": "2024-25",
@@ -4174,7 +4439,8 @@
     "sort_order": 49,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Aligarh Pearl, RC Mathura"
    },
    {
     "rotary_year": "2024-25",
@@ -4190,7 +4456,8 @@
     "sort_order": 50,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Mathura West, RC Mathura Jasmine"
    },
    {
     "rotary_year": "2024-25",
@@ -4206,7 +4473,8 @@
     "sort_order": 51,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Mathura Central, RC Mathura Rational"
    },
    {
     "rotary_year": "2024-25",
@@ -4222,7 +4490,8 @@
     "sort_order": 52,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Kasganj City, RC Shikohabad"
    },
    {
     "rotary_year": "2024-25",
@@ -4238,7 +4507,8 @@
     "sort_order": 53,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Bareilly, RC Bareilly Heights"
    },
    {
     "rotary_year": "2024-25",
@@ -4254,7 +4524,8 @@
     "sort_order": 54,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Bareilly Central, RC Bareilly Hi-Tech"
    },
    {
     "rotary_year": "2024-25",
@@ -4270,7 +4541,8 @@
     "sort_order": 55,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Bareilly Galaxy, RC Bareilly Metro"
    },
    {
     "rotary_year": "2024-25",
@@ -4286,7 +4558,8 @@
     "sort_order": 56,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Bareilly Chamber, RC Bareilly North"
    },
    {
     "rotary_year": "2024-25",
@@ -4302,7 +4575,8 @@
     "sort_order": 57,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Bareilly Heritage, RC Bareilly West"
    },
    {
     "rotary_year": "2024-25",
@@ -4318,7 +4592,8 @@
     "sort_order": 58,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Izatnagar Bareilly, RC Bisauli"
    },
    {
     "rotary_year": "2024-25",
@@ -4334,7 +4609,8 @@
     "sort_order": 59,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Budaun Central, RC Haldwani"
    },
    {
     "rotary_year": "2024-25",
@@ -4350,7 +4626,8 @@
     "sort_order": 60,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Kashipur, RC Kashipur Corbett"
    },
    {
     "rotary_year": "2024-25",
@@ -4366,7 +4643,8 @@
     "sort_order": 61,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Puranpur Green, RC Nainital"
    },
    {
     "rotary_year": "2024-25",
@@ -4382,7 +4660,8 @@
     "sort_order": 62,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Rudrapur, RC Pilibhit"
    },
    {
     "rotary_year": "2024-25",
@@ -4398,7 +4677,8 @@
     "sort_order": 63,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Bareilly South, RC Rampur"
    },
    {
     "rotary_year": "2024-25",
@@ -4414,7 +4694,8 @@
     "sort_order": 64,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Ganga Ghat, RC Brahmavarta Kanpur, RC Kanpur Vinayak Shree"
    },
    {
     "rotary_year": "2024-25",
@@ -4430,7 +4711,8 @@
     "sort_order": 65,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Jhansi, RC Jhansi City, RC New Kanpur"
    },
    {
     "rotary_year": "2024-25",
@@ -4446,7 +4728,8 @@
     "sort_order": 66,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Kanpur North, RC Jhansi Fort, RC Unnao"
    },
    {
     "rotary_year": "2024-25",
@@ -4462,7 +4745,8 @@
     "sort_order": 67,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Kanpur Divinity, RC Kanpur"
    },
    {
     "rotary_year": "2024-25",
@@ -4478,7 +4762,8 @@
     "sort_order": 68,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Kanpur Global, RC Kanpur Central"
    },
    {
     "rotary_year": "2024-25",
@@ -4494,7 +4779,8 @@
     "sort_order": 69,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Kanpur Green, RC Kanpur Classic"
    },
    {
     "rotary_year": "2024-25",
@@ -4510,7 +4796,8 @@
     "sort_order": 70,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Kanpur Industrial, RC Kanpur Gaurav"
    },
    {
     "rotary_year": "2024-25",
@@ -4526,7 +4813,8 @@
     "sort_order": 71,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Kanpur South, RC Kanpur Greater"
    },
    {
     "rotary_year": "2024-25",
@@ -4542,7 +4830,8 @@
     "sort_order": 72,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Kanpur Surya, RC Kanpur Metro"
    },
    {
     "rotary_year": "2024-25",
@@ -4558,7 +4847,8 @@
     "sort_order": 73,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": "RC Kanpur West, RC Kanpur Shikhar"
    },
    {
     "rotary_year": "2024-25",
@@ -4574,7 +4864,8 @@
     "sort_order": 74,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4590,7 +4881,8 @@
     "sort_order": 75,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4606,7 +4898,8 @@
     "sort_order": 76,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4622,7 +4915,8 @@
     "sort_order": 77,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4638,7 +4932,8 @@
     "sort_order": 78,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4654,7 +4949,8 @@
     "sort_order": 79,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4670,7 +4966,8 @@
     "sort_order": 80,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4686,7 +4983,8 @@
     "sort_order": 81,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4702,7 +5000,8 @@
     "sort_order": 82,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4718,7 +5017,8 @@
     "sort_order": 83,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4734,7 +5034,8 @@
     "sort_order": 84,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4750,7 +5051,8 @@
     "sort_order": 85,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4766,7 +5068,8 @@
     "sort_order": 86,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4782,7 +5085,8 @@
     "sort_order": 87,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4798,7 +5102,8 @@
     "sort_order": 88,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4814,7 +5119,8 @@
     "sort_order": 89,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4830,7 +5136,8 @@
     "sort_order": 90,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4846,7 +5153,8 @@
     "sort_order": 91,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4862,7 +5170,8 @@
     "sort_order": 92,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4878,7 +5187,8 @@
     "sort_order": 93,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4894,7 +5204,8 @@
     "sort_order": 94,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4910,7 +5221,8 @@
     "sort_order": 95,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4926,7 +5238,8 @@
     "sort_order": 96,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4942,7 +5255,8 @@
     "sort_order": 97,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4958,7 +5272,8 @@
     "sort_order": 98,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4974,7 +5289,8 @@
     "sort_order": 99,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -4990,7 +5306,8 @@
     "sort_order": 100,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5006,7 +5323,8 @@
     "sort_order": 101,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5022,7 +5340,8 @@
     "sort_order": 102,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5038,7 +5357,8 @@
     "sort_order": 103,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5054,7 +5374,8 @@
     "sort_order": 104,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5070,7 +5391,8 @@
     "sort_order": 105,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5086,7 +5408,8 @@
     "sort_order": 106,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5102,7 +5425,8 @@
     "sort_order": 107,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5118,7 +5442,8 @@
     "sort_order": 108,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5134,7 +5459,8 @@
     "sort_order": 109,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5150,7 +5476,8 @@
     "sort_order": 110,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5166,7 +5493,8 @@
     "sort_order": 111,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5182,7 +5510,8 @@
     "sort_order": 112,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5198,7 +5527,8 @@
     "sort_order": 113,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5214,7 +5544,8 @@
     "sort_order": 114,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5230,7 +5561,8 @@
     "sort_order": 115,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5246,7 +5578,8 @@
     "sort_order": 116,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5262,7 +5595,8 @@
     "sort_order": 117,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5278,7 +5612,8 @@
     "sort_order": 118,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5294,7 +5629,8 @@
     "sort_order": 119,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5310,7 +5646,8 @@
     "sort_order": 120,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5326,7 +5663,8 @@
     "sort_order": 121,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5342,7 +5680,8 @@
     "sort_order": 122,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5358,7 +5697,8 @@
     "sort_order": 123,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5374,7 +5714,8 @@
     "sort_order": 124,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5390,7 +5731,8 @@
     "sort_order": 125,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5406,7 +5748,8 @@
     "sort_order": 126,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5422,7 +5765,8 @@
     "sort_order": 127,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5438,7 +5782,8 @@
     "sort_order": 128,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5454,7 +5799,8 @@
     "sort_order": 129,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5470,7 +5816,8 @@
     "sort_order": 130,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5486,7 +5833,8 @@
     "sort_order": 131,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5502,7 +5850,8 @@
     "sort_order": 132,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5518,7 +5867,8 @@
     "sort_order": 133,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5534,7 +5884,8 @@
     "sort_order": 134,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5550,7 +5901,8 @@
     "sort_order": 135,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5566,7 +5918,8 @@
     "sort_order": 136,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5582,7 +5935,8 @@
     "sort_order": 137,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5598,7 +5952,8 @@
     "sort_order": 138,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5614,7 +5969,8 @@
     "sort_order": 139,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5630,7 +5986,8 @@
     "sort_order": 140,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5646,7 +6003,8 @@
     "sort_order": 141,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5662,7 +6020,8 @@
     "sort_order": 142,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5678,7 +6037,8 @@
     "sort_order": 143,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5694,7 +6054,8 @@
     "sort_order": 144,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5710,7 +6071,8 @@
     "sort_order": 145,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5726,7 +6088,8 @@
     "sort_order": 146,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5742,7 +6105,8 @@
     "sort_order": 147,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5758,7 +6122,8 @@
     "sort_order": 148,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5774,7 +6139,8 @@
     "sort_order": 149,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5790,7 +6156,8 @@
     "sort_order": 150,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5806,7 +6173,8 @@
     "sort_order": 151,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5822,7 +6190,8 @@
     "sort_order": 152,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5838,7 +6207,8 @@
     "sort_order": 153,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5854,7 +6224,8 @@
     "sort_order": 154,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5870,7 +6241,8 @@
     "sort_order": 155,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5886,7 +6258,8 @@
     "sort_order": 156,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5902,7 +6275,8 @@
     "sort_order": 157,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5918,7 +6292,8 @@
     "sort_order": 158,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5934,7 +6309,8 @@
     "sort_order": 159,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5950,7 +6326,8 @@
     "sort_order": 160,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5966,7 +6343,8 @@
     "sort_order": 161,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5982,7 +6360,8 @@
     "sort_order": 162,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -5998,7 +6377,8 @@
     "sort_order": 163,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6014,7 +6394,8 @@
     "sort_order": 164,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6030,7 +6411,8 @@
     "sort_order": 165,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6046,7 +6428,8 @@
     "sort_order": 166,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6062,7 +6445,8 @@
     "sort_order": 167,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6078,7 +6462,8 @@
     "sort_order": 168,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6094,7 +6479,8 @@
     "sort_order": 169,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6110,7 +6496,8 @@
     "sort_order": 170,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6126,7 +6513,8 @@
     "sort_order": 171,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6142,7 +6530,8 @@
     "sort_order": 172,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6158,7 +6547,8 @@
     "sort_order": 173,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6174,7 +6564,8 @@
     "sort_order": 174,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6190,7 +6581,8 @@
     "sort_order": 175,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2024-25",
@@ -6206,7 +6598,8 @@
     "sort_order": 176,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2023-24",
@@ -6222,7 +6615,8 @@
     "sort_order": 1,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2023-24",
@@ -6238,7 +6632,8 @@
     "sort_order": 2,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2023-24",
@@ -6254,7 +6649,8 @@
     "sort_order": 3,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2023-24",
@@ -6270,7 +6666,8 @@
     "sort_order": 4,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    },
    {
     "rotary_year": "2023-24",
@@ -6286,7 +6683,8 @@
     "sort_order": 5,
     "contact_ok": false,
     "contact_link": "",
-    "is_sample": true
+    "is_sample": true,
+    "ag_clubs": ""
    }
   ],
   "activities": [
@@ -6320,7 +6718,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0002",
@@ -6352,7 +6755,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0003",
@@ -6384,7 +6792,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0004",
@@ -6416,7 +6829,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0005",
@@ -6448,7 +6866,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0006",
@@ -6480,7 +6903,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0007",
@@ -6512,7 +6940,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0008",
@@ -6544,7 +6977,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Club Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0009",
@@ -6576,7 +7014,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0010",
@@ -6608,7 +7051,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0011",
@@ -6640,7 +7088,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0012",
@@ -6672,7 +7125,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0013",
@@ -6704,7 +7162,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Youth Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0014",
@@ -6736,7 +7199,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Vocational Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0015",
@@ -6768,7 +7236,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0016",
@@ -6800,7 +7273,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Club Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0017",
@@ -6832,7 +7310,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0018",
@@ -6864,7 +7347,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0019",
@@ -6896,7 +7384,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0020",
@@ -6928,7 +7421,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0021",
@@ -6960,7 +7458,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Youth Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0022",
@@ -6992,7 +7495,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Vocational Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0023",
@@ -7024,7 +7532,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0024",
@@ -7056,7 +7569,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Club Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0025",
@@ -7088,7 +7606,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0026",
@@ -7120,7 +7643,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0027",
@@ -7152,7 +7680,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0028",
@@ -7184,7 +7717,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0029",
@@ -7216,7 +7754,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Youth Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0030",
@@ -7248,7 +7791,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Vocational Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0031",
@@ -7280,7 +7828,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0032",
@@ -7312,7 +7865,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Club Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0033",
@@ -7344,7 +7902,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0034",
@@ -7376,7 +7939,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0035",
@@ -7408,7 +7976,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0036",
@@ -7440,7 +8013,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0037",
@@ -7472,7 +8050,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0038",
@@ -7504,7 +8087,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0039",
@@ -7536,7 +8124,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0040",
@@ -7568,7 +8161,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Youth Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0041",
@@ -7600,7 +8198,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Vocational Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0042",
@@ -7632,7 +8235,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0043",
@@ -7664,7 +8272,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Youth Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0044",
@@ -7696,7 +8309,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Youth Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0045",
@@ -7728,7 +8346,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "International Service",
+    "video_link": "https://www.youtube.com/watch?v=SAMPLEvideo",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0046",
@@ -7760,7 +8383,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "Sample Daily News, Kanpur edition",
+    "press_date": "2026-09-19",
+    "press_link": "https://example.com/news/safe-delivery-kits"
    },
    {
     "id": "ACT-2026-0047",
@@ -7792,7 +8420,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "Sample Times, Kanpur",
+    "press_date": "2026-10-03",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0048",
@@ -7824,7 +8457,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": true
+    "bulletin_exclude": true,
+    "avenue": "Youth Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0049",
@@ -7856,7 +8494,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0050",
@@ -7888,7 +8531,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0051",
@@ -7920,7 +8568,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0052",
@@ -7952,7 +8605,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0053",
@@ -7984,7 +8642,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0054",
@@ -8016,7 +8679,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0055",
@@ -8048,7 +8716,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Youth Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0056",
@@ -8080,7 +8753,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Club Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0057",
@@ -8094,7 +8772,7 @@
     "title": "Mega health camp served 1,450 patients",
     "date": "2026-09-13",
     "theme": "Fighting disease",
-    "description": "Specialist doctors from across the zone examined patients; 60 were referred for free cataract surgery.",
+    "description": "Specialist doctors from across the district examined patients; 60 were referred for free cataract surgery.",
     "photo_files": "sample:activity-03.jpg, sample:activity-04.jpg",
     "post_link": "",
     "people_helped": 1450,
@@ -8112,7 +8790,12 @@
     "is_sample": true,
     "campaign_id": "",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "Sample Samachar, Bareilly",
+    "press_date": "2026-09-14",
+    "press_link": "https://example.com/epaper/health-camp"
    },
    {
     "id": "ACT-2026-0058",
@@ -8144,7 +8827,12 @@
     "is_sample": true,
     "campaign_id": "BLOOD-2026-27",
     "campaign_count": 204,
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "https://youtu.be/SAMPLEvide2",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0059",
@@ -8176,7 +8864,12 @@
     "is_sample": true,
     "campaign_id": "BLOOD-2026-27",
     "campaign_count": 22,
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "https://www.instagram.com/reel/SAMPLEreel1/",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0060",
@@ -8208,7 +8901,12 @@
     "is_sample": true,
     "campaign_id": "BLOOD-2026-27",
     "campaign_count": 65,
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0061",
@@ -8240,7 +8938,12 @@
     "is_sample": true,
     "campaign_id": "BLOOD-2026-27",
     "campaign_count": 48,
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0062",
@@ -8272,7 +8975,12 @@
     "is_sample": true,
     "campaign_id": "BLOOD-2026-27",
     "campaign_count": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "Community Service",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0063",
@@ -8304,7 +9012,12 @@
     "is_sample": true,
     "campaign_id": "SCHOOL-2025-26",
     "campaign_count": 350,
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    },
    {
     "id": "ACT-2026-0064",
@@ -8336,7 +9049,12 @@
     "is_sample": true,
     "campaign_id": "SCHOOL-2025-26",
     "campaign_count": 120,
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "avenue": "",
+    "video_link": "",
+    "press_paper": "",
+    "press_date": "",
+    "press_link": ""
    }
   ],
   "events": [
@@ -8370,7 +9088,8 @@
     "registration_close_date": "",
     "fee": "",
     "registration_status": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": ""
    },
    {
     "id": "EVT-2026-0002",
@@ -8379,7 +9098,7 @@
     "submitter_name": "Rtn Sample Secretary",
     "submitter_role": "Secretary",
     "submitter_mobile": "5555000000",
-    "title": "Bareilly Zone mega health camp",
+    "title": "Bareilly mega health camp",
     "event_type": "Club event open to all",
     "start_date": "2026-09-13",
     "start_time": "09:00",
@@ -8402,7 +9121,8 @@
     "registration_close_date": "",
     "fee": "",
     "registration_status": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": ""
    },
    {
     "id": "EVT-2026-0003",
@@ -8434,7 +9154,8 @@
     "registration_close_date": "",
     "fee": "",
     "registration_status": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": false
    },
    {
     "id": "EVT-2026-0004",
@@ -8466,7 +9187,8 @@
     "registration_close_date": "2026-10-20",
     "fee": "Free",
     "registration_status": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": ""
    },
    {
     "id": "EVT-2026-0005",
@@ -8475,7 +9197,7 @@
     "submitter_name": "Rtn Sample Secretary",
     "submitter_role": "Secretary",
     "submitter_mobile": "5555000000",
-    "title": "Business networking evening – Agra Zone",
+    "title": "Business networking evening – Agra",
     "event_type": "Business networking evening",
     "start_date": "2026-11-07",
     "start_time": "18:30",
@@ -8498,7 +9220,8 @@
     "registration_close_date": "2026-11-03",
     "fee": "₹500 per person",
     "registration_status": "Seats full",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": ""
    },
    {
     "id": "EVT-2026-0006",
@@ -8530,7 +9253,8 @@
     "registration_close_date": "2026-10-15",
     "fee": "₹300 per person",
     "registration_status": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": ""
    },
    {
     "id": "EVT-2026-0007",
@@ -8562,7 +9286,8 @@
     "registration_close_date": "",
     "fee": "",
     "registration_status": "Postponed",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": ""
    },
    {
     "id": "EVT-2026-0008",
@@ -8594,7 +9319,8 @@
     "registration_close_date": "",
     "fee": "",
     "registration_status": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": true
    },
    {
     "id": "EVT-2026-0009",
@@ -8626,7 +9352,8 @@
     "registration_close_date": "2026-12-10",
     "fee": "₹2,500 per person",
     "registration_status": "Extended",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": ""
    },
    {
     "id": "EVT-2026-0010",
@@ -8658,7 +9385,8 @@
     "registration_close_date": "",
     "fee": "",
     "registration_status": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": ""
    },
    {
     "id": "EVT-2026-0011",
@@ -8690,7 +9418,8 @@
     "registration_close_date": "",
     "fee": "",
     "registration_status": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": ""
    },
    {
     "id": "EVT-2026-0012",
@@ -8722,7 +9451,8 @@
     "registration_close_date": "",
     "fee": "",
     "registration_status": "Cancelled",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": ""
    },
    {
     "id": "EVT-2026-0013",
@@ -8754,7 +9484,8 @@
     "registration_close_date": "",
     "fee": "",
     "registration_status": "",
-    "bulletin_exclude": ""
+    "bulletin_exclude": "",
+    "open_to_all": ""
    }
   ],
   "club_profile_requests": [
@@ -8780,7 +9511,8 @@
     "moderator_note": "",
     "is_sample": true,
     "permanent_projects": "",
-    "regular_services": "Blood bank help desk – every Sunday, 10 am–noon – Rotary Bhawan, Jhansi"
+    "regular_services": "Blood bank help desk – every Sunday, 10 am–noon – Rotary Bhawan, Jhansi",
+    "meeting_day": "Thursday"
    }
   ],
   "campaigns": [
@@ -8812,6 +9544,446 @@
     "chair": "",
     "chair_member_id": "",
     "sort_order": 1,
+    "is_sample": true
+   }
+  ],
+  "public_services": [
+   {
+    "id": "SRV-S001",
+    "submitted_at": "2026-10-01T10:00:00+05:30",
+    "submitter_email": "president.sample@example.com",
+    "submitter_name": "Rtn Sample President",
+    "submitter_role": "President",
+    "submitter_mobile": "5555000002",
+    "club_id": "S-001",
+    "club_name": "RC Agra",
+    "name": "Rotary Blood Bank",
+    "service_type": "Blood bank",
+    "timings": "Open 24 hours",
+    "phone": "+91 60000 00001",
+    "address": "Rotary Bhawan, Sanjay Place",
+    "city": "Agra",
+    "map_link": "https://maps.google.com/?q=Rotary%20Blood%20Bank%2C%20Agra",
+    "about": "Blood and blood components for any patient; free for thalassaemia patients.",
+    "status": "approved",
+    "approved_by": "moderator.a@example.com",
+    "approved_at": "2026-10-02T11:00:00+05:30",
+    "moderator_note": "The phone number is a mobile: check it is the facility's own number, not a member's",
+    "notified": true,
+    "is_sample": true
+   },
+   {
+    "id": "SRV-S002",
+    "submitted_at": "2026-10-01T10:00:00+05:30",
+    "submitter_email": "president.sample@example.com",
+    "submitter_name": "Rtn Sample President",
+    "submitter_role": "President",
+    "submitter_mobile": "5555000002",
+    "club_id": "S-006",
+    "club_name": "RC Aligarh",
+    "name": "Rotary Dialysis Unit",
+    "service_type": "Dialysis",
+    "timings": "Monday to Saturday, 8 am–8 pm",
+    "phone": "0571 000 0000",
+    "address": "District Hospital, Marris Road",
+    "city": "Aligarh",
+    "map_link": "https://maps.google.com/?q=Rotary%20Dialysis%20Unit%2C%20Aligarh",
+    "about": "Two dialysis machines; free for patients below the poverty line.",
+    "status": "approved",
+    "approved_by": "moderator.a@example.com",
+    "approved_at": "2026-10-02T11:00:00+05:30",
+    "moderator_note": "",
+    "notified": true,
+    "is_sample": true
+   },
+   {
+    "id": "SRV-S003",
+    "submitted_at": "2026-10-01T10:00:00+05:30",
+    "submitter_email": "president.sample@example.com",
+    "submitter_name": "Rtn Sample President",
+    "submitter_role": "President",
+    "submitter_mobile": "5555000002",
+    "club_id": "S-055",
+    "club_name": "RC Kasganj City",
+    "name": "Rotary Eye Hospital",
+    "service_type": "Eye care",
+    "timings": "Monday to Saturday, 10 am–4 pm",
+    "phone": "05744 000 000",
+    "address": "Soron Road",
+    "city": "Kasganj",
+    "map_link": "https://maps.google.com/?q=Rotary%20Eye%20Hospital%2C%20Kasganj",
+    "about": "",
+    "status": "approved",
+    "approved_by": "moderator.a@example.com",
+    "approved_at": "2026-10-02T11:00:00+05:30",
+    "moderator_note": "",
+    "notified": true,
+    "is_sample": true
+   },
+   {
+    "id": "SRV-S004",
+    "submitted_at": "2026-10-01T10:00:00+05:30",
+    "submitter_email": "president.sample@example.com",
+    "submitter_name": "Rtn Sample President",
+    "submitter_role": "President",
+    "submitter_mobile": "5555000002",
+    "club_id": "S-036",
+    "club_name": "RC Jhansi",
+    "name": "Rotary Dental Clinic",
+    "service_type": "Clinic / health centre",
+    "timings": "Every day except Sunday, 10 am–1 pm",
+    "phone": "0510 000 0000",
+    "address": "Sipri Bazar",
+    "city": "Jhansi",
+    "map_link": "https://maps.google.com/?q=Rotary%20Dental%20Clinic%2C%20Jhansi",
+    "about": "Dental check-ups and treatment at a nominal charge.",
+    "status": "approved",
+    "approved_by": "moderator.a@example.com",
+    "approved_at": "2026-10-02T11:00:00+05:30",
+    "moderator_note": "",
+    "notified": true,
+    "is_sample": true
+   },
+   {
+    "id": "SRV-S005",
+    "submitted_at": "2026-10-01T10:00:00+05:30",
+    "submitter_email": "president.sample@example.com",
+    "submitter_name": "Rtn Sample President",
+    "submitter_role": "President",
+    "submitter_mobile": "5555000002",
+    "club_id": "S-039",
+    "club_name": "RC Kanpur",
+    "name": "Rotary Ambulance Service",
+    "service_type": "Ambulance",
+    "timings": "Open 24 hours",
+    "phone": "1800 000 0000",
+    "address": "Rotary Bhawan, Civil Lines",
+    "city": "Kanpur",
+    "map_link": "https://maps.google.com/?q=Rotary%20Ambulance%20Service%2C%20Kanpur",
+    "about": "Ambulance with oxygen for patients going to hospital in Kanpur.",
+    "status": "approved",
+    "approved_by": "moderator.a@example.com",
+    "approved_at": "2026-10-02T11:00:00+05:30",
+    "moderator_note": "",
+    "notified": true,
+    "is_sample": true
+   },
+   {
+    "id": "SRV-S006",
+    "submitted_at": "2026-10-01T10:00:00+05:30",
+    "submitter_email": "president.sample@example.com",
+    "submitter_name": "Rtn Sample President",
+    "submitter_role": "President",
+    "submitter_mobile": "5555000002",
+    "club_id": "S-017",
+    "club_name": "RC Bareilly Central",
+    "name": "Rotary Children's Library",
+    "service_type": "Library",
+    "timings": "Tuesday to Sunday, 3 pm–7 pm",
+    "phone": "0581 000 0000",
+    "address": "Rotary Bhawan, Civil Lines",
+    "city": "Bareilly",
+    "map_link": "https://maps.google.com/?q=Rotary%20Children's%20Library%2C%20Bareilly",
+    "about": "Books and a reading room for school children; free membership.",
+    "status": "approved",
+    "approved_by": "moderator.a@example.com",
+    "approved_at": "2026-10-02T11:00:00+05:30",
+    "moderator_note": "",
+    "notified": true,
+    "is_sample": true
+   },
+   {
+    "id": "SRV-S007",
+    "submitted_at": "2026-10-01T10:00:00+05:30",
+    "submitter_email": "president.sample@example.com",
+    "submitter_name": "Rtn Sample President",
+    "submitter_role": "President",
+    "submitter_mobile": "5555000002",
+    "club_id": "S-058",
+    "club_name": "RC Mathura",
+    "name": "Rotary Skill Centre",
+    "service_type": "Skill / vocational centre",
+    "timings": "Monday to Friday, 10 am–5 pm",
+    "phone": "ask at the gate",
+    "address": "Krishna Nagar",
+    "city": "Mathura",
+    "map_link": "https://maps.google.com/?q=Rotary%20Skill%20Centre%2C%20Mathura",
+    "about": "Write to sample.person@example.com for admissions",
+    "status": "approved",
+    "approved_by": "moderator.a@example.com",
+    "approved_at": "2026-10-02T11:00:00+05:30",
+    "moderator_note": "",
+    "notified": true,
+    "is_sample": true
+   },
+   {
+    "id": "SRV-S008",
+    "submitted_at": "2026-10-01T10:00:00+05:30",
+    "submitter_email": "president.sample@example.com",
+    "submitter_name": "Rtn Sample President",
+    "submitter_role": "President",
+    "submitter_mobile": "5555000002",
+    "club_id": "S-036",
+    "club_name": "RC Jhansi",
+    "name": "PENDING-SAMPLE service awaiting approval",
+    "service_type": "Other",
+    "timings": "Sundays",
+    "phone": "0510 000 0001",
+    "address": "Town Hall",
+    "city": "Jhansi",
+    "map_link": "https://maps.google.com/?q=PENDING-SAMPLE%20service%20awaiting%20approval%2C%20Jhansi",
+    "about": "",
+    "status": "pending",
+    "approved_by": "",
+    "approved_at": "",
+    "moderator_note": "",
+    "notified": false,
+    "is_sample": true
+   },
+   {
+    "id": "SRV-S009",
+    "submitted_at": "2026-10-01T10:00:00+05:30",
+    "submitter_email": "president.sample@example.com",
+    "submitter_name": "Rtn Sample President",
+    "submitter_role": "President",
+    "submitter_mobile": "5555000002",
+    "club_id": "S-001",
+    "club_name": "RC Agra",
+    "name": "REJECTED-SAMPLE duplicate blood bank",
+    "service_type": "Blood bank",
+    "timings": "Open 24 hours",
+    "phone": "+91 60000 00001",
+    "address": "Sanjay Place",
+    "city": "Agra",
+    "map_link": "https://maps.google.com/?q=REJECTED-SAMPLE%20duplicate%20blood%20bank%2C%20Agra",
+    "about": "",
+    "status": "rejected",
+    "approved_by": "moderator.a@example.com",
+    "approved_at": "2026-10-02T11:00:00+05:30",
+    "moderator_note": "Duplicate of SRV-S001",
+    "notified": true,
+    "is_sample": true
+   }
+  ],
+  "profiles": [
+   {
+    "role": "President of Rotary International",
+    "rotary_year": "2026-27",
+    "name": "Sample: RI President",
+    "theme": "Sample theme of the year",
+    "profile": "This is a sample profile used while the website is being tested. The district will give the RI President's official profile and photo.",
+    "photo": "sample:message-1.jpg",
+    "link": "https://www.rotary.org/en/about-rotary/rotary-leadership",
+    "sort_order": 1,
+    "is_sample": true
+   },
+   {
+    "role": "District Governor",
+    "rotary_year": "2026-27",
+    "name": "Sample: District Governor",
+    "theme": "Sample district theme",
+    "profile": "This is a sample profile used while the website is being tested. The District Governor's profile and photo will replace it.",
+    "photo": "sample:message-2.jpg",
+    "link": "",
+    "sort_order": 2,
+    "is_sample": true
+   }
+  ],
+  "past_governors": [
+   {
+    "rotary_year": "1983-84",
+    "name": "PDG Ram Narain Agarwal",
+    "club": "RC Agra North",
+    "member_id": "T-0002",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "1987-88",
+    "name": "PDG Rajiv Tandon",
+    "club": "RC Kanpur",
+    "member_id": "T-0003",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "1991-92",
+    "name": "PDG Mukund Hari Singhal",
+    "club": "RC Aligarh",
+    "member_id": "T-0004",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "1994-95",
+    "name": "PDG Arun Khanna",
+    "club": "RC Kanpur Vinayak Shree",
+    "member_id": "T-0005",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "1996-97",
+    "name": "PDG Hari Mohan Bansal",
+    "club": "RC Jhansi",
+    "member_id": "T-0006",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "1997-98",
+    "name": "PDG Dr Iqbal Singh Tomer",
+    "club": "RC Bareilly South",
+    "member_id": "T-0007",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "1999-2000",
+    "name": "PDG Dr D N. Raizaday",
+    "club": "RC Kanpur Central",
+    "member_id": "T-0008",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2001-02",
+    "name": "PDG Ravi Prakash Agarwal",
+    "club": "RC Bareilly South",
+    "member_id": "T-0009",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2002-03",
+    "name": "PDG Manmohan Singh Saluja",
+    "club": "RC Kanpur Metro",
+    "member_id": "T-0010",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2003-04",
+    "name": "PDG Naresh Sood",
+    "club": "RC Agra North",
+    "member_id": "T-0011",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2005-06",
+    "name": "PDG Chander P. Rishi",
+    "club": "RC Kanpur Green",
+    "member_id": "T-0012",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2007-08",
+    "name": "PDG Tavinder Pal Singh Sethi",
+    "club": "RC Bareilly Eight PM",
+    "member_id": "T-0013",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2009-10",
+    "name": "PDG Dr Shailendra Kumar Raju",
+    "club": "RC Hathras Heritage",
+    "member_id": "T-0014",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2010-11",
+    "name": "PDG Pushp Pal Singh",
+    "club": "RC Bareilly North",
+    "member_id": "T-0015",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2011-12",
+    "name": "PDG Arvind Kumar Srivastava",
+    "club": "RC Unnao",
+    "member_id": "T-0016",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2012-13",
+    "name": "PDG Laxmi Kant Bansal",
+    "club": "RC Firozabad",
+    "member_id": "T-0017",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2013-14",
+    "name": "PDG Devendra Kumar Agarwal",
+    "club": "RC Kashipur",
+    "member_id": "T-0018",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2014-15",
+    "name": "PDG Ashok Jyoti",
+    "club": "RC Kanpur South",
+    "member_id": "T-0019",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2015-16",
+    "name": "PDG Sharat Chandra",
+    "club": "RC Agra Sapphire",
+    "member_id": "T-0020",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2016-17",
+    "name": "PDG Dr Ravi Mehra",
+    "club": "RC Bareilly South",
+    "member_id": "T-0021",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2017-18",
+    "name": "PDG Vinay Asthana",
+    "club": "RC Kanpur Shikhar",
+    "member_id": "T-0022",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2018-19",
+    "name": "PDG Arun Kumar Jain",
+    "club": "RC Hathras Heritage",
+    "member_id": "T-0023",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2019-20",
+    "name": "PDG Kishore Katru",
+    "club": "RC Bareilly Central",
+    "member_id": "T-0024",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2020-21",
+    "name": "PDG Dinesh Chandra Shukla",
+    "club": "RC Kanpur West",
+    "member_id": "T-0025",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2021-22",
+    "name": "PDG Mukesh Singhal",
+    "club": "RC Aligarh City",
+    "member_id": "T-0026",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "2022-23",
+    "name": "PDG Pawan Agarwal",
+    "club": "RC Kashipur",
+    "member_id": "T-0027",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "1984-85",
+    "name": "Sample: Late PDG (1984-85)",
+    "club": "RC Agra",
+    "member_id": "",
+    "is_sample": true
+   },
+   {
+    "rotary_year": "1985-86",
+    "name": "Sample: Late PDG (1985-86)",
+    "club": "RC Kanpur",
+    "member_id": "",
     "is_sample": true
    }
   ],
@@ -19186,6 +20358,21 @@
     "approved_by": "",
     "approved_at": "",
     "moderator_note": "",
+    "is_sample": true
+   }
+  ],
+  "contact_messages": [
+   {
+    "id": "MSG-S001",
+    "submitted_at": "2026-10-12T15:30:00+05:30",
+    "name": "Sample Visitor",
+    "reply_to": "visitor.sample@example.com",
+    "topic": "I want to volunteer",
+    "city": "Agra",
+    "message": "I would like to help at the next blood donation camp in Agra. Please tell me how to join. (Sample message.)",
+    "status": "new",
+    "forwarded_to": "moderators",
+    "note": "",
     "is_sample": true
    }
   ]

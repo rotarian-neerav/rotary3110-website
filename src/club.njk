@@ -8,14 +8,14 @@ pagination:
 permalink: "{{ c.url }}"
 eleventyComputed:
   title: "{{ c.display_name }}"
-  description: "{{ c.display_name }}, {{ c.city }} – office bearers, meetings{% if c.services.length %}, regular services{% endif %} and service activities. Part of Rotary District 3110, {{ c.zone }} Zone."
+  description: "{{ c.display_name }}, {{ c.city }} – {% if c.meeting_day %}meets on {{ c.meeting_day }}; {% endif %}office bearers{% if c.services.length %}, regular services{% endif %}{% if c.publicServices.length %}, services the public can use{% endif %} and service activities. Part of Rotary District 3110."
 ---
-{% from "macros.njk" import activityCard, avatar %}
+{% from "macros.njk" import activityCard, avatar, serviceCard %}
 <div class="wrap section">
-  <p class="meta">{{ c.zone }} Zone · {{ c.city }}{% if c.status != 'active' %} · <strong>No longer active</strong>{% endif %}</p>
+  <p class="meta">{% if c.cityUrl %}<a href="{{ c.cityUrl }}">{{ c.city }}</a>{% else %}{{ c.city }}{% endif %}{% if c.status != 'active' %} · <strong>No longer active</strong>{% endif %}</p>
   <h1>{{ c.display_name }}</h1>
   {%- if c.former_names.length %}<p class="small muted">Formerly {{ c.former_names | join(', ') }}</p>{% endif %}
-  {%- if c.meeting %}<p>🗓 Meets: {{ c.meeting }}</p>{% endif %}
+  {%- if c.meeting %}<p>🗓 Meets: {{ c.meeting }}</p>{% elif c.meeting_day %}<p>🗓 Meets on {{ c.meeting_day }}</p>{% endif %}
   {%- set links = [["website", "Website"], ["facebook", "Facebook"], ["instagram", "Instagram"], ["youtube", "YouTube"], ["x", "X"], ["linkedin", "LinkedIn"]] %}
   <p class="link-buttons">
     {%- for l in links %}{% if c.links[l[0]] %}<a class="btn btn-outline" href="{{ c.links[l[0]] }}" target="_blank" rel="noopener">{{ l[1] }} ↗</a>{% endif %}{% endfor %}
@@ -53,6 +53,12 @@ eleventyComputed:
   {%- endif %}
   {%- if c.services.length or c.projects.length %}
   <p class="small"><a href="/club-profile/">{{ t.club.missing }}</a></p>
+  {%- endif %}
+  {%- if c.publicServices.length %}
+  <section id="public-services">
+    <h2>{{ t.club.public_services }}</h2>
+    <div class="service-grid">{% for x in c.publicServices %}{{ serviceCard(x, t, false) }}{% endfor %}</div>
+  </section>
   {%- endif %}
   {%- if c.campaigns.length %}
   <p class="campaign-line"><strong>{{ t.club.campaigns_this_year }}:</strong> {% for x in c.campaigns %}<a href="{{ x.campaign.url }}">{{ x.campaign.name }}</a> – {{ x.count | number }} {{ x.campaign.unit }}{% if not loop.last %}; {% endif %}{% endfor %}</p>

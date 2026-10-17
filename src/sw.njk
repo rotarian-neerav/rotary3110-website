@@ -1,0 +1,52 @@
+---
+permalink: /sw.js
+eleventyExcludeFromCollections: true
+---
+// Offline reading. Online, every page and file comes fresh from the website (network first), so
+// visitors always see the latest. A copy of the pages read recently is kept on the phone, and is shown
+// when there is no connection. Photos (whose names change when they change) are kept a little longer.
+var VERSION = '{{ site.generatedAt }}';
+var PAGES = 'pages-v1';
+var FILES = 'files-v1';
+var MAX_PAGES = 40;
+var MAX_FILES = 120;
+var BASE = self.registration.scope;
+var OFFLINE = BASE + 'offline/';
+
+self.addEventListener('install', function (event) {
+  event.waitUntil(caches.open(PAGES).then(function (c) { return c.addAll([OFFLINE, BASE]); }).then(function () { return self.skipWaiting(); }));
+});
+
+self.addEventListener('activate', function (event) {
+  event.waitUntil(caches.keys().then(function (keys) {
+    return Promise.all(keys.filter(function (k) { return k !== PAGES && k !== FILES; }).map(function (k) { return caches.delete(k); }));
+  }).then(function () { return self.clients.claim(); }));
+});
+
+function trim(name, max) {
+  return caches.open(name).then(function (c) {
+    return c.keys().then(function (keys) {
+      return Promise.all(keys.slice(0, Math.max(0, keys.length - max)).map(function (k) { return c.delete(k); }));
+    });
+  });
+}
+
+self.addEventListener('fetch', function (event) {
+  var req = event.request;
+  if (req.method !== 'GET' || req.url.indexOf(BASE) !== 0) return;
+  // the search index and calendar files are not kept
+  if (/\/pagefind\/|\.ics$/.test(req.url)) return;
+  var isPage = req.mode === 'navigate' || (req.headers.get('accept') || '').indexOf('text/html') >= 0;
+  var store = isPage ? PAGES : FILES;
+  event.respondWith(fetch(req).then(function (res) {
+    if (res.ok && res.type === 'basic') {
+      var copy = res.clone();
+      caches.open(store).then(function (c) { return c.put(req, copy); }).then(function () { return trim(store, isPage ? MAX_PAGES : MAX_FILES); });
+    }
+    return res;
+  }).catch(function () {
+    return caches.match(req).then(function (hit) {
+      return hit || (isPage ? caches.match(OFFLINE) : Response.error());
+    });
+  }));
+});

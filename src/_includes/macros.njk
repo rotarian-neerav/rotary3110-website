@@ -11,7 +11,7 @@
 {%- endmacro %}
 
 {% macro activityCard(a, t) %}
-<article class="card activity" data-club="{{ a.club_id }}{% for p in a.partners %} {{ p.club_id }}{% endfor %}" data-theme="{{ a.themeSlug }}">
+<article class="card activity" data-club="{{ a.club_id }}{% for p in a.partners %} {{ p.club_id }}{% endfor %}" data-theme="{{ a.themeSlug }}" data-avenue="{{ a.avenueSlug }}" data-year="{{ a.year }}">
   <a class="card-media" href="{{ a.url }}" tabindex="-1" aria-hidden="true">
     {%- if a.images.length %}
     <img src="{{ a.images[0].card.src }}" alt="" width="{{ a.images[0].card.width }}" height="{{ a.images[0].card.height }}" loading="lazy">
@@ -51,7 +51,7 @@
 {%- endmacro %}
 
 {% macro eventItem(e, t) %}
-<article class="event{% if e.isPast %} past{% endif %}{% if e.registration.state == 'cancelled' %} cancelled{% endif %}">
+<article class="event{% if e.isPast %} past{% endif %}{% if e.registration.state == 'cancelled' %} cancelled{% endif %}" data-open="{{ 'yes' if e.openToAll else 'no' }}">
   <div class="event-date" aria-hidden="true">
     <span class="d">{{ e.start_date.slice(8, 10) | int }}</span><span class="m">{{ e.dateLabel.split(' ')[1] }}</span>
   </div>
@@ -59,7 +59,7 @@
   <div class="event-body">
     <h3><a href="{{ e.url }}">{{ e.title }}</a></h3>
     <p class="meta">{{ e.dateLabel }}{% if e.start_time %} · {{ e.start_time }}{% endif %} · {{ e.venue }}, {{ e.city }}</p>
-    <p class="meta">{% if e.isDistrict %}<span class="chip chip-district">District</span> {% endif %}{{ t.events.organiser }}: {{ e.organiser }} · <span class="chip">{{ e.event_type }}</span></p>
+    <p class="meta">{% if e.isDistrict %}<span class="chip chip-district">District</span> {% endif %}{% if e.openToAll %}<span class="chip chip-open">{{ t.events.open }}</span> {% endif %}{{ t.events.organiser }}: {{ e.organiser }} · <span class="chip">{{ e.event_type }}</span></p>
     {%- if not e.isPast %}{{ registrationLine(e.registration) }}{% endif %}
     {%- if e.isPast and e.report %}
     <p><a href="{{ e.report.url }}">{{ t.events.report }} →</a></p>
@@ -69,7 +69,7 @@
 {% endmacro %}
 
 {% macro roleLine(r) -%}
-{{ r.role }}{% if r.zone and r.role != 'Assistant Governor' %} – {{ r.zone }} Zone{% endif %}{% if r.term %} ({{ r.term }}){% endif %}
+{{ r.role }}{% if r.term %} ({{ r.term }}){% endif %}
 {%- endmacro %}
 
 {% macro personCard(r) %}
@@ -79,9 +79,39 @@
     <strong>{% if r.card %}<a href="{{ r.card }}">{{ r.name }}</a>{% else %}{{ r.name }}{% endif %}</strong>
     <span class="role">{{ roleLine(r) }}</span>
     {%- if r.club %}<span class="club"><a href="{{ r.club.url }}">{{ r.club.name }}</a></span>{% endif %}
+    {%- if r.agClubs and r.agClubs.length %}<span class="ag-clubs">Looks after: {% for c in r.agClubs %}<a href="{{ c.url }}">{{ c.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</span>{% endif %}
     {%- if r.contact_ok and r.contact_link %}<a class="btn-small wa" href="{{ r.contact_link }}" rel="noopener">WhatsApp</a>{% endif %}
   </div>
 </li>
+{% endmacro %}
+
+{% macro serviceCard(x, t, showClub=true) %}
+<article class="service-card" data-city="{{ x.city }}" data-type="{{ x.typeSlug }}">
+  <p class="meta"><span class="chip chip-service">{{ x.type }}</span>{% if x.city %} <a href="{{ x.cityUrl }}">{{ x.city }}</a>{% endif %}</p>
+  <h3>{{ x.name }}</h3>
+  {%- if x.about %}<p>{{ x.about }}</p>{% endif %}
+  <dl class="details compact">
+    {%- if x.timings %}<dt>{{ t.services.open }}</dt><dd>{{ x.timings }}</dd>{% endif %}
+    {%- if x.address %}<dt>{{ t.services.address }}</dt><dd>{{ x.address }}{% if x.city %}, {{ x.city }}{% endif %}</dd>{% endif %}
+    {%- if x.phone %}<dt>{{ t.services.phone }}</dt><dd><a class="service-phone" href="tel:{{ x.tel }}">{{ x.phone }}</a></dd>{% endif %}
+    {%- if showClub and x.club %}<dt>{{ t.services.run_by }}</dt><dd><a href="{{ x.club.url }}">{{ x.club.name }}</a></dd>{% endif %}
+  </dl>
+  {%- if x.map_link %}<p><a class="btn-small" href="{{ x.map_link }}" target="_blank" rel="noopener">{{ t.services.map }} ↗</a></p>{% endif %}
+</article>
+{% endmacro %}
+
+{% macro videoBlock(v, title, t) %}
+{%- if v.kind == 'youtube' %}
+<figure class="video" data-video="{{ v.id | ytEmbed }}" data-title="{{ title }}">
+  <a class="video-start" href="{{ v.url }}" target="_blank" rel="noopener" aria-label="{{ t.activity.play }}: {{ title }}">
+    <img src="https://i.ytimg.com/vi/{{ v.id }}/hqdefault.jpg" alt="Video: {{ title }}" width="480" height="360" loading="lazy">
+    <span class="play" aria-hidden="true">▶</span>
+  </a>
+  <figcaption class="small muted">{{ t.activity.video_note }}</figcaption>
+</figure>
+{%- elif v %}
+<p><a class="btn" href="{{ v.url }}" target="_blank" rel="noopener">{{ t.activity.watch }}{% if v.kind == 'instagram' %} on Instagram{% elif v.kind == 'facebook' %} on Facebook{% endif %} ↗</a></p>
+{%- endif %}
 {% endmacro %}
 
 {% macro shareButton(text, url, t) -%}

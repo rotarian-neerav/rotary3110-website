@@ -23,6 +23,7 @@ function loadSampleData(silent) {
 var SAMPLE_ID_KEYS = {
   clubs: 'club_id', activities: 'id', events: 'id', club_profile_requests: 'id', campaigns: 'campaign_id',
   messages: 'id', members_master: 'member_id', couples: 'couple_id', consent_requests: 'id', removal_requests: 'id',
+  public_services: 'id', contact_messages: 'id',
 };
 
 function loadTabs_(ss, tabs, counts) {

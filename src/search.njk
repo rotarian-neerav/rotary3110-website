@@ -1,0 +1,16 @@
+---
+layout: layouts/base.njk
+title: Search
+description: Search the Rotary District 3110 website for activities, events, clubs, cities, services, people and bulletins.
+permalink: /search/
+noindex: true
+---
+<div class="wrap section narrow">
+  <h1>{{ t.search.title }}</h1>
+  <p class="lead">{{ t.search.intro }}</p>
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+  <div id="site-search" data-search></div>
+  <noscript><p class="callout">{{ t.search.nojs }}</p></noscript>
+</div>
+<script src="/pagefind/pagefind-ui.js" defer></script>
+<script src="/assets/js/search.js" defer></script>

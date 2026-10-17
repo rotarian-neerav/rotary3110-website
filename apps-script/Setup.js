@@ -55,6 +55,7 @@ function upgradeSheet() {
   ensureSettings_(report);
   addValidation_(main, privateSs_());
   ensureLists_(report);
+  createForms_(report); // new forms only; existing forms are kept
   addLaterQuestions_(report);
   installTriggers_(report);
   updateFormLists(true);
@@ -75,7 +76,8 @@ function ensureLists_(report) {
 }
 
 var TEXT_COLUMNS = ['member_id', 'chair_member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
-  'person_b_id', 'spouse_id', 'spouse_member_id', 'matched_member_id', 'public_key', 'club_id', 'rotary_year', 'term', 'issue_month', 'month'];
+  'person_b_id', 'spouse_id', 'spouse_member_id', 'matched_member_id', 'public_key', 'club_id', 'rotary_year', 'term', 'issue_month', 'month',
+  'phone', 'reply_to'];
 
 function ensureTabs_(ss, schema, report) {
   Object.keys(schema).forEach(function (name) {
@@ -115,7 +117,7 @@ function ensureTabs_(ss, schema, report) {
 var DEFAULT_SETTINGS = [
   ['district_name', 'Rotary District 3110', 'Shown in the header and footer'],
   ['current_rotary_year', '2024-25', 'Rotary year shown for office bearers, teams and committees'],
-  ['zones', 'Agra, Bareilly, Kanpur', 'District zones'],
+  ['zones', 'Agra, Bareilly, Kanpur', 'District zones: for the district\'s own use only, never shown on the website'],
   ['professions', '', 'Comma-separated list for the directory; placeholder until the real list is agreed'],
   ['moderator_emails', '', 'Comma-separated; they receive the 48-hour reminders'],
   ['site_url', 'https://rotarian-neerav.github.io/rotary3110-website/', 'Used in emails to people who send activities'],
@@ -128,6 +130,11 @@ var DEFAULT_SETTINGS = [
   ['campaign_check_above', '1000', 'A campaign count above this gets a note for the moderator'],
   ['bulletin_start_date', '', 'A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week\'s bulletin'],
   ['bulletin_emails', '', 'Comma-separated; they receive the Sunday WhatsApp message to forward. Blank: the moderators'],
+  ['form_public_service_url', '', 'Filled in by setup'],
+  ['form_contact_url', '', 'Filled in by setup; shown inside the website\'s Contact page'],
+  ['contact_email', '', 'Where messages from the website\'s contact form are emailed (never shown on the website). Blank: the moderators'],
+  ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
+  ['not_posting_emails', 'not-posting@example.com', 'Receives the monthly list of clubs that did not post (private). A dummy address until the district names someone'],
 ];
 
 function ensureSettings_(report) {
@@ -151,10 +158,15 @@ function addValidation_(main, priv) {
     var idx = headers_(ss, tab).indexOf(col);
     if (idx >= 0) sh.getRange(2, idx + 1, sh.getMaxRows() - 1, 1).setDataValidation(rule);
   }
-  ['activities', 'events', 'club_profile_requests'].forEach(function (t) {
+  ['activities', 'events', 'club_profile_requests', 'public_services'].forEach(function (t) {
     apply(main, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
   apply(main, 'activities', 'theme', listRule_(CORE_THEMES));
+  apply(main, 'activities', 'avenue', listRule_(CORE_AVENUES));
+  apply(main, 'public_services', 'service_type', listRule_(CORE_SERVICE_TYPES));
+  apply(main, 'events', 'open_to_all', listRule_(['TRUE', 'FALSE']));
+  apply(main, 'clubs', 'meeting_day', listRule_(CORE_WEEKDAYS));
+  apply(main, 'club_profile_requests', 'meeting_day', listRule_(CORE_WEEKDAYS));
   apply(main, 'events', 'event_type', listRule_(CORE_EVENT_TYPES));
   apply(main, 'clubs', 'status', listRule_(['active', 'inactive']));
   // A tick-box column would fill every empty row with FALSE, so new rows would land far down the tab.
@@ -167,6 +179,7 @@ function addValidation_(main, priv) {
     apply(priv, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
   apply(priv, 'members_master', 'status', listRule_(['active', 'deceased', 'left']));
+  apply(priv, 'contact_messages', 'status', listRule_(['new', 'answered', 'spam']));
   apply(priv, 'couples', 'status', listRule_(['active', 'awaiting_spouse', 'check_dates', 'withdrawn']));
 }
 
@@ -230,6 +243,10 @@ function installTriggers_(report) {
   if (!existing.some(function (e) { return e.indexOf('bulletinMessage|') === 0; })) {
     ScriptApp.newTrigger('bulletinMessage').timeBased().onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(8).inTimezone('Asia/Kolkata').create();
     report.push('Scheduled the bulletin message email (Sunday 8 am)');
+  }
+  if (!existing.some(function (e) { return e.indexOf('notPostingReport|') === 0; })) {
+    ScriptApp.newTrigger('notPostingReport').timeBased().onMonthDay(1).atHour(9).inTimezone('Asia/Kolkata').create();
+    report.push('Scheduled the monthly clubs-not-posting email (1st of the month, 9 am)');
   }
 }
 

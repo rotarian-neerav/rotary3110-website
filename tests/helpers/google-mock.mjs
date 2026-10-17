@@ -35,20 +35,35 @@ class FakeForm {
   add(type) {
     const form = this;
     const item = fluent({
-      type, title: '', help: '', choices: [],
+      type, title: '', help: '', choices: [], required: false,
       setTitle(t) { this.title = t; return item; },
       getTitle() { return this.title; },
       setHelpText(h) { this.help = h; return item; },
       setChoiceValues(v) { this.choices = v; return item; },
+      setRequired(r) { this.required = r; return item; },
       getType() { return this.type; },
       getIndex() { return form.items.indexOf(item); },
       asListItem() { return item; },
       asCheckboxItem() { return item; },
+      // like Google Forms: a pre-filled answer is only accepted when it is one of the choices
+      createResponse(value) {
+        if (this.choices.length && !this.choices.includes(value)) throw new Error('not a choice: ' + value);
+        return { index: form.items.indexOf(item), value };
+      },
     });
     this.items.push(item);
     return item;
   }
   titles() { return this.items.map((i) => i.title); }
+  /** A pre-filled link: the form's address with the chosen answers. */
+  createResponse() {
+    const answers = [];
+    const builder = {
+      withItemResponse: (r) => { answers.push(r); return builder; },
+      toPrefilledUrl: () => `https://docs.google.com/forms/d/e/${this.id}/viewform?usp=pp_url&` + answers.map((a) => `entry.${a.index}=${encodeURIComponent(a.value)}`).join('&'),
+    };
+    return builder;
+  }
 }
 for (const [method, type] of Object.entries({ addListItem: 'LIST', addCheckboxItem: 'CHECKBOX', addTextItem: 'TEXT', addParagraphTextItem: 'PARAGRAPH_TEXT',
   addDateItem: 'DATE', addTimeItem: 'TIME', addMultipleChoiceItem: 'MULTIPLE_CHOICE', addPageBreakItem: 'PAGE_BREAK' })) {

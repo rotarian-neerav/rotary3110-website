@@ -46,3 +46,21 @@ Every awkward case the site must handle, and how many sample rows cover it. Gene
 | Events with a registration closing date | 4 |
 | Events with a fee | 4 |
 | Events marked Seats full / Postponed / Cancelled / Extended | 4 |
+| Activities with an Avenue of Service | 56 |
+| Approved activities sent before the avenue question (no avenue) | 8 |
+| Activities covered in the press | 3 |
+| Press coverage without a link | 1 |
+| YouTube videos | 2 |
+| Other video links (Instagram) | 1 |
+| Events marked open to everyone on the form | 1 |
+| Clubs with a meeting weekday given | 2 |
+| Assistant Governors with their clubs listed | 33 |
+| Approved public services | 7 |
+| Public service with a mobile-format number (moderator note) | 2 |
+| Public service with no valid number (shown without one) | 1 |
+| Public service with an email in its text (kept off the site) | 1 |
+| Pending and rejected public services | 2 |
+| About page profiles (RI President, DG) | 2 |
+| Past District Governors | 28 |
+| Past District Governors no longer with us (no card) | 2 |
+| Contact form messages (private) | 1 |

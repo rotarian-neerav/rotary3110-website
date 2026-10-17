@@ -1,0 +1,52 @@
+---
+layout: layouts/base.njk
+title: About the district
+description: What Rotary and Rotary District 3110 are, this year's RI President and District Governor, every Past District Governor, and the Rotary words and abbreviations used on this site.
+permalink: /about/
+---
+{% from "macros.njk" import avatar %}
+<div class="wrap section narrow prose">
+  <h1>{{ t.about.title }}</h1>
+  <p class="lead">Rotary brings together people who want to take action in their communities. Its clubs meet every week or two, and their members give their time and skills to service projects close to home and around the world.</p>
+  <p>Rotary International is a worldwide association of Rotary clubs, with more than a million members. Clubs are grouped into districts, each led by a District Governor for one Rotary year (1 July to 30 June).</p>
+  <p>Rotary District 3110 has {{ site.activeClubs.length }} clubs in {{ site.cities.length }} cities and towns of Uttar Pradesh and Uttarakhand. You can <a href="/clubs/">find a club by city or meeting day</a>, see <a href="/activities/">what the clubs have done</a>, or look up <a href="/services/">services the public can use</a>.</p>
+
+  {%- if site.profiles.length %}
+  <h2>{{ t.about.leaders }}</h2>
+  <div class="profile-list">
+    {%- for p in site.profiles %}
+    <article class="profile-card" id="{{ p.role | lower | replace(' ', '-') }}">
+      {{ avatar(p.name, p.image.sq.src if p.image else '', 112) }}
+      <div>
+        <p class="meta">{{ p.role }}{% if p.rotary_year %} · {{ p.rotary_year }}{% endif %}</p>
+        <h3>{{ p.name }}</h3>
+        {%- if p.theme %}<p class="profile-theme"><strong>{{ t.about.theme }}:</strong> {{ p.theme }}</p>{% endif %}
+        {%- if p.profile %}<p>{{ p.profile }}</p>{% endif %}
+        {%- if p.link %}<p class="small"><a href="{{ p.link }}" target="_blank" rel="noopener">More on rotary.org ↗</a></p>{% endif %}
+      </div>
+    </article>
+    {%- endfor %}
+  </div>
+  {%- endif %}
+  <p class="small"><a href="/leadership/">The full district leadership →</a> · <a href="/teams/">Teams and committees →</a></p>
+
+  {%- if site.pastGovernors.length %}
+  <h2 id="past-district-governors">{{ t.about.past_dgs }}</h2>
+  <table class="past-dgs">
+    <thead><tr><th scope="col">Rotary year</th><th scope="col">Name</th><th scope="col">Club</th></tr></thead>
+    <tbody>
+      {%- for g in site.pastGovernors %}
+      <tr><td>{{ g.term }}</td><td>{% if g.card %}<a href="{{ g.card }}">{{ g.name }}</a>{% else %}{{ g.name }}{% endif %}</td><td>{% if g.club %}<a href="{{ g.club.url }}">{{ g.club.name }}</a>{% endif %}</td></tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+  {%- endif %}
+
+  <h2 id="glossary">{{ t.about.glossary }}</h2>
+  <dl class="glossary" data-nogloss>
+    {%- for g in glossary %}
+    <div id="term-{{ g.term | lower | replace(' ', '-') }}"><dt>{{ g.term }}</dt><dd><strong>{{ g.full }}.</strong> {{ g.text }}</dd></div>
+    {%- endfor %}
+  </dl>
+  <p class="small"><a href="/contact/">Contact the district →</a></p>
+</div>

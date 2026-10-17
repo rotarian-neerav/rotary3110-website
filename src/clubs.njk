@@ -1,25 +1,40 @@
 ---
 layout: layouts/base.njk
 title: Clubs
-description: All Rotary clubs of District 3110, grouped by zone, each with its office bearers and recent activities.
+description: All Rotary clubs of District 3110 by city, with the day each club meets, its office bearers and recent activities. Search by name, city or meeting day.
 permalink: /clubs/
+scripts: ["clubs.js"]
 ---
 <div class="wrap section">
   <h1>Our clubs</h1>
-  <p class="lead">{{ site.activeClubs.length }} clubs in {{ site.zones.length }} zones. Tap a club to see its office bearers and activities.</p>
-  {%- for zone in site.zones %}
-  <section class="zone">
-    <h2>{{ zone }} Zone</h2>
+  <p class="lead">{{ site.activeClubs.length }} clubs in {{ site.cities.length }} cities and towns. Tap a club to see when it meets, its office bearers and activities.</p>
+  <form class="filters club-filters" role="search" onsubmit="return false" data-club-filter hidden>
+    <label class="grow">{{ t.clubs.search }}
+      <input type="search" name="q" autocomplete="off" placeholder="e.g. Agra, Heritage, Kanpur">
+    </label>
+    <label>{{ t.clubs.day }}
+      <select name="day">
+        <option value="">{{ t.clubs.any_day }}</option>
+        {%- for d in site.weekdays %}<option value="{{ d }}">{{ d }}</option>{% endfor %}
+        <option value="none">{{ t.clubs.not_given }}</option>
+      </select>
+    </label>
+  </form>
+  <p class="small" data-club-count aria-live="polite"></p>
+  {%- for city in site.cities %}
+  <section class="city-group" id="{{ city.slug }}" data-city-group>
+    <h2><a href="{{ city.url }}">{{ city.name }}</a> <span class="small muted">{{ city.clubs.length }} {{ 'club' if city.clubs.length == 1 else 'clubs' }}</span></h2>
     <ul class="club-list">
-      {%- for c in site.clubs %}{% if c.zone == zone and c.status == 'active' %}
-      <li><a href="{{ c.url }}">{{ c.name }}</a> <span class="small muted">{{ c.city }}{% if c.activities.length %} · {{ c.activities.length }} {{ 'activity' if c.activities.length == 1 else 'activities' }}{% endif %}{% if c.services.length %} · {{ c.services.length }} {{ 'service' if c.services.length == 1 else 'services' }}{% endif %}{% if c.projects.length %} · {{ c.projects.length }} {{ 'project' if c.projects.length == 1 else 'projects' }}{% endif %}</span></li>
-      {%- endif %}{% endfor %}
+      {%- for c in city.clubs %}
+      <li data-club-item data-name="{{ c.name | lower }} {{ c.display_name | lower }} {{ c.former_names | join(' ') | lower }}" data-city="{{ c.city | lower }}" data-day="{{ c.meeting_day or 'none' }}"><a href="{{ c.url }}">{{ c.name }}</a> <span class="small muted">{% if c.meeting_day %}{{ t.clubs.meets }} {{ c.meeting_day }}{% endif %}{% if c.activities.length %}{% if c.meeting_day %} · {% endif %}{{ c.activities.length }} {{ 'activity' if c.activities.length == 1 else 'activities' }}{% endif %}{% if c.services.length %} · {{ c.services.length }} {{ 'service' if c.services.length == 1 else 'services' }}{% endif %}{% if c.projects.length %} · {{ c.projects.length }} {{ 'project' if c.projects.length == 1 else 'projects' }}{% endif %}</span></li>
+      {%- endfor %}
     </ul>
   </section>
   {%- endfor %}
+  <p class="none" data-club-empty hidden>{{ t.clubs.empty }}</p>
   {%- set inactive = site.inactiveClubs %}
   {%- if inactive.length %}
-  <section class="zone">
+  <section class="city-group former">
     <h2>Former clubs</h2>
     <ul class="club-list">{% for c in inactive %}<li><a href="{{ c.url }}">{{ c.name }}</a> <span class="small muted">no longer active</span></li>{% endfor %}</ul>
   </section>

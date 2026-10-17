@@ -95,6 +95,7 @@ for (const e of data.events) for (const p of e.photos || []) jobs.push([p, 'acti
 for (const m of data.members) if (m.photo) jobs.push([m.photo, 'person']);
 for (const r of [...data.officers, ...data.functionaries]) if (r.photo) jobs.push([r.photo, 'person']);
 for (const m of data.messages) if (m.photo) jobs.push([m.photo, 'person']);
+for (const p of data.profiles || []) if (p.photo) jobs.push([p.photo, 'person']);
 for (const c of data.couples) if (c.couple_photo) jobs.push([c.couple_photo, 'couple']);
 for (const m of data.magazines) if (m.cover) jobs.push([m.cover, 'cover']);
 

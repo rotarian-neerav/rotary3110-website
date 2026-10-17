@@ -1,7 +1,7 @@
 ---
 layout: layouts/base.njk
 title: Activities
-description: A running feed of service projects by the Rotary clubs of District 3110, filterable by club and by Rotary's Areas of Focus.
+description: A running feed of service projects by the Rotary clubs of District 3110, filterable by club, Rotary year, Avenue of Service and Rotary's Areas of Focus.
 permalink: /activities/
 scripts: ["filters.js"]
 ---
@@ -9,11 +9,24 @@ scripts: ["filters.js"]
 <div class="wrap section">
   <h1>Activities</h1>
   <p class="lead">What our clubs have done, newest first.</p>
+  <p class="small"><a href="/years/">{{ t.activity.year_review }} →</a> · <a href="/news/">{{ t.activity.news }} →</a></p>
   <form class="filters" data-filter-target="#activity-list" onsubmit="return false">
     <label>{{ t.activity.filter_club }}
       <select name="club">
         <option value="">{{ t.activity.all_clubs }}</option>
         {%- for c in site.clubs %}{% if c.activities.length %}<option value="{{ c.club_id }}">{{ c.name }}</option>{% endif %}{% endfor %}
+      </select>
+    </label>
+    <label>{{ t.activity.filter_year }}
+      <select name="year">
+        <option value="">{{ t.activity.all_years }}</option>
+        {%- for y in site.activityYears %}<option value="{{ y }}">{{ y }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>{{ t.activity.filter_avenue }}
+      <select name="avenue">
+        <option value="">{{ t.activity.all_avenues }}</option>
+        {%- for av in site.avenues %}{% if av.count %}<option value="{{ av.slug }}">{{ av.name }}</option>{% endif %}{% endfor %}
       </select>
     </label>
     <fieldset class="theme-chips">

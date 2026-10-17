@@ -44,14 +44,16 @@ test('nothing pending, rejected or without photo/link appears anywhere', () => {
   }
 });
 
-test('no phone numbers or email addresses, except consented WhatsApp links and the district contact', () => {
+test('no phone numbers or email addresses, except consented WhatsApp links and public services\' own numbers', () => {
   // digits inside a word (e.g. a photo file's hash) are not phone numbers
   const phone = /(?<![\w/=.-])(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}(?!\w)/g;
   const email = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+  // an approved public service's own number may appear, only as its tap-to-call link
+  const serviceLinks = new Set((data.public_services || []).filter((x) => x.phone).map((x) => `<a class="service-phone" href="tel:${x.tel}">${x.phone}</a>`));
   for (const f of textFiles) {
-    const s = read(f).replace(/https:\/\/wa\.me\/91\d{10}/g, '').replace(/tel:\+91\d{10}/g, '');
-    const emails = (s.match(email) || []).filter((e) => e !== 'rotarian.neerav@gmail.com');
-    assert.deepEqual(emails, [], `email in ${relative(SITE, f)}`);
+    const s = read(f).replace(/<a class="service-phone" href="tel:[^"]*">[^<]*<\/a>/g, (m) => (serviceLinks.has(m) ? '' : m))
+      .replace(/https:\/\/wa\.me\/91\d{10}/g, '').replace(/tel:\+91\d{10}/g, '');
+    assert.deepEqual(s.match(email) || [], [], `email in ${relative(SITE, f)}`);
     assert.deepEqual(s.match(phone) || [], [], `phone number in ${relative(SITE, f)}`);
   }
 });
@@ -184,8 +186,9 @@ test("home page recognition matches the hand-worked sample (September 2026)", ()
 });
 
 test('Teams and Leadership pages list every person from the Excel', () => {
-  const html = page('teams') + page('leadership');
-  for (const f of data.functionaries.filter((x) => x.rotary_year === data.site.rotary_year)) assert.ok(html.includes(f.name.replace(/&/g, '&amp;').replace(/'/g, '&#39;')) || html.includes(f.name), `missing ${f.name}`);
+  // as text: an abbreviation in a name (PDG, Rtn) may be wrapped in an explanation
+  const text = parse(page('teams') + page('leadership')).text;
+  for (const f of data.functionaries.filter((x) => x.rotary_year === data.site.rotary_year)) assert.ok(text.includes(f.name), `missing ${f.name}`);
 });
 
 const sitemap = () => read(join(SITE, 'sitemap.xml'));
@@ -351,7 +354,8 @@ test('menu has no bulletin or campaigns entries; the footer links to them (campa
 
 test('event registration: cancelled events stay listed and say so, also in the calendar file; postponed never shows "Registration open"', () => {
   for (const e of data.events) {
-    const html = page(`events/${e.id.toLowerCase()}`);
+    // the event itself, not the other events listed below it
+    const html = parse(page(`events/${e.id.toLowerCase()}`)).querySelector('main > article').toString();
     if (e.registration_status === 'Cancelled') {
       assert.match(html, /class="reg-line reg-cancelled"/);
       assert.match(read(join(SITE, 'events', e.id.toLowerCase() + '.ics')), /STATUS:CANCELLED/);

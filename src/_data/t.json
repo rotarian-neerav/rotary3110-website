@@ -15,7 +15,9 @@
     "teams": "Teams & Committees",
     "directory": "Member Directory",
     "recognition": "Recognition",
-    "spotlight": "Member Spotlight"
+    "spotlight": "Member Spotlight",
+    "about": "About",
+    "search": "Search"
   },
   "home": {
     "latest": "Latest from our clubs",
@@ -29,7 +31,8 @@
     "celebrations": "Celebrations this week",
     "share_cta": "Did your club do something good?",
     "share_cta_text": "Send it in two minutes. A moderator checks it and it appears here.",
-    "share_button": "Share your club's activity"
+    "share_button": "Share your club's activity",
+    "month_prefix": "This month in Rotary"
   },
   "activity": {
     "people_helped": "people helped",
@@ -43,7 +46,22 @@
     "all_themes": "All themes",
     "show_more": "Show more",
     "empty": "No activities match. Try another club or theme.",
-    "report_of": "Report of the event"
+    "report_of": "Report of the event",
+    "filter_year": "Rotary year",
+    "all_years": "All years",
+    "filter_avenue": "Avenue of Service",
+    "all_avenues": "All avenues",
+    "avenue": "Avenue of Service",
+    "press": "In the news",
+    "press_read": "Read the news item",
+    "play": "Play the video",
+    "video_note": "Plays here from YouTube, without YouTube cookies.",
+    "watch": "Watch the video",
+    "more_club": "More from",
+    "next_event": "Next event by",
+    "similar": "Similar work by other clubs",
+    "year_review": "Each Rotary year in review",
+    "news": "In the news"
   },
   "events": {
     "upcoming": "Upcoming",
@@ -56,7 +74,17 @@
     "map": "Map",
     "details": "Details",
     "empty": "No upcoming events yet.",
-    "fee": "Fee"
+    "fee": "Fee",
+    "open": "Open to everyone",
+    "only_open": "Only events open to everyone",
+    "subscribe_title": "Get every district event in your phone calendar",
+    "subscribe_text": "Subscribe once and new events, changes and cancellations appear in your calendar by themselves.",
+    "subscribe_phone": "Subscribe on this phone",
+    "subscribe_google": "Add to Google Calendar",
+    "subscribe_copy": "Copy the calendar link",
+    "subscribe_note": "Google Calendar checks for changes a few times a day, so a new event can take up to a day to appear.",
+    "more": "More events",
+    "club_work": "Recent work by"
   },
   "celebrations": {
     "birthday": "Birthday",
@@ -94,14 +122,23 @@
     "remove": "Remove my details",
     "about": "The website of the clubs of Rotary District 3110. Content is sent by clubs and checked by district moderators.",
     "bulletin": "This week's bulletin",
-    "campaigns": "District campaigns"
+    "campaigns": "District campaigns",
+    "about_link": "About the district",
+    "contact": "Contact the district",
+    "services": "Services you can use",
+    "cities": "Rotary in your city",
+    "news": "In the news",
+    "years": "Each year in review",
+    "guide": "How to post a good activity",
+    "public_service": "Add a public service your club runs"
   },
   "club": {
     "services": "Regular services",
     "projects": "Permanent projects",
     "missing": "Is something missing? Update your club's profile",
     "update_profile": "Update this club's links, meeting details, projects or services",
-    "campaigns_this_year": "District campaigns this year"
+    "campaigns_this_year": "District campaigns this year",
+    "public_services": "Services the public can use"
   },
   "campaigns": {
     "title": "District campaigns",
@@ -146,5 +183,75 @@
     "archive_title": "Weekly bulletins",
     "archive_intro": "Every Sunday the website puts together \"This week in District 3110\" from approved activities and events.",
     "home_line": "This week in District 3110"
+  },
+  "header": {
+    "search": "Search the site",
+    "larger_text": "Larger text",
+    "normal_text": "Normal text"
+  },
+  "clubs": {
+    "search": "Search by club or city",
+    "day": "Meets on",
+    "any_day": "Any day",
+    "not_given": "Day not given yet",
+    "results": "clubs found",
+    "empty": "No club matches. Try another name, city or day.",
+    "meets": "Meets",
+    "city_page": "Rotary in"
+  },
+  "services": {
+    "title": "Services you can use",
+    "intro": "Blood banks, eye care, dialysis, clinics, libraries and more, run or supported by the Rotary clubs of District 3110. Each phone number is the facility's own.",
+    "open": "Open",
+    "address": "Address",
+    "phone": "Phone",
+    "run_by": "Run by",
+    "map": "Map",
+    "city": "City",
+    "all_cities": "All cities",
+    "empty": "No services listed yet.",
+    "add": "Does your club run a facility the public can use? Add it"
+  },
+  "cities": {
+    "title": "Rotary in your city",
+    "intro": "Find the Rotary clubs, events, service activities and facilities in each city and town of District 3110.",
+    "clubs": "Clubs",
+    "events": "Coming up",
+    "activities": "Recent activities",
+    "services": "Services you can use",
+    "no_events": "No upcoming events here yet."
+  },
+  "about": {
+    "title": "About Rotary District 3110",
+    "ri_title": "Rotary International",
+    "leaders": "This year's leaders",
+    "past_dgs": "Past District Governors",
+    "glossary": "Rotary words and abbreviations",
+    "theme": "Theme"
+  },
+  "contact": {
+    "title": "Contact the district",
+    "intro": "Need help from a Rotary club, want to volunteer, or represent a company that wants to partner on a project? Write to the district office here.",
+    "privacy": "Your name and reply details are seen only by the district office and are never shown on the website.",
+    "soon": "The contact form will be available soon.",
+    "open": "Open the form in a new tab"
+  },
+  "news": {
+    "title": "In the news",
+    "intro": "Service activities of our clubs that newspapers and news websites reported. We link to the news item; we do not copy it.",
+    "empty": "No press coverage reported yet."
+  },
+  "years": {
+    "title": "Each Rotary year in review",
+    "intro": "What the clubs of District 3110 did in each Rotary year (1 July to 30 June), from activities approved by district moderators.",
+    "so_far": "so far"
+  },
+  "guide": {
+    "title": "How to post a good activity"
+  },
+  "search": {
+    "title": "Search",
+    "intro": "Search activities, events, clubs, cities, services, people and bulletins.",
+    "nojs": "Search needs JavaScript. You can browse the activities, clubs and events pages instead."
   }
 }

@@ -20,6 +20,10 @@ You need edit access to the Sheet **3110Website** (and to the private members Sh
 
 **Story of the month:** tick `story_of_month` on the best activity of the month (judged on quality, not quantity).
 
+**Avenue of Service, press and videos:** every new activity carries an Avenue of Service (`avenue`); correct it if it is clearly wrong. If the club says a newspaper covered it, `press_paper`, `press_date` and `press_link` hold the paper's name, the date and a link; the website shows only these, never a photo of the clipping. A note warns when there is a press link but no paper's name. `video_link` can be a YouTube, Instagram or Facebook link; YouTube videos play on the page.
+
+**Open to everyone:** `open_to_all` (TRUE/FALSE) on an event marks it "Open to everyone" on the website. Club events open to all are marked anyway.
+
 **Event registration:** clubs can give a closing date and a fee on the form. The website works out the registration line by itself ("Registration open till 20 Oct", then "Registration closed"). Use the `registration_status` column only for exceptions:
 - **Seats full**, **Postponed** or **Cancelled**: shown instead of the dates. A cancelled event stays listed with "Cancelled", so people who saw the poster find out; phone calendars that saved it are told too.
 - **Extended**: also change `registration_close_date` to the new date.
@@ -36,7 +40,21 @@ Clubs list them on the club profile form, one per line:
 - **Regular services**: what – when – where, for example `Free eye check-up – every Thursday, 11 am–1 pm – Roshni Centre, Civil Lines`.
 - **Permanent projects**: name – what it is – where, for example `Rotary Eye Hospital – eye hospital under construction – Kasganj`.
 
+Clubs can also give their **meeting day** (a weekday). When approved it goes into the club's `meeting_day`, which the Clubs page uses for its "Meets on" filter. Until a club answers, the day is read from its meeting text ("Every Thursday…").
+
 When approved, the club's list is **replaced** by the new one. A blank answer leaves the list as it is; "none" clears it. Read the moderator note: a line with a phone number or email must be removed before approving (the website leaves such a line out anyway), and lines over 160 characters are cut. You can also make light fixes in the `permanent_projects` and `regular_services` cells of the **clubs** tab.
+
+## Public services (blood banks, eye care, dialysis…)
+
+Clubs send one **Public service run by a club** form per facility. New ones appear in **public_services** as pending.
+- Check that the facility exists and that the club runs or supports it.
+- The **phone number must be the facility's own** (reception or helpline), never a member's personal mobile. A moderator note warns when the number is a mobile; check it before approving. A number that is not a plain number cannot be approved until it is corrected.
+- Approve or reject with the Rotary menu, as for activities. Approved services appear on the **Services you can use** page, the club's page and the city's page, with a tap-to-call number and the map link.
+- Text with a phone number or email in the name, timings, address or description is left off the website.
+
+## Contact messages
+
+Messages from the website's contact form go to the private Sheet's **contact_messages** tab and are emailed to `settings → contact_email` (or, while it is blank, to the moderators). Reply to the person directly, then set `status` to **answered**. Messages that look like spam (more than two links, or hardly any words) are kept with status **spam** and not emailed; so are messages beyond `contact_daily_limit` in a day. The reply details are never shown on the website.
 
 ## Member requests (consent and removal)
 
@@ -111,7 +129,7 @@ Each month, choose a member who ticked "member spotlight" on the consent form. I
 
 ## Once a month: nudge quiet clubs
 
-Open the **dashboard** tab (refreshed every morning). `needs_nudge = TRUE` means no activity this month. Send those clubs a friendly reminder in the WhatsApp group with the form link: `…/submit/`. Moderators take turns each month.
+On the 1st of each month, an email lists the clubs with no activity dated in the month just ended (to `settings → not_posting_emails`; a dummy address until the district names someone). The **dashboard** tab (refreshed every morning) shows the same, live: `needs_nudge = TRUE` means no activity this month. Send those clubs a friendly reminder with their own form link (the clubs tab's `activity_form_link`, with the club already chosen) and the posting guide (`…/how-to-post/`). Moderators take turns each month. **Rotary → Administrator → Send clubs-not-posting email now** sends the email at any time.
 
 ## Sharing links in WhatsApp
 
@@ -120,6 +138,7 @@ Every page has a preview card. If you change a photo after a link was already sh
 ## Never
 
 - Never type in **members_public**, **couples_public**, **dashboard** or **role_checks**: the script fills them in.
-- Never put a phone number, email or bank/UPI details in a club's services or projects, an event fee, or a campaign's description or chair.
+- Never put a phone number, email or bank/UPI details in a club's services or projects, an event fee, or a campaign's description or chair. The only phone numbers on the website are approved public services' own numbers and the WhatsApp buttons members agreed to.
+- Never put zones on the website: they are the district's internal grouping (the `zone` columns stay in the Sheet for the district's own use).
 - Never share the private members Sheet or make the Drive folders public (except 3110Magazines).
 - The district never asks for money over WhatsApp. If someone reports such a message, it is a scam.

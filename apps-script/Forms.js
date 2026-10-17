@@ -1,6 +1,7 @@
 /**
- * The four Google Forms. Questions are found again by their titles, so keep titles in Q unchanged.
- * Forms 1–2 send answers to the main Sheet; forms 3–4 (members' personal details) to the private Sheet.
+ * The six Google Forms. Questions are found again by their titles, so keep titles in Q unchanged.
+ * The activity, club profile and public service forms send answers to the main Sheet; the consent and removal
+ * forms (members' personal details) and the website's contact form (visitors' reply details) to the private Sheet.
  * Each form's raw answers stay untouched in a "raw_…" tab; the script copies them into the working tabs.
  */
 
@@ -77,7 +78,38 @@ var Q = {
   aCampaignCount: 'Campaign count (optional)',
   eRegClose: 'Registration closes on (optional)',
   eFee: 'Fee (optional)',
+  // added in Release A (17 October 2026)
+  aAvenue: 'Avenue of Service',
+  aVideo: 'Video link (optional)',
+  aPressPaper: 'Covered in the press: newspaper or news website (optional)',
+  aPressDate: 'Covered in the press: date it appeared (optional)',
+  aPressLink: 'Covered in the press: link to the news item (optional)',
+  eOpen: 'Open to everyone?',
+  pMeetingDay: 'Meeting day (optional)',
+  sName: 'Name of the service or facility',
+  sType: 'Type of service',
+  sTimings: 'Days and times it is open',
+  sPhone: "The facility's own phone number",
+  sAddress: 'Address',
+  sCity: 'City or town',
+  sMap: 'Google Maps link (optional)',
+  sAbout: 'What it offers, in one or two lines (optional)',
+  sConfirm: 'Confirmation',
+  kName: 'Your name',
+  kReply: 'Your email or mobile number, so we can reply',
+  kTopic: 'What is it about?',
+  kCity: 'Your city or town (optional)',
+  kMessage: 'Your message',
 };
+
+var CONTACT_TOPICS = ['I need help from Rotary', 'I want to volunteer', 'Partnership or CSR', 'Media', 'Something else'];
+
+/** The activity form's description, with the link to the posting guide. */
+function activityDescription_() {
+  var site = Core_str(settings_().site_url).replace(/\/?$/, '/');
+  return 'Share what your club did, or an upcoming event. A moderator checks every entry before it appears on the district website.\n' +
+    'Please do not write the names of children.\nTips for a good entry: ' + site + 'how-to-post/';
+}
 
 var CLUB_PROFILE_DESCRIPTION = "For club office bearers: your club's website, social media pages, meeting details, permanent projects and " +
   "regular services, shown on your club's page. Send it again any time to update.";
@@ -99,6 +131,19 @@ var LATER_QUESTIONS = [
     help: 'The number in the campaign\'s unit, shown in brackets in the campaign name, e.g. blood units collected. Count only what your own club did.' },
   { form: 'activity', title: Q.eRegClose, type: 'date', after: Q.eEnd, help: 'Leave blank if no registration is needed.' },
   { form: 'activity', title: Q.eFee, type: 'text', after: Q.eRegClose, help: 'For example: Free, or ₹500 per person. Please do not add bank or UPI details.' },
+  // Release A
+  { form: 'activity', title: Q.aAvenue, type: 'avenue', after: Q.aTheme, required: true,
+    help: "Rotary's five Avenues of Service. Club Service: within the club (fellowship, meetings, training). Vocational: through members' " +
+      'professions. Community: for the local community. International: with clubs or people abroad. Youth: for young people (Interact, Rotaract, RYLA).' },
+  { form: 'activity', title: Q.aVideo, type: 'url', after: Q.aLink,
+    help: 'A YouTube, Instagram or Facebook video of this activity, if your club posted one. YouTube videos play on the website.' },
+  { form: 'activity', title: Q.aPressPaper, type: 'text', after: Q.aVideo, help: 'For example: Dainik Jagran, Agra edition. Only if a newspaper or news website reported it.' },
+  { form: 'activity', title: Q.aPressDate, type: 'date', after: Q.aPressPaper, help: 'The day the news item appeared.' },
+  { form: 'activity', title: Q.aPressLink, type: 'url', after: Q.aPressDate,
+    help: "A link to the news item on the paper's website or e-paper. Please do not upload photos of the clipping." },
+  { form: 'activity', title: Q.eOpen, type: 'yesno', after: Q.eType, help: 'Yes if anyone, not only Rotarians, may come. The website marks it "Open to everyone".' },
+  { form: 'club_profile', title: Q.pMeetingDay, type: 'weekday', after: Q.pMeeting + ' (optional)',
+    help: 'The weekday your club usually meets, so visitors can find a club meeting on a day that suits them.' },
 ];
 
 function laterQuestion_(title) {
@@ -107,12 +152,21 @@ function laterQuestion_(title) {
 
 function addLaterQuestion_(form, title, L) {
   var q = laterQuestion_(title);
-  if (q.type === 'paragraph') return form.addParagraphTextItem().setTitle(q.title).setHelpText(q.help);
-  if (q.type === 'campaign') return form.addListItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(L.campaigns);
-  if (q.type === 'number') return form.addTextItem().setTitle(q.title).setHelpText(q.help).setValidation(numberRule_());
-  if (q.type === 'date') return form.addDateItem().setTitle(q.title).setHelpText(q.help);
-  return form.addTextItem().setTitle(q.title).setHelpText(q.help)
-    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
+  var item;
+  if (q.type === 'paragraph') item = form.addParagraphTextItem().setTitle(q.title).setHelpText(q.help);
+  else if (q.type === 'campaign') item = form.addListItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(L.campaigns);
+  else if (q.type === 'avenue') item = form.addListItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(CORE_AVENUES);
+  else if (q.type === 'weekday') item = form.addListItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(CORE_WEEKDAYS);
+  else if (q.type === 'yesno') item = form.addMultipleChoiceItem().setTitle(q.title).setHelpText(q.help).setChoiceValues(YES_NO);
+  else if (q.type === 'number') item = form.addTextItem().setTitle(q.title).setHelpText(q.help).setValidation(numberRule_());
+  else if (q.type === 'date') item = form.addDateItem().setTitle(q.title).setHelpText(q.help);
+  else if (q.type === 'url') item = form.addTextItem().setTitle(q.title).setHelpText(q.help).setValidation(urlRule_());
+  else {
+    item = form.addTextItem().setTitle(q.title).setHelpText(q.help)
+      .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
+  }
+  if (q.required) item.setRequired(true);
+  return item;
 }
 
 /** Adds any missing later question to the existing forms, in its place. Safe to run more than once. */
@@ -130,6 +184,7 @@ function addLaterQuestions_(report) {
     report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
   });
   if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
+  if (ids.activity) FormApp.openById(ids.activity).setDescription(activityDescription_());
 }
 
 var YES_NO = ['Yes', 'No'];
@@ -163,6 +218,7 @@ function formLists_() {
     professions: professions.length ? professions.concat(['Other']) : ['Other'],
     organisers: activeClubs.concat(teams.length ? teams : ["Governor's Office Team"]),
     roles: ['President', 'Secretary', 'Public Image Chair', 'Other office bearer', 'Member'],
+    serviceTypes: CORE_SERVICE_TYPES.slice(),
     campaigns: [CORE_NO_CAMPAIGN].concat(Core_openCampaigns(readTab_(mainSs_(), 'campaigns'), today_()).map(Core_campaignLabel)),
   };
 }
@@ -170,9 +226,12 @@ function formLists_() {
 function createForms_(report) {
   var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
   var L = formLists_();
-  var makers = { activity: makeActivityForm_, club_profile: makeClubProfileForm_, consent: makeConsentForm_, removal: makeRemovalForm_ };
-  var destinations = { activity: mainSs_().getId(), club_profile: mainSs_().getId(), consent: CONFIG.PRIVATE_SHEET_ID, removal: CONFIG.PRIVATE_SHEET_ID };
-  var rawNames = { activity: 'raw_activity_form', club_profile: 'raw_club_profile_form', consent: 'raw_consent_form', removal: 'raw_removal_form' };
+  var makers = { activity: makeActivityForm_, club_profile: makeClubProfileForm_, consent: makeConsentForm_, removal: makeRemovalForm_,
+    public_service: makePublicServiceForm_, contact: makeContactForm_ };
+  var destinations = { activity: mainSs_().getId(), club_profile: mainSs_().getId(), consent: CONFIG.PRIVATE_SHEET_ID, removal: CONFIG.PRIVATE_SHEET_ID,
+    public_service: mainSs_().getId(), contact: CONFIG.PRIVATE_SHEET_ID };
+  var rawNames = { activity: 'raw_activity_form', club_profile: 'raw_club_profile_form', consent: 'raw_consent_form', removal: 'raw_removal_form',
+    public_service: 'raw_public_service_form', contact: 'raw_contact_form' };
 
   Object.keys(makers).forEach(function (key) {
     var form = null;
@@ -223,9 +282,7 @@ function addSender_(form, L) {
 }
 
 function makeActivityForm_(L) {
-  var form = baseForm_('Club activity or event – Rotary District 3110',
-    'Share what your club did, or an upcoming event. A moderator checks every entry before it appears on the district website.\n' +
-    'Please do not write the names of children.');
+  var form = baseForm_('Club activity or event – Rotary District 3110', activityDescription_());
   addSender_(form, L);
   var kind = form.addMultipleChoiceItem().setTitle(Q.kind).setRequired(true);
 
@@ -235,6 +292,7 @@ function makeActivityForm_(L) {
   form.addDateItem().setTitle(Q.aDate).setRequired(true);
   form.addListItem().setTitle(Q.aTheme).setChoiceValues(CORE_THEMES).setRequired(true)
     .setHelpText("Rotary's seven Areas of Focus, or Club service / Other for installations, fellowship, training and similar.");
+  addLaterQuestion_(form, Q.aAvenue, L);
   form.addParagraphTextItem().setTitle(Q.aDesc).setRequired(true)
     .setHelpText('Two to five lines. Please do not write the names of children.')
     .setValidation(FormApp.createParagraphTextValidation().requireTextMatchesPattern('^[\\s\\S]{100,600}$')
@@ -242,6 +300,10 @@ function makeActivityForm_(L) {
   // The photo question is added here by hand (Google does not allow scripts to add file uploads)
   form.addTextItem().setTitle(Q.aLink).setHelpText('If your club already posted this on its website or social page, paste the link instead of photos.')
     .setValidation(urlRule_());
+  addLaterQuestion_(form, Q.aVideo, L);
+  addLaterQuestion_(form, Q.aPressPaper, L);
+  addLaterQuestion_(form, Q.aPressDate, L);
+  addLaterQuestion_(form, Q.aPressLink, L);
   form.addTextItem().setTitle(Q.aHelped).setValidation(numberRule_());
   addLaterQuestion_(form, Q.aCampaign, L);
   addLaterQuestion_(form, Q.aCampaignCount, L);
@@ -254,6 +316,7 @@ function makeActivityForm_(L) {
   form.addTextItem().setTitle(Q.eTitle).setRequired(true)
     .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
   form.addListItem().setTitle(Q.eType).setChoiceValues(CORE_EVENT_TYPES).setRequired(true);
+  addLaterQuestion_(form, Q.eOpen, L);
   form.addDateItem().setTitle(Q.eStart).setRequired(true);
   form.addTimeItem().setTitle(Q.eTime);
   form.addDateItem().setTitle(Q.eEnd);
@@ -280,6 +343,7 @@ function makeClubProfileForm_(L) {
     form.addTextItem().setTitle(t + ' (optional)').setValidation(urlRule_());
   });
   form.addTextItem().setTitle(Q.pMeeting + ' (optional)').setHelpText('For example: Every Tuesday, 7:30 pm, Hotel Grand, Agra');
+  addLaterQuestion_(form, Q.pMeetingDay, L);
   addLaterQuestion_(form, Q.pProjects, L);
   addLaterQuestion_(form, Q.pServices, L);
   form.addCheckboxItem().setTitle(Q.pConfirm).setRequired(true)
@@ -351,6 +415,88 @@ function makeRemovalForm_(L) {
 }
 
 /**
+ * A blood bank, eye hospital, dialysis unit or similar that a club runs and the public can use. One per form.
+ * The phone number is the facility's own; it is shown on the website with a tap-to-call link.
+ */
+function makePublicServiceForm_(L) {
+  var form = baseForm_('Public service run by a club – Rotary District 3110',
+    'For club office bearers: a lasting facility the public can use, such as a blood bank, eye hospital, dialysis unit, clinic, ' +
+    'library, skill centre or ambulance. Send one form per facility. A moderator checks it before it appears on the website.');
+  addSender_(form, L);
+  form.getItems()[2].asListItem().setChoiceValues(['President', 'Secretary', 'Other office bearer']);
+  form.addTextItem().setTitle(Q.sName).setRequired(true).setHelpText('For example: Rotary Blood Bank, Civil Lines')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
+  form.addListItem().setTitle(Q.sType).setChoiceValues(L.serviceTypes).setRequired(true);
+  form.addTextItem().setTitle(Q.sTimings).setRequired(true).setHelpText('For example: Every day, 9 am–8 pm; or Open 24 hours')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
+  form.addTextItem().setTitle(Q.sPhone).setRequired(true)
+    .setHelpText("The facility's public number (reception or helpline), never a member's personal mobile. It will be shown on the website.")
+    .setValidation(textRule_('^[0-9 +()-]{3,24}$', 'Digits only, with spaces or dashes if you like, e.g. 0562 222 3344'));
+  form.addTextItem().setTitle(Q.sAddress).setRequired(true)
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(150).setHelpText('Up to 150 characters').build());
+  form.addListItem().setTitle(Q.sCity).setChoiceValues(L.areas).setRequired(true);
+  form.addTextItem().setTitle(Q.sMap).setHelpText('Open the place in Google Maps, tap Share and paste the link here.').setValidation(urlRule_());
+  form.addTextItem().setTitle(Q.sAbout).setHelpText('For example: Free dialysis for patients below the poverty line; nominal charge for others.')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(200).setHelpText('Up to 200 characters').build());
+  form.addCheckboxItem().setTitle(Q.sConfirm).setRequired(true)
+    .setChoiceValues(["I am an office bearer of this club, the club runs or supports this facility, and the phone number is the facility's own public number."]);
+  return form;
+}
+
+/**
+ * The website's contact form, shown inside the Contact page. No Google sign-in, so anyone can write.
+ * Messages go to the private Sheet and are emailed on to the district; the reply details are never published.
+ */
+function makeContactForm_() {
+  var form = FormApp.create('Contact Rotary District 3110');
+  form.setDescription('Write to Rotary District 3110. The district office reads every message. Your details are used only to reply to you.');
+  form.setCollectEmail(false);
+  form.setAllowResponseEdits(false);
+  form.setConfirmationMessage('Thank you. Your message has reached the district office. Someone will reply to you.');
+  form.addTextItem().setTitle(Q.kName).setRequired(true)
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
+  form.addTextItem().setTitle(Q.kReply).setRequired(true).setHelpText('Only the district office sees this. It is never shown on the website.')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(100).setHelpText('Up to 100 characters').build());
+  form.addListItem().setTitle(Q.kTopic).setChoiceValues(CONTACT_TOPICS).setRequired(true);
+  form.addTextItem().setTitle(Q.kCity)
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
+  form.addParagraphTextItem().setTitle(Q.kMessage).setRequired(true)
+    .setValidation(FormApp.createParagraphTextValidation().requireTextMatchesPattern('^[\\s\\S]{20,1500}$')
+      .setHelpText('Please write between 20 and 1,500 characters').build());
+  return form;
+}
+
+/**
+ * Each club's own link to the activity form with the club already chosen, kept in the clubs tab
+ * (activity_form_link) for the district to send to club secretaries. Never published.
+ */
+function makeClubFormLinks_() {
+  var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
+  if (!ids.activity) return 0;
+  var form = FormApp.openById(ids.activity);
+  var clubItem = form.getItems().filter(function (it) { return it.getTitle() === Q.club; })[0];
+  if (!clubItem) return 0;
+  var ss = mainSs_();
+  var sh = ss.getSheetByName('clubs');
+  var headers = headers_(ss, 'clubs');
+  var col = headers.indexOf('activity_form_link');
+  if (col < 0 || sh.getLastRow() < 2) return 0;
+  var rows = readTab_(ss, 'clubs');
+  var values = [];
+  for (var r = 2; r <= sh.getLastRow(); r++) values.push(['']);
+  var made = 0;
+  rows.forEach(function (c) {
+    if (!Core_str(c.club_name) || Core_str(c.status || 'active') !== 'active') return;
+    try {
+      values[c._row - 2] = [form.createResponse().withItemResponse(clubItem.asListItem().createResponse(Core_str(c.club_name))).toPrefilledUrl()];
+      made++;
+    } catch (e) { /* a club name the form does not list yet: refreshed with the form lists */ }
+  });
+  sh.getRange(2, col + 1, values.length, 1).setValues(values);
+  return made;
+}
+
+/**
  * Menu: refresh the club, area, profession and campaign lists in the forms after the clubs, lists or campaigns tabs
  * change. Also runs every morning, so campaigns drop off the form 30 days after they end.
  */
@@ -360,7 +506,7 @@ function updateFormLists(silent) {
   var lists = {};
   lists[Q.club] = L.clubs; lists[Q.cClub] = L.clubs; lists[Q.aPartners] = L.clubs; lists[Q.cSpouseClub] = L.clubs;
   lists[Q.eCity] = L.areas; lists[Q.cArea] = L.areas; lists[Q.cProfession] = L.professions; lists[Q.eOrganiser] = L.organisers;
-  lists[Q.aCampaign] = L.campaigns;
+  lists[Q.aCampaign] = L.campaigns; lists[Q.sCity] = L.areas;
   Object.keys(ids).forEach(function (k) {
     var form = FormApp.openById(ids[k]);
     form.getItems().forEach(function (item) {
@@ -370,6 +516,7 @@ function updateFormLists(silent) {
       if (item.getType() === FormApp.ItemType.CHECKBOX) item.asCheckboxItem().setChoiceValues(values);
     });
   });
+  try { makeClubFormLinks_(); } catch (e) { Logger.log('Club form links not made: ' + e.message); }
   if (silent === true) return;
   try { SpreadsheetApp.getUi().alert('Form lists updated.'); } catch (e) { /* editor */ }
 }

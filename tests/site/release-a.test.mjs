@@ -35,8 +35,9 @@ test('the new pages exist', () => {
   for (const f of ['manifest.webmanifest', 'sw.js', 'events/calendar.ics', 'pagefind/pagefind.js', 'pagefind/pagefind-ui.js']) assert.ok(existsSync(join(SITE, f)), f);
 });
 
-test('zones are nowhere on the website (except inside a role title the district itself gives, such as "CDS Bareilly Zone")', () => {
-  const titles = [...data.events.map((e) => e.title), ...data.functionaries.map((f) => f.role)].filter((t) => /zone/i.test(t));
+test('zones are nowhere on the website (except in what clubs write, or a role title the district itself gives, such as "CDS Bareilly Zone")', () => {
+  const titles = [...data.events.flatMap((e) => [e.title, e.description]), ...data.activities.flatMap((a) => [a.title, a.description]),
+    ...data.functionaries.map((f) => f.role)].filter((t) => t && /zone/i.test(t));
   for (const f of htmlFiles) {
     let text = parse(read(f)).querySelector('main')?.text || '';
     for (const t of titles) text = text.split(t).join('');

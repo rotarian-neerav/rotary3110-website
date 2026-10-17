@@ -10,6 +10,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { upgradeOldData } from '../lib/compat.mjs';
 import { core, plain, sampleOptions } from '../lib/core.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -46,20 +47,15 @@ function fromSample() {
 }
 
 const { DATA_URL, DATA_TOKEN } = process.env;
+// --file <path>: a saved copy of the Sheet's data (e.g. data-snapshots/public-data.json), for testing locally
+const fileArg = process.argv.indexOf('--file');
+const file = fileArg > 0 ? process.argv[fileArg + 1] : '';
 const useSheet = DATA_URL && DATA_TOKEN && !process.argv.includes('--sample');
-const data = useSheet ? await fromSheet(DATA_URL, DATA_TOKEN) : fromSample();
-data.source = useSheet ? 'sheet' : 'sample';
+const data = file ? JSON.parse(readFileSync(resolve(file), 'utf8')) : useSheet ? await fromSheet(DATA_URL, DATA_TOKEN) : fromSample();
+data.source = useSheet || file ? 'sheet' : 'sample';
 
-// Also here, for a Sheet still running an older script: an ID used twice keeps its first row only
-data.duplicate_ids ??= [];
-for (const list of ['activities', 'events']) {
-  const seen = new Set();
-  data[list] = data[list].filter((row) => {
-    if (!seen.has(row.id)) return seen.add(row.id);
-    data.duplicate_ids.push(row.id);
-    return false;
-  });
-}
+// A Sheet still running an older script: one row per ID, no zones, the newer fields filled in
+upgradeOldData(data);
 
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, JSON.stringify(data, null, 1));

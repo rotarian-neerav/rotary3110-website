@@ -252,3 +252,21 @@ test('abbreviations: never inside tags, scripts, form controls, existing <abbr> 
   assert.match(out, /<dt>DG<\/dt><dd>District <em>Governor<\/em> DG<\/dd>/);
   assert.match(out, /<p>Then <abbr class="gloss" title="The Rotary Foundation" tabindex="0">TRF<\/abbr>\.<\/p>/);
 });
+
+/* ---------- until the new script is installed ---------- */
+
+test('data from a Sheet still running the older script (the saved live snapshot) is brought up to date and passes the privacy check', async () => {
+  const { upgradeOldData } = await import('../../lib/compat.mjs');
+  const old = JSON.parse(readFileSync(new URL('../../data-snapshots/public-data.json', import.meta.url), 'utf8'));
+  assert.ok('zones' in old.site && old.clubs.some((c) => 'zone' in c), 'the snapshot is in the old shape');
+  const d = upgradeOldData(structuredClone(old));
+  assert.deepEqual(plain(core.Core_validatePublic(d)), [], 'no zone left, nothing else changed');
+  assert.ok(!/"zones?"\s*:/.test(JSON.stringify(d)));
+  assert.ok(d.clubs.filter((c) => c.meeting).every((c) => typeof c.meeting_day === 'string'));
+  assert.ok(d.events.filter((e) => e.event_type === 'Club event open to all').every((e) => e.open_to_all));
+  const s = derive(d, media, '2026-10-17');
+  assert.ok(s.cities.length > 10 && s.years.length >= 1 && Array.isArray(s.publicServices));
+  // current data passes through unchanged
+  const current = build();
+  assert.deepEqual(upgradeOldData(structuredClone(current)), current);
+});

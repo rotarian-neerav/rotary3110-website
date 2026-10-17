@@ -9,7 +9,7 @@
 <title>{{ pageTitle }}</title>
 <meta name="description" content="{{ pageDescription | truncate(180) }}">
 <link rel="canonical" href="{{ (canonical or page.url) | absolute }}">
-{%- if noindex %}
+{%- if noindex or hideFromSearch %}
 <meta name="robots" content="noindex, noimageindex">
 {%- endif %}
 <meta property="og:type" content="{{ ogType or 'website' }}">

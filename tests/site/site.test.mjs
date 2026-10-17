@@ -135,11 +135,17 @@ test('event pages show their photos and use one for WhatsApp previews', () => {
   assert.match(parse(html).querySelector('meta[property="og:image"]').getAttribute('content'), /-og\.jpg$/);
 });
 
+test('until launch (HIDE_FROM_SEARCH=true) every page and robots.txt keep search engines out', () => {
+  if (process.env.HIDE_FROM_SEARCH !== 'true') return;
+  for (const p of ['', 'activities', 'clubs', 'teams', 'leadership']) assert.match(page(p), /<meta name="robots" content="noindex/, p || 'home');
+  assert.match(read(join(SITE, 'robots.txt')), /User-agent: \*\n# Test site[^\n]*\nDisallow: \/\n/);
+});
+
 test('directory, celebrations and form pages are kept out of search engines', () => {
   for (const p of ['directory', 'celebrations', 'submit', 'consent', 'remove', 'qr']) {
     assert.match(page(p), /<meta name="robots" content="noindex/, p);
   }
-  for (const p of ['', 'activities', 'clubs', 'teams', 'leadership']) {
+  if (process.env.HIDE_FROM_SEARCH !== 'true') for (const p of ['', 'activities', 'clubs', 'teams', 'leadership']) {
     assert.doesNotMatch(page(p), /name="robots"/, `${p || 'home'} should be indexable`);
   }
   const sitemap = read(join(SITE, 'sitemap.xml'));
@@ -156,7 +162,7 @@ test('robots.txt blocks AI crawlers and image search of member photos, not norma
   const robots = read(join(SITE, 'robots.txt'));
   for (const bot of ['GPTBot', 'CCBot', 'Google-Extended', 'ClaudeBot']) assert.ok(robots.includes(`User-agent: ${bot}`), bot);
   assert.match(robots, /User-agent: Googlebot-Image\nDisallow: \S*media\/person-/);
-  assert.doesNotMatch(robots, /User-agent: \*\nDisallow: \/\n/);
+  if (process.env.HIDE_FROM_SEARCH !== 'true') assert.doesNotMatch(robots, /User-agent: \*\nDisallow: \/\n/);
 });
 
 test('pages stay light for slow connections', () => {
@@ -196,7 +202,10 @@ test('member cards: hidden from search engines unless the person agreed to be li
     const head = root.querySelector('.member-head');
     assert.ok(head, `card layout: ${c.url}`);
     assert.doesNotMatch(c.html, /birthday|anniversary|spouse/i, `no birthday, anniversary or spouse: ${c.url}`);
-    if (isNoindex(c.html)) {
+    // until launch every page carries noindex, so the sitemap tells which cards the person agreed to list
+    const hideAll = process.env.HIDE_FROM_SEARCH === 'true';
+    if (hideAll) assert.ok(isNoindex(c.html), `noindex until launch: ${c.url}`);
+    if (hideAll ? !map.includes(c.url) : isNoindex(c.html)) {
       assert.ok(!map.includes(c.url), `hidden card not in sitemap: ${c.url}`);
       assert.equal(head.querySelectorAll('p.role').length, 0, `no profession without consent: ${c.url}`);
       assert.ok(!root.querySelector('main p.lead'), `no description without consent: ${c.url}`);

@@ -25,6 +25,9 @@ concurrency:
 env:
   SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
   PATH_PREFIX: ${{ vars.PATH_PREFIX || format('/{0}/', github.event.repository.name) }}
+  # Until launch the site holds dummy data, so search engines are kept out of all of it.
+  # At launch, set the repository variable HIDE_FROM_SEARCH to false.
+  HIDE_FROM_SEARCH: ${{ vars.HIDE_FROM_SEARCH || 'true' }}
 
 jobs:
   check:

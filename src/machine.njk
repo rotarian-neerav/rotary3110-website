@@ -28,7 +28,12 @@ Disallow: {{ pathPrefix }}media/person-
 Disallow: {{ pathPrefix }}media/couple-
 
 User-agent: *
+{%- if hideFromSearch %}
+# Test site with dummy data: kept out of search engines until launch
+Disallow: /
+{%- else %}
 Disallow: {{ pathPrefix }}data/
+{%- endif %}
 
 Sitemap: {{ '/sitemap.xml' | absolute }}
 {%- elif f.kind == 'sitemap' -%}

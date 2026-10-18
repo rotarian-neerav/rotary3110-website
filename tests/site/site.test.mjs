@@ -263,9 +263,11 @@ test('someone marked deceased: no card, not on the club or directory pages, name
 test('home page: sections in the agreed order; at most 8 events, district events first', () => {
   const html = page('');
   const order = ['class="hero"', 'id="upcoming-events"', 'id="latest"', 'id="recognition"', 'id="spotlight"', 'id="celebrations"', 'id="magazine"', 'id="messages"', 'class="cta-band"'];
-  const at = order.map((m) => html.indexOf(m));
-  for (let i = 0; i < order.length; i++) assert.ok(at[i] >= 0, `${order[i]} present`);
-  for (let i = 1; i < order.length; i++) assert.ok(at[i - 1] < at[i], `${order[i - 1]} before ${order[i]}`);
+  // with the sample every section shows; with real data a section with nothing in it (e.g. no spotlight yet) is left out
+  if (data.source === 'sample') for (const m of order) assert.ok(html.includes(m), `${m} present`);
+  for (const m of ['class="hero"', 'id="upcoming-events"', 'id="latest"', 'class="cta-band"']) assert.ok(html.includes(m), `${m} present`);
+  const shown = order.filter((m) => html.includes(m));
+  for (let i = 1; i < shown.length; i++) assert.ok(html.indexOf(shown[i - 1]) < html.indexOf(shown[i]), `${shown[i - 1]} before ${shown[i]}`);
   const events = parse(html).querySelectorAll('#upcoming-events .event');
   assert.ok(events.length <= 8);
   const district = events.map((e) => !!e.querySelector('.chip-district'));

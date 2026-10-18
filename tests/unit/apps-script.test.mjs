@@ -608,3 +608,12 @@ test('"Clear all sample data" leaves only real rows, and the site data is still 
   assert.deepEqual(env.main.rows('events').filter((e) => e.id === 'EVT-2026-0011').map((e) => e.title), ['Blood donation drive']);
   assert.ok(counts.some((c) => /^events: 1 sample row\(s\) not loaded/.test(c)), counts.join('\n'));
 });
+
+test('new forms are moved from My Drive into the folder that holds the Sheet, and stay there on later upgrades', () => {
+  const ids = JSON.parse(env.props.get('FORM_IDS'));
+  assert.equal(Object.keys(ids).length, 6);
+  for (const id of Object.values(ids)) assert.equal(env.moved.get(id), 'PARENT', `${id} in the Sheet's folder`);
+  const before = env.moved.size;
+  env.run('upgradeSheet');
+  assert.equal(env.moved.size, before, 'nothing moved twice');
+});

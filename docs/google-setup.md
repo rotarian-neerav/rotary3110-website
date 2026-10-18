@@ -19,14 +19,14 @@ You will need two files from this project: `dist/apps-script/Code.gs` and `dist/
 3. You will see **"Google hasn't verified this app"**. That is normal for a script you wrote yourself. Click **Advanced → Go to (project name) (unsafe)** → **Allow**.
    The script asks to manage your spreadsheets, forms and Drive files, send email as you (for moderator reminders and replies to clubs), and connect to an external service (to download the sample data from GitHub).
 4. Wait about a minute. The log at the bottom says **Setup finished** and lists what it did:
-   tabs in both Sheets, sample data loaded, six forms created (activity, club profile, public service, consent, removal and the website's contact form), sharing checked, daily reminders scheduled.
+   tabs in both Sheets, sample data loaded, six forms created (activity, club profile, public service, consent, removal and the website's contact form) and moved into the folder that holds the Sheet, sharing checked, daily reminders scheduled.
 5. Go back to the Sheet and reload the page. A **Rotary** menu appears.
 
 ## 3. Add the four photo questions by hand (5 minutes)
 
 Google does not let a script add file-upload questions, so these four are added by hand. **The titles must match exactly** (copy them from here).
 
-The forms are in your Google Drive (search for "Rotary District 3110"), or open them from the Sheet's **settings** tab (`form_…_url`; change `viewform` to `edit` in the address).
+The forms are in the same folder as the Sheet (testing: **3110Website-Testing**; production: **3110Website**), or open them from the Sheet's **settings** tab (`form_…_url`; change `viewform` to `edit` in the address).
 
 | Form | Add after the question… | Title (copy exactly) | Settings |
 |---|---|---|---|

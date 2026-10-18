@@ -51,8 +51,7 @@
         <ul>
           {%- set navItems = [
             ["/", t.nav.home], ["/activities/", t.nav.activities], ["/events/", t.nav.events], ["/clubs/", t.nav.clubs],
-            ["/magazine/", t.nav.magazine], ["/leadership/", t.nav.leadership], ["/teams/", t.nav.teams],
-            ["/directory/", t.nav.directory], ["/recognition/", t.nav.recognition], ["/messages/", t.nav.messages], ["/about/", t.nav.about] ] %}
+            ["/leadership/", t.nav.leadership], ["/directory/", t.nav.directory], ["/about/", t.nav.about] ] %}
           {%- for item in navItems %}
           <li><a href="{{ item[0] }}"{% if page.url == item[0] or (item[0] != '/' and page.url.startsWith(item[0])) %} aria-current="page"{% endif %}>{{ item[1] }}</a></li>
           {%- endfor %}
@@ -62,7 +61,7 @@
   </div>
 </header>
 {%- if site.source == 'sample' or sampleBanner %}
-<p class="sample-banner">Test version with sample data. Names in teams and committees are real; everything else is dummy.</p>
+<p class="sample-banner">Test version: everything on this site is sample data, names included.</p>
 {%- endif %}
 <main id="main"{% if not noindex %} data-pagefind-body{% endif %}>
 {{ content | safe }}
@@ -90,11 +89,15 @@
         {%- if site.campaigns.length %}<li><a href="/campaigns/">{{ t.footer.campaigns }}</a></li>{% endif %}
         <li><a href="/news/">{{ t.footer.news }}</a></li>
         <li><a href="/years/">{{ t.footer.years }}</a></li>
+        <li><a href="/recognition/">{{ t.nav.recognition }}</a></li>
+        <li><a href="/magazine/">{{ t.nav.magazine }}</a></li>
         <li><a href="/spotlight/">{{ t.nav.spotlight }}</a></li>
         <li><a href="/celebrations/">Celebrations</a></li>
       </ul>
       <ul>
         <li><a href="/about/">{{ t.footer.about_link }}</a></li>
+        <li><a href="/teams/">{{ t.nav.teams }}</a></li>
+        <li><a href="/messages/">{{ t.nav.messages }}</a></li>
         <li><a href="/contact/">{{ t.footer.contact }}</a></li>
         <li><a href="/privacy/">{{ t.footer.privacy }}</a></li>
         <li><a href="/events/calendar.ics">District calendar (subscribe)</a></li>

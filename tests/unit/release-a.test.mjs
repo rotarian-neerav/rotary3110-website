@@ -147,14 +147,14 @@ test('public services: approved only, with the facility\'s own number as a tap-t
   assert.ok(plain(core.Core_validatePublic(bad2)).some((e) => /phone is not a plain phone number/.test(e)));
 });
 
-test('About page: the latest profile of each role; Past District Governors newest first, a card only for those with a member ID', () => {
+test('About page: the latest profile of each role; Past District Governors newest last, a card only for those with a member ID', () => {
   const d = build();
   assert.deepEqual(d.profiles.map((p) => p.role), ['President of Rotary International', 'District Governor']);
   const tabs = structuredClone(sample.main);
   tabs.profiles.push({ ...tabs.profiles[1], rotary_year: '2025-26', name: 'Older DG' });
   assert.equal(build(tabs).profiles.find((p) => p.role === 'District Governor').name, 'Sample: District Governor', 'the newest year wins');
   assert.equal(d.past_governors.length, 28);
-  assert.ok(d.past_governors.every((g, i) => i === 0 || d.past_governors[i - 1].term >= g.term), 'newest first');
+  assert.ok(d.past_governors.every((g, i) => i === 0 || d.past_governors[i - 1].term <= g.term), 'newest last');
   const late = d.past_governors.filter((g) => /Late PDG/.test(g.name));
   assert.equal(late.length, 2);
   assert.ok(late.every((g) => !g.person_ref));
@@ -219,6 +219,35 @@ test('Past District Governors: from the tab; until it is filled in, the College 
   d.past_governors = [];
   const fallback = site(d).pastGovernors;
   assert.ok(fallback.length >= 20 && fallback.every((g) => g.term && g.name));
+  for (const list of [s.pastGovernors, fallback]) assert.ok(list.every((g, i) => i === 0 || list[i - 1].term <= g.term), 'newest last');
+});
+
+test('District Leadership: sitting governor only, then the College of Governors (oldest first, DGE and DGN last), counsellors, AGs, aides, office', () => {
+  const s = site();
+  const y = s.rolesByYear.find((x) => x.current);
+  assert.deepEqual(y.leadership.map((x) => x.section),
+    ['District Governor', 'College of Governors', 'District Counsellors', 'Assistant Governors', "Governor's Aides", "Governor's Office"]);
+  const people = (sec) => y.leadership.find((x) => x.section === sec).groups.flatMap((g) => g.people);
+  assert.deepEqual(people('District Governor').map((p) => p.role), ['District Governor']);
+  const college = people('College of Governors');
+  assert.deepEqual(college.slice(-2).map((p) => p.role), ['District Governor Elect', 'District Governor Nominee']);
+  const pdgs = college.slice(0, -2);
+  assert.ok(pdgs.every((p, i) => p.role === 'Past District Governor' && (i === 0 || pdgs[i - 1].term <= p.term)), 'PDGs oldest first');
+  assert.ok(people("Governor's Aides").length > 0 && people("Governor's Aides").every((p) => p.committee === "Governor's Aide"));
+  assert.ok(people("Governor's Office").every((p) => p.committee !== "Governor's Aide"));
+  // a past year without a sitting governor row still lists its DGE and DGN in the College of Governors
+  const past = s.rolesByYear.find((x) => x.year === '2023-24');
+  assert.ok(!past.leadership.some((x) => x.section === 'District Governor'));
+  assert.deepEqual(past.leadership.find((x) => x.section === 'College of Governors').groups[0].people.map((p) => p.role),
+    ['District Governor Elect', 'District Governor Nominee']);
+});
+
+test('sample Assistant Governors given by the district look after the clubs they named', () => {
+  const y = site().rolesByYear.find((x) => x.current);
+  const ags = y.leadership.find((x) => x.section === 'Assistant Governors').groups[0].people;
+  const clubsOf = (name) => ags.find((p) => p.name === name).agClubs.map((c) => c.name).sort();
+  assert.deepEqual(clubsOf('Rtn Amit Khatri'), ['RC Kanpur', 'RC Kanpur Global', 'RC Kanpur Green', 'RC Kanpur South']);
+  assert.deepEqual(clubsOf('Rtn Nirendra Sharma'), ['RC Aligarh', 'RC Aligarh City', 'RC Aligarh Rudra']);
 });
 
 test('In the news: newest coverage first; public services grouped by type in the agreed order', () => {

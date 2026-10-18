@@ -28,6 +28,8 @@ env:
   # Until launch the site holds dummy data, so search engines are kept out of all of it.
   # At launch, set the repository variable HIDE_FROM_SEARCH to false.
   HIDE_FROM_SEARCH: ${{ vars.HIDE_FROM_SEARCH || 'true' }}
+  # Everything in the Sheet is sample data until production; at launch, set the repository variable SAMPLE_DATA to false.
+  SAMPLE_DATA: ${{ vars.SAMPLE_DATA || 'true' }}
 
 jobs:
   check:

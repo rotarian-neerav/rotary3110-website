@@ -1002,7 +1002,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
       club_id: Core_clubRef(g.club, clubRows),
       person_ref: id && !inactiveIds[id] ? personRef(id) : '',
     };
-  }).sort(function (a, b) { return b.term.localeCompare(a.term) || a.name.localeCompare(b.name); });
+  }).sort(function (a, b) { return a.term.localeCompare(b.term) || a.name.localeCompare(b.name); }); // newest last
 
   var magazines = (tabs.magazines || []).map(function (m) {
     return {

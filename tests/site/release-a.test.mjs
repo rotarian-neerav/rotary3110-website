@@ -274,3 +274,43 @@ test('the footer links to the new pages; form short links open in a new tab', ()
   const ps = dom('').querySelector('.site-footer a[href$="/public-service/"]');
   assert.equal(ps.getAttribute('target'), '_blank');
 });
+
+/* ---------- 18 Oct: shorter menu, Leadership order, PDGs newest last, sample banner ---------- */
+
+test('the menu has seven items; the pages that left it are linked from the footer and from their nearest page', () => {
+  const home = dom('');
+  const nav = home.querySelectorAll('nav[aria-label="Main"] a').map((a) => a.getAttribute('href').replace(PREFIX, ''));
+  assert.deepEqual(nav, ['/', '/activities/', '/events/', '/clubs/', '/leadership/', '/directory/', '/about/']);
+  const footer = home.querySelectorAll('.site-footer a').map((a) => a.getAttribute('href').replace(PREFIX, ''));
+  for (const href of ['/teams/', '/recognition/', '/magazine/', '/messages/']) assert.ok(footer.includes(href), `footer links ${href}`);
+  const acts = dom('activities').querySelectorAll('main a').map((a) => a.getAttribute('href').replace(PREFIX, ''));
+  assert.ok(acts.includes('/recognition/') && acts.includes('/magazine/'));
+  const about = dom('about').querySelectorAll('main a').map((a) => a.getAttribute('href').replace(PREFIX, ''));
+  assert.ok(about.includes('/messages/') && about.includes('/teams/') && about.includes('/contact/'));
+  assert.ok(dom('leadership').querySelectorAll('main a').some((a) => a.getAttribute('href').replace(PREFIX, '') === '/teams/'));
+});
+
+test('District Leadership: sections in the agreed order; the College of Governors runs oldest to newest with the DGE and DGN last', () => {
+  const root = dom('leadership');
+  const order = ['District Governor', 'College of Governors', 'District Counsellors', 'Assistant Governors', "Governor's Aides", "Governor's Office"];
+  const h2 = root.querySelectorAll('main h2').map((h) => h.text.trim());
+  assert.deepEqual(h2, order.filter((x) => h2.includes(x)));
+  assert.equal(h2[0], 'District Governor');
+  const gov = root.querySelector('#district-governor').querySelectorAll('.people-grid > li');
+  assert.equal(gov.length, 1, 'only the sitting governor');
+  const college = root.querySelector('#college-of-governors').text;
+  const dge = college.indexOf('District Governor Elect');
+  const dgn = college.indexOf('District Governor Nominee');
+  assert.ok(dge > 0 && dgn > dge && college.lastIndexOf('Past District Governor') < dge, 'DGE and DGN after every PDG');
+  const terms = [...college.matchAll(/\b(19|20)\d\d-(\d\d|2000)\b/g)].map((m) => m[0]);
+  assert.deepEqual(terms, [...terms].sort(), 'oldest first');
+  const about = dom('about').querySelectorAll('.past-dgs tbody tr td:first-child').map((td) => td.text.trim());
+  assert.ok(about.length > 0);
+  assert.deepEqual(about, [...about].sort(), 'About page: newest last');
+});
+
+test('until production every page says the data is sample data', () => {
+  const banner = dom('').querySelector('.sample-banner');
+  if (!sample && process.env.SAMPLE_DATA !== 'true') return assert.equal(banner, null);
+  assert.match(banner.text, /everything on this site is sample data/);
+});

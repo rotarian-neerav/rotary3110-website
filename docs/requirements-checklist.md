@@ -17,7 +17,7 @@ Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (
 | 4 | §2 | Events calendar with date, place, organiser; past events link to reports; add to phone calendar | `events.njk`, `event.njk`, `.ics` files, Google Calendar link | S: valid calendar files in India time; browser | ✅ |
 | 5 | §2 | Monthly magazine: newest on home with cover, archive by year/month, PDF | `magazine.njk`; Sheet script scans the 3110Magazines folder | S: links; U(sim): data link | ✅ / 🟡 folder scan |
 | 6 | §2 | Messages page, DG featured on top | `messages.njk` | browser | ✅ (sample messages, no real names) |
-| 7 | §2 | District Leadership page (Governor line, office team, AGs with the clubs they look after (by zone until Release A), Counsellors, College of Governors) | `leadership.njk` | S: every Excel person listed | ✅ |
+| 7 | §2 | District Leadership page: District Governor, College of Governors (PDGs oldest first, DGE and DGN last), District Counsellors, Assistant Governors with their clubs, Governor's Aides, Governor's Office (order since 18 Oct) | `leadership.njk`, `lib/derive.mjs` | S: every Excel person listed, section order; U: order | ✅ |
 | 8 | §2 | Teams & Committees page: team leader, committees with chairmen and co-chairmen; "Past years" | `teams.njk`, year switch | S: every Excel person listed; browser | ✅ |
 | 9 | §2 | One search over name, team, committee, role, club; a person appears once with all roles | `people-search.js` | browser: PDG Sharat Chandra → 1 person, 4 roles | ✅ |
 | 10 | §2 | Professional directory: profession + place search, ~20-word line, optional website, contact only if agreed | `directory.njk`, `directory.js` | S: WhatsApp links only where agreed; browser | ✅ |
@@ -104,7 +104,7 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 |---|---|---|---|---|
 | A1 | Clubs page by city, with search and a meeting-day filter; meeting day asked on the club profile form, else read from the meeting text | `clubs.njk`, `clubs.js`, `Core_meetingDay` | A: day rules; SA: every club once, its day; U(sim): weekday applied on approval; browser | ✅ / 🟡 form after the upgrade |
 | A2 | Rotary-year and Avenue of Service filters on Activities; avenue asked on the activity form (required) | `activities.njk`, `filters.js`, `CORE_AVENUES` | SA: filters match cards; U(sim): question in place, required; browser | ✅ / 🟡 form after the upgrade |
-| A3 | About page: RI President and DG profiles, every Past District Governor, glossary | `about.njk`, `profiles` and `past_governors` tabs | A: latest profile, PDGs newest first, cards only with an ID, fallback to the College of Governors; SA: page | ✅ (sample rows) |
+| A3 | About page: RI President and DG profiles, every Past District Governor, glossary | `about.njk`, `profiles` and `past_governors` tabs | A: latest profile, PDGs newest last, cards only with an ID, fallback to the College of Governors; SA: page | ✅ (sample rows) |
 | A4 | Rotary abbreviations explained where first used on each page | `lib/gloss.mjs`, `site.js` | A: first use, longest match, never in tags/scripts/glossary; SA: once per page; browser: tap shows meaning | ✅ |
 | A5 | Year summary page for each Rotary year | `years.njk`, `year.njk` | A: totals add up; SA: matches data | ✅ |
 | A6 | "More like this" on activity and event pages | `derive.mjs`, `activity.njk`, `event.njk` | A, SA: never the page itself; browser | ✅ |
@@ -121,4 +121,14 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 | A17 | Activity pages marked as news articles for Google | NewsArticle JSON-LD | SA: every activity page | ✅ |
 | A18 | Monthly private email of clubs not posting (dummy receiver for now) | `notPostingReport`, `Core_clubsNotPosting` | A: rules; U(sim): email | 🟡 live after the upgrade |
 | A19 | Site search | Pagefind, `search.njk` | SA: only listable pages indexed; browser: results | ✅ |
-| A20 | Zones off the website; Assistant Governors with their clubs; bulletin rotates by city | `Core_buildPublicData`, `Core_validatePublic`, `leadership.njk` | A: no zone in the data, check refuses one; SA: no zone on any page; M: city rotation | ✅ (`ag_clubs` to fill) |
+| A20 | Zones off the website; Assistant Governors with their clubs; bulletin rotates by city | `Core_buildPublicData`, `Core_validatePublic`, `leadership.njk` | A: no zone in the data, check refuses one; SA: no zone on any page; M: city rotation | ✅ (sample `ag_clubs`) |
+
+**18 October changes**
+
+| # | Requirement | Where | Proof | Status |
+|---|---|---|---|---|
+| L1 | Leadership order: District Governor only, College of Governors (DGE and DGN at the end), District Counsellors, Assistant Governors, Governor's Aides, Governor's Office | `lib/derive.mjs` | A: sections and order, a year without a DG row; SA: headings, one governor, DGE/DGN after every PDG | ✅ |
+| L2 | Past District Governors newest last, everywhere | `Core.js`, `lib/derive.mjs` | A: tab and fallback; SA: Leadership and About | ✅ |
+| L3 | Menu of seven: Home, Activities, Events, Clubs, District Leadership, Member Directory, About; Teams, Recognition, Magazine and Messages from the footer and their nearest page | `base.njk`, `activities.njk`, `about.njk` | SA: menu and links | ✅ |
+| L4 | Every page says the data is sample data until production (`SAMPLE_DATA`) | `base.njk`, `build.yml` | SA: banner | ✅ |
+| L5 | New forms moved into the folder that holds the Sheet | `keepInSheetFolder_` | U(sim): all six moved, none twice | 🟡 live after Upgrade Sheet |

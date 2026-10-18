@@ -1233,7 +1233,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
       club_id: Core_clubRef(g.club, clubRows),
       person_ref: id && !inactiveIds[id] ? personRef(id) : '',
     };
-  }).sort(function (a, b) { return b.term.localeCompare(a.term) || a.name.localeCompare(b.name); });
+  }).sort(function (a, b) { return a.term.localeCompare(b.term) || a.name.localeCompare(b.name); }); // newest last
 
   var magazines = (tabs.magazines || []).map(function (m) {
     return {
@@ -2123,8 +2123,25 @@ function createForms_(report) {
       renameResponseSheet_(destinations[key], form, rawNames[key]);
       report.push('Created the ' + key.replace('_', ' ') + ' form');
     }
+    keepInSheetFolder_(form.getId(), 'the ' + key.replace('_', ' ') + ' form', report);
     setSetting_('form_' + key + '_url', form.getPublishedUrl());
   });
+}
+
+/** Google creates new forms in My Drive; move one into the folder that holds the main Sheet (testing or production). */
+function keepInSheetFolder_(fileId, label, report) {
+  try {
+    var parents = DriveApp.getFileById(mainSs_().getId()).getParents();
+    if (!parents.hasNext()) return;
+    var folder = parents.next();
+    var file = DriveApp.getFileById(fileId);
+    var own = file.getParents();
+    while (own.hasNext()) if (own.next().getId() === folder.getId()) return;
+    file.moveTo(folder);
+    report.push('Moved ' + label + ' into the folder "' + folder.getName() + '"');
+  } catch (e) {
+    report.push('Could not move ' + label + ' next to the Sheet (' + e.message + '); move it by hand');
+  }
 }
 
 function renameResponseSheet_(ssId, form, name) {

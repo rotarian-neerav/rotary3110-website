@@ -165,6 +165,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
   const prompts = [];
   const triggers = [];
   const trashed = [];
+  const moved = new Map(); // drive id -> folder id it was moved into
   const forms = {};
   let activeSheet = null;
   let activeUser = 'moderator.a@example.com';
@@ -248,7 +249,13 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
       Access: { PRIVATE: 'PRIVATE', ANYONE_WITH_LINK: 'ANYONE_WITH_LINK' },
       Permission: { NONE: 'NONE', VIEW: 'VIEW' },
       getFileById: (id) => ({
-        getParents: () => { let done = false; return { hasNext: () => !done, next: () => { done = true; return folder('PARENT', '3110Website'); } }; },
+        // new forms start in My Drive, like Google's; everything else sits in the Sheet's folder
+        getParents: () => {
+          let done = false;
+          const where = moved.get(id) || (/^FORM/.test(id) ? 'ROOT' : 'PARENT');
+          return { hasNext: () => !done, next: () => { done = true; return where === 'ROOT' ? folder('ROOT', 'My Drive') : folder(where, '3110Website'); } };
+        },
+        moveTo: (f) => moved.set(id, f.getId()),
         getName: () => (files.get(id)?.name || id),
         getSharingAccess: () => sharing.get(id) || 'ANYONE_WITH_LINK',
         setSharing: (a) => sharing.set(id, a),
@@ -295,6 +302,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
     alerts,
     prompts,
     trashed,
+    moved,
     files,
     sharing,
     triggers,

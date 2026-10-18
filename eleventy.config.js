@@ -72,6 +72,8 @@ export default function (eleventyConfig) {
   eleventyConfig.addGlobalData('siteUrl', SITE_URL + PATH_PREFIX.replace(/\/$/, ''));
   eleventyConfig.addGlobalData('pathPrefix', PATH_PREFIX);
   eleventyConfig.addGlobalData('hideFromSearch', process.env.HIDE_FROM_SEARCH === 'true');
+  // Until production, the Sheet holds sample data too, so every page says so
+  eleventyConfig.addGlobalData('sampleBanner', process.env.SAMPLE_DATA === 'true');
   eleventyConfig.addGlobalData('analyticsToken', process.env.CF_BEACON_TOKEN || '');
 
   eleventyConfig.addFilter('date', formatDate);

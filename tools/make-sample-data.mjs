@@ -555,6 +555,12 @@ for (const zone of [...new Set(agRows.map((f) => f.zone))]) {
     f.ag_clubs = [own, ...others].filter(Boolean).map((c) => c.club_name).join(', ');
   });
 }
+// Two given by the district for the sample
+const AG_SAMPLE = {
+  'Rtn Amit Khatri': 'RC Kanpur Global, RC Kanpur South, RC Kanpur Green, RC Kanpur',
+  'Rtn Nirendra Sharma': 'RC Aligarh, RC Aligarh Rudra, RC Aligarh City',
+};
+for (const f of agRows) if (AG_SAMPLE[f.name]) f.ag_clubs = AG_SAMPLE[f.name];
 
 // Facilities clubs run that the public can use; numbers are made up (0000 / 60000 numbers are nobody's)
 const publicServices = [];

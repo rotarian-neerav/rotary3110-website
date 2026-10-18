@@ -40,13 +40,16 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Real names and Google emails of the four moderators (add them to the Sheet as editors and to `settings → moderator_emails`) | District | Open |
 | Real Rotary club IDs | District | Open (dummy S-001…) |
 | Rotary member IDs for office bearers and district team members | District | Open (temporary T-… IDs) |
-| List the clubs each Assistant Governor looks after (`functionaries → ag_clubs`) | District | Open (sample: own zone's clubs) |
-| Every Past District Governor (`past_governors`), and the RI President's and DG's profiles and photos with permission to use them (`profiles`) | District | Open (sample rows) |
+| List the clubs each Assistant Governor looks after (`functionaries → ag_clubs`) | District | Ask at production (sample until then) |
+| Every Past District Governor (`past_governors`), and the RI President's and DG's profiles and photos with permission to use them (`profiles`) | District | Ask at production (sample rows) |
 | The email the contact form forwards to (`settings → contact_email`) and who gets the monthly clubs-not-posting list (`not_posting_emails`) | District | Open (moderators / dummy address) |
 | Clubs send their public services (blood banks, eye care…) through the public service form | Clubs | Open |
-| Two role titles from the team Excel contain zone names ("CDS Bareilly Zone", "CDS Kanpur Zone"): rename them if zones should not show at all | District | Open |
+| Two role titles from the team Excel contain zone names ("CDS Bareilly Zone", "CDS Kanpur Zone") | District | Kept as they are (decided 18 Oct) |
+| All data in the Sheet today is sample data, the team names included; collect the correct data for production | District | Ask at production |
+| Testing files (Sheet, private Sheet, forms, MemberPhotos, 3110Magazines) live in the Drive folder **3110Website-Testing**; production files go in **3110Website** | Owner of the files | Move the current files to 3110Website-Testing (open); production set-up at Release B |
 | Release B before going public: test site and test Sheet, fresh production Sheet, lock on sample data, Sheet backup, build-failure email, visitor counts, broken-link check, "Start new Rotary year" | Developer + district | Open |
 | Let search engines in: set the repository variable `HIDE_FROM_SEARCH` to `false` | District | Open (hidden since 17 Oct) |
+| Take down the sample banner: set the repository variable `SAMPLE_DATA` to `false` once the production Sheet holds real data | District | Open (banner on since 18 Oct) |
 | Real profession list (`lists` tab and `settings → professions`) | District | Open (placeholder) |
 | Lawyer checks the consent form wording and privacy notice, including spouse consent | District | Open |
 | Decide the photo policy for identifiable children | DG's office | Open |

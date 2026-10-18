@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-10-18T01:09:22.079Z",
- "rebuild_requested_at": "2026-10-14T10:29:31.437Z",
+ "generated_at": "2026-10-18T08:06:59.311Z",
+ "rebuild_requested_at": "2026-10-18T07:54:38.892Z",
  "inactive_keys": [
   "k9999f805",
   "k796b7120",
@@ -15,7 +15,9 @@
   "activity": "https://docs.google.com/forms/d/e/1FAIpQLSdjosTFy5YI4EHpIJQbOwbxLES-KwLZAR03sdCd-j38JDjfHA/viewform",
   "club_profile": "https://docs.google.com/forms/d/e/1FAIpQLScY02akQWUEMDAX9ISiXYaBtSk6wWTaEfCHYewiyfHlorliqQ/viewform",
   "consent": "https://docs.google.com/forms/d/e/1FAIpQLSfm97lOJt4xhbwekdwuD9ulGZKmt3V4jZTBMWM3TFsaYqeKpQ/viewform",
-  "removal": "https://docs.google.com/forms/d/e/1FAIpQLSfYvPwV3lDhzHqAVUXl8Ba-0GV_g13KJ2Wbb46eUH0Co4tf0Q/viewform"
+  "removal": "https://docs.google.com/forms/d/e/1FAIpQLSfYvPwV3lDhzHqAVUXl8Ba-0GV_g13KJ2Wbb46eUH0Co4tf0Q/viewform",
+  "public_service": "https://docs.google.com/forms/d/e/1FAIpQLSc0-GmPmjiahFfPulWzNgewc4j_Sedt6voe9qLGUf-tnHI_eg/viewform",
+  "contact": "https://docs.google.com/forms/d/e/1FAIpQLSecgq_GH4zgsJ2vELLFPkEYW0mUYh460HvaiFsOrZVd4LCY_w/viewform"
  },
  "lists": {
   "themes": [
@@ -27,6 +29,23 @@
    "Growing local economies",
    "Protecting the environment",
    "Club service / Other"
+  ],
+  "avenues": [
+   "Club Service",
+   "Vocational Service",
+   "Community Service",
+   "International Service",
+   "Youth Service"
+  ],
+  "service_types": [
+   "Blood bank",
+   "Eye care",
+   "Dialysis",
+   "Clinic / health centre",
+   "Library",
+   "Skill / vocational centre",
+   "Ambulance",
+   "Other"
   ],
   "event_types": [
    "District event",
@@ -61,23 +80,6 @@
    "Transporter",
    "Jeweller",
    "Textile trader"
-  ],
-  "avenues": [
-   "Club Service",
-   "Vocational Service",
-   "Community Service",
-   "International Service",
-   "Youth Service"
-  ],
-  "service_types": [
-   "Blood bank",
-   "Eye care",
-   "Dialysis",
-   "Clinic / health centre",
-   "Library",
-   "Skill / vocational centre",
-   "Ambulance",
-   "Other"
   ]
  },
  "clubs": [
@@ -91,6 +93,7 @@
    "status": "active",
    "member_count": 23,
    "meeting": "Every Thursday, 7:30 pm, Club House, Agra",
+   "meeting_day": "Thursday",
    "links": {
     "website": "https://example.com/agra",
     "facebook": "https://www.facebook.com/example-agra",
@@ -100,8 +103,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Thursday"
+   "services": []
   },
   {
    "club_id": "S-002",
@@ -113,6 +115,7 @@
    "status": "active",
    "member_count": 64,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -122,8 +125,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-003",
@@ -135,6 +137,7 @@
    "status": "active",
    "member_count": 29,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -144,8 +147,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-004",
@@ -157,6 +159,7 @@
    "status": "active",
    "member_count": 39,
    "meeting": "Every Tuesday, 7:30 pm, Hotel Grand, Agra",
+   "meeting_day": "Tuesday",
    "links": {
     "website": "",
     "facebook": "",
@@ -166,8 +169,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Tuesday"
+   "services": []
   },
   {
    "club_id": "S-005",
@@ -179,6 +181,7 @@
    "status": "active",
    "member_count": 50,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-agra-sapphire",
@@ -188,8 +191,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-006",
@@ -201,6 +203,7 @@
    "status": "active",
    "member_count": 30,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "https://example.com/aligarh",
     "facebook": "",
@@ -227,8 +230,7 @@
      "when": "30th of every month",
      "where": "Rotary Bhawan, Aligarh"
     }
-   ],
-   "meeting_day": ""
+   ]
   },
   {
    "club_id": "S-007",
@@ -240,6 +242,7 @@
    "status": "active",
    "member_count": 25,
    "meeting": "Every Monday, 7:30 pm, Community Hall, Aligarh",
+   "meeting_day": "Monday",
    "links": {
     "website": "",
     "facebook": "",
@@ -249,8 +252,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Monday"
+   "services": []
   },
   {
    "club_id": "S-008",
@@ -262,6 +264,7 @@
    "status": "active",
    "member_count": 55,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -271,8 +274,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-009",
@@ -284,6 +286,7 @@
    "status": "active",
    "member_count": 19,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-aligarh-city",
@@ -293,8 +296,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-010",
@@ -306,6 +308,7 @@
    "status": "active",
    "member_count": 37,
    "meeting": "Every Monday, 7:30 pm, Hotel Grand, Aligarh",
+   "meeting_day": "Monday",
    "links": {
     "website": "",
     "facebook": "",
@@ -315,8 +318,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Monday"
+   "services": []
   },
   {
    "club_id": "S-011",
@@ -328,6 +330,7 @@
    "status": "active",
    "member_count": 47,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "https://example.com/aligarh-pearl",
     "facebook": "",
@@ -337,8 +340,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-012",
@@ -350,6 +352,7 @@
    "status": "active",
    "member_count": 18,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -359,8 +362,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-013",
@@ -372,6 +374,7 @@
    "status": "active",
    "member_count": 46,
    "meeting": "Every Friday, 7:30 pm, Community Hall, Aligarh",
+   "meeting_day": "Friday",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-aligarh-royal",
@@ -381,8 +384,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Friday"
+   "services": []
   },
   {
    "club_id": "S-014",
@@ -394,6 +396,7 @@
    "status": "active",
    "member_count": 35,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -403,8 +406,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-015",
@@ -416,6 +418,7 @@
    "status": "active",
    "member_count": 22,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -425,8 +428,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-016",
@@ -438,6 +440,7 @@
    "status": "active",
    "member_count": 52,
    "meeting": "Every Thursday, 7:30 pm, Community Hall, Bareilly",
+   "meeting_day": "Thursday",
    "links": {
     "website": "https://example.com/bareilly",
     "facebook": "",
@@ -447,8 +450,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Thursday"
+   "services": []
   },
   {
    "club_id": "S-017",
@@ -460,6 +462,7 @@
    "status": "active",
    "member_count": 26,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-bareilly-central",
@@ -469,8 +472,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-018",
@@ -482,6 +484,7 @@
    "status": "active",
    "member_count": 21,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -491,8 +494,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-019",
@@ -504,6 +506,7 @@
    "status": "inactive",
    "member_count": 20,
    "meeting": "Every Tuesday, 7:30 pm, Rotary Bhawan, Bareilly",
+   "meeting_day": "Tuesday",
    "links": {
     "website": "",
     "facebook": "",
@@ -513,8 +516,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Tuesday"
+   "services": []
   },
   {
    "club_id": "S-020",
@@ -526,6 +528,7 @@
    "status": "active",
    "member_count": 62,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -535,8 +538,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-021",
@@ -548,6 +550,7 @@
    "status": "active",
    "member_count": 23,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "https://example.com/bareilly-heights",
     "facebook": "https://www.facebook.com/example-bareilly-heights",
@@ -557,8 +560,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-022",
@@ -570,6 +572,7 @@
    "status": "active",
    "member_count": 55,
    "meeting": "Every Monday, 7:30 pm, Community Hall, Bareilly",
+   "meeting_day": "Monday",
    "links": {
     "website": "",
     "facebook": "",
@@ -579,8 +582,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Monday"
+   "services": []
   },
   {
    "club_id": "S-023",
@@ -594,6 +596,7 @@
    "status": "active",
    "member_count": 18,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -603,8 +606,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-024",
@@ -616,6 +618,7 @@
    "status": "active",
    "member_count": 48,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -625,8 +628,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-025",
@@ -638,6 +640,7 @@
    "status": "active",
    "member_count": 45,
    "meeting": "Every Thursday, 7:30 pm, Rotary Bhawan, Bareilly",
+   "meeting_day": "Thursday",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-bareilly-north",
@@ -647,8 +650,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Thursday"
+   "services": []
   },
   {
    "club_id": "S-026",
@@ -660,6 +662,7 @@
    "status": "active",
    "member_count": 58,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "https://example.com/bareilly-south",
     "facebook": "",
@@ -669,8 +672,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-027",
@@ -682,6 +684,7 @@
    "status": "active",
    "member_count": 51,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -691,8 +694,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-028",
@@ -704,6 +706,7 @@
    "status": "active",
    "member_count": 59,
    "meeting": "Every Friday, 7:30 pm, Community Hall, Bisauli",
+   "meeting_day": "Friday",
    "links": {
     "website": "",
     "facebook": "",
@@ -713,8 +716,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Friday"
+   "services": []
   },
   {
    "club_id": "S-029",
@@ -726,6 +728,7 @@
    "status": "active",
    "member_count": 33,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-brahmavarta-kanpur",
@@ -735,8 +738,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-030",
@@ -748,6 +750,7 @@
    "status": "active",
    "member_count": 59,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -757,8 +760,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-031",
@@ -770,6 +772,7 @@
    "status": "active",
    "member_count": 60,
    "meeting": "Every Wednesday, 7:30 pm, Community Hall, Firozabad",
+   "meeting_day": "Wednesday",
    "links": {
     "website": "https://example.com/firozabad",
     "facebook": "",
@@ -779,8 +782,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Wednesday"
+   "services": []
   },
   {
    "club_id": "S-032",
@@ -792,6 +794,7 @@
    "status": "active",
    "member_count": 53,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -801,8 +804,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-033",
@@ -814,6 +816,7 @@
    "status": "active",
    "member_count": 26,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-haldwani",
@@ -823,8 +826,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-034",
@@ -836,6 +838,7 @@
    "status": "active",
    "member_count": 50,
    "meeting": "Every Monday, 7:30 pm, Rotary Bhawan, Hathras",
+   "meeting_day": "Monday",
    "links": {
     "website": "",
     "facebook": "",
@@ -845,8 +848,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Monday"
+   "services": []
   },
   {
    "club_id": "S-035",
@@ -858,6 +860,7 @@
    "status": "active",
    "member_count": 52,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -867,8 +870,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-036",
@@ -880,6 +882,7 @@
    "status": "active",
    "member_count": 34,
    "meeting": "",
+   "meeting_day": "Thursday",
    "links": {
     "website": "https://example.com/jhansi",
     "facebook": "",
@@ -906,8 +909,7 @@
      "when": "2nd and 4th Saturday",
      "where": "Rotary Bhawan"
     }
-   ],
-   "meeting_day": ""
+   ]
   },
   {
    "club_id": "S-037",
@@ -919,6 +921,7 @@
    "status": "active",
    "member_count": 32,
    "meeting": "Every Monday, 7:30 pm, Rotary Bhawan, Jhansi",
+   "meeting_day": "Monday",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-jhansi-city",
@@ -928,8 +931,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Monday"
+   "services": []
   },
   {
    "club_id": "S-038",
@@ -941,6 +943,7 @@
    "status": "active",
    "member_count": 42,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -950,8 +953,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-039",
@@ -962,7 +964,8 @@
    "city": "Kanpur",
    "status": "active",
    "member_count": 45,
-   "meeting": "",
+   "meeting": "1st and 3rd Saturday, 7 pm, Rotary Bhawan, Kanpur",
+   "meeting_day": "Saturday",
    "links": {
     "website": "",
     "facebook": "",
@@ -972,8 +975,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-040",
@@ -985,6 +987,7 @@
    "status": "active",
    "member_count": 44,
    "meeting": "Every Wednesday, 7:30 pm, Hotel Grand, Kanpur",
+   "meeting_day": "Wednesday",
    "links": {
     "website": "",
     "facebook": "",
@@ -994,8 +997,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Wednesday"
+   "services": []
   },
   {
    "club_id": "S-041",
@@ -1007,6 +1009,7 @@
    "status": "active",
    "member_count": 28,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "https://example.com/kanpur-classic",
     "facebook": "https://www.facebook.com/example-kanpur-classic",
@@ -1016,8 +1019,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-042",
@@ -1029,6 +1031,7 @@
    "status": "active",
    "member_count": 20,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -1038,8 +1041,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-043",
@@ -1051,6 +1053,7 @@
    "status": "active",
    "member_count": 32,
    "meeting": "Every Wednesday, 7:30 pm, Hotel Grand, Kanpur",
+   "meeting_day": "Wednesday",
    "links": {
     "website": "",
     "facebook": "",
@@ -1060,8 +1063,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Wednesday"
+   "services": []
   },
   {
    "club_id": "S-044",
@@ -1073,6 +1075,7 @@
    "status": "active",
    "member_count": 61,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -1082,8 +1085,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-045",
@@ -1095,6 +1097,7 @@
    "status": "active",
    "member_count": 25,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-kanpur-greater",
@@ -1104,8 +1107,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-046",
@@ -1117,6 +1119,7 @@
    "status": "active",
    "member_count": 36,
    "meeting": "Every Friday, 7:30 pm, Club House, Kanpur",
+   "meeting_day": "Friday",
    "links": {
     "website": "https://example.com/kanpur-green",
     "facebook": "",
@@ -1126,8 +1129,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Friday"
+   "services": []
   },
   {
    "club_id": "S-047",
@@ -1139,6 +1141,7 @@
    "status": "active",
    "member_count": 56,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -1148,8 +1151,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-048",
@@ -1161,6 +1163,7 @@
    "status": "active",
    "member_count": 52,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -1170,8 +1173,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-049",
@@ -1183,6 +1185,7 @@
    "status": "active",
    "member_count": 63,
    "meeting": "Every Friday, 7:30 pm, Hotel Grand, Kanpur",
+   "meeting_day": "Friday",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-kanpur-north",
@@ -1192,8 +1195,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Friday"
+   "services": []
   },
   {
    "club_id": "S-050",
@@ -1205,6 +1207,7 @@
    "status": "active",
    "member_count": 49,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -1214,8 +1217,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-051",
@@ -1227,6 +1229,7 @@
    "status": "active",
    "member_count": 62,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "https://example.com/kanpur-south",
     "facebook": "",
@@ -1236,8 +1239,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-052",
@@ -1249,6 +1251,7 @@
    "status": "active",
    "member_count": 31,
    "meeting": "Every Tuesday, 7:30 pm, Community Hall, Kanpur",
+   "meeting_day": "Tuesday",
    "links": {
     "website": "",
     "facebook": "",
@@ -1258,8 +1261,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Tuesday"
+   "services": []
   },
   {
    "club_id": "S-053",
@@ -1271,6 +1273,7 @@
    "status": "active",
    "member_count": 29,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-kanpur-vinayak-shree",
@@ -1280,8 +1283,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-054",
@@ -1293,6 +1295,7 @@
    "status": "active",
    "member_count": 37,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -1302,8 +1305,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-055",
@@ -1315,6 +1317,7 @@
    "status": "active",
    "member_count": 47,
    "meeting": "Every Wednesday, 7:30 pm, Club House, Kasganj",
+   "meeting_day": "Wednesday",
    "links": {
     "website": "",
     "facebook": "",
@@ -1330,8 +1333,7 @@
      "where": "Kasganj"
     }
    ],
-   "services": [],
-   "meeting_day": "Wednesday"
+   "services": []
   },
   {
    "club_id": "S-056",
@@ -1343,6 +1345,7 @@
    "status": "active",
    "member_count": 60,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "https://example.com/kashipur",
     "facebook": "",
@@ -1352,8 +1355,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-057",
@@ -1365,6 +1367,7 @@
    "status": "active",
    "member_count": 62,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-kashipur-corbett",
@@ -1374,8 +1377,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-058",
@@ -1387,6 +1389,7 @@
    "status": "active",
    "member_count": 59,
    "meeting": "Every Monday, 7:30 pm, Hotel Grand, Mathura",
+   "meeting_day": "Monday",
    "links": {
     "website": "",
     "facebook": "",
@@ -1396,8 +1399,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Monday"
+   "services": []
   },
   {
    "club_id": "S-059",
@@ -1409,6 +1411,7 @@
    "status": "active",
    "member_count": 44,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -1418,8 +1421,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-060",
@@ -1431,6 +1433,7 @@
    "status": "active",
    "member_count": 25,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -1440,8 +1443,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-061",
@@ -1453,6 +1455,7 @@
    "status": "active",
    "member_count": 27,
    "meeting": "Every Tuesday, 7:30 pm, Club House, Mathura",
+   "meeting_day": "Tuesday",
    "links": {
     "website": "https://example.com/mathura-rational",
     "facebook": "https://www.facebook.com/example-mathura-rational",
@@ -1462,8 +1465,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Tuesday"
+   "services": []
   },
   {
    "club_id": "S-062",
@@ -1475,6 +1477,7 @@
    "status": "active",
    "member_count": 25,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -1484,8 +1487,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-063",
@@ -1497,6 +1499,7 @@
    "status": "active",
    "member_count": 29,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -1506,8 +1509,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-064",
@@ -1519,6 +1521,7 @@
    "status": "active",
    "member_count": 59,
    "meeting": "Every Monday, 7:30 pm, Rotary Bhawan, Kanpur",
+   "meeting_day": "Monday",
    "links": {
     "website": "",
     "facebook": "",
@@ -1528,8 +1531,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Monday"
+   "services": []
   },
   {
    "club_id": "S-065",
@@ -1541,6 +1543,7 @@
    "status": "active",
    "member_count": 49,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-pilibhit",
@@ -1550,8 +1553,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-066",
@@ -1563,6 +1565,7 @@
    "status": "active",
    "member_count": 63,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "https://example.com/puranpur-green",
     "facebook": "",
@@ -1572,8 +1575,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-067",
@@ -1585,6 +1587,7 @@
    "status": "active",
    "member_count": 29,
    "meeting": "Every Wednesday, 7:30 pm, Rotary Bhawan, Rampur",
+   "meeting_day": "Wednesday",
    "links": {
     "website": "",
     "facebook": "",
@@ -1594,8 +1597,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Wednesday"
+   "services": []
   },
   {
    "club_id": "S-068",
@@ -1607,6 +1609,7 @@
    "status": "active",
    "member_count": 28,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "",
@@ -1616,8 +1619,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-069",
@@ -1629,6 +1631,7 @@
    "status": "active",
    "member_count": 27,
    "meeting": "",
+   "meeting_day": "",
    "links": {
     "website": "",
     "facebook": "https://www.facebook.com/example-shikohabad",
@@ -1638,8 +1641,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": ""
+   "services": []
   },
   {
    "club_id": "S-070",
@@ -1651,6 +1653,7 @@
    "status": "active",
    "member_count": 12,
    "meeting": "Every Monday, 7:30 pm, Club House, Unnao",
+   "meeting_day": "Monday",
    "links": {
     "website": "",
     "facebook": "",
@@ -1660,8 +1663,7 @@
     "linkedin": ""
    },
    "projects": [],
-   "services": [],
-   "meeting_day": "Monday"
+   "services": []
   }
  ],
  "officers": [
@@ -3309,8 +3311,8 @@
    "section": "Governor line",
    "committee": "",
    "term": "2024-25",
-   "sort_order": 1,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 1
   },
   {
    "rotary_year": "2023-24",
@@ -3326,8 +3328,8 @@
    "section": "Governor line",
    "committee": "",
    "term": "2024-25",
-   "sort_order": 1,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 1
   },
   {
    "rotary_year": "2024-25",
@@ -3343,8 +3345,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "1983-84",
-   "sort_order": 2,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 2
   },
   {
    "rotary_year": "2023-24",
@@ -3360,8 +3362,8 @@
    "section": "Governor line",
    "committee": "",
    "term": "2025-26",
-   "sort_order": 2,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 2
   },
   {
    "rotary_year": "2024-25",
@@ -3377,8 +3379,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "1987-88",
-   "sort_order": 3,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 3
   },
   {
    "rotary_year": "2023-24",
@@ -3394,8 +3396,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 3,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 3
   },
   {
    "rotary_year": "2024-25",
@@ -3411,8 +3413,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "1991-92",
-   "sort_order": 4,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 4
   },
   {
    "rotary_year": "2023-24",
@@ -3428,8 +3430,8 @@
    "section": "Governor's Office Team",
    "committee": "District Secretariat",
    "term": "",
-   "sort_order": 4,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 4
   },
   {
    "rotary_year": "2024-25",
@@ -3445,8 +3447,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "1994-95",
-   "sort_order": 5,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 5
   },
   {
    "rotary_year": "2023-24",
@@ -3462,8 +3464,8 @@
    "section": "Governor's Office Team",
    "committee": "District Secretariat",
    "term": "",
-   "sort_order": 5,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 5
   },
   {
    "rotary_year": "2024-25",
@@ -3479,8 +3481,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "1996-97",
-   "sort_order": 6,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 6
   },
   {
    "rotary_year": "2024-25",
@@ -3496,8 +3498,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "1997-98",
-   "sort_order": 7,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 7
   },
   {
    "rotary_year": "2024-25",
@@ -3513,8 +3515,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "1999-2000",
-   "sort_order": 8,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 8
   },
   {
    "rotary_year": "2024-25",
@@ -3530,8 +3532,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2001-02",
-   "sort_order": 9,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 9
   },
   {
    "rotary_year": "2024-25",
@@ -3547,8 +3549,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2002-03",
-   "sort_order": 10,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 10
   },
   {
    "rotary_year": "2024-25",
@@ -3564,8 +3566,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2003-04",
-   "sort_order": 11,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 11
   },
   {
    "rotary_year": "2024-25",
@@ -3581,8 +3583,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2005-06",
-   "sort_order": 12,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 12
   },
   {
    "rotary_year": "2024-25",
@@ -3598,8 +3600,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2007-08",
-   "sort_order": 13,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 13
   },
   {
    "rotary_year": "2024-25",
@@ -3615,8 +3617,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2009-10",
-   "sort_order": 14,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 14
   },
   {
    "rotary_year": "2024-25",
@@ -3632,8 +3634,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2010-11",
-   "sort_order": 15,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 15
   },
   {
    "rotary_year": "2024-25",
@@ -3649,8 +3651,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2011-12",
-   "sort_order": 16,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 16
   },
   {
    "rotary_year": "2024-25",
@@ -3666,8 +3668,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2012-13",
-   "sort_order": 17,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 17
   },
   {
    "rotary_year": "2024-25",
@@ -3683,8 +3685,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2013-14",
-   "sort_order": 18,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 18
   },
   {
    "rotary_year": "2024-25",
@@ -3700,8 +3702,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2014-15",
-   "sort_order": 19,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 19
   },
   {
    "rotary_year": "2024-25",
@@ -3717,8 +3719,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2015-16",
-   "sort_order": 20,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 20
   },
   {
    "rotary_year": "2024-25",
@@ -3734,8 +3736,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2016-17",
-   "sort_order": 21,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 21
   },
   {
    "rotary_year": "2024-25",
@@ -3751,8 +3753,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2017-18",
-   "sort_order": 22,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 22
   },
   {
    "rotary_year": "2024-25",
@@ -3768,8 +3770,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2018-19",
-   "sort_order": 23,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 23
   },
   {
    "rotary_year": "2024-25",
@@ -3785,8 +3787,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2019-20",
-   "sort_order": 24,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 24
   },
   {
    "rotary_year": "2024-25",
@@ -3802,8 +3804,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2020-21",
-   "sort_order": 25,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 25
   },
   {
    "rotary_year": "2024-25",
@@ -3819,8 +3821,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2021-22",
-   "sort_order": 26,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 26
   },
   {
    "rotary_year": "2024-25",
@@ -3836,8 +3838,8 @@
    "section": "College of Governors",
    "committee": "",
    "term": "2022-23",
-   "sort_order": 27,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 27
   },
   {
    "rotary_year": "2024-25",
@@ -3853,8 +3855,8 @@
    "section": "Governor line",
    "committee": "",
    "term": "2025-26",
-   "sort_order": 28,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 28
   },
   {
    "rotary_year": "2024-25",
@@ -3870,8 +3872,8 @@
    "section": "Governor line",
    "committee": "",
    "term": "2026-27",
-   "sort_order": 29,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 29
   },
   {
    "rotary_year": "2024-25",
@@ -3887,8 +3889,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 30,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 30
   },
   {
    "rotary_year": "2024-25",
@@ -3904,8 +3906,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 31,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 31
   },
   {
    "rotary_year": "2024-25",
@@ -3921,8 +3923,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 32,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 32
   },
   {
    "rotary_year": "2024-25",
@@ -3938,8 +3940,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 33,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 33
   },
   {
    "rotary_year": "2024-25",
@@ -3955,8 +3957,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 34,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 34
   },
   {
    "rotary_year": "2024-25",
@@ -3972,8 +3974,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 35,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 35
   },
   {
    "rotary_year": "2024-25",
@@ -3989,8 +3991,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 36,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 36
   },
   {
    "rotary_year": "2024-25",
@@ -4006,8 +4008,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 37,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 37
   },
   {
    "rotary_year": "2024-25",
@@ -4023,8 +4025,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 38,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 38
   },
   {
    "rotary_year": "2024-25",
@@ -4040,8 +4042,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 39,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 39
   },
   {
    "rotary_year": "2024-25",
@@ -4057,8 +4059,8 @@
    "section": "District Counsellors",
    "committee": "",
    "term": "",
-   "sort_order": 40,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 40
   },
   {
    "rotary_year": "2024-25",
@@ -4074,8 +4076,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 41,
-   "clubs": []
+   "clubs": [
+    "S-001",
+    "S-005"
+   ],
+   "sort_order": 41
   },
   {
    "rotary_year": "2024-25",
@@ -4091,8 +4096,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 42,
-   "clubs": []
+   "clubs": [
+    "S-002",
+    "S-007"
+   ],
+   "sort_order": 42
   },
   {
    "rotary_year": "2024-25",
@@ -4108,8 +4116,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 43,
-   "clubs": []
+   "clubs": [
+    "S-003",
+    "S-009"
+   ],
+   "sort_order": 43
   },
   {
    "rotary_year": "2024-25",
@@ -4125,8 +4136,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 44,
-   "clubs": []
+   "clubs": [
+    "S-004",
+    "S-012"
+   ],
+   "sort_order": 44
   },
   {
    "rotary_year": "2024-25",
@@ -4142,8 +4156,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 45,
-   "clubs": []
+   "clubs": [
+    "S-006",
+    "S-013"
+   ],
+   "sort_order": 45
   },
   {
    "rotary_year": "2024-25",
@@ -4159,8 +4176,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 46,
-   "clubs": []
+   "clubs": [
+    "S-008",
+    "S-015"
+   ],
+   "sort_order": 46
   },
   {
    "rotary_year": "2024-25",
@@ -4176,8 +4196,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 47,
-   "clubs": []
+   "clubs": [
+    "S-010",
+    "S-031"
+   ],
+   "sort_order": 47
   },
   {
    "rotary_year": "2024-25",
@@ -4193,8 +4216,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 48,
-   "clubs": []
+   "clubs": [
+    "S-014",
+    "S-034"
+   ],
+   "sort_order": 48
   },
   {
    "rotary_year": "2024-25",
@@ -4210,8 +4236,12 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 49,
-   "clubs": []
+   "clubs": [
+    "S-006",
+    "S-014",
+    "S-009"
+   ],
+   "sort_order": 49
   },
   {
    "rotary_year": "2024-25",
@@ -4227,8 +4257,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 50,
-   "clubs": []
+   "clubs": [
+    "S-062",
+    "S-060"
+   ],
+   "sort_order": 50
   },
   {
    "rotary_year": "2024-25",
@@ -4244,8 +4277,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 51,
-   "clubs": []
+   "clubs": [
+    "S-059",
+    "S-061"
+   ],
+   "sort_order": 51
   },
   {
    "rotary_year": "2024-25",
@@ -4261,8 +4297,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 52,
-   "clubs": []
+   "clubs": [
+    "S-055",
+    "S-069"
+   ],
+   "sort_order": 52
   },
   {
    "rotary_year": "2024-25",
@@ -4278,8 +4317,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 53,
-   "clubs": []
+   "clubs": [
+    "S-016",
+    "S-021"
+   ],
+   "sort_order": 53
   },
   {
    "rotary_year": "2024-25",
@@ -4295,8 +4337,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 54,
-   "clubs": []
+   "clubs": [
+    "S-017",
+    "S-023"
+   ],
+   "sort_order": 54
   },
   {
    "rotary_year": "2024-25",
@@ -4312,8 +4357,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 55,
-   "clubs": []
+   "clubs": [
+    "S-020",
+    "S-024"
+   ],
+   "sort_order": 55
   },
   {
    "rotary_year": "2024-25",
@@ -4329,8 +4377,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 56,
-   "clubs": []
+   "clubs": [
+    "S-018",
+    "S-025"
+   ],
+   "sort_order": 56
   },
   {
    "rotary_year": "2024-25",
@@ -4346,8 +4397,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 57,
-   "clubs": []
+   "clubs": [
+    "S-022",
+    "S-027"
+   ],
+   "sort_order": 57
   },
   {
    "rotary_year": "2024-25",
@@ -4363,8 +4417,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 58,
-   "clubs": []
+   "clubs": [
+    "S-035",
+    "S-028"
+   ],
+   "sort_order": 58
   },
   {
    "rotary_year": "2024-25",
@@ -4380,8 +4437,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 59,
-   "clubs": []
+   "clubs": [
+    "S-030",
+    "S-033"
+   ],
+   "sort_order": 59
   },
   {
    "rotary_year": "2024-25",
@@ -4397,8 +4457,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 60,
-   "clubs": []
+   "clubs": [
+    "S-056",
+    "S-057"
+   ],
+   "sort_order": 60
   },
   {
    "rotary_year": "2024-25",
@@ -4414,8 +4477,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 61,
-   "clubs": []
+   "clubs": [
+    "S-066",
+    "S-063"
+   ],
+   "sort_order": 61
   },
   {
    "rotary_year": "2024-25",
@@ -4431,8 +4497,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 62,
-   "clubs": []
+   "clubs": [
+    "S-068",
+    "S-065"
+   ],
+   "sort_order": 62
   },
   {
    "rotary_year": "2024-25",
@@ -4448,8 +4517,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 63,
-   "clubs": []
+   "clubs": [
+    "S-026",
+    "S-067"
+   ],
+   "sort_order": 63
   },
   {
    "rotary_year": "2024-25",
@@ -4465,8 +4537,12 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 64,
-   "clubs": []
+   "clubs": [
+    "S-032",
+    "S-029",
+    "S-053"
+   ],
+   "sort_order": 64
   },
   {
    "rotary_year": "2024-25",
@@ -4482,8 +4558,12 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 65,
-   "clubs": []
+   "clubs": [
+    "S-036",
+    "S-037",
+    "S-064"
+   ],
+   "sort_order": 65
   },
   {
    "rotary_year": "2024-25",
@@ -4499,8 +4579,12 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 66,
-   "clubs": []
+   "clubs": [
+    "S-049",
+    "S-038",
+    "S-070"
+   ],
+   "sort_order": 66
   },
   {
    "rotary_year": "2024-25",
@@ -4516,8 +4600,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 67,
-   "clubs": []
+   "clubs": [
+    "S-042",
+    "S-039"
+   ],
+   "sort_order": 67
   },
   {
    "rotary_year": "2024-25",
@@ -4533,8 +4620,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 68,
-   "clubs": []
+   "clubs": [
+    "S-044",
+    "S-040"
+   ],
+   "sort_order": 68
   },
   {
    "rotary_year": "2024-25",
@@ -4550,8 +4640,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 69,
-   "clubs": []
+   "clubs": [
+    "S-046",
+    "S-041"
+   ],
+   "sort_order": 69
   },
   {
    "rotary_year": "2024-25",
@@ -4567,8 +4660,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 70,
-   "clubs": []
+   "clubs": [
+    "S-047",
+    "S-043"
+   ],
+   "sort_order": 70
   },
   {
    "rotary_year": "2024-25",
@@ -4584,8 +4680,13 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 71,
-   "clubs": []
+   "clubs": [
+    "S-044",
+    "S-051",
+    "S-046",
+    "S-039"
+   ],
+   "sort_order": 71
   },
   {
    "rotary_year": "2024-25",
@@ -4601,8 +4702,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 72,
-   "clubs": []
+   "clubs": [
+    "S-052",
+    "S-048"
+   ],
+   "sort_order": 72
   },
   {
    "rotary_year": "2024-25",
@@ -4618,8 +4722,11 @@
    "section": "Assistant Governors",
    "committee": "",
    "term": "",
-   "sort_order": 73,
-   "clubs": []
+   "clubs": [
+    "S-054",
+    "S-050"
+   ],
+   "sort_order": 73
   },
   {
    "rotary_year": "2024-25",
@@ -4635,8 +4742,8 @@
    "section": "Governor's Office Team",
    "committee": "Administration",
    "term": "",
-   "sort_order": 74,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 74
   },
   {
    "rotary_year": "2024-25",
@@ -4652,8 +4759,8 @@
    "section": "Governor's Office Team",
    "committee": "Administration",
    "term": "",
-   "sort_order": 75,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 75
   },
   {
    "rotary_year": "2024-25",
@@ -4669,8 +4776,8 @@
    "section": "Governor's Office Team",
    "committee": "Administration",
    "term": "",
-   "sort_order": 76,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 76
   },
   {
    "rotary_year": "2024-25",
@@ -4686,8 +4793,8 @@
    "section": "Governor's Office Team",
    "committee": "Administration",
    "term": "",
-   "sort_order": 77,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 77
   },
   {
    "rotary_year": "2024-25",
@@ -4703,8 +4810,8 @@
    "section": "Governor's Office Team",
    "committee": "Administration",
    "term": "",
-   "sort_order": 78,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 78
   },
   {
    "rotary_year": "2024-25",
@@ -4720,8 +4827,8 @@
    "section": "Governor's Office Team",
    "committee": "Accounts",
    "term": "",
-   "sort_order": 79,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 79
   },
   {
    "rotary_year": "2024-25",
@@ -4737,8 +4844,8 @@
    "section": "Governor's Office Team",
    "committee": "Governor's Aide",
    "term": "",
-   "sort_order": 80,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 80
   },
   {
    "rotary_year": "2024-25",
@@ -4754,8 +4861,8 @@
    "section": "Governor's Office Team",
    "committee": "Governor's Aide",
    "term": "",
-   "sort_order": 81,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 81
   },
   {
    "rotary_year": "2024-25",
@@ -4771,8 +4878,8 @@
    "section": "Governor's Office Team",
    "committee": "Governor's Aide",
    "term": "",
-   "sort_order": 82,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 82
   },
   {
    "rotary_year": "2024-25",
@@ -4788,8 +4895,8 @@
    "section": "Governor's Office Team",
    "committee": "Governor's Aide",
    "term": "",
-   "sort_order": 83,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 83
   },
   {
    "rotary_year": "2024-25",
@@ -4805,8 +4912,8 @@
    "section": "Governor's Office Team",
    "committee": "Governor's Aide",
    "term": "",
-   "sort_order": 84,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 84
   },
   {
    "rotary_year": "2024-25",
@@ -4822,8 +4929,8 @@
    "section": "Governor's Office Team",
    "committee": "Governor's Aide",
    "term": "",
-   "sort_order": 85,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 85
   },
   {
    "rotary_year": "2024-25",
@@ -4839,8 +4946,8 @@
    "section": "Governor's Office Team",
    "committee": "Programs",
    "term": "",
-   "sort_order": 86,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 86
   },
   {
    "rotary_year": "2024-25",
@@ -4856,8 +4963,8 @@
    "section": "Governor's Office Team",
    "committee": "Programs",
    "term": "",
-   "sort_order": 87,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 87
   },
   {
    "rotary_year": "2024-25",
@@ -4873,8 +4980,8 @@
    "section": "Governor's Office Team",
    "committee": "Programs",
    "term": "",
-   "sort_order": 88,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 88
   },
   {
    "rotary_year": "2024-25",
@@ -4890,8 +4997,8 @@
    "section": "Governor's Office Team",
    "committee": "Programs",
    "term": "",
-   "sort_order": 89,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 89
   },
   {
    "rotary_year": "2024-25",
@@ -4907,8 +5014,8 @@
    "section": "Governor's Office Team",
    "committee": "Programs",
    "term": "",
-   "sort_order": 90,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 90
   },
   {
    "rotary_year": "2024-25",
@@ -4924,8 +5031,8 @@
    "section": "Governor's Office Team",
    "committee": "Programs",
    "term": "",
-   "sort_order": 91,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 91
   },
   {
    "rotary_year": "2024-25",
@@ -4941,8 +5048,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "",
    "term": "",
-   "sort_order": 92,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 92
   },
   {
    "rotary_year": "2024-25",
@@ -4958,8 +5065,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "",
    "term": "",
-   "sort_order": 93,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 93
   },
   {
    "rotary_year": "2024-25",
@@ -4975,8 +5082,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "",
    "term": "",
-   "sort_order": 94,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 94
   },
   {
    "rotary_year": "2024-25",
@@ -4992,8 +5099,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "",
    "term": "",
-   "sort_order": 95,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 95
   },
   {
    "rotary_year": "2024-25",
@@ -5009,8 +5116,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "",
    "term": "",
-   "sort_order": 96,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 96
   },
   {
    "rotary_year": "2024-25",
@@ -5026,8 +5133,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "",
    "term": "",
-   "sort_order": 97,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 97
   },
   {
    "rotary_year": "2024-25",
@@ -5043,8 +5150,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "",
    "term": "",
-   "sort_order": 98,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 98
   },
   {
    "rotary_year": "2024-25",
@@ -5060,8 +5167,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "",
    "term": "",
-   "sort_order": 99,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 99
   },
   {
    "rotary_year": "2024-25",
@@ -5077,8 +5184,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "",
    "term": "",
-   "sort_order": 100,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 100
   },
   {
    "rotary_year": "2024-25",
@@ -5094,8 +5201,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "District AGTS, PETS, SETS Committee",
    "term": "",
-   "sort_order": 101,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 101
   },
   {
    "rotary_year": "2024-25",
@@ -5111,8 +5218,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "District AGTS, PETS, SETS Committee",
    "term": "",
-   "sort_order": 102,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 102
   },
   {
    "rotary_year": "2024-25",
@@ -5128,8 +5235,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "District AGTS, PETS, SETS Committee",
    "term": "",
-   "sort_order": 103,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 103
   },
   {
    "rotary_year": "2024-25",
@@ -5145,8 +5252,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "District AGTS, PETS, SETS Committee",
    "term": "",
-   "sort_order": 104,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 104
   },
   {
    "rotary_year": "2024-25",
@@ -5162,8 +5269,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Vibrant Club Committee",
    "term": "",
-   "sort_order": 105,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 105
   },
   {
    "rotary_year": "2024-25",
@@ -5179,8 +5286,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Vibrant Club Committee",
    "term": "",
-   "sort_order": 106,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 106
   },
   {
    "rotary_year": "2024-25",
@@ -5196,8 +5303,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Vibrant Club Committee",
    "term": "",
-   "sort_order": 107,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 107
   },
   {
    "rotary_year": "2024-25",
@@ -5213,8 +5320,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Vibrant Club Committee",
    "term": "",
-   "sort_order": 108,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 108
   },
   {
    "rotary_year": "2024-25",
@@ -5230,8 +5337,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Rotary Leadership Institute Committee",
    "term": "",
-   "sort_order": 109,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 109
   },
   {
    "rotary_year": "2024-25",
@@ -5247,8 +5354,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Rotary Leadership Institute Committee",
    "term": "",
-   "sort_order": 110,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 110
   },
   {
    "rotary_year": "2024-25",
@@ -5264,8 +5371,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Rotary Leadership Institute Committee",
    "term": "",
-   "sort_order": 111,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 111
   },
   {
    "rotary_year": "2024-25",
@@ -5281,8 +5388,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Rotary Leadership Institute Committee",
    "term": "",
-   "sort_order": 112,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 112
   },
   {
    "rotary_year": "2024-25",
@@ -5298,8 +5405,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Rotary Action Plan Committee",
    "term": "",
-   "sort_order": 113,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 113
   },
   {
    "rotary_year": "2024-25",
@@ -5315,8 +5422,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Rotary Action Plan Committee",
    "term": "",
-   "sort_order": 114,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 114
   },
   {
    "rotary_year": "2024-25",
@@ -5332,8 +5439,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Rotary Action Plan Committee",
    "term": "",
-   "sort_order": 115,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 115
   },
   {
    "rotary_year": "2024-25",
@@ -5349,8 +5456,8 @@
    "section": "District Learning Facilitation Team",
    "committee": "Rotary Action Plan Committee",
    "term": "",
-   "sort_order": 116,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 116
   },
   {
    "rotary_year": "2024-25",
@@ -5366,8 +5473,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "",
    "term": "",
-   "sort_order": 117,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 117
   },
   {
    "rotary_year": "2024-25",
@@ -5383,8 +5490,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Global Grants Committee",
    "term": "",
-   "sort_order": 118,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 118
   },
   {
    "rotary_year": "2024-25",
@@ -5400,8 +5507,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Global Grants Committee",
    "term": "",
-   "sort_order": 119,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 119
   },
   {
    "rotary_year": "2024-25",
@@ -5417,8 +5524,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Global Grants Committee",
    "term": "",
-   "sort_order": 120,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 120
   },
   {
    "rotary_year": "2024-25",
@@ -5434,8 +5541,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Global Grants Committee",
    "term": "",
-   "sort_order": 121,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 121
   },
   {
    "rotary_year": "2024-25",
@@ -5451,8 +5558,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Global Grants Committee",
    "term": "",
-   "sort_order": 122,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 122
   },
   {
    "rotary_year": "2024-25",
@@ -5468,8 +5575,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Global Grants Committee",
    "term": "",
-   "sort_order": 123,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 123
   },
   {
    "rotary_year": "2024-25",
@@ -5485,8 +5592,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Global Grants Committee",
    "term": "",
-   "sort_order": 124,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 124
   },
   {
    "rotary_year": "2024-25",
@@ -5502,8 +5609,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Endowment, and Major Gift Committee",
    "term": "",
-   "sort_order": 125,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 125
   },
   {
    "rotary_year": "2024-25",
@@ -5519,8 +5626,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Endowment, and Major Gift Committee",
    "term": "",
-   "sort_order": 126,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 126
   },
   {
    "rotary_year": "2024-25",
@@ -5536,8 +5643,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Endowment, and Major Gift Committee",
    "term": "",
-   "sort_order": 127,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 127
   },
   {
    "rotary_year": "2024-25",
@@ -5553,8 +5660,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Endowment, and Major Gift Committee",
    "term": "",
-   "sort_order": 128,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 128
   },
   {
    "rotary_year": "2024-25",
@@ -5570,8 +5677,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Endowment, and Major Gift Committee",
    "term": "",
-   "sort_order": 129,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 129
   },
   {
    "rotary_year": "2024-25",
@@ -5587,8 +5694,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Endowment, and Major Gift Committee",
    "term": "",
-   "sort_order": 130,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 130
   },
   {
    "rotary_year": "2024-25",
@@ -5604,8 +5711,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Endowment, and Major Gift Committee",
    "term": "",
-   "sort_order": 131,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 131
   },
   {
    "rotary_year": "2024-25",
@@ -5621,8 +5728,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Corporate Social Responsibility (CSR) Committee",
    "term": "",
-   "sort_order": 132,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 132
   },
   {
    "rotary_year": "2024-25",
@@ -5638,8 +5745,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Corporate Social Responsibility (CSR) Committee",
    "term": "",
-   "sort_order": 133,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 133
   },
   {
    "rotary_year": "2024-25",
@@ -5655,8 +5762,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Corporate Social Responsibility (CSR) Committee",
    "term": "",
-   "sort_order": 134,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 134
   },
   {
    "rotary_year": "2024-25",
@@ -5672,8 +5779,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Corporate Social Responsibility (CSR) Committee",
    "term": "",
-   "sort_order": 135,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 135
   },
   {
    "rotary_year": "2024-25",
@@ -5689,8 +5796,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Corporate Social Responsibility (CSR) Committee",
    "term": "",
-   "sort_order": 136,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 136
   },
   {
    "rotary_year": "2024-25",
@@ -5706,8 +5813,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Corporate Social Responsibility (CSR) Committee",
    "term": "",
-   "sort_order": 137,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 137
   },
   {
    "rotary_year": "2024-25",
@@ -5723,8 +5830,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Corporate Social Responsibility (CSR) Committee",
    "term": "",
-   "sort_order": 138,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 138
   },
   {
    "rotary_year": "2024-25",
@@ -5740,8 +5847,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Stewardship Committee",
    "term": "",
-   "sort_order": 139,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 139
   },
   {
    "rotary_year": "2024-25",
@@ -5757,8 +5864,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Stewardship Committee",
    "term": "",
-   "sort_order": 140,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 140
   },
   {
    "rotary_year": "2024-25",
@@ -5774,8 +5881,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Stewardship Committee",
    "term": "",
-   "sort_order": 141,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 141
   },
   {
    "rotary_year": "2024-25",
@@ -5791,8 +5898,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Stewardship Committee",
    "term": "",
-   "sort_order": 142,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 142
   },
   {
    "rotary_year": "2024-25",
@@ -5808,8 +5915,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Stewardship Committee",
    "term": "",
-   "sort_order": 143,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 143
   },
   {
    "rotary_year": "2024-25",
@@ -5825,8 +5932,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Stewardship Committee",
    "term": "",
-   "sort_order": 144,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 144
   },
   {
    "rotary_year": "2024-25",
@@ -5842,8 +5949,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Stewardship Committee",
    "term": "",
-   "sort_order": 145,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 145
   },
   {
    "rotary_year": "2024-25",
@@ -5859,8 +5966,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Annual Fund Committee",
    "term": "",
-   "sort_order": 146,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 146
   },
   {
    "rotary_year": "2024-25",
@@ -5876,8 +5983,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Annual Fund Committee",
    "term": "",
-   "sort_order": 147,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 147
   },
   {
    "rotary_year": "2024-25",
@@ -5893,8 +6000,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Annual Fund Committee",
    "term": "",
-   "sort_order": 148,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 148
   },
   {
    "rotary_year": "2024-25",
@@ -5910,8 +6017,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Annual Fund Committee",
    "term": "",
-   "sort_order": 149,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 149
   },
   {
    "rotary_year": "2024-25",
@@ -5927,8 +6034,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Annual Fund Committee",
    "term": "",
-   "sort_order": 150,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 150
   },
   {
    "rotary_year": "2024-25",
@@ -5944,8 +6051,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Annual Fund Committee",
    "term": "",
-   "sort_order": 151,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 151
   },
   {
    "rotary_year": "2024-25",
@@ -5961,8 +6068,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Annual Fund Committee",
    "term": "",
-   "sort_order": 152,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 152
   },
   {
    "rotary_year": "2024-25",
@@ -5978,8 +6085,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District PHF Committee",
    "term": "",
-   "sort_order": 153,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 153
   },
   {
    "rotary_year": "2024-25",
@@ -5995,8 +6102,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District PHF Committee",
    "term": "",
-   "sort_order": 154,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 154
   },
   {
    "rotary_year": "2024-25",
@@ -6012,8 +6119,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District PHF Committee",
    "term": "",
-   "sort_order": 155,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 155
   },
   {
    "rotary_year": "2024-25",
@@ -6029,8 +6136,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District PHF Committee",
    "term": "",
-   "sort_order": 156,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 156
   },
   {
    "rotary_year": "2024-25",
@@ -6046,8 +6153,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District PHF Committee",
    "term": "",
-   "sort_order": 157,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 157
   },
   {
    "rotary_year": "2024-25",
@@ -6063,8 +6170,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District PHF Committee",
    "term": "",
-   "sort_order": 158,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 158
   },
   {
    "rotary_year": "2024-25",
@@ -6080,8 +6187,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District PHF Committee",
    "term": "",
-   "sort_order": 159,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 159
   },
   {
    "rotary_year": "2024-25",
@@ -6097,8 +6204,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Paul Harris Society Committee",
    "term": "",
-   "sort_order": 160,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 160
   },
   {
    "rotary_year": "2024-25",
@@ -6114,8 +6221,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Paul Harris Society Committee",
    "term": "",
-   "sort_order": 161,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 161
   },
   {
    "rotary_year": "2024-25",
@@ -6131,8 +6238,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Paul Harris Society Committee",
    "term": "",
-   "sort_order": 162,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 162
   },
   {
    "rotary_year": "2024-25",
@@ -6148,8 +6255,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Paul Harris Society Committee",
    "term": "",
-   "sort_order": 163,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 163
   },
   {
    "rotary_year": "2024-25",
@@ -6165,8 +6272,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Scholarship Committee",
    "term": "",
-   "sort_order": 164,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 164
   },
   {
    "rotary_year": "2024-25",
@@ -6182,8 +6289,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Scholarship Committee",
    "term": "",
-   "sort_order": 165,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 165
   },
   {
    "rotary_year": "2024-25",
@@ -6199,8 +6306,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Scholarship Committee",
    "term": "",
-   "sort_order": 166,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 166
   },
   {
    "rotary_year": "2024-25",
@@ -6216,8 +6323,8 @@
    "section": "District Rotary Foundation Team",
    "committee": "District Scholarship Committee",
    "term": "",
-   "sort_order": 167,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 167
   },
   {
    "rotary_year": "2024-25",
@@ -6233,8 +6340,8 @@
    "section": "District Membership Team",
    "committee": "",
    "term": "",
-   "sort_order": 168,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 168
   },
   {
    "rotary_year": "2024-25",
@@ -6250,8 +6357,8 @@
    "section": "District Membership Team",
    "committee": "District New Club Development Committee",
    "term": "",
-   "sort_order": 169,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 169
   },
   {
    "rotary_year": "2024-25",
@@ -6267,8 +6374,8 @@
    "section": "District Membership Team",
    "committee": "District New Club Development Committee",
    "term": "",
-   "sort_order": 170,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 170
   },
   {
    "rotary_year": "2024-25",
@@ -6284,8 +6391,8 @@
    "section": "District Membership Team",
    "committee": "District New Club Development Committee",
    "term": "",
-   "sort_order": 171,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 171
   },
   {
    "rotary_year": "2024-25",
@@ -6301,8 +6408,8 @@
    "section": "District Membership Team",
    "committee": "District New Club Development Committee",
    "term": "",
-   "sort_order": 172,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 172
   },
   {
    "rotary_year": "2024-25",
@@ -6318,8 +6425,8 @@
    "section": "District Membership Team",
    "committee": "District Membership Attraction Committee",
    "term": "",
-   "sort_order": 173,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 173
   },
   {
    "rotary_year": "2024-25",
@@ -6335,8 +6442,8 @@
    "section": "District Membership Team",
    "committee": "District Membership Attraction Committee",
    "term": "",
-   "sort_order": 174,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 174
   },
   {
    "rotary_year": "2024-25",
@@ -6352,8 +6459,8 @@
    "section": "District Membership Team",
    "committee": "District Membership Attraction Committee",
    "term": "",
-   "sort_order": 175,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 175
   },
   {
    "rotary_year": "2024-25",
@@ -6369,8 +6476,8 @@
    "section": "District Membership Team",
    "committee": "District Membership Attraction Committee",
    "term": "",
-   "sort_order": 176,
-   "clubs": []
+   "clubs": [],
+   "sort_order": 176
   }
  ],
  "activities": [
@@ -6380,6 +6487,9 @@
    "title": "Test Plantation",
    "date": "2026-10-11",
    "theme": "Protecting the environment",
+   "avenue": "",
+   "press": null,
+   "video": null,
    "description": "Checked how many saplings are still alive. Found that the survival rate is more than 80%. The members present for the president the secretary the club treasurer",
    "photos": [
     "drive:1ND-M7d9rrZPmjkL5td6APh5D08yrNZZK",
@@ -6397,10 +6507,7 @@
    "approved_at": "2026-10-13T15:25:11.870Z",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0001",
@@ -6408,6 +6515,9 @@
    "title": "Inter-school debate on peace and tolerance",
    "date": "2026-07-02",
    "theme": "Promoting peace",
+   "avenue": "",
+   "press": null,
+   "video": null,
    "description": "Students from six schools debated how communities can resolve conflicts peacefully. Winners received certificates and books.",
    "photos": [
     "sample:activity-01.jpg"
@@ -6423,10 +6533,7 @@
    "approved_at": "2026-07-04T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0002",
@@ -6434,6 +6541,9 @@
    "title": "Polio awareness drive",
    "date": "2026-07-05",
    "theme": "Fighting disease",
+   "avenue": "",
+   "press": null,
+   "video": null,
    "description": "Members joined health workers to remind families about the polio vaccination round. Posters were put up in markets and schools.",
    "photos": [
     "sample:activity-04.jpg"
@@ -6447,10 +6557,7 @@
    "approved_at": "2026-07-07T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0003",
@@ -6458,6 +6565,9 @@
    "title": "Water purifier installed in a government school",
    "date": "2026-07-08",
    "theme": "Providing clean water",
+   "avenue": "",
+   "press": null,
+   "video": null,
    "description": "The club installed a water purifier and cooler so students have safe drinking water through the summer.",
    "photos": [
     "sample:activity-06.jpg",
@@ -6472,10 +6582,7 @@
    "approved_at": "2026-07-10T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0004",
@@ -6483,6 +6590,9 @@
    "title": "Newborn care workshop",
    "date": "2026-07-11",
    "theme": "Saving mothers and children",
+   "avenue": "",
+   "press": null,
+   "video": null,
    "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
    "photos": [
     "sample:activity-08.jpg"
@@ -6496,10 +6606,7 @@
    "approved_at": "2026-07-12T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0005",
@@ -6507,6 +6614,9 @@
    "title": "Smart classroom handed over",
    "date": "2026-07-14",
    "theme": "Supporting education",
+   "avenue": "",
+   "press": null,
+   "video": null,
    "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
    "photos": [
     "sample:activity-10.jpg",
@@ -6521,10 +6631,7 @@
    "approved_at": "2026-07-15T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0006",
@@ -6532,6 +6639,9 @@
    "title": "Sewing machines for women self-help group",
    "date": "2026-07-17",
    "theme": "Growing local economies",
+   "avenue": "",
+   "press": null,
+   "video": null,
    "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
    "photos": [
     "sample:activity-12.jpg"
@@ -6545,10 +6655,7 @@
    "approved_at": "2026-07-19T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0007",
@@ -6556,6 +6663,9 @@
    "title": "Cloth bags distribution in vegetable market",
    "date": "2026-07-20",
    "theme": "Protecting the environment",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
    "photos": [
     "sample:activity-13.jpg"
@@ -6569,10 +6679,7 @@
    "approved_at": "2026-07-21T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0008",
@@ -6580,6 +6687,9 @@
    "title": "Club installation ceremony",
    "date": "2026-07-23",
    "theme": "Club service / Other",
+   "avenue": "Club Service",
+   "press": null,
+   "video": null,
    "description": "The new board of directors was installed in the presence of the Assistant Governor and past presidents.",
    "photos": [
     "sample:activity-15.jpg",
@@ -6594,10 +6704,7 @@
    "approved_at": "2026-07-25T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0009",
@@ -6605,6 +6712,9 @@
    "title": "Peace walk on International Day of Peace",
    "date": "2026-07-26",
    "theme": "Promoting peace",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Club members, students and local residents walked together carrying messages of harmony. The walk ended with a pledge.",
    "photos": [
     "sample:activity-01.jpg",
@@ -6619,10 +6729,7 @@
    "approved_at": "2026-07-28T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0010",
@@ -6630,6 +6737,9 @@
    "title": "Free diabetes and blood pressure screening camp",
    "date": "2026-07-29",
    "theme": "Fighting disease",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Doctors from the club screened residents for diabetes and high blood pressure. People needing follow-up were referred to the district hospital.",
    "photos": [
     "sample:activity-03.jpg"
@@ -6645,10 +6755,7 @@
    "approved_at": "2026-07-31T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0011",
@@ -6656,6 +6763,9 @@
    "title": "Water purifier installed in a government school",
    "date": "2026-08-01",
    "theme": "Providing clean water",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "The club installed a water purifier and cooler so students have safe drinking water through the summer.",
    "photos": [
     "sample:activity-05.jpg",
@@ -6670,10 +6780,7 @@
    "approved_at": "2026-08-02T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0012",
@@ -6681,6 +6788,9 @@
    "title": "Nutrition kits for expectant mothers",
    "date": "2026-08-04",
    "theme": "Saving mothers and children",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Nutrition kits and health booklets were given to expectant mothers registered at the primary health centre.",
    "photos": [
     "sample:activity-08.jpg",
@@ -6695,10 +6805,7 @@
    "approved_at": "2026-08-06T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0013",
@@ -6706,6 +6813,9 @@
    "title": "Career guidance talk for Class 12",
    "date": "2026-08-07",
    "theme": "Supporting education",
+   "avenue": "Youth Service",
+   "press": null,
+   "video": null,
    "description": "Chartered accountants and engineers from the club spoke to students about career choices after school.",
    "photos": [
     "sample:activity-09.jpg"
@@ -6719,10 +6829,7 @@
    "approved_at": "2026-08-09T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0014",
@@ -6730,6 +6837,9 @@
    "title": "Sewing machines for women self-help group",
    "date": "2026-08-10",
    "theme": "Growing local economies",
+   "avenue": "Vocational Service",
+   "press": null,
+   "video": null,
    "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
    "photos": [
     "sample:activity-11.jpg",
@@ -6744,10 +6854,7 @@
    "approved_at": "2026-08-12T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0015",
@@ -6755,6 +6862,9 @@
    "title": "Cloth bags distribution in vegetable market",
    "date": "2026-08-13",
    "theme": "Protecting the environment",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
    "photos": [
     "sample:activity-14.jpg"
@@ -6768,10 +6878,7 @@
    "approved_at": "2026-08-15T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0016",
@@ -6779,6 +6886,9 @@
    "title": "Club installation ceremony",
    "date": "2026-08-16",
    "theme": "Club service / Other",
+   "avenue": "Club Service",
+   "press": null,
+   "video": null,
    "description": "The new board of directors was installed in the presence of the Assistant Governor and past presidents.",
    "photos": [
     "sample:activity-15.jpg",
@@ -6793,10 +6903,7 @@
    "approved_at": "2026-08-17T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0017",
@@ -6804,6 +6911,9 @@
    "title": "Peace walk on International Day of Peace",
    "date": "2026-08-19",
    "theme": "Promoting peace",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Club members, students and local residents walked together carrying messages of harmony. The walk ended with a pledge.",
    "photos": [
     "sample:activity-01.jpg"
@@ -6817,10 +6927,7 @@
    "approved_at": "2026-08-21T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0018",
@@ -6828,6 +6935,9 @@
    "title": "Free diabetes and blood pressure screening camp",
    "date": "2026-08-22",
    "theme": "Fighting disease",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Doctors from the club screened residents for diabetes and high blood pressure. People needing follow-up were referred to the district hospital.",
    "photos": [
     "sample:activity-04.jpg"
@@ -6841,10 +6951,7 @@
    "approved_at": "2026-08-24T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0019",
@@ -6852,6 +6959,9 @@
    "title": "Hand-pump repair in village",
    "date": "2026-08-25",
    "theme": "Providing clean water",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Three broken hand-pumps were repaired, restoring clean water for about forty families.",
    "photos": [
     "sample:activity-05.jpg"
@@ -6867,10 +6977,7 @@
    "approved_at": "2026-08-27T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0020",
@@ -6878,6 +6985,9 @@
    "title": "Nutrition kits for expectant mothers",
    "date": "2026-08-28",
    "theme": "Saving mothers and children",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Nutrition kits and health booklets were given to expectant mothers registered at the primary health centre.",
    "photos": [
     "sample:activity-08.jpg"
@@ -6891,10 +7001,7 @@
    "approved_at": "2026-08-29T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0021",
@@ -6902,6 +7009,9 @@
    "title": "School bags and stationery for students",
    "date": "2026-08-31",
    "theme": "Supporting education",
+   "avenue": "Youth Service",
+   "press": null,
+   "video": null,
    "description": "Students of a primary school received school bags, notebooks and stationery at the start of the term.",
    "photos": [
     "sample:activity-09.jpg"
@@ -6915,10 +7025,7 @@
    "approved_at": "2026-09-02T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0022",
@@ -6926,6 +7033,9 @@
    "title": "Sewing machines for women self-help group",
    "date": "2026-09-03",
    "theme": "Growing local economies",
+   "avenue": "Vocational Service",
+   "press": null,
+   "video": null,
    "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
    "photos": [
     "sample:activity-12.jpg",
@@ -6940,10 +7050,7 @@
    "approved_at": "2026-09-04T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0023",
@@ -6951,6 +7058,9 @@
    "title": "Cloth bags distribution in vegetable market",
    "date": "2026-09-06",
    "theme": "Protecting the environment",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
    "photos": [
     "sample:activity-13.jpg",
@@ -6965,10 +7075,7 @@
    "approved_at": "2026-09-08T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0024",
@@ -6976,6 +7083,9 @@
    "title": "Club installation ceremony",
    "date": "2026-09-09",
    "theme": "Club service / Other",
+   "avenue": "Club Service",
+   "press": null,
+   "video": null,
    "description": "The new board of directors was installed in the presence of the Assistant Governor and past presidents.",
    "photos": [
     "sample:activity-16.jpg"
@@ -6989,10 +7099,7 @@
    "approved_at": "2026-09-11T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0025",
@@ -7000,6 +7107,9 @@
    "title": "Inter-school debate on peace and tolerance",
    "date": "2026-09-12",
    "theme": "Promoting peace",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Students from six schools debated how communities can resolve conflicts peacefully. Winners received certificates and books.",
    "photos": [
     "sample:activity-01.jpg",
@@ -7014,10 +7124,7 @@
    "approved_at": "2026-09-13T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0026",
@@ -7025,6 +7132,9 @@
    "title": "Polio awareness drive",
    "date": "2026-09-15",
    "theme": "Fighting disease",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Members joined health workers to remind families about the polio vaccination round. Posters were put up in markets and schools.",
    "photos": [
     "sample:activity-04.jpg"
@@ -7038,10 +7148,7 @@
    "approved_at": "2026-09-17T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0027",
@@ -7049,6 +7156,9 @@
    "title": "Hand-pump repair in village",
    "date": "2026-09-18",
    "theme": "Providing clean water",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Three broken hand-pumps were repaired, restoring clean water for about forty families.",
    "photos": [
     "sample:activity-06.jpg",
@@ -7063,10 +7173,7 @@
    "approved_at": "2026-09-20T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0028",
@@ -7074,6 +7181,9 @@
    "title": "Newborn care workshop",
    "date": "2026-09-21",
    "theme": "Saving mothers and children",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
    "photos": [
     "sample:activity-08.jpg",
@@ -7090,10 +7200,7 @@
    "approved_at": "2026-09-23T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0029",
@@ -7101,6 +7208,9 @@
    "title": "Smart classroom handed over",
    "date": "2026-09-24",
    "theme": "Supporting education",
+   "avenue": "Youth Service",
+   "press": null,
+   "video": null,
    "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
    "photos": [
     "sample:activity-09.jpg"
@@ -7114,10 +7224,7 @@
    "approved_at": "2026-09-26T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0030",
@@ -7125,6 +7232,9 @@
    "title": "Skill training for young electricians",
    "date": "2026-09-27",
    "theme": "Growing local economies",
+   "avenue": "Vocational Service",
+   "press": null,
+   "video": null,
    "description": "Young people completed a two-week course in basic electrical repair, run with a local training institute.",
    "photos": [
     "sample:activity-11.jpg",
@@ -7139,10 +7249,7 @@
    "approved_at": "2026-09-28T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0031",
@@ -7150,6 +7257,9 @@
    "title": "Tree plantation along the ring road",
    "date": "2026-09-30",
    "theme": "Protecting the environment",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Members planted saplings along the ring road and arranged tree guards and watering for the summer.",
    "photos": [
     "sample:activity-13.jpg",
@@ -7164,10 +7274,7 @@
    "approved_at": "2026-10-01T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0032",
@@ -7175,6 +7282,9 @@
    "title": "Fellowship evening with families",
    "date": "2026-10-03",
    "theme": "Club service / Other",
+   "avenue": "Club Service",
+   "press": null,
+   "video": null,
    "description": "Members and families came together for an evening of music and games to welcome new members.",
    "photos": [
     "sample:activity-15.jpg"
@@ -7188,10 +7298,7 @@
    "approved_at": "2026-10-04T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0033",
@@ -7199,6 +7306,9 @@
    "title": "Inter-school debate on peace and tolerance",
    "date": "2026-10-06",
    "theme": "Promoting peace",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Students from six schools debated how communities can resolve conflicts peacefully. Winners received certificates and books.",
    "photos": [
     "sample:activity-02.jpg"
@@ -7212,10 +7322,7 @@
    "approved_at": "2026-10-07T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0034",
@@ -7223,6 +7330,9 @@
    "title": "Blood donation camp",
    "date": "2026-10-09",
    "theme": "Fighting disease",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.",
    "photos": [
     "sample:activity-04.jpg"
@@ -7236,10 +7346,7 @@
    "approved_at": "2026-10-11T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0035",
@@ -7247,6 +7354,9 @@
    "title": "Water purifier installed in a government school",
    "date": "2026-10-12",
    "theme": "Providing clean water",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "The club installed a water purifier and cooler so students have safe drinking water through the summer.",
    "photos": [
     "sample:activity-06.jpg"
@@ -7260,10 +7370,7 @@
    "approved_at": "2026-10-13T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0036",
@@ -7271,6 +7378,9 @@
    "title": "Free diabetes and blood pressure screening camp",
    "date": "2026-09-05",
    "theme": "Fighting disease",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Doctors from the club screened residents for diabetes and high blood pressure. People needing follow-up were referred to the district hospital.",
    "photos": [
     "sample:activity-04.jpg"
@@ -7284,10 +7394,7 @@
    "approved_at": "2026-09-06T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0037",
@@ -7295,6 +7402,9 @@
    "title": "Hand-pump repair in village",
    "date": "2026-09-14",
    "theme": "Providing clean water",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Three broken hand-pumps were repaired, restoring clean water for about forty families.",
    "photos": [
     "sample:activity-06.jpg"
@@ -7308,10 +7418,7 @@
    "approved_at": "2026-09-15T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0038",
@@ -7319,6 +7426,9 @@
    "title": "Newborn care workshop",
    "date": "2026-09-26",
    "theme": "Saving mothers and children",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
    "photos": [
     "sample:activity-08.jpg"
@@ -7332,10 +7442,7 @@
    "approved_at": "2026-09-27T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0039",
@@ -7343,6 +7450,9 @@
    "title": "Newborn care workshop",
    "date": "2026-09-03",
    "theme": "Saving mothers and children",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "A paediatrician from the club trained new mothers on breastfeeding, hygiene and vaccination schedules.",
    "photos": [
     "sample:activity-07.jpg"
@@ -7356,10 +7466,7 @@
    "approved_at": "2026-09-05T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0040",
@@ -7367,6 +7474,9 @@
    "title": "Career guidance talk for Class 12",
    "date": "2026-09-11",
    "theme": "Supporting education",
+   "avenue": "Youth Service",
+   "press": null,
+   "video": null,
    "description": "Chartered accountants and engineers from the club spoke to students about career choices after school.",
    "photos": [
     "sample:activity-10.jpg"
@@ -7380,10 +7490,7 @@
    "approved_at": "2026-09-13T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0041",
@@ -7391,6 +7498,9 @@
    "title": "Sewing machines for women self-help group",
    "date": "2026-09-19",
    "theme": "Growing local economies",
+   "avenue": "Vocational Service",
+   "press": null,
+   "video": null,
    "description": "Ten sewing machines were given to a women's self-help group, along with a month of tailoring training.",
    "photos": [
     "sample:activity-12.jpg"
@@ -7404,10 +7514,7 @@
    "approved_at": "2026-09-20T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0042",
@@ -7415,6 +7522,9 @@
    "title": "Cloth bags distribution in vegetable market",
    "date": "2026-09-27",
    "theme": "Protecting the environment",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Cloth bags were handed out to vendors and shoppers to reduce single-use plastic.",
    "photos": [
     "sample:activity-14.jpg"
@@ -7428,10 +7538,7 @@
    "approved_at": "2026-09-28T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0043",
@@ -7439,6 +7546,9 @@
    "title": "Smart classroom handed over",
    "date": "2026-09-08",
    "theme": "Supporting education",
+   "avenue": "Youth Service",
+   "press": null,
+   "video": null,
    "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
    "photos": [
     "sample:activity-09.jpg"
@@ -7452,10 +7562,7 @@
    "approved_at": "2026-09-10T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0044",
@@ -7463,6 +7570,9 @@
    "title": "School bags and stationery for students",
    "date": "2026-09-22",
    "theme": "Supporting education",
+   "avenue": "Youth Service",
+   "press": null,
+   "video": null,
    "description": "Students of a primary school received school bags, notebooks and stationery at the start of the term.",
    "photos": [
     "sample:activity-09.jpg"
@@ -7476,10 +7586,7 @@
    "approved_at": "2026-09-23T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0045",
@@ -7487,6 +7594,13 @@
    "title": "RO plant for a village of 600 families",
    "date": "2026-08-20",
    "theme": "Providing clean water",
+   "avenue": "International Service",
+   "press": null,
+   "video": {
+    "kind": "youtube",
+    "id": "SAMPLEvideo",
+    "url": "https://www.youtube.com/watch?v=SAMPLEvideo"
+   },
    "description": "The club installed a reverse-osmosis water plant in the village. A local committee will run it, and the water costs families one rupee a can.",
    "photos": [
     "sample:activity-06.jpg",
@@ -7501,10 +7615,7 @@
    "approved_at": "2026-08-22T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0046",
@@ -7512,6 +7623,13 @@
    "title": "Safe delivery kits for 120 mothers",
    "date": "2026-09-17",
    "theme": "Saving mothers and children",
+   "avenue": "Community Service",
+   "press": {
+    "paper": "Sample Daily News, Kanpur edition",
+    "date": "2026-09-19",
+    "link": "https://example.com/news/safe-delivery-kits"
+   },
+   "video": null,
    "description": "Volunteers packed safe-delivery kits with the primary health centre and trained ASHA workers on newborn warning signs.",
    "photos": [
     "sample:activity-07.jpg"
@@ -7525,10 +7643,7 @@
    "approved_at": "2026-09-18T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0047",
@@ -7536,6 +7651,13 @@
    "title": "Gandhi Jayanti clean-up of the Ganga ghat",
    "date": "2026-10-02",
    "theme": "Protecting the environment",
+   "avenue": "Community Service",
+   "press": {
+    "paper": "Sample Times, Kanpur",
+    "date": "2026-10-03",
+    "link": ""
+   },
+   "video": null,
    "description": "Three Kanpur clubs cleaned the ghat together and placed dustbins with the municipal corporation.",
    "photos": [
     "sample:activity-14.jpg"
@@ -7552,10 +7674,7 @@
    "approved_at": "2026-10-03T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0048",
@@ -7563,6 +7682,9 @@
    "title": "Smart classroom handed over",
    "date": "2026-10-05",
    "theme": "Supporting education",
+   "avenue": "Youth Service",
+   "press": null,
+   "video": null,
    "description": "The club handed over a smart classroom with a projector and learning content to a government inter college.",
    "photos": [],
    "post_link": "https://www.facebook.com/example-mathura-central/posts/4903",
@@ -7574,10 +7696,7 @@
    "approved_at": "2026-10-07T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": true,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": true
   },
   {
    "id": "ACT-2026-0056",
@@ -7585,6 +7704,9 @@
    "title": "District Membership Seminar held in Mathura",
    "date": "2026-08-24",
    "theme": "Club service / Other",
+   "avenue": "Club Service",
+   "press": null,
+   "video": null,
    "description": "Over 200 Rotarians attended sessions on attracting and keeping members. Clubs shared ideas that worked for them.",
    "photos": [
     "sample:activity-15.jpg"
@@ -7598,10 +7720,7 @@
    "approved_at": "2026-08-26T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0057",
@@ -7609,7 +7728,14 @@
    "title": "Mega health camp served 1,450 patients",
    "date": "2026-09-13",
    "theme": "Fighting disease",
-   "description": "Specialist doctors from across the zone examined patients; 60 were referred for free cataract surgery.",
+   "avenue": "Community Service",
+   "press": {
+    "paper": "Sample Samachar, Bareilly",
+    "date": "2026-09-14",
+    "link": "https://example.com/epaper/health-camp"
+   },
+   "video": null,
+   "description": "Specialist doctors from across the district examined patients; 60 were referred for free cataract surgery.",
    "photos": [
     "sample:activity-03.jpg",
     "sample:activity-04.jpg"
@@ -7623,10 +7749,7 @@
    "approved_at": "2026-09-15T11:00:00+05:30",
    "campaign_id": "",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0060",
@@ -7634,6 +7757,9 @@
    "title": "Joint blood donation camp of three Bareilly clubs",
    "date": "2026-09-27",
    "theme": "Fighting disease",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.",
    "photos": [
     "sample:activity-04.jpg"
@@ -7650,10 +7776,7 @@
    "approved_at": "2026-09-29T11:00:00+05:30",
    "campaign_id": "BLOOD-2026-27",
    "campaign_count": 65,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0061",
@@ -7661,6 +7784,9 @@
    "title": "Voluntary Blood Donation Day camp",
    "date": "2026-10-01",
    "theme": "Fighting disease",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Members and their friends donated blood in partnership with the government blood bank. Every donor received a certificate.",
    "photos": [
     "sample:activity-04.jpg"
@@ -7674,10 +7800,7 @@
    "approved_at": "2026-10-03T11:00:00+05:30",
    "campaign_id": "BLOOD-2026-27",
    "campaign_count": 48,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0062",
@@ -7685,6 +7808,9 @@
    "title": "Blood donation awareness talk",
    "date": "2026-10-06",
    "theme": "Fighting disease",
+   "avenue": "Community Service",
+   "press": null,
+   "video": null,
    "description": "Members spoke to college students about regular blood donation and registered new donors.",
    "photos": [],
    "post_link": "https://www.facebook.com/example-kanpur-greater/posts/8992",
@@ -7696,10 +7822,7 @@
    "approved_at": "2026-10-07T11:00:00+05:30",
    "campaign_id": "BLOOD-2026-27",
    "campaign_count": 0,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0063",
@@ -7707,6 +7830,9 @@
    "title": "Children's Day health check-up",
    "date": "2025-11-14",
    "theme": "Supporting education",
+   "avenue": "",
+   "press": null,
+   "video": null,
    "description": "Doctors from the club checked the health of children in three government schools.",
    "photos": [
     "sample:activity-10.jpg"
@@ -7720,10 +7846,7 @@
    "approved_at": "2025-11-16T11:00:00+05:30",
    "campaign_id": "SCHOOL-2025-26",
    "campaign_count": 350,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   },
   {
    "id": "ACT-2026-0064",
@@ -7731,6 +7854,9 @@
    "title": "Eye and dental check-up in schools",
    "date": "2026-02-10",
    "theme": "Supporting education",
+   "avenue": "",
+   "press": null,
+   "video": null,
    "description": "Children were screened for eyesight and dental problems; spectacles were given free.",
    "photos": [
     "sample:activity-10.jpg"
@@ -7744,10 +7870,7 @@
    "approved_at": "2026-02-11T11:00:00+05:30",
    "campaign_id": "SCHOOL-2025-26",
    "campaign_count": 120,
-   "bulletin_exclude": false,
-   "avenue": "",
-   "press": null,
-   "video": null
+   "bulletin_exclude": false
   }
  ],
  "events": [
@@ -7818,7 +7941,7 @@
   },
   {
    "id": "EVT-2026-0002",
-   "title": "Bareilly Zone mega health camp",
+   "title": "Bareilly mega health camp",
    "event_type": "Club event open to all",
    "start_date": "2026-09-13",
    "start_time": "09:00",
@@ -7881,7 +8004,7 @@
   },
   {
    "id": "EVT-2026-0005",
-   "title": "Business networking evening – Agra Zone",
+   "title": "Business networking evening – Agra",
    "event_type": "Business networking evening",
    "start_date": "2026-11-07",
    "start_time": "18:30",
@@ -7966,7 +8089,7 @@
    "fee": "",
    "registration_status": "",
    "bulletin_exclude": false,
-   "open_to_all": false
+   "open_to_all": true
   },
   {
    "id": "EVT-2026-0009",
@@ -10750,15 +10873,299 @@
    "sort_order": 1
   }
  ],
+ "public_services": [
+  {
+   "id": "SRV-S001",
+   "club_id": "S-001",
+   "name": "Rotary Blood Bank",
+   "type": "Blood bank",
+   "timings": "Open 24 hours",
+   "phone": "+91 60000 00001",
+   "tel": "+916000000001",
+   "address": "Rotary Bhawan, Sanjay Place",
+   "city": "Agra",
+   "map_link": "https://maps.google.com/?q=Rotary%20Blood%20Bank%2C%20Agra",
+   "about": "Blood and blood components for any patient; free for thalassaemia patients."
+  },
+  {
+   "id": "SRV-S002",
+   "club_id": "S-006",
+   "name": "Rotary Dialysis Unit",
+   "type": "Dialysis",
+   "timings": "Monday to Saturday, 8 am–8 pm",
+   "phone": "0571 000 0000",
+   "tel": "+915710000000",
+   "address": "District Hospital, Marris Road",
+   "city": "Aligarh",
+   "map_link": "https://maps.google.com/?q=Rotary%20Dialysis%20Unit%2C%20Aligarh",
+   "about": "Two dialysis machines; free for patients below the poverty line."
+  },
+  {
+   "id": "SRV-S003",
+   "club_id": "S-055",
+   "name": "Rotary Eye Hospital",
+   "type": "Eye care",
+   "timings": "Monday to Saturday, 10 am–4 pm",
+   "phone": "05744 000 000",
+   "tel": "+915744000000",
+   "address": "Soron Road",
+   "city": "Kasganj",
+   "map_link": "https://maps.google.com/?q=Rotary%20Eye%20Hospital%2C%20Kasganj",
+   "about": ""
+  },
+  {
+   "id": "SRV-S004",
+   "club_id": "S-036",
+   "name": "Rotary Dental Clinic",
+   "type": "Clinic / health centre",
+   "timings": "Every day except Sunday, 10 am–1 pm",
+   "phone": "0510 000 0000",
+   "tel": "+915100000000",
+   "address": "Sipri Bazar",
+   "city": "Jhansi",
+   "map_link": "https://maps.google.com/?q=Rotary%20Dental%20Clinic%2C%20Jhansi",
+   "about": "Dental check-ups and treatment at a nominal charge."
+  },
+  {
+   "id": "SRV-S005",
+   "club_id": "S-039",
+   "name": "Rotary Ambulance Service",
+   "type": "Ambulance",
+   "timings": "Open 24 hours",
+   "phone": "1800 000 0000",
+   "tel": "18000000000",
+   "address": "Rotary Bhawan, Civil Lines",
+   "city": "Kanpur",
+   "map_link": "https://maps.google.com/?q=Rotary%20Ambulance%20Service%2C%20Kanpur",
+   "about": "Ambulance with oxygen for patients going to hospital in Kanpur."
+  },
+  {
+   "id": "SRV-S006",
+   "club_id": "S-017",
+   "name": "Rotary Children's Library",
+   "type": "Library",
+   "timings": "Tuesday to Sunday, 3 pm–7 pm",
+   "phone": "0581 000 0000",
+   "tel": "+915810000000",
+   "address": "Rotary Bhawan, Civil Lines",
+   "city": "Bareilly",
+   "map_link": "https://maps.google.com/?q=Rotary%20Children's%20Library%2C%20Bareilly",
+   "about": "Books and a reading room for school children; free membership."
+  },
+  {
+   "id": "SRV-S007",
+   "club_id": "S-058",
+   "name": "Rotary Skill Centre",
+   "type": "Skill / vocational centre",
+   "timings": "Monday to Friday, 10 am–5 pm",
+   "phone": "",
+   "tel": "",
+   "address": "Krishna Nagar",
+   "city": "Mathura",
+   "map_link": "https://maps.google.com/?q=Rotary%20Skill%20Centre%2C%20Mathura",
+   "about": ""
+  }
+ ],
+ "profiles": [
+  {
+   "role": "President of Rotary International",
+   "rotary_year": "2026-27",
+   "name": "Sample: RI President",
+   "theme": "Sample theme of the year",
+   "profile": "This is a sample profile used while the website is being tested. The district will give the RI President's official profile and photo.",
+   "photo": "sample:message-1.jpg",
+   "link": "https://www.rotary.org/en/about-rotary/rotary-leadership",
+   "sort_order": 1
+  },
+  {
+   "role": "District Governor",
+   "rotary_year": "2026-27",
+   "name": "Sample: District Governor",
+   "theme": "Sample district theme",
+   "profile": "This is a sample profile used while the website is being tested. The District Governor's profile and photo will replace it.",
+   "photo": "sample:message-2.jpg",
+   "link": "",
+   "sort_order": 2
+  }
+ ],
+ "past_governors": [
+  {
+   "term": "1983-84",
+   "name": "PDG Ram Narain Agarwal",
+   "club_id": "S-004",
+   "person_ref": "Pbd2bc3bc6598"
+  },
+  {
+   "term": "1984-85",
+   "name": "Sample: Late PDG (1984-85)",
+   "club_id": "S-001",
+   "person_ref": ""
+  },
+  {
+   "term": "1985-86",
+   "name": "Sample: Late PDG (1985-86)",
+   "club_id": "S-039",
+   "person_ref": ""
+  },
+  {
+   "term": "1987-88",
+   "name": "PDG Rajiv Tandon",
+   "club_id": "S-039",
+   "person_ref": "P14d33b6cd861"
+  },
+  {
+   "term": "1991-92",
+   "name": "PDG Mukund Hari Singhal",
+   "club_id": "S-006",
+   "person_ref": "P5b9a815bd251"
+  },
+  {
+   "term": "1994-95",
+   "name": "PDG Arun Khanna",
+   "club_id": "S-053",
+   "person_ref": "Pad0da80fee3c"
+  },
+  {
+   "term": "1996-97",
+   "name": "PDG Hari Mohan Bansal",
+   "club_id": "S-036",
+   "person_ref": "Pe7e337ed0db9"
+  },
+  {
+   "term": "1997-98",
+   "name": "PDG Dr Iqbal Singh Tomer",
+   "club_id": "S-026",
+   "person_ref": "P698de9d2f40f"
+  },
+  {
+   "term": "1999-2000",
+   "name": "PDG Dr D N. Raizaday",
+   "club_id": "S-040",
+   "person_ref": "P682322549bcd"
+  },
+  {
+   "term": "2001-02",
+   "name": "PDG Ravi Prakash Agarwal",
+   "club_id": "S-026",
+   "person_ref": "P24bebce97026"
+  },
+  {
+   "term": "2002-03",
+   "name": "PDG Manmohan Singh Saluja",
+   "club_id": "S-048",
+   "person_ref": "P3efde92bc2d5"
+  },
+  {
+   "term": "2003-04",
+   "name": "PDG Naresh Sood",
+   "club_id": "S-004",
+   "person_ref": "Pa083ee86a39d"
+  },
+  {
+   "term": "2005-06",
+   "name": "PDG Chander P. Rishi",
+   "club_id": "S-046",
+   "person_ref": "P0af2557417b3"
+  },
+  {
+   "term": "2007-08",
+   "name": "PDG Tavinder Pal Singh Sethi",
+   "club_id": "S-019",
+   "person_ref": "P0b344a79c398"
+  },
+  {
+   "term": "2009-10",
+   "name": "PDG Dr Shailendra Kumar Raju",
+   "club_id": "S-034",
+   "person_ref": "P4af7760fcc6b"
+  },
+  {
+   "term": "2010-11",
+   "name": "PDG Pushp Pal Singh",
+   "club_id": "S-025",
+   "person_ref": "Pca9250adab1d"
+  },
+  {
+   "term": "2011-12",
+   "name": "PDG Arvind Kumar Srivastava",
+   "club_id": "S-070",
+   "person_ref": "Paffc9b124a05"
+  },
+  {
+   "term": "2012-13",
+   "name": "PDG Laxmi Kant Bansal",
+   "club_id": "S-031",
+   "person_ref": "P508586591164"
+  },
+  {
+   "term": "2013-14",
+   "name": "PDG Devendra Kumar Agarwal",
+   "club_id": "S-056",
+   "person_ref": "P3fce6e2e4be6"
+  },
+  {
+   "term": "2014-15",
+   "name": "PDG Ashok Jyoti",
+   "club_id": "S-051",
+   "person_ref": "Pdbebbc193c75"
+  },
+  {
+   "term": "2015-16",
+   "name": "PDG Sharat Chandra",
+   "club_id": "S-005",
+   "person_ref": "P3cb6932fab5b"
+  },
+  {
+   "term": "2016-17",
+   "name": "PDG Dr Ravi Mehra",
+   "club_id": "S-026",
+   "person_ref": "Pcc375d22cebb"
+  },
+  {
+   "term": "2017-18",
+   "name": "PDG Vinay Asthana",
+   "club_id": "S-050",
+   "person_ref": "P685affbb8b31"
+  },
+  {
+   "term": "2018-19",
+   "name": "PDG Arun Kumar Jain",
+   "club_id": "S-034",
+   "person_ref": "P1d43e976a14b"
+  },
+  {
+   "term": "2019-20",
+   "name": "PDG Kishore Katru",
+   "club_id": "S-017",
+   "person_ref": "P3b39d0034583"
+  },
+  {
+   "term": "2020-21",
+   "name": "PDG Dinesh Chandra Shukla",
+   "club_id": "S-054",
+   "person_ref": "P319a1318708b"
+  },
+  {
+   "term": "2021-22",
+   "name": "PDG Mukesh Singhal",
+   "club_id": "S-009",
+   "person_ref": "Pb8d45dd3a95d"
+  },
+  {
+   "term": "2022-23",
+   "name": "PDG Pawan Agarwal",
+   "club_id": "S-056",
+   "person_ref": "Pdf5ec765dc34"
+  }
+ ],
  "skipped_activities": [
   "ACT-2026-0055"
  ],
  "skipped_items": [
-  "club S-036 line"
+  "club S-036 line",
+  "public service SRV-S007 phone",
+  "public service SRV-S007 about"
  ],
  "duplicate_ids": [],
- "source": "sheet",
- "public_services": [],
- "profiles": [],
- "past_governors": []
+ "source": "sheet"
 }

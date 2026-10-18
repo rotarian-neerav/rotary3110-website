@@ -83,6 +83,13 @@ The **18 October** upgrade adds:
 - clearer photo consent wording on the activity form (children: a parent or guardian agreed);
 - new notes on the older settings `moderator_emails`, `contact_email`, `bulletin_emails` and `not_posting_emails`: they are used only while the moderators tab names no one of that type.
 
+The **18 October (desk)** upgrade adds the moderation desk (section 7):
+- the **moderator_log** tab (main Sheet, filled in by the script, never sent to the website);
+- an email to the Content moderators for each new activity, event, club profile update and public service, with personal **Approve** and **Reject** buttons; an email to the Members moderators for each new consent or removal form;
+- **Leave this out** buttons in the Saturday bulletin preview; desk links in the 48-hour reminders and the monthly clubs-not-posting email;
+- contact messages: **Reply** goes straight to the person who wrote (a mobile number gets a WhatsApp link);
+- a newspaper name that is really a web address is moved to the newspaper link, with a note.
+
 ## 6. Name the moderators
 
 1. Open the **moderators** tab (main Sheet). Each row is one person in one type: **Content**, **Members**, **Club engagement**, **District office** or **Administrator**. Put the real name and Google email over a placeholder, and keep `active` = **TRUE**. Add rows for more people (one person can have several rows).
@@ -90,3 +97,16 @@ The **18 October** upgrade adds:
    - **Club engagement** gets the monthly clubs-not-posting list.
 2. **Rotary → Administrator → Apply moderators (Sheet access)…** (as the Sheet's owner): it shows who will get access to the Sheet (and, for Members and Administrator, the private members Sheet) and asks before doing it.
 3. When someone stops, set their `active` to **FALSE** and run **Apply moderators** again.
+
+Moderators who use only the moderation desk (below) do not need access to the Sheet at all; **Apply moderators** gives it to every active moderator, so use it for those who want the Sheet too.
+
+## 7. The moderation desk
+
+The desk (`…/desk/` on the website) lets moderators approve, reject and follow up from their phone without opening the Sheet. It needs the **18 October (desk)** script:
+
+1. Paste the new `Code.gs`, save, then **Deploy → Manage deployments → ✏ → Version: New version → Deploy**. This step matters: the desk talks to the new version. The address stays the same.
+2. Reload the Sheet and run **Administrator → Upgrade Sheet**. It adds the **moderator_log** tab.
+3. Press **Rotary → Rebuild site now** (or wait for the next update). When the website build next reads the data link, the script remembers its own web address, which the desk's email links need. Until then, emails say "open the Sheet" instead of showing desk buttons.
+4. Put a real email on at least one moderators row (your own is fine for a test), then open `…/desk/` from the **Open the moderation desk** button in the next moderator email, and sign in with the emailed code.
+
+The desk page on the website holds no data and no addresses. Everything comes from the script after signing in. The script's web address travels only after the `#` in the links emailed to moderators, and the page remembers it on that phone. The web app never serves a page itself, so no web page can run the script's other functions.

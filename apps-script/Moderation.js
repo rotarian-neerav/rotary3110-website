@@ -50,27 +50,14 @@ function approveSelected() {
   var ui = SpreadsheetApp.getUi();
   var sel;
   try { sel = selectedRows_(); } catch (e) { ui.alert(e.message); return; }
-  var ss = mainSs_();
   var who = moderatorEmail_();
   var done = [];
   var refused = [];
   sel.rows.forEach(function (r) {
     if (Core_str(r.status) === 'approved') return;
-    if (sel.tab === 'activities' && !Core_str(r.photo_files) && !Core_url(r.post_link)) {
-      refused.push(r.id + ' (needs a photo or a link to the club\'s post)');
-      return;
-    }
-    if ((sel.tab === 'activities' || sel.tab === 'public_services') && !Core_str(r.club_id)) {
-      refused.push(r.id + ' (club not recognised: fill in club_id)');
-      return;
-    }
-    if (sel.tab === 'public_services' && !Core_servicePhone(r.phone)) {
-      refused.push(r.id + ' (the phone number is not a plain number: correct it first)');
-      return;
-    }
-    updateRow_(ss, sel.tab, r._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
-    if (sel.tab === 'club_profile_requests') applyClubProfile_(r);
-    notifySubmitter_(sel.tab, r, true, '');
+    var block = approveBlock_(sel.tab, r);
+    if (block) { refused.push(r.id + ' (' + block + ')'); return; }
+    approveRow_(sel.tab, r, who);
     done.push(r.id);
   });
   ui.alert((done.length ? 'Approved: ' + done.join(', ') + '.\nIt will appear on the website at the next update (Sunday), or press "Rebuild site now".' : 'Nothing approved.') +
@@ -84,13 +71,29 @@ function rejectSelected() {
   var answer = ui.prompt('Reject ' + sel.rows.length + ' row(s)', 'Reason (sent to the person who submitted it):', ui.ButtonSet.OK_CANCEL);
   if (answer.getSelectedButton() !== ui.Button.OK) return;
   var reason = answer.getResponseText().trim() || 'Not suitable for the website';
-  var ss = mainSs_();
   var who = moderatorEmail_();
-  sel.rows.forEach(function (r) {
-    updateRow_(ss, sel.tab, r._row, { status: 'rejected', approved_by: who, approved_at: nowIso_(), moderator_note: reason });
-    notifySubmitter_(sel.tab, r, false, reason);
-  });
+  sel.rows.forEach(function (r) { rejectRow_(sel.tab, r, who, reason); });
   ui.alert('Rejected ' + sel.rows.length + ' row(s).');
+}
+
+/** Why a row cannot be approved yet, or '' if it can. Shared by the Rotary menu and the moderation desk. */
+function approveBlock_(tab, r) {
+  if (tab === 'activities' && !Core_str(r.photo_files) && !Core_url(r.post_link)) return 'needs a photo or a link to the club\'s post';
+  if ((tab === 'activities' || tab === 'public_services') && !Core_str(r.club_id)) return 'club not recognised: fill in club_id';
+  if (tab === 'public_services' && !Core_servicePhone(r.phone)) return 'the phone number is not a plain number: correct it first';
+  return '';
+}
+
+/** Approves one row (already checked with approveBlock_) and tells the sender. */
+function approveRow_(tab, r, who) {
+  updateRow_(mainSs_(), tab, r._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
+  if (tab === 'club_profile_requests') applyClubProfile_(r);
+  notifySubmitter_(tab, r, true, '');
+}
+
+function rejectRow_(tab, r, who, reason) {
+  updateRow_(mainSs_(), tab, r._row, { status: 'rejected', approved_by: who, approved_at: nowIso_(), moderator_note: reason });
+  notifySubmitter_(tab, r, false, reason);
 }
 
 function applyClubProfile_(r) {

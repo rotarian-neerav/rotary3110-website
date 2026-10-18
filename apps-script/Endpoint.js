@@ -7,6 +7,8 @@
  *   ?mode=data&token=…          the public website data
  *   ?mode=file&id=…&token=…     one approved photo (base64)
  *   ?mode=thumb&id=…&token=…    the first-page picture of a magazine PDF
+ *
+ * POST requests come from the moderation desk (Desk.js).
  */
 
 function doGet(e) {
@@ -14,6 +16,7 @@ function doGet(e) {
   try {
     var expected = props_().getProperty('DATA_TOKEN');
     if (!expected || p.token !== expected) return json_({ ok: false, error: 'not allowed' });
+    rememberWebAppUrl_(); // the moderation desk's links need the /exec address
     if (p.mode === 'status') return json_({ ok: true, rebuild_requested_at: Core_isoTimestamp(settings_().rebuild_requested_at) });
     if (p.mode === 'data') {
       var data = publicData_();

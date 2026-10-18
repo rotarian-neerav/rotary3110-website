@@ -206,6 +206,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
   const sharing = new Map();
   const fetched = [];
   const pages = { status: 200 }; // answer for website pages the script checks (e.g. this week's bulletin)
+  const quota = { left: 100 }; // MailApp's daily allowance
 
   const ui = {
     alert: (...a) => { alerts.push(a.join(' | ')); return 'YES'; },
@@ -252,7 +253,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
       ProtectionType: { SHEET: 'SHEET' },
     },
     PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => props.get(k) ?? null, setProperty: (k, v) => props.set(k, v) }) },
-    CacheService: { getScriptCache: () => ({ get: (k) => cache.get(k) ?? null, put: (k, v) => cache.set(k, v) }) },
+    CacheService: { getScriptCache: () => ({ get: (k) => cache.get(k) ?? null, put: (k, v) => cache.set(k, v), remove: (k) => cache.delete(k) }) },
     LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
     Session: { getActiveUser: () => ({ getEmail: () => activeUser }), getEffectiveUser: () => ({ getEmail: () => 'rotarian.neerav@gmail.com' }) },
     Utilities: {
@@ -262,7 +263,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
       computeHmacSha256Signature: (value, key) => [...createHmac('sha256', key).update(value).digest()].map((b) => (b > 127 ? b - 256 : b)),
     },
     Logger: { log: () => {} },
-    MailApp: { sendEmail: (to, subject, body) => mails.push({ to, subject, body }) },
+    MailApp: { sendEmail: (to, subject, body, options = {}) => mails.push({ to, subject, body, options }), getRemainingDailyQuota: () => quota.left },
     UrlFetchApp: {
       fetch: (url) => {
         fetched.push(url);
@@ -344,6 +345,8 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
     forms,
     fetched,
     pages,
+    quota,
+    cache,
     load(code) { vm.runInContext(code, context, { filename: 'Code.gs' }); },
     run(fn, ...args) { return context[fn](...args); },
     setActive(tab, row, numRows = 1) { activeSheet = main.getSheetByName(tab); activeSheet.select(row, numRows); },
@@ -362,6 +365,11 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
     },
     doGet(params) {
       const out = context.doGet({ parameter: params });
+      return JSON.parse(out.content);
+    },
+    /** A request from the moderation desk page. */
+    post(body) {
+      const out = context.doPost({ postData: { contents: JSON.stringify(body) } });
       return JSON.parse(out.content);
     },
   };

@@ -396,6 +396,45 @@ function Core_moderatorAccess(rows, owner, mainEditors, privateEditors) {
   return { addMain: m.add, removeMain: m.remove, addPrivate: p.add, removePrivate: p.remove };
 }
 
+/** The types one email holds in the moderators tab (active rows only), in the tab's type order. */
+function Core_moderatorTypesOf(rows, email) {
+  var e = Core_str(email).toLowerCase();
+  return CORE_MODERATOR_TYPES.filter(function (t) { return e && Core_moderatorEmails(rows, t).indexOf(e) >= 0; });
+}
+
+/** What a moderator sees on the moderation desk. The Administrator sees everything. */
+function Core_deskViews(types) {
+  var has = function (t) { return (types || []).indexOf(t) >= 0 || (types || []).indexOf('Administrator') >= 0; };
+  return { content: has('Content'), members: has('Members'), clubs: has('Club engagement'), office: has('District office') };
+}
+
+/**
+ * Active clubs with no activity (approved or waiting) dated in the last `days` days up to today, for the Club
+ * engagement moderators: clubs that have never posted first, then the oldest last activity.
+ */
+function Core_quietClubs(clubs, activities, today, days) {
+  var from = Core_addDays(today, -days);
+  var last = {};
+  (activities || []).forEach(function (a) {
+    var s = Core_str(a.status).toLowerCase();
+    var d = Core_isoDate(a.date);
+    if ((s !== 'approved' && s !== 'pending') || !d || d > today) return;
+    var id = Core_str(a.club_id);
+    if (!last[id] || d > last[id]) last[id] = d;
+  });
+  return (clubs || []).filter(function (c) {
+    return Core_str(c.club_id) && Core_str(c.status || 'active').toLowerCase() === 'active' && !(last[Core_str(c.club_id)] >= from);
+  }).map(function (c) {
+    return { club_id: Core_str(c.club_id), club_name: Core_str(c.club_name), zone: Core_str(c.zone), last_activity_date: last[Core_str(c.club_id)] || '' };
+  }).sort(function (a, b) { return a.last_activity_date.localeCompare(b.last_activity_date) || a.club_name.localeCompare(b.club_name); });
+}
+
+/** A newspaper name that is really a web address (sent in the press_paper answer by mistake). */
+function Core_looksLikeUrl(v) {
+  var s = Core_str(v);
+  return !/\s/.test(s) && (/^(https?:\/\/|www\.)/i.test(s) || /^[a-z0-9-]+(\.[a-z0-9-]+)*\.(com|in|org|net|co|news|info)(\/|$)/i.test(s));
+}
+
 function Core_clubsNotPosting(clubs, activities, month) {
   var last = {};
   var posted = {};
@@ -1420,5 +1459,6 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_contactCheck: Core_contactCheck, Core_clubsNotPosting: Core_clubsNotPosting,
     CORE_AVENUES: CORE_AVENUES, CORE_SERVICE_TYPES: CORE_SERVICE_TYPES, CORE_WEEKDAYS: CORE_WEEKDAYS,
     CORE_MODERATOR_TYPES: CORE_MODERATOR_TYPES, Core_moderatorEmails: Core_moderatorEmails, Core_moderatorAccess: Core_moderatorAccess,
+    Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl,
   };
 }

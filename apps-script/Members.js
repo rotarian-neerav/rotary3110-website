@@ -68,6 +68,11 @@ function openMemberRequests() {
 
 /** Called by the sidebar. */
 function getMemberRequests() {
+  return memberRequests_(true);
+}
+
+/** The pending member requests; the sidebar gets the photos as pictures, the moderation desk only their references. */
+function memberRequests_(withThumbs) {
   var ps = privateSs_();
   var master = readTab_(ps, 'members_master');
   var clubName = function (id) { return clubNameById_(id) || id || '–'; };
@@ -76,6 +81,7 @@ function getMemberRequests() {
     return i >= 0 ? 'Matches ' + master[i].name + ' (' + master[i].member_id + ')' : 'No matching member – a new record will be created';
   };
   var thumb = function (ref) {
+    if (!withThumbs) return '';
     var id = Core_str(ref).replace(/^drive:/, '').split(',')[0].trim();
     if (!id) return '';
     try {
@@ -94,6 +100,7 @@ function getMemberRequests() {
         r.anniversary_ok ? 'Anniversary ' + r.anniversary + ' with ' + (r.spouse_name || '?') + (r.spouse_is_rotarian === 'Yes' ? ' (Rotarian, ' + clubName(r.spouse_club_id) + ')' : '') : '',
       ].filter(String),
       description: r.description, website: r.website, photo: thumb(r.photo_file), couplePhoto: thumb(r.couple_photo_file),
+      photoRef: Core_str(r.photo_file).split(',')[0].trim(), couplePhotoRef: Core_str(r.couple_photo_file).split(',')[0].trim(),
       warnings: [
         r.declaration ? '' : 'Declaration not ticked',
         r.anniversary_ok && r.spouse_is_rotarian !== 'Yes' && !r.spouse_agrees ? 'Spouse agreement not ticked' : '',
@@ -113,6 +120,10 @@ function getMemberRequests() {
 
 /** Called by the sidebar: approve a consent request. */
 function approveConsent(requestId) {
+  return approveConsent_(requestId, moderatorEmail_());
+}
+
+function approveConsent_(requestId, who) {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
@@ -120,7 +131,6 @@ function approveConsent(requestId) {
     var req = readTab_(ps, 'consent_requests').filter(function (r) { return r.id === requestId; })[0];
     if (!req || Core_str(req.status) !== 'pending') throw new Error('Request ' + requestId + ' is not pending.');
     if (!Core_isTrue(req.declaration)) throw new Error('The declaration was not ticked; reject and ask the member to send the form again.');
-    var who = moderatorEmail_();
     var member = findOrCreateMember_(ps, req, 'Created from consent request ' + requestId);
     var fields = {
       directory_ok: Core_isTrue(req.directory_ok), contact_ok: Core_isTrue(req.contact_ok), photo_ok: Core_isTrue(req.photo_ok),
@@ -263,6 +273,10 @@ function trashRef_(ref) {
 
 /** Called by the sidebar: approve a removal request. Either spouse can withdraw shared items alone. */
 function approveRemoval(requestId) {
+  return approveRemoval_(requestId, moderatorEmail_());
+}
+
+function approveRemoval_(requestId, who) {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
@@ -295,7 +309,7 @@ function approveRemoval(requestId) {
         }
       });
     }
-    updateRow_(ps, 'removal_requests', req._row, { status: 'approved', matched_member_id: m.member_id, approved_by: moderatorEmail_(), approved_at: nowIso_() });
+    updateRow_(ps, 'removal_requests', req._row, { status: 'approved', matched_member_id: m.member_id, approved_by: who, approved_at: nowIso_() });
     refreshPublicMembers(true);
     setSetting_('rebuild_requested_at', nowIso_()); // removals should not wait for Sunday
     notifyMember_(req, 'Removed: ' + m.name, 'The details you asked us to remove for ' + m.name + ' (' + Core_str(req.remove_items) + ') have been removed ' +
@@ -309,11 +323,15 @@ function approveRemoval(requestId) {
 
 /** Called by the sidebar: reject a consent or removal request. */
 function rejectRequest(kind, requestId, reason) {
+  return rejectRequest_(kind, requestId, reason, moderatorEmail_());
+}
+
+function rejectRequest_(kind, requestId, reason, who) {
   var ps = privateSs_();
   var tab = kind === 'removal' ? 'removal_requests' : 'consent_requests';
   var req = readTab_(ps, tab).filter(function (r) { return r.id === requestId; })[0];
   if (!req) throw new Error('Request not found');
-  updateRow_(ps, tab, req._row, { status: 'rejected', moderator_note: reason || '', approved_by: moderatorEmail_(), approved_at: nowIso_() });
+  updateRow_(ps, tab, req._row, { status: 'rejected', moderator_note: reason || '', approved_by: who, approved_at: nowIso_() });
   var what = kind === 'removal' ? 'request to remove details for ' + req.name : 'consent form for ' + req.name;
   notifyMember_(req, 'Not done yet: ' + what, 'Thank you for sending the ' + what + '. A district moderator could not act on it this time.' +
     (Core_str(reason) ? '\n\nReason: ' + reason : '') + '\n\nYou are welcome to send the form again with the changes.');
@@ -350,10 +368,17 @@ function markDeceased() {
   var m = readTab_(ps, 'members_master').filter(function (x) { return Core_str(x.member_id) === id; })[0];
   if (!m) { ui.alert('No one with ID ' + id + ' in the private members list.'); return; }
   if (ui.alert('Confirm', 'Mark ' + m.name + ' as deceased? Birthday and anniversary greetings for them stop at once.', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
-  updateRow_(ps, 'members_master', m._row, { status: 'deceased', notes: (Core_str(m.notes) + ' | Marked deceased ' + today_() + ' by ' + moderatorEmail_()).replace(/^ \| /, '') });
+  markDeceased_(m, moderatorEmail_());
+  requestRebuild();
+}
+
+/** Stops greetings for one members_master row at once; shared by the menu and the moderation desk. */
+function markDeceased_(m, who) {
+  var ps = privateSs_();
+  var id = Core_str(m.member_id);
+  updateRow_(ps, 'members_master', m._row, { status: 'deceased', notes: (Core_str(m.notes) + ' | Marked deceased ' + today_() + ' by ' + who).replace(/^ \| /, '') });
   readTab_(ps, 'club_history').forEach(function (h) {
     if (Core_str(h.member_id) === id && !Core_str(h.to_date)) updateRow_(ps, 'club_history', h._row, { to_date: today_(), reason: 'deceased' });
   });
   refreshPublicMembers(true);
-  requestRebuild();
 }

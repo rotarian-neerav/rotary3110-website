@@ -37,7 +37,8 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Item | Who | Status |
 |---|---|---|
 | Named owner for the yearly update, with a backup | District | Open |
-| Moderators: fill in the **moderators** tab (types Content, Members, Club engagement, District office, Administrator), then **Administrator → Apply moderators**; repeat whenever a moderator changes | District | Placeholders in the Sheet (18 Oct) |
+| Moderators: fill in the **moderators** tab (types Content, Members, Club engagement, District office, Administrator), then **Administrator → Apply moderators** (only for those who want the Sheet; the moderation desk needs no Sheet access); repeat whenever a moderator changes | District | Placeholders in the Sheet (18 Oct) |
+| Each moderator signs in to the moderation desk once (`…/desk/`, from the button in a moderator email) and tries it on the test site | Moderators | After the desk script is installed |
 | Real Rotary club IDs | District | Open (dummy S-001…) |
 | Rotary member IDs for office bearers and district team members | District | Open (temporary T-… IDs) |
 | List the clubs each Assistant Governor looks after (`functionaries → ag_clubs`) | District | Ask at production (sample until then) |

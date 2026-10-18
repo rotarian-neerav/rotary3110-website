@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = resolve(ROOT, 'apps-script');
 const OUT = resolve(ROOT, 'dist/apps-script');
-export const ORDER = ['Config.js', 'Schema.js', 'Core.js', 'Setup.js', 'Forms.js', 'Submissions.js', 'Moderation.js', 'Members.js', 'Endpoint.js', 'Jobs.js', 'Sample.js'];
+export const ORDER = ['Config.js', 'Schema.js', 'Core.js', 'Setup.js', 'Forms.js', 'Submissions.js', 'Moderation.js', 'Members.js', 'Endpoint.js', 'Desk.js', 'Jobs.js', 'Sample.js'];
 
 mkdirSync(OUT, { recursive: true });
 const parts = ORDER.map((f) => `// ===== ${f} =====\n` + readFileSync(resolve(SRC, f), 'utf8'));

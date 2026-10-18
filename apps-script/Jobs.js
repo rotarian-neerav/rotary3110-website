@@ -37,21 +37,37 @@ function bulletinPreview() {
   var data = publicData_();
   var b = Core_bulletin(data, sunday);
   var s = settings_();
-  var ids = [];
-  b.events.forEach(function (e) { ids.push('Coming up: ' + e.id + ' – ' + e.title); });
-  b.closing.forEach(function (e) { ids.push('Registration closing: ' + e.id + ' – ' + e.title); });
-  b.done.items.forEach(function (a) { ids.push('Done last week: ' + a.id + ' – ' + a.title + ' (' + a.club_name + ')'); });
-  b.campaigns.forEach(function (c) { ids.push('Campaign: ' + c.campaign_id + ' – ' + c.name); });
+  var items = []; // [label, tab, id]
+  b.events.forEach(function (e) { items.push(['Coming up: ' + e.title, 'events', e.id]); });
+  b.closing.forEach(function (e) { items.push(['Registration closing: ' + e.title, 'events', e.id]); });
+  b.done.items.forEach(function (a) { items.push(['Done last week: ' + a.title + ' (' + a.club_name + ')', 'activities', a.id]); });
+  b.campaigns.forEach(function (c) { items.push(['Campaign: ' + c.name, '', c.campaign_id]); });
   var skipped = data.skipped_items || [];
-  var body = Core_bulletinMessage(b, s.site_url) +
-    '\n\n----------\nChosen items (row ids):\n' + (ids.join('\n') || '(none: a quiet week)') +
-    (b.done.more ? '\n…and ' + b.done.more + ' more activities, counted but not listed.' : '') +
-    '\n\nNothing to do if this looks right. To leave something out, set bulletin_exclude to TRUE on that row in the ' +
-    'activities or events tab before Sunday 6 am.' +
-    (skipped.length ? '\n\nLeft out of the website because they contain a phone number, email or payment details: ' + skipped.join('; ') : '');
+  var message = Core_bulletinMessage(b, s.site_url);
+  var more = b.done.more ? '…and ' + b.done.more + ' more activities, counted but not listed.' : '';
+  var skippedLine = skipped.length ? 'Left out of the website because they contain a phone number, email or payment details: ' + skipped.join('; ') : '';
   var subject = new Date(today + 'T00:00:00Z').getUTCDay() === 6 ? "Tomorrow's bulletin – no action needed"
     : 'Bulletin for Sunday ' + Core_dateLabel(sunday) + ' – no action needed';
-  MailApp.sendEmail(moderatorRecipients_('Content'), subject, body);
+  // one email per Content moderator, each with their own "Leave this out" links
+  moderatorRecipients_('Content').split(',').filter(String).forEach(function (email) {
+    var desk = Core_deskViews(deskTypes_(email)).content && deskLink_({});
+    var leave = function (it) { return desk && it[1] ? deskLink_({ a: deskToken_('bx', it[1], it[2], email, 2 * 1440) }) : ''; };
+    var text = message + '\n\n----------\nChosen items (row ids):\n' +
+      (items.map(function (it) { return it[0] + ' – ' + it[2] + (leave(it) ? '\n   Leave this out: ' + leave(it) : ''); }).join('\n') || '(none: a quiet week)') +
+      (more ? '\n' + more : '') + '\n\nNothing to do if this looks right. To leave something out, ' +
+      (desk ? 'use its "Leave this out" link before Sunday 6 am.' : 'set bulletin_exclude to TRUE on that row in the activities or events tab before Sunday 6 am.') +
+      (skippedLine ? '\n\n' + skippedLine : '');
+    var html = '<div style="font:15px/1.5 Arial,sans-serif;color:#1c2430;max-width:600px"><p><strong>Nothing to do if this looks right.</strong> ' +
+      'To leave something out, tap its button before Sunday 6 am.</p><table style="border-collapse:collapse">' +
+      (items.map(function (it) {
+        return '<tr><td style="padding:6px 10px 6px 0;border-bottom:1px solid #dde3ec">' + escHtml_(it[0]) + '</td><td style="border-bottom:1px solid #dde3ec">' +
+          (leave(it) ? '<a href="' + escHtml_(leave(it)) + '" style="color:#b3261e;font-weight:bold;white-space:nowrap">Leave this out</a>' : '') + '</td></tr>';
+      }).join('') || '<tr><td>(none: a quiet week)</td></tr>') + '</table>' + (more ? '<p>' + escHtml_(more) + '</p>' : '') +
+      (skippedLine ? '<p style="background:#fff4dc;padding:8px 10px;border-radius:6px">' + escHtml_(skippedLine) + '</p>' : '') +
+      '<p style="color:#5b6573">The WhatsApp message as it will be sent:</p><pre style="white-space:pre-wrap;font:14px/1.45 Arial,sans-serif;background:#f4f6fa;padding:10px;border-radius:6px">' +
+      escHtml_(message) + '</pre></div>';
+    MailApp.sendEmail(email, subject, text, desk ? { htmlBody: html, name: 'Rotary 3110 website' } : { name: 'Rotary 3110 website' });
+  });
   try { SpreadsheetApp.getUi().alert('Bulletin preview sent to ' + moderatorRecipients_('Content') + '.'); } catch (e) { /* timed run */ }
 }
 
@@ -112,11 +128,14 @@ function sendReminders_() {
   ['consent_requests', 'removal_requests'].forEach(function (t) {
     Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { members.push(t + ': ' + r.id + ' – ' + r.name); });
   });
+  var desk = deskLink_({});
   [[content, 'Content', 'Open the Sheet and use the Rotary menu to approve or reject:'],
     [members, 'Members', 'Open the Sheet and use Rotary → Member requests. Removal requests should be handled within two days:']].forEach(function (job) {
     if (!job[0].length) return;
     MailApp.sendEmail(moderatorRecipients_(job[1]), 'Rotary 3110 website: ' + job[0].length + ' item(s) waiting more than 48 hours',
-      'These are waiting for a moderator:\n\n' + job[0].join('\n') + '\n\n' + job[2] + '\n' + main.getUrl());
+      'These are waiting for a moderator:\n\n' + job[0].join('\n') + '\n\n' +
+      (desk ? 'Open the moderation desk: ' + desk + (job[1] === 'Members' ? '\nRemoval requests should be handled within two days.' : '') + '\n\nOr ' +
+        job[2].charAt(0).toLowerCase() + job[2].slice(1) : job[2]) + '\n' + main.getUrl());
   });
 }
 
@@ -140,7 +159,9 @@ function notPostingReport() {
       return '• ' + c.club_name + (c.last_activity_date ? ' (last activity ' + Core_dateLabel(c.last_activity_date) + ')' : ' (no activity yet)');
     }).join('\n') + '\n\nThis list is private and is not shown on the website.'
     : 'Every active club posted at least one activity dated in ' + label + '.';
-  MailApp.sendEmail(to, 'Clubs that did not post in ' + label, body + '\n\nRotary District 3110 website');
+  var desk = deskLink_({});
+  MailApp.sendEmail(to, 'Clubs that did not post in ' + label, body + (desk && list.length ? '\n\nTo send a club a reminder by email or WhatsApp, open the moderation desk: ' + desk : '') +
+    '\n\nRotary District 3110 website');
   return list.length;
 }
 

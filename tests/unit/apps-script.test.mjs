@@ -375,10 +375,12 @@ test('data link: campaigns, event registration, the bulletin start date and skip
 test('Saturday preview: the coming Sunday\'s bulletin with the row ids, to the moderators (the district account until they are named)', () => {
   const before = env.mails.length;
   env.run('bulletinPreview');
-  const mail = env.mails.slice(before).find((m) => /no action needed/.test(m.subject));
+  const sent = env.mails.slice(before).filter((m) => /no action needed/.test(m.subject));
+  const mail = sent[0];
   assert.ok(mail, 'preview sent');
   const s = settingsMap();
-  assert.equal(mail.to, String(s.moderator_emails || '').split(/\s*,\s*/).filter(Boolean).join(',') || 'rotarian.neerav@gmail.com');
+  // one email per moderator (each gets their own "Leave this out" links once on the moderators tab)
+  assert.equal(sent.map((m) => m.to).join(','), String(s.moderator_emails || '').split(/\s*,\s*/).filter(Boolean).join(',') || 'rotarian.neerav@gmail.com');
   assert.match(mail.body, /Full bulletin: \S+\/bulletin\/\d{4}-\d{2}-\d{2}\//);
   assert.match(mail.body, /set bulletin_exclude to TRUE/);
 });

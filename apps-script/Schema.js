@@ -48,6 +48,8 @@ var SCHEMA_MAIN = {
   role_checks: ['checked_at', 'tab', 'row', 'rotary_year', 'name', 'member_id', 'problem'],
   // who moderates, by type: one row per person and type; edit a row when someone changes (never sent to the website)
   moderators: ['type', 'name', 'email', 'active', 'from_date', 'notes'],
+  // what moderators did on the moderation desk (filled in by the script; never sent to the website)
+  moderator_log: ['at', 'moderator', 'action', 'tab', 'item', 'details'],
 };
 
 var SCHEMA_PRIVATE = {

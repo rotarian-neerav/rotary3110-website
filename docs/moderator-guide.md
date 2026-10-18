@@ -2,7 +2,28 @@
 
 Moderators check everything before it appears on the website. Any Content moderator can approve any club's entry. Target: **within 48 hours**. If something waits longer, the moderators of that type get a reminder email at 7 am.
 
-The first time you use the **Rotary** menu, Google asks you to allow the script. That is how the Sheet records *who* approved each entry.
+**Most moderators never need to open the Sheet.** They work from their email and the **moderation desk**, a simple page on the website made for phones (below). The Sheet and its **Rotary** menu stay for the Administrator, and for anyone who prefers them. The first time you use the **Rotary** menu, Google asks you to allow the script. That is how the Sheet records *who* approved each entry.
+
+## The moderation desk (no Sheet needed)
+
+**Approve from the email.** Each new activity, event, club profile update or public service sends every Content moderator an email with the title, club, text, photos, links and anything to check. It has two big buttons, **Approve** and **Reject**. They open the desk, where one more tap confirms (**Yes, approve**, or a reason for **Reject**). That extra tap is on purpose: some email programs open links by themselves to scan them, and must not approve anything. The buttons are personal to you and work for 7 days. If another moderator got there first, the desk says so ("Already approved by …").
+
+**The desk itself** is at `…/desk/`. Open it from the **Open the moderation desk** button in any moderator email; after that, your phone remembers it.
+- **Signing in:** type your email (the one in the moderators tab). You get an email with a 6-digit code and a **Sign in** button; either works for 15 minutes. You stay signed in for 12 hours on that phone. **Sign out** when using someone else's phone.
+- **What you see depends on your type:**
+
+| Type | On the desk |
+|---|---|
+| Content | **To check**: every waiting item as a card, with photos (tap to enlarge), notes, and **Approve**, **Reject** (with ready-made reasons to tap) and **Correct** (fix spelling or remove a phone number before approving). **Recent**: approved activities of the last 30 days and coming events, with **★ Story of the month** and **Leave out of bulletin** buttons |
+| Members | Consent forms and removal requests with the member's choices and photo; **Approve** / **Remove now** / **Reject**; couples waiting; **Mark as deceased** (search by name, then confirm) |
+| Club engagement | **Quiet clubs**: active clubs with no activity in 30 days, the last activity date and who reminded them last. **Email President and Secretary** (their emails from the private members list; a copy comes to you; once a week at most) or **WhatsApp** (opens WhatsApp with a ready message and the club's own form link; you choose the person) |
+| District office | **Messages** from the contact form: **Reply by email**, **WhatsApp** or **Call**, then **Mark answered** |
+| Administrator | Everything above |
+
+- **English / हिन्दी:** the button at the top switches the desk's own words. What clubs typed stays as typed.
+- **Every action is recorded:** `approved_by` on the row, as with the Rotary menu, and a line in the **moderator_log** tab (who, what, when).
+- **Who can sign in:** only active rows of the moderators tab (and the district account). Setting someone's `active` to **FALSE** locks them out of the desk at once.
+- **Member requests** are never approved from an email button, only on the signed-in desk. Their alert email shows just the name and club.
 
 ## Types of moderator
 
@@ -73,7 +94,7 @@ Clubs send one **Public service run by a club** form per facility. New ones appe
 
 ## Contact messages
 
-Messages from the website's contact form go to the private Sheet's **contact_messages** tab and are emailed to the **District office** moderators (moderators tab). Reply to the person directly, then set `status` to **answered**. Messages that look like spam (more than two links, or hardly any words) are kept with status **spam** and not emailed; so are messages beyond `contact_daily_limit` in a day. The reply details are never shown on the website.
+Messages from the website's contact form go to the private Sheet's **contact_messages** tab and are emailed to the **District office** moderators (moderators tab). If the person gave an email, just press **Reply** in your email program; if they gave a mobile number, the email has a WhatsApp link. Then mark it answered on the desk's **Messages** tab (or set `status` to **answered** in the Sheet). Messages that look like spam (more than two links, or hardly any words) are kept with status **spam** and not emailed; so are messages beyond `contact_daily_limit` in a day. The reply details are never shown on the website.
 
 ## Member requests (consent and removal)
 
@@ -134,7 +155,7 @@ Then **Rotary → Update form lists**, so the campaign appears on the activity f
 
 Every Sunday the website puts together **"This week in District 3110"** (`…/bulletin/`) from approved data: events in the next 14 days (district events first), registrations closing that week, up to 6 activities approved in the past week (one per club), and campaign totals. Nobody writes it. Past weeks stay at their own address (`…/bulletin/2026-10-18/`).
 
-- **Saturday 6 pm:** the Content moderators get an email "Tomorrow's bulletin – no action needed" with the WhatsApp message and the row ids chosen. Nothing to do if it looks right. To leave something out, set `bulletin_exclude` to `TRUE` on that row in the **activities** or **events** tab before Sunday 6 am.
+- **Saturday 6 pm:** each Content moderator gets an email "Tomorrow's bulletin – no action needed" with the items chosen and the WhatsApp message. Nothing to do if it looks right. To leave something out, tap **Leave this out** next to it before Sunday 6 am (then confirm on the desk). In the Sheet, the same is `bulletin_exclude` = `TRUE` on that row.
 - **Sunday 8 am:** an email "This week's bulletin – please forward to the district groups" goes to the **District office** moderators. **Someone forwards that one message to the district WhatsApp groups**; WhatsApp has no free way to post into groups automatically. The email waits until the bulletin page is on the website: if the Sunday update is late, it asks for one and tries again every hour.
 - Each bulletin page also has **Copy message** and **Share on WhatsApp** buttons.
 - **Administrator → Send bulletin preview now / Send bulletin message now** send the two emails at any time.
@@ -153,7 +174,7 @@ Each month, choose a member who ticked "member spotlight" on the consent form. I
 
 ## Once a month: nudge quiet clubs
 
-On the 1st of each month, an email lists the clubs with no activity dated in the month just ended (to the **Club engagement** moderators; until one is named, a dummy address). The **dashboard** tab (refreshed every morning) shows the same, live: `needs_nudge = TRUE` means no activity this month. Send those clubs a friendly reminder with their own form link (the clubs tab's `activity_form_link`, with the club already chosen) and the posting guide (`…/how-to-post/`). The Club engagement moderators decide who follows up which clubs. **Rotary → Administrator → Send clubs-not-posting email now** sends the email at any time.
+On the 1st of each month, an email lists the clubs with no activity dated in the month just ended (to the **Club engagement** moderators; until one is named, a dummy address). The **dashboard** tab (refreshed every morning) shows the same, live: `needs_nudge = TRUE` means no activity this month. Send those clubs a friendly reminder from the desk's **Quiet clubs** tab: by email to the President and Secretary, or on WhatsApp, both with the club's own form link (the club already chosen). The posting guide is at `…/how-to-post/`. The Club engagement moderators decide who follows up which clubs. **Rotary → Administrator → Send clubs-not-posting email now** sends the email at any time.
 
 ## Sharing links in WhatsApp
 

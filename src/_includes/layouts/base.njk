@@ -30,6 +30,9 @@
 <link rel="alternate" type="application/rss+xml" title="{{ t.district }} – activities and events" href="/feed.xml">
 <link rel="preload" href="/assets/fonts/open-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css">
+{%- for s in styles %}
+<link rel="stylesheet" href="/assets/css/{{ s }}">
+{%- endfor %}
 {%- if jsonld %}
 <script type="application/ld+json">{{ jsonld | json | safe }}</script>
 {%- endif %}

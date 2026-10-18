@@ -110,7 +110,7 @@ function ensureTabs_(ss, schema, report) {
   var blank = ss.getSheetByName('Sheet1');
   if (blank && blank.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(blank);
   // Generated tabs: warn anyone who tries to type in them
-  ['members_public', 'couples_public', 'dashboard', 'role_checks'].forEach(function (n) {
+  ['members_public', 'couples_public', 'dashboard', 'role_checks', 'moderator_log'].forEach(function (n) {
     var sh = ss.getSheetByName(n);
     if (sh && !sh.getProtections(SpreadsheetApp.ProtectionType.SHEET).length) {
       sh.protect().setDescription('Filled in by the script – do not edit by hand').setWarningOnly(true);

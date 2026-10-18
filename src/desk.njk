@@ -1,0 +1,27 @@
+---
+layout: layouts/base.njk
+title: Moderation desk
+description: For district moderators only.
+permalink: /desk/
+noindex: true
+sitemap: false
+bodyClass: desk-page
+scripts: ["desk.js"]
+styles: ["desk.css"]
+---
+{#- The moderation desk. Everything on it comes from the Sheet script after the moderator signs in; this page
+    itself holds no data. The script's web address arrives after the # in the links that moderators are emailed,
+    and is remembered on the phone. -#}
+<div class="wrap section narrow desk" data-desk>
+  <div class="desk-head">
+    <h1 data-t="title">Moderation desk</h1>
+    <div class="desk-tools">
+      <button type="button" class="btn-small" data-lang>हिन्दी</button>
+      <button type="button" class="btn-small" data-signout hidden data-t="signOut">Sign out</button>
+    </div>
+  </div>
+  <p class="small muted" data-me hidden></p>
+  <div class="desk-msg" role="status" aria-live="polite" data-msg hidden></div>
+  <div data-out><p class="muted">Loading…</p></div>
+  <noscript><p class="callout">The moderation desk needs JavaScript. Please open it in Chrome or Safari.</p></noscript>
+</div>

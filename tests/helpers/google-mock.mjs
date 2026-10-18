@@ -113,16 +113,28 @@ class FakeRange {
     if (rule && rule.checkbox) {
       for (let r = 0; r < this.numRows; r++) if (this.sheet.cell(this.row + r, this.col) === '') this.sheet.set(this.row + r, this.col, false);
     }
+    for (let c = 0; c < this.numCols; c++) this.sheet.rules.set(this.col + c, rule);
     return this;
   }
-  clearDataValidations() { return this; }
+  clearDataValidations() {
+    for (let c = 0; c < this.numCols; c++) this.sheet.rules.delete(this.col + c);
+    return this;
+  }
   setNumberFormat() { return this; }
 }
 
 class FakeSheet {
-  constructor(name) { this.name = name; this.data = []; this.formUrl = null; this.maxCols = 26; }
+  constructor(name) { this.name = name; this.data = []; this.formUrl = null; this.maxCols = 26; this.rules = new Map(); }
   cell(r, c) { return (this.data[r - 1] || [])[c - 1] ?? ''; }
   set(r, c, v) {
+    // Like Google Sheets: a value outside a column's dropdown list is refused (rules kept per column, below the header)
+    const rule = r > 1 && this.rules.get(c);
+    if (rule && rule.list && v !== '' && v != null && !rule.list.some((x) => String(x).toLowerCase() === String(v).toLowerCase())) {
+      let n = c;
+      let letters = '';
+      while (n > 0) { letters = String.fromCharCode(65 + ((n - 1) % 26)) + letters; n = Math.floor((n - 1) / 26); }
+      throw new Error(`Exception: The data you entered in cell ${letters}${r} violates the data validation rules set on this cell. Please enter one of the following values: ${rule.list.join(', ')}.`);
+    }
     while (this.data.length < r) this.data.push([]);
     const row = this.data[r - 1];
     while (row.length < c) row.push('');
@@ -138,7 +150,11 @@ class FakeSheet {
   getLastColumn() { return this.data.reduce((m, r) => { let n = r.length; while (n && (r[n - 1] === '' || r[n - 1] == null)) n--; return Math.max(m, n); }, 0); }
   getMaxRows() { return 1000; }
   getMaxColumns() { return Math.max(this.maxCols, this.getLastColumn()); }
-  insertColumnsAfter(_after, n) { this.maxCols += n; }
+  // Like Google Sheets: inserted columns copy the formatting and dropdown of the column they follow
+  insertColumnsAfter(after, n) {
+    this.maxCols += n;
+    if (this.rules.has(after)) for (let i = 1; i <= n; i++) this.rules.set(after + i, this.rules.get(after));
+  }
   getRange(r, c, nr, nc) { return new FakeRange(this, r, c, nr, nc); }
   getDataRange() { return new FakeRange(this, 1, 1, Math.max(1, this.getLastRow()), Math.max(1, this.getLastColumn())); }
   appendRow(values) { const r = this.getLastRow() + 1; values.forEach((v, i) => this.set(r, i + 1, v)); }
@@ -224,7 +240,9 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
       flush: () => {},
       newDataValidation: () => {
         let checkbox = false;
-        const b = chain({ requireCheckbox: () => { checkbox = true; return b; }, build: () => ({ checkbox }) });
+        let list = null;
+        const b = chain({ requireCheckbox: () => { checkbox = true; return b; }, requireValueInList: (v) => { list = [...v]; return b; },
+          build: () => ({ checkbox, list }) });
         return b;
       },
       ProtectionType: { SHEET: 'SHEET' },

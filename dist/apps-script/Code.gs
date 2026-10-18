@@ -1695,6 +1695,8 @@ function ensureTabs_(ss, schema, report) {
       var start = existing.filter(function (h) { return h; }).length + 1;
       if (sh.getMaxColumns() < start + missing.length - 1) sh.insertColumnsAfter(sh.getMaxColumns(), start + missing.length - 1 - sh.getMaxColumns());
       sh.getRange(1, start, 1, missing.length).setValues([missing]);
+      // New columns copy the dropdown of the column to their left (e.g. TRUE/FALSE); their own rules come from addValidation_
+      if (sh.getMaxRows() > 1) sh.getRange(2, start, sh.getMaxRows() - 1, missing.length).clearDataValidations();
       if (existing.length) report.push('Added columns to ' + name + ': ' + missing.join(', '));
     }
     // Keep IDs, phone numbers, times and day-month values as plain text, so Sheets does not turn them into numbers or dates
@@ -1755,6 +1757,14 @@ function listRule_(values) {
 }
 
 function addValidation_(main, priv) {
+  // Start clean, so a dropdown copied onto the wrong column (see ensureTabs_) is removed; the rules below are put back
+  [[main, ['activities', 'events', 'club_profile_requests', 'public_services', 'clubs']],
+    [priv, ['consent_requests', 'removal_requests', 'members_master', 'contact_messages', 'couples']]].forEach(function (pair) {
+    pair[1].forEach(function (tab) {
+      var sh = pair[0].getSheetByName(tab);
+      if (sh && sh.getMaxRows() > 1) sh.getRange(2, 1, sh.getMaxRows() - 1, sh.getMaxColumns()).clearDataValidations();
+    });
+  });
   function apply(ss, tab, col, rule) {
     var sh = ss.getSheetByName(tab);
     var idx = headers_(ss, tab).indexOf(col);

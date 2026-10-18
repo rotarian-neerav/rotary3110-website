@@ -617,3 +617,28 @@ test('new forms are moved from My Drive into the folder that holds the Sheet, an
   env.run('upgradeSheet');
   assert.equal(env.moved.size, before, 'nothing moved twice');
 });
+
+test('new columns do not inherit the TRUE/FALSE dropdown of the column before them; Upgrade Sheet repairs a Sheet where they did', () => {
+  const sh = env.main.getSheetByName('activities');
+  const head = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  const cut = head.indexOf('avenue');
+  assert.ok(cut > 0 && head[cut - 1] === 'bulletin_exclude', head.join());
+  // a Sheet from before Release A: the tab ends at bulletin_exclude, which has a TRUE/FALSE dropdown
+  sh.data = sh.data.map((row) => row.slice(0, cut));
+  sh.maxCols = cut;
+  for (const c of [...sh.rules.keys()]) if (c > cut) sh.rules.delete(c);
+  assert.deepEqual(sh.rules.get(cut).list, ['TRUE', 'FALSE']);
+  env.run('upgradeSheet');
+  const col = (name) => sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].indexOf(name) + 1;
+  for (const c of ['video_link', 'press_paper', 'press_date', 'press_link']) assert.equal(sh.rules.get(col(c)), undefined, `${c} has no dropdown`);
+  assert.deepEqual(sh.rules.get(col('avenue')).list, ['Club Service', 'Vocational Service', 'Community Service', 'International Service', 'Youth Service']);
+  // a Sheet already upgraded with the copied dropdown (as happened on 18 Oct) is repaired by running Upgrade Sheet again
+  sh.rules.set(col('video_link'), sh.rules.get(col('bulletin_exclude')));
+  env.run('upgradeSheet');
+  assert.equal(sh.rules.get(col('video_link')), undefined);
+  assert.deepEqual(sh.rules.get(col('bulletin_exclude')).list, ['TRUE', 'FALSE']);
+  // and the sample loads, videos included
+  env.run('clearSampleData');
+  env.run('loadSampleData', true);
+  assert.ok(env.main.rows('activities').some((a) => /youtu/.test(a.video_link)), 'sample video links loaded');
+});

@@ -284,9 +284,9 @@ test('abbreviations: never inside tags, scripts, form controls, existing <abbr> 
 
 /* ---------- until the new script is installed ---------- */
 
-test('data from a Sheet still running the older script (the saved live snapshot) is brought up to date and passes the privacy check', async () => {
+test('data from a Sheet still running the older script (live snapshot of 14 Oct) is brought up to date and passes the privacy check', async () => {
   const { upgradeOldData } = await import('../../lib/compat.mjs');
-  const old = JSON.parse(readFileSync(new URL('../../data-snapshots/public-data.json', import.meta.url), 'utf8'));
+  const old = JSON.parse(readFileSync(new URL('../fixtures/old-script-data.json', import.meta.url), 'utf8'));
   assert.ok('zones' in old.site && old.clubs.some((c) => 'zone' in c), 'the snapshot is in the old shape');
   const d = upgradeOldData(structuredClone(old));
   assert.deepEqual(plain(core.Core_validatePublic(d)), [], 'no zone left, nothing else changed');
@@ -298,4 +298,7 @@ test('data from a Sheet still running the older script (the saved live snapshot)
   // current data passes through unchanged
   const current = build();
   assert.deepEqual(upgradeOldData(structuredClone(current)), current);
+  // and the latest saved live snapshot, whichever script made it, passes the privacy check
+  const latest = upgradeOldData(JSON.parse(readFileSync(new URL('../../data-snapshots/public-data.json', import.meta.url), 'utf8')));
+  assert.deepEqual(plain(core.Core_validatePublic(latest)), []);
 });

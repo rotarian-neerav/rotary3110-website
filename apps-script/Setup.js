@@ -161,7 +161,8 @@ function ensureModerators_(report) {
   var ss = mainSs_();
   if (readTab_(ss, 'moderators').length) return;
   CORE_MODERATOR_PLACEHOLDERS.forEach(function (p) {
-    appendRow_(ss, 'moderators', { type: p[0], name: p[1], email: '', active: 'TRUE', notes: 'Placeholder: put the real name and Google email here' });
+    appendRow_(ss, 'moderators', { type: p[0], name: p[1], email: '', active: 'TRUE', notes: 'Placeholder: put the real name and Google email here',
+      sheet_access: p[0] === 'Administrator' ? 'TRUE' : 'FALSE' });
   });
   report.push('Added placeholder moderators (fill in names and emails, then Administrator → Apply moderators)');
 }
@@ -197,6 +198,7 @@ function addValidation_(main, priv) {
   apply(main, 'clubs', 'status', listRule_(['active', 'inactive']));
   apply(main, 'moderators', 'type', listRule_(CORE_MODERATOR_TYPES));
   apply(main, 'moderators', 'active', listRule_(['TRUE', 'FALSE']));
+  apply(main, 'moderators', 'sheet_access', listRule_(['TRUE', 'FALSE']));
   // A tick-box column would fill every empty row with FALSE, so new rows would land far down the tab.
   // A TRUE/FALSE dropdown leaves empty rows empty.
   apply(main, 'activities', 'story_of_month', listRule_(['TRUE', 'FALSE']));

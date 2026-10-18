@@ -651,9 +651,11 @@ test('moderators tab: placeholders by type; emails go by type, falling back to t
   const rows = env.main.rows('moderators');
   assert.deepEqual(rows.map((r) => r.type), ['Content', 'Content', 'Members', 'Club engagement', 'District office', 'Administrator']);
   assert.ok(rows.every((r) => r.email === '' && /Placeholder/.test(r.notes)));
+  assert.deepEqual(rows.map((r) => r.sheet_access), ['FALSE', 'FALSE', 'FALSE', 'FALSE', 'FALSE', 'TRUE'], 'only the Administrator placeholder has the Sheet');
   env.run('upgradeSheet');
   assert.equal(env.main.rows('moderators').length, 6, 'placeholders written once');
   assert.deepEqual(env.main.getSheetByName('moderators').rules.get(1).list, [...env.context.CORE_MODERATOR_TYPES]);
+  assert.deepEqual(env.main.getSheetByName('moderators').rules.get(7).list, ['TRUE', 'FALSE']);
   // until emails are filled in, the monthly list still goes to the dummy not_posting_emails
   assert.equal(env.run('moderatorRecipients_', 'Club engagement', 'not_posting_emails'), 'not-posting@example.com');
   const sh = env.main.getSheetByName('moderators');
@@ -696,15 +698,19 @@ test('48-hour reminders: content items to Content moderators, member requests to
   env.run('rejectRequest', 'removal', env.priv.rows('removal_requests').at(-1).id, 'test');
 });
 
-test('Apply moderators: owner only; active moderators edit the main Sheet, Members and Administrator the private one; inactive people lose access', () => {
+test('Apply moderators: owner only; only rows with sheet_access TRUE edit the main Sheet, Members and Administrator the private one too; others lose access', () => {
   env.setUser('moderator.a@example.com');
   env.run('applyModerators');
   assert.match(env.alerts.at(-1), /Only the owner/);
   env.setUser('rotarian.neerav@gmail.com');
+  const mods = env.main.getSheetByName('moderators');
+  [2, 3, 4, 5, 6].forEach((row) => mods.set(row, 7, 'TRUE'));
+  env.main.editors.push('nosheet@example.com');
+  env.main.getSheetByName('moderators').appendRow(['Content', 'Desk Only', 'nosheet@example.com', 'TRUE', '', '', 'FALSE']);
   env.main.editors.push('helper@example.com', 'content.two@example.com'); // an editor not in the tab, and one now inactive
   const plan = env.run('applyModerators');
   assert.deepEqual([...plan.addMain].sort(), ['clubs.one@example.com', 'content.one@example.com', 'members.one@example.com', 'office@example.com']);
-  assert.deepEqual([...plan.removeMain], ['content.two@example.com']);
+  assert.deepEqual([...plan.removeMain].sort(), ['content.two@example.com', 'nosheet@example.com'], 'inactive, or active without sheet_access (the desk needs none)');
   assert.deepEqual([...plan.addPrivate], ['members.one@example.com']);
   assert.ok(env.main.editors.includes('helper@example.com'), 'people not in the tab are left alone');
   assert.ok(env.main.editors.includes('rotarian.neerav@gmail.com') && !env.main.editors.includes('content.two@example.com'));
@@ -717,6 +723,13 @@ test('Apply moderators: owner only; active moderators edit the main Sheet, Membe
   env.run('applyModerators');
   assert.match(env.alerts.at(-1), /already matches/);
   env.main.getSheetByName('moderators').set(4, 1, 'Members');
+  // sheet_access FALSE for a Members moderator: off both Sheets, still on the desk and still emailed
+  env.run('applyModerators');
+  mods.set(4, 7, 'FALSE');
+  const off = env.run('applyModerators');
+  assert.deepEqual([[...off.removeMain], [...off.removePrivate]], [['members.one@example.com'], ['members.one@example.com']]);
+  assert.match(env.run('moderatorRecipients_', 'Members'), /members\.one@example\.com/);
+  mods.set(4, 7, 'TRUE');
   env.setUser('moderator.a@example.com');
 });
 

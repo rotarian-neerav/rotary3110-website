@@ -30,7 +30,7 @@
       confirmDeceased: 'Mark {name} as deceased? Birthday and anniversary greetings stop at once.', noOne: 'No one found.',
       quietIntro: 'Active clubs with no activity in the last 30 days.', lastActivity: 'Last activity', never: 'none yet',
       reminded: 'Reminded', by: 'by', emailClub: 'Email President and Secretary', whatsapp: 'WhatsApp',
-      replyEmail: 'Reply by email', markAnswered: 'Mark answered', answered: 'Answered', newMsg: 'New',
+      reply: 'Reply', replyLabel: 'Your answer (sent from the district account, signed Rotary District 3110; your name and email are not shown)', send: 'Send', phoneOnly: 'Mobile number: please call or WhatsApp from the district office phone, not your personal phone.', earlier: 'Sent earlier', markAnswered: 'Mark answered', answered: 'Answered', newMsg: 'New',
       openDesk: 'Open the moderation desk', linkFor: 'This link is for', approveQ: 'Approve this?', rejectQ: 'Reject this?',
       leaveQ: "Leave this out of Sunday's bulletin?", fields: { title: 'Title', description: 'Description', press_paper: 'Newspaper name',
         venue: 'Venue', fee: 'Fee', meeting_day_place: 'Meeting day and place', permanent_projects: 'Permanent projects',
@@ -56,7 +56,7 @@
       confirmDeceased: '{name} को दिवंगत चिह्नित करें? जन्मदिन और वर्षगाँठ की शुभकामनाएँ तुरंत बंद हो जाएँगी।', noOne: 'कोई नहीं मिला।',
       quietIntro: 'सक्रिय क्लब जिनकी पिछले 30 दिनों में कोई गतिविधि नहीं आई।', lastActivity: 'आखिरी गतिविधि', never: 'अभी तक कोई नहीं',
       reminded: 'याद दिलाया', by: 'द्वारा', emailClub: 'अध्यक्ष और सचिव को ईमेल करें', whatsapp: 'व्हाट्सऐप',
-      replyEmail: 'ईमेल से जवाब दें', markAnswered: 'जवाब दिया गया', answered: 'जवाब दिया गया', newMsg: 'नया',
+      reply: 'जवाब दें', replyLabel: 'आपका जवाब (डिस्ट्रिक्ट खाते से, "Rotary District 3110" के नाम से जाएगा; आपका नाम और ईमेल नहीं दिखेगा)', send: 'भेजें', phoneOnly: 'मोबाइल नंबर: कृपया डिस्ट्रिक्ट ऑफ़िस के फ़ोन से कॉल या व्हाट्सऐप करें, अपने निजी फ़ोन से नहीं।', earlier: 'पहले भेजा गया', markAnswered: 'जवाब दिया गया', answered: 'जवाब दिया गया', newMsg: 'नया',
       openDesk: 'मॉडरेशन डेस्क खोलें', linkFor: 'यह लिंक इनके लिए है:', approveQ: 'इसे स्वीकृत करें?', rejectQ: 'इसे अस्वीकार करें?',
       leaveQ: 'इसे रविवार के बुलेटिन से हटाएँ?', fields: { title: 'शीर्षक', description: 'विवरण', press_paper: 'अख़बार का नाम',
         venue: 'स्थान', fee: 'शुल्क', meeting_day_place: 'बैठक का दिन और स्थान', permanent_projects: 'स्थायी परियोजनाएँ',
@@ -534,12 +534,37 @@
     view.innerHTML = list.length ? list.map(function (m) {
       return '<article class="desk-card" data-msg-id="' + esc(m.id) + '"><p class="desk-kind">' + esc(m.status === 'answered' ? t('answered') : t('newMsg')) + ' · ' + esc(day(m.submitted)) + '</p>' +
         '<h2>' + esc(m.topic) + '</h2><p class="muted">' + esc([m.name, m.city].filter(Boolean).join(' · ')) + '</p><p class="desk-text">' + esc(m.message) + '</p>' +
-        (m.note ? '<p class="small muted">' + esc(m.note) + '</p>' : '') + '<div class="desk-actions">' +
-        (m.reply_email ? '<a class="btn-small" href="mailto:' + esc(m.reply_email) + '?subject=' + encodeURIComponent('Re: ' + m.topic) + '">' + esc(t('replyEmail')) + '</a>' : '') +
-        (m.reply_mobile ? '<a class="btn-small btn-wa" target="_blank" rel="noopener" href="https://wa.me/' + esc(m.reply_mobile) + '">' + esc(t('whatsapp')) + '</a><a class="btn-small" href="tel:+' + esc(m.reply_mobile) + '">' + esc(t('call')) + '</a>' : '') +
-        (!m.reply_email && !m.reply_mobile ? '<span class="small">' + esc(m.reply_to) + '</span>' : '') +
-        (m.status !== 'answered' ? '<button type="button" class="btn-small" data-answered="' + esc(m.id) + '">' + esc(t('markAnswered')) + '</button>' : '') + '</div></article>';
+        (m.note ? '<p class="small muted">' + esc(m.note) + '</p>' : '') +
+        (m.replies ? '<p class="small"><strong>' + esc(t('earlier')) + ':</strong></p><p class="desk-text small">' + esc(m.replies) + '</p>' : '') +
+        (m.reply_mobile && !m.reply_email ? '<p class="small">+' + esc(m.reply_mobile) + ' · ' + esc(t('phoneOnly')) + '</p>' : '') +
+        (!m.reply_email && !m.reply_mobile ? '<p class="small">' + esc(m.reply_to) + '</p>' : '') + '<div class="desk-actions">' +
+        (m.reply_email ? '<button type="button" class="btn-small" data-reply="' + esc(m.id) + '">' + esc(t('reply')) + '</button>' : '') +
+        (m.status !== 'answered' ? '<button type="button" class="btn-small" data-answered="' + esc(m.id) + '">' + esc(t('markAnswered')) + '</button>' : '') +
+        '</div><div class="desk-panel"></div></article>';
     }).join('') : '<p class="desk-empty">' + esc(t('nothing')) + '</p>';
+    Array.prototype.forEach.call(view.querySelectorAll('[data-reply]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-reply');
+        var panel = b.closest('article').querySelector('.desk-panel');
+        panel.innerHTML = '<form class="desk-form"><label>' + esc(t('replyLabel')) + '<textarea name="text" rows="6" required maxlength="3000"></textarea></label>' +
+          '<button class="btn" type="submit">' + esc(t('send')) + '</button> <button class="btn-small" type="button" data-cancel>' + esc(t('cancel')) + '</button></form>';
+        var form = panel.querySelector('form');
+        panel.querySelector('[data-cancel]').addEventListener('click', function () { panel.innerHTML = ''; });
+        form.addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          var text = form.text.value.trim();
+          if (!text) return;
+          form.querySelector('[type=submit]').disabled = true;
+          say(t('working'));
+          api({ fn: 'reply', id: id, text: text }).then(function (d) {
+            say(d.message);
+            list.forEach(function (m) { if (m.id === id) { m.status = 'answered'; m.replies = [m.replies, text].filter(Boolean).join('\n\n'); } });
+            drawOffice(view);
+          }).catch(function (err) { form.querySelector('[type=submit]').disabled = false; say(err.message, true); });
+        });
+        form.text.focus();
+      });
+    });
     Array.prototype.forEach.call(view.querySelectorAll('[data-answered]'), function (b) {
       b.addEventListener('click', function () {
         say(t('working'));

@@ -5,15 +5,18 @@
  * script as the owner.
  *
  * Signing in: a moderator types their email. If it is an active row of the moderators tab (or the district
- * account), a 6-digit code and a one-tap sign-in link are emailed. The session lasts 12 hours. Every request
+ * account), a 6-digit code and a one-tap sign-in link are emailed. The session lasts 7 days. Every request
  * checks the moderators tab again, so setting active to FALSE locks someone out at once.
  *
  * Emails carry personal, signed links (approve or reject one item; leave one item out of the bulletin) that
  * expire after 7 days. They open the desk, where one more tap confirms, so email link scanners cannot act.
  * Member requests are never handled from an email link, only on the signed-in desk.
+ *
+ * Nothing sent to the public or to clubs names a moderator or carries their email: replies to contact messages
+ * and club reminders go from the district account, signed "Rotary District 3110".
  */
 
-var DESK_SESSION_HOURS = 12;
+var DESK_SESSION_HOURS = 7 * 24;
 var DESK_LINK_DAYS = 7;
 var DESK_SIGNIN_MINUTES = 15;
 var DESK_KINDS = { activities: 'Activity', events: 'Event', club_profile_requests: 'Club profile update', public_services: 'Public service' };
@@ -55,6 +58,7 @@ function desk_(req) {
   if (fn === 'deceased') return deskDeceased_(me, req.member_id);
   if (fn === 'nudge') return deskNudge_(me, req.club_id, req.via);
   if (fn === 'answered') return deskAnswered_(me, req.id);
+  if (fn === 'reply') return deskReply_(me, req.id, req.text);
   throw new Error('unknown request');
 }
 
@@ -489,12 +493,12 @@ function deskOfficerEmails_() {
   return out;
 }
 
-function deskNudgeText_(club, lastDate, me) {
+function deskNudgeText_(club, lastDate) {
   var s = settings_();
   var form = Core_str(club.activity_form_link) || Core_str(s.form_activity_url) || siteUrl_() + 'submit/';
   return 'Dear friends at ' + (Core_str(club.display_name) || Core_str(club.club_name)) + ', the district website has ' +
     (lastDate ? 'had no activity from your club since ' + Core_dateLabel(lastDate) : 'no activity from your club yet') +
-    '. Please send your latest service project; it takes two minutes: ' + form + '\nThank you! ' + me.name + ', Rotary District 3110';
+    '. Please send your latest service project; it takes two minutes: ' + form + '\nThank you!\nRotary District 3110 website team';
 }
 
 function deskReminders_() {
@@ -518,7 +522,7 @@ function deskClubs_(me) {
     var r = reminded[c.club_id];
     c.reminded_at = r ? r.at : ''; c.reminded_by = r ? r.by : ''; c.reminded_via = r ? r.via : '';
     c.can_email = !!(emails[c.club_id] || []).length;
-    c.whatsapp = deskNudgeText_(byId[c.club_id], c.last_activity_date, me);
+    c.whatsapp = deskNudgeText_(byId[c.club_id], c.last_activity_date);
     return c;
   });
 }
@@ -538,10 +542,10 @@ function deskNudge_(me, clubId, via) {
     throw deskError_('Already emailed by ' + last.by + ' on ' + Core_dateLabel(Core_isoDate(last.at)) + '. One email a week is enough.');
   }
   var lastDate = Core_quietClubs([club], readTab_(mainSs_(), 'activities'), today_(), -1)[0]; // -1: any club, with its last activity
-  MailApp.sendEmail(to.join(','), 'Share your club\'s service on the district website', deskNudgeText_(club, lastDate ? lastDate.last_activity_date : '', me),
-    { bcc: me.email, replyTo: me.email, name: 'Rotary District 3110' });
+  MailApp.sendEmail(to.join(','), 'Share your club\'s service on the district website', deskNudgeText_(club, lastDate ? lastDate.last_activity_date : ''),
+    { bcc: me.email, name: 'Rotary District 3110' }); // replies go to the district account, not the moderator
   deskLog_(me, 'reminder email', 'clubs', club.club_id, to.length + ' recipient(s)');
-  return { message: 'Sent to ' + club.club_name + '\'s President and Secretary, with a copy to you.' };
+  return { message: 'Sent to ' + club.club_name + '\'s President and Secretary from the district account, with a hidden copy to you.' };
 }
 
 /* ---------- District office ---------- */
@@ -553,7 +557,7 @@ function deskOffice_() {
   }).sort(function (a, b) { return Core_isoTimestamp(b.submitted_at).localeCompare(Core_isoTimestamp(a.submitted_at)); }).slice(0, 50).map(function (m) {
     var reply = Core_str(m.reply_to);
     return { id: Core_str(m.id), submitted: Core_isoTimestamp(m.submitted_at), name: Core_str(m.name), topic: Core_str(m.topic), city: Core_str(m.city),
-      message: Core_str(m.message), status: Core_str(m.status), note: Core_str(m.note),
+      message: Core_str(m.message), status: Core_str(m.status), note: Core_str(m.note), replies: Core_str(m.replies),
       reply_email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reply) ? reply : '', reply_mobile: Core_mobile(reply), reply_to: reply };
   });
 }
@@ -566,6 +570,38 @@ function deskAnswered_(me, id) {
   updateRow_(ps, 'contact_messages', m._row, { status: 'answered', note: [Core_str(m.note), 'Answered: marked by ' + me.name + ' on ' + today_()].filter(String).join('; ') });
   deskLog_(me, 'answered', 'contact_messages', m.id, '');
   return { message: 'Marked as answered.' };
+}
+
+/**
+ * Answers a contact message by email from the district account, signed "Rotary District 3110", so the person
+ * never learns which moderator wrote. Their own reply comes back to the district account. The answer is kept in
+ * the private Sheet (replies column) and the message is marked answered.
+ */
+function deskReply_(me, id, text) {
+  if (!me.views.office) throw deskError_('Only District office moderators can do this.');
+  text = Core_str(text);
+  if (text.length < 2) throw deskError_('Please write the reply.');
+  if (text.length > 3000) throw deskError_('Please keep the reply under 3,000 characters.');
+  var ps = privateSs_();
+  var m = readTab_(ps, 'contact_messages').filter(function (x) { return Core_str(x.id) === Core_str(id); })[0];
+  if (!m) throw deskError_('Message not found.');
+  var to = Core_str(m.reply_to);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) throw deskError_('This person gave a mobile number, not an email. Please call or WhatsApp from the district office phone.');
+  if (!deskQuota_(1)) throw deskError_('The district account has sent all its emails for today. Please try again tomorrow.');
+  var asked = Core_str(m.message);
+  MailApp.sendEmail(to, 'Re: ' + Core_str(m.topic) + ' – Rotary District 3110',
+    'Dear ' + (Core_str(m.name) || 'friend') + ',\n\n' + text + '\n\nWith regards,\nRotary District 3110\n\n' +
+    '— You wrote to us on ' + Core_dateLabel(Core_isoDate(new Date(m.submitted_at))) + ':\n' + (asked.length > 600 ? asked.slice(0, 600) + '…' : asked) +
+    '\n\nTo write to us again, use the contact page: ' + siteUrl_() + 'contact/',
+    { name: 'Rotary District 3110' });
+  var day = today_();
+  updateRow_(ps, 'contact_messages', m._row, {
+    status: 'answered',
+    replies: [Core_str(m.replies), day + ': ' + text].filter(String).join('\n\n'),
+    note: [Core_str(m.note), 'Replied by email from the desk by ' + me.name + ' on ' + day].filter(String).join('; '),
+  });
+  deskLog_(me, 'replied', 'contact_messages', m.id, ''); // the reply itself stays in the private Sheet
+  return { message: 'Sent from the district account. ' + (Core_str(m.name) || 'They') + ' will not see your name or email.' };
 }
 
 /* ---------- Everything one moderator sees ---------- */

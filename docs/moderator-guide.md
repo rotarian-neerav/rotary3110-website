@@ -9,15 +9,15 @@ Moderators check everything before it appears on the website. Any Content modera
 **Approve from the email.** Each new activity, event, club profile update or public service sends every Content moderator an email with the title, club, text, photos, links and anything to check. It has two big buttons, **Approve** and **Reject**. They open the desk, where one more tap confirms (**Yes, approve**, or a reason for **Reject**). That extra tap is on purpose: some email programs open links by themselves to scan them, and must not approve anything. The buttons are personal to you and work for 7 days. If another moderator got there first, the desk says so ("Already approved by …").
 
 **The desk itself** is at `…/desk/`. Open it from the **Open the moderation desk** button in any moderator email; after that, your phone remembers it.
-- **Signing in:** type your email (the one in the moderators tab). You get an email with a 6-digit code and a **Sign in** button; either works for 15 minutes. You stay signed in for 12 hours on that phone. **Sign out** when using someone else's phone.
+- **Signing in:** type your email (the one in the moderators tab). You get an email with a 6-digit code and a **Sign in** button; either works for 15 minutes. You stay signed in for 7 days on that phone. **Sign out** when using someone else's phone.
 - **What you see depends on your type:**
 
 | Type | On the desk |
 |---|---|
 | Content | **To check**: every waiting item as a card, with photos (tap to enlarge), notes, and **Approve**, **Reject** (with ready-made reasons to tap) and **Correct** (fix spelling or remove a phone number before approving). **Recent**: approved activities of the last 30 days and coming events, with **★ Story of the month** and **Leave out of bulletin** buttons |
 | Members | Consent forms and removal requests with the member's choices and photo; **Approve** / **Remove now** / **Reject**; couples waiting; **Mark as deceased** (search by name, then confirm) |
-| Club engagement | **Quiet clubs**: active clubs with no activity in 30 days, the last activity date and who reminded them last. **Email President and Secretary** (their emails from the private members list; a copy comes to you; once a week at most) or **WhatsApp** (opens WhatsApp with a ready message and the club's own form link; you choose the person) |
-| District office | **Messages** from the contact form: **Reply by email**, **WhatsApp** or **Call**, then **Mark answered** |
+| Club engagement | **Quiet clubs**: active clubs with no activity in 30 days, the last activity date and who reminded them last. **Email President and Secretary** (their emails from the private members list; sent from the district account and signed "Rotary District 3110 website team"; a hidden copy comes to you; replies go to the district account; once a week at most) or **WhatsApp** (opens WhatsApp with a ready message and the club's own form link; you choose the person) |
+| District office | **Messages** from the contact form. **Reply**: type the answer and tap **Send**; it goes from the district account, signed "Rotary District 3110", so the person never sees your name or email, and the message is marked answered. Please never press Reply on the email alert. Someone who gave only a mobile number: call or WhatsApp from the **district office phone**, not your personal phone, then **Mark answered** |
 | Administrator | Everything above |
 
 - **English / हिन्दी:** the button at the top switches the desk's own words. What clubs typed stays as typed.
@@ -27,9 +27,9 @@ Moderators check everything before it appears on the website. Any Content modera
 
 ## Types of moderator
 
-The **moderators** tab in the main Sheet lists who does what: one row per person and type (`type`, `name`, `email`, `active`, `from_date`, `notes`). One person may have several rows, for example Content and Club engagement.
+The **moderators** tab in the main Sheet lists who does what: one row per person and type (`type`, `name`, `email`, `active`, `from_date`, `notes`, `sheet_access`). One person may have several rows, for example Content and Club engagement. `sheet_access` TRUE gives that person the Sheet (the Access column below); FALSE or blank means the moderation desk only, which is enough for every type.
 
-| Type | Does | Receives | Access |
+| Type | Does | Receives | Access (when sheet_access is TRUE) |
 |---|---|---|---|
 | **Content** | Approves or rejects activities, events, club profiles, public services and campaign reports | 48-hour reminders for those; the Saturday bulletin preview | Main Sheet |
 | **Members** | Consent and removal requests, Mark as deceased | 48-hour reminders for member requests | Main Sheet and the private members Sheet |
@@ -38,7 +38,7 @@ The **moderators** tab in the main Sheet lists who does what: one row per person
 | **Administrator** | Yearly update, Upgrade Sheet, settings, sample data | (Build-failure emails, from Release B) | Main Sheet and the private members Sheet |
 
 **When a moderator changes** (only the Sheet's owner can do this):
-1. In the **moderators** tab, set the leaving person's `active` to **FALSE** (keep the row as a record), and add a row for the new person with their Google email and `active` **TRUE**.
+1. In the **moderators** tab, set the leaving person's `active` to **FALSE** (keep the row as a record), and add a row for the new person with their Google email, `active` **TRUE**, and `sheet_access` **TRUE** only if they want the Sheet.
 2. **Rotary → Administrator → Apply moderators (Sheet access)…**. It lists who gets access and who loses it, and asks before changing anything. Only people listed in the tab are ever removed; the owner and anyone not in the tab are left alone. Google emails each new moderator a link to the Sheet.
 
 Until a type has a real email, its emails go where they went before: the older settings (`contact_email`, `bulletin_emails`, `not_posting_emails`), then the Content moderators, then `moderator_emails`, then the district account. The placeholder rows (Moderator A–D, District office, Website administrator) are ignored until an email is filled in.

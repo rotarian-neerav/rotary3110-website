@@ -47,7 +47,7 @@ var SCHEMA_MAIN = {
     'activities_last_month', 'activities_this_rotary_year', 'months_posted_this_rotary_year', 'needs_nudge'],
   role_checks: ['checked_at', 'tab', 'row', 'rotary_year', 'name', 'member_id', 'problem'],
   // who moderates, by type: one row per person and type; edit a row when someone changes (never sent to the website)
-  moderators: ['type', 'name', 'email', 'active', 'from_date', 'notes'],
+  moderators: ['type', 'name', 'email', 'active', 'from_date', 'notes', 'sheet_access'],
   // what moderators did on the moderation desk (filled in by the script; never sent to the website)
   moderator_log: ['at', 'moderator', 'action', 'tab', 'item', 'details'],
 };
@@ -66,7 +66,7 @@ var SCHEMA_PRIVATE = {
     'spouse_agrees', 'anniversary', 'couple_photo_file', 'couple_photo_spouse_agrees', 'declaration', 'status',
     'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
   // messages from the website's contact form; the reply details stay here and are never published
-  contact_messages: ['id', 'submitted_at', 'name', 'reply_to', 'topic', 'city', 'message', 'status', 'forwarded_to', 'note', 'is_sample'],
+  contact_messages: ['id', 'submitted_at', 'name', 'reply_to', 'topic', 'city', 'message', 'status', 'forwarded_to', 'note', 'is_sample', 'replies'],
   removal_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'name', 'member_id', 'mobile', 'remove_items',
     'reason', 'status', 'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
 };

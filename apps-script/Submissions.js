@@ -225,10 +225,12 @@ function fileContact_(a, meta) {
       MailApp.sendEmail(to, 'Website message: ' + row.topic + ' – from ' + row.name,
         'A message from the contact form on the district website.\n\nFrom: ' + row.name + '\nReply to: ' + row.reply_to +
         (row.city ? '\nCity: ' + row.city : '') + '\nAbout: ' + row.topic + '\n\n' + message + '\n\n' +
-        (email ? 'Press Reply to answer ' + row.name + ' directly.' : mobile ? 'Reply on WhatsApp: https://wa.me/' + mobile + '\nOr call: +' + mobile
-          : 'Please reply to the person directly.') +
+        (email ? 'Please answer from the moderation desk (Messages → Reply), not by pressing Reply here: the desk sends your answer from the ' +
+            'district account, signed Rotary District 3110, so your own name and email stay private.'
+          : mobile ? 'They gave a mobile number: +' + mobile + '. Please call or WhatsApp from the district office phone, not your personal phone.'
+          : 'They gave no email or mobile number we can use.') +
         ' All messages are kept in the contact_messages tab of the private Sheet' + (deskLink_({}) ? ' and on the moderation desk: ' + deskLink_({}) : '.'),
-        email ? { replyTo: email, name: 'Rotary 3110 website' } : { name: 'Rotary 3110 website' });
+        { name: 'Rotary 3110 website' }); // never replyTo the sender: a reply would show the moderator's own email
       row.forwarded_to = to;
     } catch (e) {
       row.note = 'Email failed: ' + e.message;

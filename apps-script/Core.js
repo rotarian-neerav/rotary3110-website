@@ -48,8 +48,8 @@ var CORE_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sa
 // The contact form: at most this many messages are emailed on, per day, unless the setting says otherwise
 var CORE_CONTACT_DAILY_LIMIT = 20;
 
-// Types of moderator (the moderators tab). What each receives is in Core_moderatorEmails' callers; Members and
-// Administrator also get the private members Sheet.
+// Types of moderator (the moderators tab). What each receives is in Core_moderatorEmails' callers. A row with
+// sheet_access TRUE also edits the main Sheet, and Members and Administrator rows the private members Sheet too.
 var CORE_MODERATOR_TYPES = ['Content', 'Members', 'Club engagement', 'District office', 'Administrator'];
 var CORE_PRIVATE_SHEET_TYPES = ['Members', 'Administrator'];
 // Placeholder rows written once into an empty moderators tab; a row without an email is ignored
@@ -379,7 +379,7 @@ function Core_moderatorAccess(rows, owner, mainEditors, privateEditors) {
   var wantMain = [];
   var wantPrivate = [];
   (rows || []).forEach(function (r) {
-    if (!Core_moderatorActive(r)) return;
+    if (!Core_moderatorActive(r) || !Core_isTrue(r.sheet_access)) return; // the desk needs no Sheet access
     var e = Core_str(r.email).toLowerCase();
     if (wantMain.indexOf(e) < 0) wantMain.push(e);
     if (CORE_PRIVATE_SHEET_TYPES.indexOf(Core_str(r.type)) >= 0 && wantPrivate.indexOf(e) < 0) wantPrivate.push(e);

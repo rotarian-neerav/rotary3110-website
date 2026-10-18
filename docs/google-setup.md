@@ -87,7 +87,8 @@ The **18 October (desk)** upgrade adds the moderation desk (section 7):
 - the **moderator_log** tab (main Sheet, filled in by the script, never sent to the website);
 - an email to the Content moderators for each new activity, event, club profile update and public service, with personal **Approve** and **Reject** buttons; an email to the Members moderators for each new consent or removal form;
 - **Leave this out** buttons in the Saturday bulletin preview; desk links in the 48-hour reminders and the monthly clubs-not-posting email;
-- contact messages: **Reply** goes straight to the person who wrote (a mobile number gets a WhatsApp link);
+- contact messages are answered from the desk (**Messages → Reply**): the answer goes from the district account, signed "Rotary District 3110", so the moderator's name and email stay private; the replies are kept in a new **replies** column of **contact_messages**;
+- a **sheet_access** column (TRUE/FALSE) in the **moderators** tab: Sheet access is now chosen per person;
 - a newspaper name that is really a web address is moved to the newspaper link, with a note.
 
 ## 6. Name the moderators
@@ -95,10 +96,11 @@ The **18 October (desk)** upgrade adds the moderation desk (section 7):
 1. Open the **moderators** tab (main Sheet). Each row is one person in one type: **Content**, **Members**, **Club engagement**, **District office** or **Administrator**. Put the real name and Google email over a placeholder, and keep `active` = **TRUE**. Add rows for more people (one person can have several rows).
    - The **District office** row is where contact form messages are emailed (this replaces the older `contact_email` setting in the **settings** tab) and who gets the Sunday WhatsApp message.
    - **Club engagement** gets the monthly clubs-not-posting list.
-2. **Rotary → Administrator → Apply moderators (Sheet access)…** (as the Sheet's owner): it shows who will get access to the Sheet (and, for Members and Administrator, the private members Sheet) and asks before doing it.
-3. When someone stops, set their `active` to **FALSE** and run **Apply moderators** again.
+2. Set `sheet_access` to **TRUE** only for people who want to work in the Sheet; leave it **FALSE** (or blank) for those who use only the moderation desk, which needs no Sheet access. The Administrator placeholder starts as TRUE.
+3. **Rotary → Administrator → Apply moderators (Sheet access)…** (as the Sheet's owner): it shows who will get access to the Sheet (and, for Members and Administrator rows, the private members Sheet) and asks before doing it.
+4. When someone stops, set their `active` to **FALSE** and run **Apply moderators** again. Setting `sheet_access` to FALSE and running it removes only the Sheet; the person stays on the desk and keeps getting their emails.
 
-Moderators who use only the moderation desk (below) do not need access to the Sheet at all; **Apply moderators** gives it to every active moderator, so use it for those who want the Sheet too.
+After the upgrade, existing rows have a blank `sheet_access`, which counts as FALSE: set TRUE for anyone who should keep the Sheet before running **Apply moderators**, which lists every removal and asks first.
 
 ## 7. The moderation desk
 

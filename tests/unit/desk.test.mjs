@@ -98,7 +98,7 @@ test('signing in: a code only for active moderators, wrong codes refused, a 12-h
   assert.deepEqual([ok.me.name, [...ok.me.types]], ['Asha Content', ['Content']]);
   assert.equal(env.post({ fn: 'signin', email: 'asha@example.com', code: mail.subject.slice(-6) }).error, 'The code has expired. Ask for a new one.', 'a code works once');
   const expiry = Number(ok.session.split('~')[4]);
-  assert.ok(Math.abs(expiry - Date.now() - 12 * 3600000) < 60000, '12 hours');
+  assert.ok(Math.abs(expiry - Date.now() - 7 * 86400000) < 60000, '7 days');
   // the sign-in link works too
   assert.equal(env.post({ fn: 'signin', token: signinToken }).me.email, 'asha@example.com');
 
@@ -284,13 +284,14 @@ test('member requests: the Members moderator is alerted with only the name; appr
   assert.deepEqual(env.post({ fn: 'search', session: s, q: 'Desk Member' }).people, []);
 });
 
-test('quiet clubs: the Club engagement moderator emails the President and Secretary (copy to themselves) once a week, or notes a WhatsApp reminder', () => {
+test('quiet clubs: the Club engagement moderator emails the President and Secretary from the district account (hidden copy to themselves) once a week, or notes a WhatsApp reminder', () => {
   const s = signIn('kabir@example.com');
   const clubs = env.post({ fn: 'list', session: s }).clubs;
   assert.ok(clubs.length > 0);
   assert.ok(clubs.every((c) => !c.can_email), 'sample members are never emailed');
   const c = clubs[0];
-  assert.match(c.whatsapp, /^Dear friends at .+ Please send your latest service project; it takes two minutes: https:\/\/docs\.google\.com\/forms\/\S+\nThank you! Kabir Clubs, Rotary District 3110$/);
+  assert.match(c.whatsapp, /^Dear friends at .+ Please send your latest service project; it takes two minutes: https:\/\/docs\.google\.com\/forms\/\S+\nThank you!\nRotary District 3110 website team$/);
+  assert.ok(!c.whatsapp.includes('Kabir'), 'the moderator is not named');
   assert.match(env.post({ fn: 'nudge', session: s, club_id: c.club_id, via: 'email' }).error, /No email for this club's President or Secretary/);
   assert.ok(env.post({ fn: 'nudge', session: s, club_id: c.club_id, via: 'whatsapp' }).ok);
 
@@ -303,23 +304,47 @@ test('quiet clubs: the Club engagement moderator emails the President and Secret
   const r = env.post({ fn: 'nudge', session: s, club_id: c.club_id, via: 'email' });
   assert.ok(r.ok, r.error);
   const mail = env.mails.at(-1);
-  assert.deepEqual([mail.to, mail.options.bcc, mail.options.replyTo], ['real.president@example.com', 'kabir@example.com', 'kabir@example.com']);
+  assert.deepEqual([mail.to, mail.options.bcc, mail.options.replyTo, mail.options.name], ['real.president@example.com', 'kabir@example.com', undefined, 'Rotary District 3110']);
+  assert.ok(!mail.body.includes('Kabir'), 'the club never sees the moderator\'s name or email');
   assert.match(env.post({ fn: 'nudge', session: s, club_id: c.club_id, via: 'email' }).error, /Already emailed by Kabir Clubs/);
 });
 
-test('contact messages: Reply goes to the sender; a mobile number gets a WhatsApp link; the District office marks messages answered', () => {
+test('contact messages: answered from the desk by the district account, never by Reply (the moderator stays private); phone-only messages are marked answered', () => {
   const before = env.mails.length;
   env.submit('contact', { [Q.kName]: 'Asha Verma', [Q.kReply]: 'asha.v@example.com', [Q.kTopic]: 'I want to volunteer', [Q.kCity]: 'Agra', [Q.kMessage]: 'I would like to help at the next blood camp.' });
   const mail = env.mails.at(-1);
-  assert.deepEqual([env.mails.length - before, mail.to, mail.options.replyTo], [1, 'dina@example.com', 'asha.v@example.com']);
-  assert.match(mail.body, /Press Reply to answer Asha Verma directly/);
+  assert.deepEqual([env.mails.length - before, mail.to, mail.options.replyTo], [1, 'dina@example.com', undefined]);
+  assert.match(mail.body, /Please answer from the moderation desk \(Messages → Reply\), not by pressing Reply here/);
   env.submit('contact', { [Q.kName]: 'Ravi', [Q.kReply]: '98765 11111', [Q.kTopic]: 'I want to volunteer', [Q.kCity]: 'Agra', [Q.kMessage]: 'Please call me about joining Rotary.' });
   assert.equal(env.mails.at(-1).options.replyTo, undefined);
-  assert.match(env.mails.at(-1).body, /Reply on WhatsApp: https:\/\/wa\.me\/919876511111/);
+  assert.match(env.mails.at(-1).body, /\+919876511111\. Please call or WhatsApp from the district office phone, not your personal phone/);
+  assert.ok(!env.mails.at(-1).body.includes('wa.me'));
 
   const s = signIn('dina@example.com');
-  const office = env.post({ fn: 'list', session: s }).office;
+  let office = env.post({ fn: 'list', session: s }).office;
+  const asha = office.find((m) => m.name === 'Asha Verma');
+  assert.match(env.post({ fn: 'reply', session: s, id: asha.id, text: ' ' }).error, /Please write the reply/);
+  assert.match(env.post({ fn: 'reply', session: signIn('kabir@example.com'), id: asha.id, text: 'Hello' }).error, /Only District office/);
+  const sent = env.mails.length;
+  const r = env.post({ fn: 'reply', session: s, id: asha.id, text: 'Thank you! The next camp is on 2 November at RC Agra.' });
+  assert.ok(r.ok, r.error);
+  const answer = env.mails.at(-1);
+  assert.equal(env.mails.length - sent, 1);
+  assert.deepEqual([answer.to, answer.options.name, answer.options.replyTo, answer.options.bcc], ['asha.v@example.com', 'Rotary District 3110', undefined, undefined]);
+  assert.match(answer.subject, /^Re: I want to volunteer – Rotary District 3110$/);
+  assert.match(answer.body, /^Dear Asha Verma,\n\nThank you! The next camp is on 2 November at RC Agra\.\n\nWith regards,\nRotary District 3110\n/);
+  assert.match(answer.body, /I would like to help at the next blood camp\./);
+  assert.ok(!/Dina|dina@/.test(answer.body + answer.subject), 'the moderator is never named');
+  const saved = env.priv.rows('contact_messages').find((m) => m.id === asha.id);
+  assert.equal(saved.status, 'answered');
+  assert.match(saved.replies, /\d{4}-\d\d-\d\d: Thank you! The next camp/);
+  assert.match(saved.note, /Replied by email from the desk by Dina Office/);
+  const log = env.main.rows('moderator_log').at(-1);
+  assert.deepEqual([log.action, log.item, log.details], ['replied', asha.id, ''], 'the reply text stays in the private Sheet');
+  office = env.post({ fn: 'list', session: s }).office;
+  assert.match(office.find((m) => m.id === asha.id).replies, /The next camp/);
   const ravi = office.find((m) => m.name === 'Ravi');
+  assert.match(env.post({ fn: 'reply', session: s, id: ravi.id, text: 'Hello' }).error, /gave a mobile number/);
   assert.deepEqual([ravi.reply_mobile, ravi.reply_email, ravi.status], ['919876511111', '', 'new']);
   assert.ok(env.post({ fn: 'answered', session: s, id: ravi.id }).ok);
   const row = env.priv.rows('contact_messages').find((m) => m.id === ravi.id);

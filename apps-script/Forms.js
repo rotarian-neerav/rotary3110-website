@@ -478,8 +478,9 @@ function makeContactForm_() {
   form.addTextItem().setTitle(Q.kCity)
     .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
   form.addParagraphTextItem().setTitle(Q.kMessage).setRequired(true)
-    .setValidation(FormApp.createParagraphTextValidation().requireTextMatchesPattern('^[\\s\\S]{20,1500}$')
-      .setHelpText('Please write between 20 and 1,500 characters').build());
+    // Google Forms patterns count to 1000 at most ({20,1500} is refused with "Invalid data updating form")
+    .setValidation(FormApp.createParagraphTextValidation().requireTextMatchesPattern('^[\\s\\S]{20,1000}$')
+      .setHelpText('Please write between 20 and 1,000 characters').build());
   return form;
 }
 

@@ -5,6 +5,18 @@ import { createHmac } from 'node:crypto';
 import vm from 'node:vm';
 
 /** Returns a callable object where any method call returns itself, for builder-style APIs. */
+/** Google Forms refuses a pattern that counts past 1000 ("Invalid data updating form"), like RE2. */
+function checkFormPattern(pattern) {
+  for (const [, a, b] of pattern.matchAll(/\{(\d+)(?:,(\d*))?\}/g)) {
+    if (Number(a) > 1000 || Number(b || 0) > 1000) throw new Error('Exception: Invalid data updating form');
+  }
+  new RegExp(pattern);
+}
+const formValidation = () => {
+  const v = chain({ requireTextMatchesPattern: (p) => { checkFormPattern(p); return v; } });
+  return v;
+};
+
 function chain(overrides = {}) {
   const proxy = new Proxy(function () {}, {
     get(_t, prop) {
@@ -283,8 +295,8 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
         return form.proxy;
       },
       openById: (id) => { if (!forms[id]) throw new Error('no form'); return forms[id].proxy; },
-      createTextValidation: () => chain(),
-      createParagraphTextValidation: () => chain(),
+      createTextValidation: formValidation,
+      createParagraphTextValidation: formValidation,
       DestinationType: { SPREADSHEET: 'SPREADSHEET' },
       PageNavigationType: { SUBMIT: 'SUBMIT' },
       ItemType: { LIST: 'LIST', CHECKBOX: 'CHECKBOX' },

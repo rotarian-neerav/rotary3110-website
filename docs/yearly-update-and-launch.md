@@ -46,7 +46,7 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Clubs send their public services (blood banks, eye care…) through the public service form | Clubs | Open |
 | Two role titles from the team Excel contain zone names ("CDS Bareilly Zone", "CDS Kanpur Zone") | District | Kept as they are (decided 18 Oct) |
 | All data in the Sheet today is sample data, the team names included; collect the correct data for production | District | Ask at production |
-| Testing files (Sheet, private Sheet, forms, MemberPhotos, 3110Magazines) live in the Drive folder **3110Website-Testing**; production files go in **3110Website** | Owner of the files | Move the current files to 3110Website-Testing (open); production set-up at Release B |
+| Testing files (Sheet, private Sheet, forms, MemberPhotos, 3110Magazines) live in the Drive folder **3110Website-Testing**; production files go in **3110Website** | Owner of the files | Test files moved (18 Oct); production set-up at Release B |
 | Release B before going public: test site and test Sheet, fresh production Sheet, lock on sample data, Sheet backup, build-failure email, visitor counts, broken-link check, "Start new Rotary year" | Developer + district | Open |
 | Let search engines in: set the repository variable `HIDE_FROM_SEARCH` to `false` | District | Open (hidden since 17 Oct) |
 | Take down the sample banner: set the repository variable `SAMPLE_DATA` to `false` once the production Sheet holds real data | District | Open (banner on since 18 Oct) |

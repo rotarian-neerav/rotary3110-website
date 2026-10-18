@@ -642,3 +642,112 @@ test('new columns do not inherit the TRUE/FALSE dropdown of the column before th
   env.run('loadSampleData', true);
   assert.ok(env.main.rows('activities').some((a) => /youtu/.test(a.video_link)), 'sample video links loaded');
 });
+
+/* ---------- moderator types, confirmation emails to members, photo consent wording (18 Oct) ---------- */
+
+test('moderators tab: placeholders by type; emails go by type, falling back to the older settings until names are filled in', () => {
+  const rows = env.main.rows('moderators');
+  assert.deepEqual(rows.map((r) => r.type), ['Content', 'Content', 'Members', 'Club engagement', 'District office', 'Administrator']);
+  assert.ok(rows.every((r) => r.email === '' && /Placeholder/.test(r.notes)));
+  env.run('upgradeSheet');
+  assert.equal(env.main.rows('moderators').length, 6, 'placeholders written once');
+  assert.deepEqual(env.main.getSheetByName('moderators').rules.get(1).list, [...env.context.CORE_MODERATOR_TYPES]);
+  // until emails are filled in, the monthly list still goes to the dummy not_posting_emails
+  assert.equal(env.run('moderatorRecipients_', 'Club engagement', 'not_posting_emails'), 'not-posting@example.com');
+  const sh = env.main.getSheetByName('moderators');
+  const fill = (i, email, active = 'TRUE') => { sh.set(i + 2, 3, email); sh.set(i + 2, 4, active); };
+  fill(0, 'Content.One@example.com');
+  fill(1, 'content.two@example.com');
+  fill(2, 'members.one@example.com');
+  fill(3, 'clubs.one@example.com');
+  fill(4, 'office@example.com');
+  assert.equal(env.run('moderatorRecipients_', 'Content'), 'content.one@example.com,content.two@example.com');
+  assert.equal(env.run('moderatorRecipients_', 'Club engagement', 'not_posting_emails'), 'clubs.one@example.com');
+  assert.equal(env.run('moderatorRecipients_', 'District office', 'contact_email'), 'office@example.com');
+  fill(1, 'content.two@example.com', 'FALSE');
+  assert.equal(env.run('moderatorRecipients_', 'Content'), 'content.one@example.com', 'an inactive row gets nothing');
+  // the monthly list, the Sunday message and the Saturday preview follow the types
+  const before = env.mails.length;
+  env.run('notPostingReport');
+  assert.equal(env.mails.at(-1).to, 'clubs.one@example.com');
+  env.run('bulletinMessage', true);
+  assert.equal(env.mails.at(-1).to, 'office@example.com');
+  env.run('bulletinPreview');
+  assert.equal(env.mails.at(-1).to, 'content.one@example.com');
+  assert.equal(env.mails.length - before, 3);
+  // the moderators tab is never sent to the website
+  assert.ok(!JSON.stringify(data()).includes('members.one@example.com'));
+});
+
+test('48-hour reminders: content items to Content moderators, member requests to Members moderators', () => {
+  env.submit('removal', { [Q.rClub]: 'RC Kanpur', [Q.rName]: 'Rtn Late Request', [Q.rMobile]: '9876509999', [Q.rItems]: ['Birthday'] });
+  const sh = env.priv.getSheetByName('removal_requests');
+  const h = sh.data[0];
+  sh.set(sh.getLastRow(), h.indexOf('submitted_at') + 1, '2026-01-01T00:00:00Z');
+  const before = env.mails.length;
+  env.run('dailyJobs');
+  const sent = env.mails.slice(before).filter((m) => /waiting more than 48 hours/.test(m.subject));
+  const members = sent.find((m) => m.body.includes('Rtn Late Request'));
+  assert.equal(members.to, 'members.one@example.com');
+  assert.match(members.body, /Member requests/);
+  assert.ok(sent.filter((m) => m !== members).every((m) => m.to === 'content.one@example.com' && !m.body.includes('removal_requests')));
+  env.run('rejectRequest', 'removal', env.priv.rows('removal_requests').at(-1).id, 'test');
+});
+
+test('Apply moderators: owner only; active moderators edit the main Sheet, Members and Administrator the private one; inactive people lose access', () => {
+  env.setUser('moderator.a@example.com');
+  env.run('applyModerators');
+  assert.match(env.alerts.at(-1), /Only the owner/);
+  env.setUser('rotarian.neerav@gmail.com');
+  env.main.editors.push('helper@example.com', 'content.two@example.com'); // an editor not in the tab, and one now inactive
+  const plan = env.run('applyModerators');
+  assert.deepEqual([...plan.addMain].sort(), ['clubs.one@example.com', 'content.one@example.com', 'members.one@example.com', 'office@example.com']);
+  assert.deepEqual([...plan.removeMain], ['content.two@example.com']);
+  assert.deepEqual([...plan.addPrivate], ['members.one@example.com']);
+  assert.ok(env.main.editors.includes('helper@example.com'), 'people not in the tab are left alone');
+  assert.ok(env.main.editors.includes('rotarian.neerav@gmail.com') && !env.main.editors.includes('content.two@example.com'));
+  assert.deepEqual([...env.priv.editors].sort(), ['members.one@example.com', 'rotarian.neerav@gmail.com']);
+  // moving someone off the Members type removes the private Sheet only
+  env.main.getSheetByName('moderators').set(4, 1, 'Content');
+  const again = env.run('applyModerators');
+  assert.deepEqual([...again.removePrivate], ['members.one@example.com']);
+  assert.deepEqual([...again.removeMain], []);
+  env.run('applyModerators');
+  assert.match(env.alerts.at(-1), /already matches/);
+  env.main.getSheetByName('moderators').set(4, 1, 'Members');
+  env.setUser('moderator.a@example.com');
+});
+
+test('confirmation emails: the sender hears when a listing is approved, details are removed, or a request is turned down', () => {
+  env.submit('consent', consent({ [Q.cClub]: 'RC Agra', [Q.cName]: 'Rtn Confirm Me', [Q.cMemberId]: '5570001', [Q.cMobile]: '9876507001',
+    [Q.cPhoto]: 'No', 'My photo (one photo of me alone, under 1 MB)': undefined }), 'confirm.me@example.com');
+  env.run('approveConsent', pendingId('consent_requests'));
+  const listed = env.mails.at(-1);
+  assert.equal(listed.to, 'confirm.me@example.com');
+  assert.match(listed.subject, /^Listed: Rtn Confirm Me/);
+  assert.match(listed.body, /\/directory\//);
+  assert.match(listed.body, /docs\.google\.com\/forms/, 'with the removal form link');
+
+  env.submit('removal', { [Q.rClub]: 'RC Agra', [Q.rName]: 'Rtn Confirm Me', [Q.rMemberId]: '5570001', [Q.rMobile]: '9876507001', [Q.rItems]: ['Birthday'] }, 'confirm.me@example.com');
+  env.run('approveRemoval', pendingId('removal_requests'));
+  assert.equal(env.mails.at(-1).to, 'confirm.me@example.com');
+  assert.match(env.mails.at(-1).subject, /^Removed: Rtn Confirm Me/);
+  assert.match(env.mails.at(-1).body, /Birthday/);
+
+  env.submit('consent', consent({ [Q.cClub]: 'RC Agra', [Q.cName]: 'Rtn Turned Down', [Q.cMobile]: '9876507002' }), 'turned.down@example.com');
+  env.run('rejectRequest', 'consent', pendingId('consent_requests'), 'The photo shows more than one person');
+  assert.equal(env.mails.at(-1).to, 'turned.down@example.com');
+  assert.match(env.mails.at(-1).body, /Reason: The photo shows more than one person/);
+  assert.ok(!JSON.stringify(data()).includes('confirm.me@example.com'));
+});
+
+test('photo consent: the activity form names children and guardians; Upgrade Sheet updates an older form once', () => {
+  const ids = JSON.parse(env.props.get('FORM_IDS'));
+  const item = env.forms[ids.activity].items.find((i) => i.title === Q.aConsent);
+  assert.deepEqual([...item.choices], [env.context.PHOTO_CONSENT_TEXT]);
+  assert.match(env.context.PHOTO_CONSENT_TEXT, /children, a parent or guardian/);
+  item.choices = ['Everyone in these photos (or their guardian) agreed to them being published.'];
+  assert.ok(env.run('upgradeSheet').some((l) => /photo consent wording/.test(l)));
+  assert.deepEqual([...item.choices], [env.context.PHOTO_CONSENT_TEXT]);
+  assert.ok(!env.run('upgradeSheet').some((l) => /photo consent wording/.test(l)), 'once');
+});

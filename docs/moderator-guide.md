@@ -1,8 +1,26 @@
 # Moderator guide
 
-Four moderators check everything before it appears on the website. Any moderator can approve any club's entry. Target: **within 48 hours**. If something waits longer, all moderators get a reminder email at 7 am.
+Moderators check everything before it appears on the website. Any Content moderator can approve any club's entry. Target: **within 48 hours**. If something waits longer, the moderators of that type get a reminder email at 7 am.
 
-You need edit access to the Sheet **3110Website** (and to the private members Sheet for member requests). The first time you use the **Rotary** menu, Google asks you to allow the script. That is how the Sheet records *who* approved each entry.
+The first time you use the **Rotary** menu, Google asks you to allow the script. That is how the Sheet records *who* approved each entry.
+
+## Types of moderator
+
+The **moderators** tab in the main Sheet lists who does what: one row per person and type (`type`, `name`, `email`, `active`, `from_date`, `notes`). One person may have several rows, for example Content and Club engagement.
+
+| Type | Does | Receives | Access |
+|---|---|---|---|
+| **Content** | Approves or rejects activities, events, club profiles, public services and campaign reports | 48-hour reminders for those; the Saturday bulletin preview | Main Sheet |
+| **Members** | Consent and removal requests, Mark as deceased | 48-hour reminders for member requests | Main Sheet and the private members Sheet |
+| **Club engagement** | Follows up with clubs that are not posting | The monthly clubs-not-posting list | Main Sheet |
+| **District office** | Answers the public | Contact form messages; the Sunday WhatsApp message to forward | Main Sheet |
+| **Administrator** | Yearly update, Upgrade Sheet, settings, sample data | (Build-failure emails, from Release B) | Main Sheet and the private members Sheet |
+
+**When a moderator changes** (only the Sheet's owner can do this):
+1. In the **moderators** tab, set the leaving person's `active` to **FALSE** (keep the row as a record), and add a row for the new person with their Google email and `active` **TRUE**.
+2. **Rotary → Administrator → Apply moderators (Sheet access)…**. It lists who gets access and who loses it, and asks before changing anything. Only people listed in the tab are ever removed; the owner and anyone not in the tab are left alone. Google emails each new moderator a link to the Sheet.
+
+Until a type has a real email, its emails go where they went before: the older settings (`contact_email`, `bulletin_emails`, `not_posting_emails`), then the Content moderators, then `moderator_emails`, then the district account. The placeholder rows (Moderator A–D, District office, Website administrator) are ignored until an email is filled in.
 
 ## Activities and events
 
@@ -11,6 +29,7 @@ You need edit access to the Sheet **3110Website** (and to the private members Sh
    - **Light fixes only:** spelling, trimming length. Edit the cell directly. Do not rewrite the club's story; the original is kept in the `raw_activity_form` tab.
    - Open any **link** the club gave and check it really is the club's own post.
    - Look at the **photos** (the `photo_files` column lists them; they are in your Drive under the form's upload folder). No children's names in the text.
+   - **Photos arrive with consent:** the sender ticks *"Everyone identifiable in these photos agreed to them being published, and for children, a parent or guardian agreed."* (`photo_consent`). Reject photos without that tick.
    - Every activity needs **at least one photo or a link** to the club's post.
 3. Click any cell in the row (or select several rows) → **Rotary → ✔ Approve selected row(s)**. The script fills in `approved_by` and `approved_at` and emails the club.
 4. To refuse: **Rotary → ✖ Reject selected row(s)…** and type the reason. The club gets the reason by email.
@@ -54,7 +73,7 @@ Clubs send one **Public service run by a club** form per facility. New ones appe
 
 ## Contact messages
 
-Messages from the website's contact form go to the private Sheet's **contact_messages** tab and are emailed to `settings → contact_email` (or, while it is blank, to the moderators). Reply to the person directly, then set `status` to **answered**. Messages that look like spam (more than two links, or hardly any words) are kept with status **spam** and not emailed; so are messages beyond `contact_daily_limit` in a day. The reply details are never shown on the website.
+Messages from the website's contact form go to the private Sheet's **contact_messages** tab and are emailed to the **District office** moderators (moderators tab). Reply to the person directly, then set `status` to **answered**. Messages that look like spam (more than two links, or hardly any words) are kept with status **spam** and not emailed; so are messages beyond `contact_daily_limit` in a day. The reply details are never shown on the website.
 
 ## Member requests (consent and removal)
 
@@ -62,7 +81,12 @@ Messages from the website's contact form go to the private Sheet's **contact_mes
 
 - **Consent:** shows the member's choices, any photo, and whether the request matches someone in the private members list. Check the photo shows the member alone and is suitable. Watch for the warnings (declaration not ticked, spouse's agreement missing). Then **Approve** or **Reject**.
 - **Removal:** **Remove now**. Removals must be done **within two days**; the site updates within about 30 minutes, and removed photos are deleted from Drive.
+- **Confirmation emails:** whoever sent the form gets an email when you approve the listing (with the removal form's link), when the details are removed, or when you reject it (with your reason). Write the reason so the member can read it.
 - **Couples waiting:** anniversaries where one Rotarian spouse has not yet sent their own form, or where the two forms give different dates. Ask the club to follow up. For different dates, correct the `anniversary` in the private Sheet's **couples** tab, then set `status` to `active`.
+
+## Professions list
+
+The list grows as members ask. The consent form offers the professions in the **lists** tab (rows with `list` = `profession`) plus **Other**. When members choose Other and name something new, add it to the **lists** tab, then **Rotary → Update form lists**; you can also correct the member's `profession` in **members_master**.
 
 ## When a member or spouse passes away
 
@@ -110,8 +134,8 @@ Then **Rotary → Update form lists**, so the campaign appears on the activity f
 
 Every Sunday the website puts together **"This week in District 3110"** (`…/bulletin/`) from approved data: events in the next 14 days (district events first), registrations closing that week, up to 6 activities approved in the past week (one per club), and campaign totals. Nobody writes it. Past weeks stay at their own address (`…/bulletin/2026-10-18/`).
 
-- **Saturday 6 pm:** the moderators get an email "Tomorrow's bulletin – no action needed" with the WhatsApp message and the row ids chosen. Nothing to do if it looks right. To leave something out, set `bulletin_exclude` to `TRUE` on that row in the **activities** or **events** tab before Sunday 6 am.
-- **Sunday 8 am:** an email "This week's bulletin – please forward to the district groups" goes to `bulletin_emails` (settings tab; the moderators if blank). **Someone forwards that one message to the district WhatsApp groups**; WhatsApp has no free way to post into groups automatically. The email waits until the bulletin page is on the website: if the Sunday update is late, it asks for one and tries again every hour.
+- **Saturday 6 pm:** the Content moderators get an email "Tomorrow's bulletin – no action needed" with the WhatsApp message and the row ids chosen. Nothing to do if it looks right. To leave something out, set `bulletin_exclude` to `TRUE` on that row in the **activities** or **events** tab before Sunday 6 am.
+- **Sunday 8 am:** an email "This week's bulletin – please forward to the district groups" goes to the **District office** moderators. **Someone forwards that one message to the district WhatsApp groups**; WhatsApp has no free way to post into groups automatically. The email waits until the bulletin page is on the website: if the Sunday update is late, it asks for one and tries again every hour.
 - Each bulletin page also has **Copy message** and **Share on WhatsApp** buttons.
 - **Administrator → Send bulletin preview now / Send bulletin message now** send the two emails at any time.
 
@@ -129,7 +153,7 @@ Each month, choose a member who ticked "member spotlight" on the consent form. I
 
 ## Once a month: nudge quiet clubs
 
-On the 1st of each month, an email lists the clubs with no activity dated in the month just ended (to `settings → not_posting_emails`; a dummy address until the district names someone). The **dashboard** tab (refreshed every morning) shows the same, live: `needs_nudge = TRUE` means no activity this month. Send those clubs a friendly reminder with their own form link (the clubs tab's `activity_form_link`, with the club already chosen) and the posting guide (`…/how-to-post/`). Moderators take turns each month. **Rotary → Administrator → Send clubs-not-posting email now** sends the email at any time.
+On the 1st of each month, an email lists the clubs with no activity dated in the month just ended (to the **Club engagement** moderators; until one is named, a dummy address). The **dashboard** tab (refreshed every morning) shows the same, live: `needs_nudge = TRUE` means no activity this month. Send those clubs a friendly reminder with their own form link (the clubs tab's `activity_form_link`, with the club already chosen) and the posting guide (`…/how-to-post/`). The Club engagement moderators decide who follows up which clubs. **Rotary → Administrator → Send clubs-not-posting email now** sends the email at any time.
 
 ## Sharing links in WhatsApp
 

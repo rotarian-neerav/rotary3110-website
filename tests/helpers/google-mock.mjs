@@ -52,6 +52,7 @@ class FakeForm {
       getTitle() { return this.title; },
       setHelpText(h) { this.help = h; return item; },
       setChoiceValues(v) { this.choices = v; return item; },
+      getChoices() { return this.choices.map((v) => ({ getValue: () => v })); },
       setRequired(r) { this.required = r; return item; },
       getType() { return this.type; },
       getIndex() { return form.items.indexOf(item); },
@@ -167,7 +168,10 @@ class FakeSheet {
 }
 
 class FakeSpreadsheet {
-  constructor(id, name) { this.id = id; this.name = name; this.sheets = [new FakeSheet('Sheet1')]; }
+  constructor(id, name) { this.id = id; this.name = name; this.sheets = [new FakeSheet('Sheet1')]; this.editors = ['rotarian.neerav@gmail.com']; }
+  getEditors() { return this.editors.map((e) => ({ getEmail: () => e })); }
+  addEditor(e) { if (!this.editors.includes(e)) this.editors.push(e); return this; }
+  removeEditor(e) { this.editors = this.editors.filter((x) => x !== e); return this; }
   getId() { return this.id; }
   getName() { return this.name; }
   getUrl() { return `https://docs.google.com/spreadsheets/d/${this.id}/edit`; }
@@ -286,6 +290,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
           return { hasNext: () => !done, next: () => { done = true; return where === 'ROOT' ? folder('ROOT', 'My Drive') : folder(where, '3110Website'); } };
         },
         moveTo: (f) => moved.set(id, f.getId()),
+        getOwner: () => ({ getEmail: () => 'rotarian.neerav@gmail.com' }),
         getName: () => (files.get(id)?.name || id),
         getSharingAccess: () => sharing.get(id) || 'ANYONE_WITH_LINK',
         setSharing: (a) => sharing.set(id, a),

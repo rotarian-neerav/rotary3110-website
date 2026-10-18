@@ -13,9 +13,18 @@ function dailyJobs() {
 
 /* ---------- Weekly bulletin emails ---------- */
 
-/** Moderators, or the district account until moderators are named. */
-function moderatorRecipients_(s) {
-  return Core_list(s.moderator_emails).join(',') || Session.getEffectiveUser().getEmail();
+/**
+ * Who gets an email, by moderator type (the moderators tab). If no one of that type is named yet: the older
+ * setting (legacyKey), then the Content moderators, then moderator_emails, then the district account.
+ */
+function moderatorRecipients_(type, legacyKey) {
+  var s = settings_();
+  var rows = mainSs_().getSheetByName('moderators') ? readTab_(mainSs_(), 'moderators') : [];
+  var list = Core_moderatorEmails(rows, type || 'Content');
+  if (!list.length && legacyKey) list = Core_list(s[legacyKey]);
+  if (!list.length && type && type !== 'Content') list = Core_moderatorEmails(rows, 'Content');
+  if (!list.length) list = Core_list(s.moderator_emails);
+  return list.join(',') || Session.getEffectiveUser().getEmail();
 }
 
 /**
@@ -42,8 +51,8 @@ function bulletinPreview() {
     (skipped.length ? '\n\nLeft out of the website because they contain a phone number, email or payment details: ' + skipped.join('; ') : '');
   var subject = new Date(today + 'T00:00:00Z').getUTCDay() === 6 ? "Tomorrow's bulletin – no action needed"
     : 'Bulletin for Sunday ' + Core_dateLabel(sunday) + ' – no action needed';
-  MailApp.sendEmail(moderatorRecipients_(s), subject, body);
-  try { SpreadsheetApp.getUi().alert('Bulletin preview sent to ' + moderatorRecipients_(s) + '.'); } catch (e) { /* timed run */ }
+  MailApp.sendEmail(moderatorRecipients_('Content'), subject, body);
+  try { SpreadsheetApp.getUi().alert('Bulletin preview sent to ' + moderatorRecipients_('Content') + '.'); } catch (e) { /* timed run */ }
 }
 
 /**
@@ -70,7 +79,7 @@ function bulletinMessage(force) {
     return 'waiting for the website';
   }
   var text = Core_bulletinMessage(Core_bulletin(publicData_(), sunday), site);
-  var to = Core_list(s.bulletin_emails).join(',') || moderatorRecipients_(s);
+  var to = moderatorRecipients_('District office', 'bulletin_emails');
   MailApp.sendEmail(to, "This week's bulletin – please forward to the district groups", text +
     (live ? '' : '\n\n(The bulletin page was not on the website yet when this was sent. The link will work once the website has updated.)'));
   props.setProperty('BULLETIN_SENT', sunday);
@@ -87,33 +96,34 @@ function bulletinMessageRetry() {
 /** Menu: send this week's message again now (for example to a new address). */
 function sendBulletinMessageNow() {
   bulletinMessage(true);
-  var s = settings_();
-  try { SpreadsheetApp.getUi().alert("This week's bulletin message was sent to " + (Core_list(s.bulletin_emails).join(',') || moderatorRecipients_(s)) + '.'); } catch (e) { /* editor */ }
+  try { SpreadsheetApp.getUi().alert("This week's bulletin message was sent to " + moderatorRecipients_('District office', 'bulletin_emails') + '.'); } catch (e) { /* editor */ }
 }
 
 function sendReminders_() {
   var now = Date.now();
   var main = mainSs_();
   var ps = privateSs_();
-  var overdue = [];
+  // Content moderators get the activities, events, club profiles and services; Members moderators the member requests
+  var content = [];
   ['activities', 'events', 'club_profile_requests', 'public_services'].forEach(function (t) {
-    Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { overdue.push(t + ': ' + r.id + ' – ' + (r.title || r.name || r.club_name || '')); });
+    Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { content.push(t + ': ' + r.id + ' – ' + (r.title || r.name || r.club_name || '')); });
   });
+  var members = [];
   ['consent_requests', 'removal_requests'].forEach(function (t) {
-    Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { overdue.push(t + ': ' + r.id + ' – ' + r.name); });
+    Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { members.push(t + ': ' + r.id + ' – ' + r.name); });
   });
-  if (!overdue.length) return;
-  var to = Core_list(settings_().moderator_emails).join(',') || Session.getEffectiveUser().getEmail();
-  MailApp.sendEmail(to, 'Rotary 3110 website: ' + overdue.length + ' item(s) waiting more than 48 hours',
-    'These are waiting for a moderator:\n\n' + overdue.join('\n') +
-    '\n\nOpen the Sheet and use the Rotary menu to approve or reject:\n' + main.getUrl() +
-    '\n\nRemoval requests should be handled within two days.');
+  [[content, 'Content', 'Open the Sheet and use the Rotary menu to approve or reject:'],
+    [members, 'Members', 'Open the Sheet and use Rotary → Member requests. Removal requests should be handled within two days:']].forEach(function (job) {
+    if (!job[0].length) return;
+    MailApp.sendEmail(moderatorRecipients_(job[1]), 'Rotary 3110 website: ' + job[0].length + ' item(s) waiting more than 48 hours',
+      'These are waiting for a moderator:\n\n' + job[0].join('\n') + '\n\n' + job[2] + '\n' + main.getUrl());
+  });
 }
 
 /**
  * 1st of each month: a private email listing the active clubs with no activity dated in the month just ended,
  * with each club's last activity, so the district team can follow up. Never shown on the website.
- * Goes to not_posting_emails (a dummy address until the district names someone).
+ * Goes to the Club engagement moderators (until they are named: not_posting_emails, a dummy address).
  */
 function notPostingReport() {
   var s = settings_();
@@ -124,7 +134,7 @@ function notPostingReport() {
   var list = Core_clubsNotPosting(clubs_(), readTab_(mainSs_(), 'activities'), month);
   var names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   var label = names[+month.slice(5) - 1] + ' ' + month.slice(0, 4);
-  var to = Core_list(s.not_posting_emails).join(',') || moderatorRecipients_(s);
+  var to = moderatorRecipients_('Club engagement', 'not_posting_emails');
   var body = list.length
     ? list.length + ' club(s) posted no activity dated in ' + label + ':\n\n' + list.map(function (c) {
       return '• ' + c.club_name + (c.last_activity_date ? ' (last activity ' + Core_dateLabel(c.last_activity_date) + ')' : ' (no activity yet)');
@@ -136,8 +146,7 @@ function notPostingReport() {
 
 function sendNotPostingNow() {
   var n = notPostingReport();
-  var s = settings_();
-  try { SpreadsheetApp.getUi().alert('Sent to ' + (Core_list(s.not_posting_emails).join(',') || moderatorRecipients_(s)) + ': ' + n + ' club(s) listed.'); } catch (e) { /* editor */ }
+  try { SpreadsheetApp.getUi().alert('Sent to ' + moderatorRecipients_('Club engagement', 'not_posting_emails') + ': ' + n + ' club(s) listed.'); } catch (e) { /* editor */ }
 }
 
 /** Per-club activity counts for the monthly nudge and the "half of clubs posting" measure. */

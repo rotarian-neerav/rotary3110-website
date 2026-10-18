@@ -162,13 +162,14 @@ test('services page: approved services only, grouped by type, each with timings,
   const root = dom('services');
   const cards = root.querySelectorAll('.service-card');
   assert.equal(cards.length, (data.public_services || []).length);
+  // Two clubs may send services with the same name (a test entry beside a sample one did), so match on everything shown
+  const fits = (card, x) => card.closest('[data-service-group]').querySelector('h2').text.trim() === x.type &&
+    (x.phone ? card.querySelector('a.service-phone')?.getAttribute('href') === `tel:${x.tel}` : !card.querySelector('a.service-phone')) &&
+    (!x.map_link || !!card.querySelector(`a[href="${x.map_link}"]`));
   for (const x of data.public_services || []) {
-    const card = cards.find((c) => c.querySelector('h3').text.trim() === x.name);
-    assert.ok(card, x.name);
-    assert.equal(card.closest('[data-service-group]').querySelector('h2').text.trim(), x.type);
-    if (x.phone) assert.equal(card.querySelector('a.service-phone').getAttribute('href'), `tel:${x.tel}`);
-    else assert.equal(card.querySelector('a.service-phone'), null);
-    if (x.map_link) assert.ok(card.querySelector(`a[href="${x.map_link}"]`));
+    const named = cards.filter((c) => c.querySelector('h3').text.trim() === x.name);
+    assert.ok(named.length, x.name);
+    assert.ok(named.some((c) => fits(c, x)), `${x.name}: type, phone and map`);
   }
   if (sample) assert.equal(cards.length, 7);
 });

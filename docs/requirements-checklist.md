@@ -131,4 +131,8 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 | L2 | Past District Governors newest last, everywhere | `Core.js`, `lib/derive.mjs` | A: tab and fallback; SA: Leadership and About | ✅ |
 | L3 | Menu of seven: Home, Activities, Events, Clubs, District Leadership, Member Directory, About; Teams, Recognition, Magazine and Messages from the footer and their nearest page | `base.njk`, `activities.njk`, `about.njk` | SA: menu and links | ✅ |
 | L4 | Every page says the data is sample data until production (`SAMPLE_DATA`) | `base.njk`, `build.yml` | SA: banner | ✅ |
-| L5 | New forms moved into the folder that holds the Sheet | `keepInSheetFolder_` | U(sim): all six moved, none twice | 🟡 live after Upgrade Sheet |
+| L5 | New forms moved into the folder that holds the Sheet | `keepInSheetFolder_` | U(sim): all six moved, none twice; live: all six in 3110Website-Testing | ✅ |
+| L6 | Types of moderator in a **moderators** tab (Content, Members, Club engagement, District office, Administrator), placeholders until named; each email goes by type | `moderators` tab, `moderatorRecipients_`, `Core_moderatorEmails` | U(sim): placeholders once, recipients by type, fallbacks, reminders split, never published | 🟡 live after Upgrade Sheet |
+| L7 | Apply moderators: active moderators edit the main Sheet, Members and Administrator the private one; inactive people lose access; owner only, asks first | `applyModerators`, `Core_moderatorAccess` | U(sim): owner only, adds, removes only listed people | 🟡 live after Upgrade Sheet |
+| L8 | Confirmation emails for consent and removal (approved, removed, rejected with reason) | `notifyMember_` | U(sim): three emails, never published | 🟡 live after Upgrade Sheet |
+| L9 | Photo consent names children's parents or guardians; existing form updated | `PHOTO_CONSENT_TEXT`, `addLaterQuestions_` | U(sim): new and older form, once | 🟡 live after Upgrade Sheet |

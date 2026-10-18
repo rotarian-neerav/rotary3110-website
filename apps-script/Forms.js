@@ -184,10 +184,24 @@ function addLaterQuestions_(report) {
     report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
   });
   if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
-  if (ids.activity) FormApp.openById(ids.activity).setDescription(activityDescription_());
+  if (ids.activity) {
+    var activity = FormApp.openById(ids.activity);
+    activity.setDescription(activityDescription_());
+    activity.getItems().forEach(function (it) {
+      if (it.getTitle() !== Q.aConsent) return;
+      var box = it.asCheckboxItem();
+      var now = box.getChoices().map(function (c) { return c.getValue(); });
+      if (now.length !== 1 || now[0] !== PHOTO_CONSENT_TEXT) {
+        box.setChoiceValues([PHOTO_CONSENT_TEXT]);
+        report.push('Updated the photo consent wording on the activity form');
+      }
+    });
+  }
 }
 
 var YES_NO = ['Yes', 'No'];
+// Photos arrive with consent (decided 18 Oct): moderators reject photos sent without this tick
+var PHOTO_CONSENT_TEXT = 'Everyone identifiable in these photos agreed to them being published, and for children, a parent or guardian agreed.';
 var MOBILE_PATTERN = '^(\\+?91[ -]?)?0?[6-9][0-9]{4}[ -]?[0-9]{5}$';
 
 function textRule_(pattern, help) {
@@ -326,8 +340,7 @@ function makeActivityForm_(L) {
   addLaterQuestion_(form, Q.aCampaignCount, L);
   form.addTextItem().setTitle(Q.aSpent).setValidation(numberRule_());
   form.addCheckboxItem().setTitle(Q.aPartners).setChoiceValues(L.clubs);
-  form.addCheckboxItem().setTitle(Q.aConsent).setRequired(true)
-    .setChoiceValues(['Everyone in these photos (or their guardian) agreed to them being published.']);
+  form.addCheckboxItem().setTitle(Q.aConsent).setRequired(true).setChoiceValues([PHOTO_CONSENT_TEXT]);
 
   var eventPage = form.addPageBreakItem().setTitle('About the event');
   form.addTextItem().setTitle(Q.eTitle).setRequired(true)

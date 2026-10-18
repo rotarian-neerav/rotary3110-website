@@ -48,6 +48,16 @@ var CORE_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sa
 // The contact form: at most this many messages are emailed on, per day, unless the setting says otherwise
 var CORE_CONTACT_DAILY_LIMIT = 20;
 
+// Types of moderator (the moderators tab). What each receives is in Core_moderatorEmails' callers; Members and
+// Administrator also get the private members Sheet.
+var CORE_MODERATOR_TYPES = ['Content', 'Members', 'Club engagement', 'District office', 'Administrator'];
+var CORE_PRIVATE_SHEET_TYPES = ['Members', 'Administrator'];
+// Placeholder rows written once into an empty moderators tab; a row without an email is ignored
+var CORE_MODERATOR_PLACEHOLDERS = [
+  ['Content', 'Moderator A'], ['Content', 'Moderator B'], ['Members', 'Moderator C'], ['Club engagement', 'Moderator D'],
+  ['District office', 'District office'], ['Administrator', 'Website administrator'],
+];
+
 function Core_isTrue(v) {
   if (v === true) return true;
   if (v === false || v == null) return false;
@@ -341,6 +351,51 @@ function Core_contactCheck(message) {
  * with the date of their last activity: clubs that have never posted first, then the oldest last activity.
  * For the private monthly email to the district.
  */
+/** A moderators-tab row counts unless active is FALSE; it needs a real email. */
+function Core_moderatorActive(r) {
+  return !(r.active === false || Core_str(r.active).toUpperCase() === 'FALSE') && CORE_EMAIL_RE.test(Core_str(r.email));
+}
+
+/** Emails of the active moderators of one type, each once, lower case. */
+function Core_moderatorEmails(rows, type) {
+  var out = [];
+  (rows || []).forEach(function (r) {
+    var e = Core_str(r.email).toLowerCase();
+    if (Core_str(r.type) === type && Core_moderatorActive(r) && out.indexOf(e) < 0) out.push(e);
+  });
+  return out;
+}
+
+/**
+ * Who should be added to or removed from the two Sheets so access matches the moderators tab. Every active
+ * moderator edits the main Sheet; only Members and Administrator moderators get the private members Sheet.
+ * Only people listed in the tab are ever removed (as inactive, or no longer of a private-Sheet type); the owner
+ * and anyone not in the tab are left alone.
+ */
+function Core_moderatorAccess(rows, owner, mainEditors, privateEditors) {
+  var low = function (list) { return (list || []).map(function (e) { return Core_str(e).toLowerCase(); }).filter(String); };
+  var me = Core_str(owner).toLowerCase();
+  var listed = low((rows || []).map(function (r) { return r.email; }));
+  var wantMain = [];
+  var wantPrivate = [];
+  (rows || []).forEach(function (r) {
+    if (!Core_moderatorActive(r)) return;
+    var e = Core_str(r.email).toLowerCase();
+    if (wantMain.indexOf(e) < 0) wantMain.push(e);
+    if (CORE_PRIVATE_SHEET_TYPES.indexOf(Core_str(r.type)) >= 0 && wantPrivate.indexOf(e) < 0) wantPrivate.push(e);
+  });
+  var plan = function (want, have) {
+    have = low(have);
+    return {
+      add: want.filter(function (e) { return e !== me && have.indexOf(e) < 0; }),
+      remove: have.filter(function (e, i) { return e !== me && have.indexOf(e) === i && listed.indexOf(e) >= 0 && want.indexOf(e) < 0; }),
+    };
+  };
+  var m = plan(wantMain, mainEditors);
+  var p = plan(wantPrivate, privateEditors);
+  return { addMain: m.add, removeMain: m.remove, addPrivate: p.add, removePrivate: p.remove };
+}
+
 function Core_clubsNotPosting(clubs, activities, month) {
   var last = {};
   var posted = {};
@@ -1364,5 +1419,6 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_meetingDay: Core_meetingDay, Core_servicePhone: Core_servicePhone, Core_videoLink: Core_videoLink, Core_clubRef: Core_clubRef,
     Core_contactCheck: Core_contactCheck, Core_clubsNotPosting: Core_clubsNotPosting,
     CORE_AVENUES: CORE_AVENUES, CORE_SERVICE_TYPES: CORE_SERVICE_TYPES, CORE_WEEKDAYS: CORE_WEEKDAYS,
+    CORE_MODERATOR_TYPES: CORE_MODERATOR_TYPES, Core_moderatorEmails: Core_moderatorEmails, Core_moderatorAccess: Core_moderatorAccess,
   };
 }

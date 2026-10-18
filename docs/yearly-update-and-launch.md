@@ -15,7 +15,7 @@
    - **club_history** (private Sheet): one row per member per club, with from and to dates.
 3. Update **settings → current_rotary_year**.
 4. **Rotary → Update form lists** (so the forms show the real clubs).
-5. **settings → bulletin_start_date**: the Sunday of the public launch (e.g. `2026-11-01`). The bulletin archive starts there. Fill in **bulletin_emails** with whoever forwards the Sunday message.
+5. **settings → bulletin_start_date**: the Sunday of the public launch (e.g. `2026-11-01`). The bulletin archive starts there. The Sunday message goes to the **District office** moderators (moderators tab).
 6. **Rotary → Rebuild site now.**
 
 ## Every July (new Rotary year)
@@ -37,12 +37,12 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Item | Who | Status |
 |---|---|---|
 | Named owner for the yearly update, with a backup | District | Open |
-| Real names and Google emails of the four moderators (add them to the Sheet as editors and to `settings → moderator_emails`) | District | Open |
+| Moderators: fill in the **moderators** tab (types Content, Members, Club engagement, District office, Administrator), then **Administrator → Apply moderators**; repeat whenever a moderator changes | District | Placeholders in the Sheet (18 Oct) |
 | Real Rotary club IDs | District | Open (dummy S-001…) |
 | Rotary member IDs for office bearers and district team members | District | Open (temporary T-… IDs) |
 | List the clubs each Assistant Governor looks after (`functionaries → ag_clubs`) | District | Ask at production (sample until then) |
 | Every Past District Governor (`past_governors`), and the RI President's and DG's profiles and photos with permission to use them (`profiles`) | District | Ask at production (sample rows) |
-| The email the contact form forwards to (`settings → contact_email`) and who gets the monthly clubs-not-posting list (`not_posting_emails`) | District | Open (moderators / dummy address) |
+| Contact form messages and the Sunday message go to the **District office** moderators; the monthly clubs-not-posting list to **Club engagement** | District | With the moderators row above |
 | Clubs send their public services (blood banks, eye care…) through the public service form | Clubs | Open |
 | Two role titles from the team Excel contain zone names ("CDS Bareilly Zone", "CDS Kanpur Zone") | District | Kept as they are (decided 18 Oct) |
 | All data in the Sheet today is sample data, the team names included; collect the correct data for production | District | Ask at production |
@@ -50,14 +50,14 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Release B before going public: test site and test Sheet, fresh production Sheet, lock on sample data, Sheet backup, build-failure email, visitor counts, broken-link check, "Start new Rotary year" | Developer + district | Open |
 | Let search engines in: set the repository variable `HIDE_FROM_SEARCH` to `false` | District | Open (hidden since 17 Oct) |
 | Take down the sample banner: set the repository variable `SAMPLE_DATA` to `false` once the production Sheet holds real data | District | Open (banner on since 18 Oct) |
-| Real profession list (`lists` tab and `settings → professions`) | District | Open (placeholder) |
-| Lawyer checks the consent form wording and privacy notice, including spouse consent | District | Open |
-| Decide the photo policy for identifiable children | DG's office | Open |
+| Profession list (`lists` tab): an evolving list; moderators add professions as members ask | Moderators | Ongoing (decided 18 Oct) |
+| Lawyer checks the consent form wording and privacy notice, including spouse consent | District | Go ahead without waiting (decided 18 Oct) |
+| Photo policy for identifiable children | DG's office | Decided 18 Oct: photos arrive with consent (form tick: a parent or guardian agreed for children) |
 | Collect clubs' website and social links through the club profile form | Clubs | Open |
-| DG's office collects leaders' photo consent and photos | DG's office | Open |
+| DG's office collects leaders' photo consent and photos | DG's office | Consent received (18 Oct); photos to be supplied with the real data |
 | Cloudflare account under the district email for visitor statistics | District | Open |
-| Buy the domain and register the site with Google Search Console | District | Open (recommended before public launch) |
-| 2-step verification and recovery details on the district Google and GitHub accounts | District | Open |
-| Replace the sample data with the real data (above) | District + moderators | Open |
-| Name the person who forwards the Sunday bulletin message (`bulletin_emails`) | District | Open |
+| Connect the domain and register the site with Google Search Console | District | Domain bought; connected at the very end |
+| 2-step verification and recovery details on the district Google and GitHub accounts | District | After go-live (decided 18 Oct) |
+| Replace the sample data with the real data (above), including the fuller team Excel | District + moderators | Real data exists; to be supplied at production |
+| Name the person who forwards the Sunday bulletin message (a **District office** moderator) | District | With the moderators row above |
 | Consider a district WhatsApp Channel for the weekly bulletin (one post instead of forwarding to every group) | District | Later |

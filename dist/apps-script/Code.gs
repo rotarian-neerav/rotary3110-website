@@ -202,6 +202,8 @@ var SCHEMA_MAIN = {
   dashboard: ['club_id', 'club_name', 'zone', 'member_count', 'last_activity_date', 'activities_this_month',
     'activities_last_month', 'activities_this_rotary_year', 'months_posted_this_rotary_year', 'needs_nudge'],
   role_checks: ['checked_at', 'tab', 'row', 'rotary_year', 'name', 'member_id', 'problem'],
+  // who moderates, by type: one row per person and type; edit a row when someone changes (never sent to the website)
+  moderators: ['type', 'name', 'email', 'active', 'from_date', 'notes'],
 };
 
 var SCHEMA_PRIVATE = {
@@ -278,6 +280,16 @@ var CORE_SERVICE_TYPES = ['Blood bank', 'Eye care', 'Dialysis', 'Clinic / health
 var CORE_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 // The contact form: at most this many messages are emailed on, per day, unless the setting says otherwise
 var CORE_CONTACT_DAILY_LIMIT = 20;
+
+// Types of moderator (the moderators tab). What each receives is in Core_moderatorEmails' callers; Members and
+// Administrator also get the private members Sheet.
+var CORE_MODERATOR_TYPES = ['Content', 'Members', 'Club engagement', 'District office', 'Administrator'];
+var CORE_PRIVATE_SHEET_TYPES = ['Members', 'Administrator'];
+// Placeholder rows written once into an empty moderators tab; a row without an email is ignored
+var CORE_MODERATOR_PLACEHOLDERS = [
+  ['Content', 'Moderator A'], ['Content', 'Moderator B'], ['Members', 'Moderator C'], ['Club engagement', 'Moderator D'],
+  ['District office', 'District office'], ['Administrator', 'Website administrator'],
+];
 
 function Core_isTrue(v) {
   if (v === true) return true;
@@ -572,6 +584,51 @@ function Core_contactCheck(message) {
  * with the date of their last activity: clubs that have never posted first, then the oldest last activity.
  * For the private monthly email to the district.
  */
+/** A moderators-tab row counts unless active is FALSE; it needs a real email. */
+function Core_moderatorActive(r) {
+  return !(r.active === false || Core_str(r.active).toUpperCase() === 'FALSE') && CORE_EMAIL_RE.test(Core_str(r.email));
+}
+
+/** Emails of the active moderators of one type, each once, lower case. */
+function Core_moderatorEmails(rows, type) {
+  var out = [];
+  (rows || []).forEach(function (r) {
+    var e = Core_str(r.email).toLowerCase();
+    if (Core_str(r.type) === type && Core_moderatorActive(r) && out.indexOf(e) < 0) out.push(e);
+  });
+  return out;
+}
+
+/**
+ * Who should be added to or removed from the two Sheets so access matches the moderators tab. Every active
+ * moderator edits the main Sheet; only Members and Administrator moderators get the private members Sheet.
+ * Only people listed in the tab are ever removed (as inactive, or no longer of a private-Sheet type); the owner
+ * and anyone not in the tab are left alone.
+ */
+function Core_moderatorAccess(rows, owner, mainEditors, privateEditors) {
+  var low = function (list) { return (list || []).map(function (e) { return Core_str(e).toLowerCase(); }).filter(String); };
+  var me = Core_str(owner).toLowerCase();
+  var listed = low((rows || []).map(function (r) { return r.email; }));
+  var wantMain = [];
+  var wantPrivate = [];
+  (rows || []).forEach(function (r) {
+    if (!Core_moderatorActive(r)) return;
+    var e = Core_str(r.email).toLowerCase();
+    if (wantMain.indexOf(e) < 0) wantMain.push(e);
+    if (CORE_PRIVATE_SHEET_TYPES.indexOf(Core_str(r.type)) >= 0 && wantPrivate.indexOf(e) < 0) wantPrivate.push(e);
+  });
+  var plan = function (want, have) {
+    have = low(have);
+    return {
+      add: want.filter(function (e) { return e !== me && have.indexOf(e) < 0; }),
+      remove: have.filter(function (e, i) { return e !== me && have.indexOf(e) === i && listed.indexOf(e) >= 0 && want.indexOf(e) < 0; }),
+    };
+  };
+  var m = plan(wantMain, mainEditors);
+  var p = plan(wantPrivate, privateEditors);
+  return { addMain: m.add, removeMain: m.remove, addPrivate: p.add, removePrivate: p.remove };
+}
+
 function Core_clubsNotPosting(clubs, activities, month) {
   var last = {};
   var posted = {};
@@ -1595,6 +1652,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_meetingDay: Core_meetingDay, Core_servicePhone: Core_servicePhone, Core_videoLink: Core_videoLink, Core_clubRef: Core_clubRef,
     Core_contactCheck: Core_contactCheck, Core_clubsNotPosting: Core_clubsNotPosting,
     CORE_AVENUES: CORE_AVENUES, CORE_SERVICE_TYPES: CORE_SERVICE_TYPES, CORE_WEEKDAYS: CORE_WEEKDAYS,
+    CORE_MODERATOR_TYPES: CORE_MODERATOR_TYPES, Core_moderatorEmails: Core_moderatorEmails, Core_moderatorAccess: Core_moderatorAccess,
   };
 }
 
@@ -1616,6 +1674,7 @@ function setup() {
   tidyBlankRows_(main, report);
   tidyBlankRows_(priv, report);
   ensureSettings_(report);
+  ensureModerators_(report);
   addValidation_(main, priv);
 
   var token = props_().getProperty('DATA_TOKEN');
@@ -1655,6 +1714,7 @@ function upgradeSheet() {
   ensureTabs_(main, SCHEMA_MAIN, report);
   ensureTabs_(privateSs_(), SCHEMA_PRIVATE, report);
   ensureSettings_(report);
+  ensureModerators_(report);
   addValidation_(main, privateSs_());
   ensureLists_(report);
   createForms_(report); // new forms only; existing forms are kept
@@ -1677,7 +1737,7 @@ function ensureLists_(report) {
   if (have.length < CORE_REG_STATUSES.length) report.push('Added the registration status list');
 }
 
-var TEXT_COLUMNS = ['member_id', 'chair_member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
+var TEXT_COLUMNS = ['from_date', 'member_id', 'chair_member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
   'person_b_id', 'spouse_id', 'spouse_member_id', 'matched_member_id', 'public_key', 'club_id', 'rotary_year', 'term', 'issue_month', 'month',
   'phone', 'reply_to'];
 
@@ -1723,7 +1783,7 @@ var DEFAULT_SETTINGS = [
   ['current_rotary_year', '2024-25', 'Rotary year shown for office bearers, teams and committees'],
   ['zones', 'Agra, Bareilly, Kanpur', 'District zones: for the district\'s own use only, never shown on the website'],
   ['professions', '', 'Comma-separated list for the directory; placeholder until the real list is agreed'],
-  ['moderator_emails', '', 'Comma-separated; they receive the 48-hour reminders'],
+  ['moderator_emails', '', 'Older setting: used only while the moderators tab names no Content moderator'],
   ['site_url', 'https://rotarian-neerav.github.io/rotary3110-website/', 'Used in emails to people who send activities'],
   ['form_activity_url', '', 'Filled in by setup'],
   ['form_club_profile_url', '', 'Filled in by setup'],
@@ -1733,23 +1793,37 @@ var DEFAULT_SETTINGS = [
   ['inactive_keys', '', 'Filled in by "Refresh public members"; never edit by hand'],
   ['campaign_check_above', '1000', 'A campaign count above this gets a note for the moderator'],
   ['bulletin_start_date', '', 'A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week\'s bulletin'],
-  ['bulletin_emails', '', 'Comma-separated; they receive the Sunday WhatsApp message to forward. Blank: the moderators'],
+  ['bulletin_emails', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['form_public_service_url', '', 'Filled in by setup'],
   ['form_contact_url', '', 'Filled in by setup; shown inside the website\'s Contact page'],
-  ['contact_email', '', 'Where messages from the website\'s contact form are emailed (never shown on the website). Blank: the moderators'],
+  ['contact_email', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
-  ['not_posting_emails', 'not-posting@example.com', 'Receives the monthly list of clubs that did not post (private). A dummy address until the district names someone'],
+  ['not_posting_emails', 'not-posting@example.com', 'Older setting (a dummy address): used only while the moderators tab names no Club engagement moderator'],
 ];
 
 function ensureSettings_(report) {
   var ss = mainSs_();
-  var have = readTab_(ss, 'settings').map(function (r) { return r.key; });
+  var rows = readTab_(ss, 'settings');
+  var have = rows.map(function (r) { return r.key; });
   DEFAULT_SETTINGS.forEach(function (s) {
-    if (have.indexOf(s[0]) < 0) {
+    var i = have.indexOf(s[0]);
+    if (i < 0) {
       appendRow_(ss, 'settings', { key: s[0], value: s[1], notes: s[2] });
       report.push('Added setting ' + s[0]);
+    } else if (Core_str(rows[i].notes) !== s[2]) {
+      updateRow_(ss, 'settings', rows[i]._row, { notes: s[2] }); // the notes explain the setting; values are never touched
     }
   });
+}
+
+/** An empty moderators tab gets one placeholder row per type, to be filled in with real names and Google emails. */
+function ensureModerators_(report) {
+  var ss = mainSs_();
+  if (readTab_(ss, 'moderators').length) return;
+  CORE_MODERATOR_PLACEHOLDERS.forEach(function (p) {
+    appendRow_(ss, 'moderators', { type: p[0], name: p[1], email: '', active: 'TRUE', notes: 'Placeholder: put the real name and Google email here' });
+  });
+  report.push('Added placeholder moderators (fill in names and emails, then Administrator → Apply moderators)');
 }
 
 function listRule_(values) {
@@ -1758,7 +1832,7 @@ function listRule_(values) {
 
 function addValidation_(main, priv) {
   // Start clean, so a dropdown copied onto the wrong column (see ensureTabs_) is removed; the rules below are put back
-  [[main, ['activities', 'events', 'club_profile_requests', 'public_services', 'clubs']],
+  [[main, ['activities', 'events', 'club_profile_requests', 'public_services', 'clubs', 'moderators']],
     [priv, ['consent_requests', 'removal_requests', 'members_master', 'contact_messages', 'couples']]].forEach(function (pair) {
     pair[1].forEach(function (tab) {
       var sh = pair[0].getSheetByName(tab);
@@ -1781,6 +1855,8 @@ function addValidation_(main, priv) {
   apply(main, 'club_profile_requests', 'meeting_day', listRule_(CORE_WEEKDAYS));
   apply(main, 'events', 'event_type', listRule_(CORE_EVENT_TYPES));
   apply(main, 'clubs', 'status', listRule_(['active', 'inactive']));
+  apply(main, 'moderators', 'type', listRule_(CORE_MODERATOR_TYPES));
+  apply(main, 'moderators', 'active', listRule_(['TRUE', 'FALSE']));
   // A tick-box column would fill every empty row with FALSE, so new rows would land far down the tab.
   // A TRUE/FALSE dropdown leaves empty rows empty.
   apply(main, 'activities', 'story_of_month', listRule_(['TRUE', 'FALSE']));
@@ -2070,10 +2146,24 @@ function addLaterQuestions_(report) {
     report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
   });
   if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
-  if (ids.activity) FormApp.openById(ids.activity).setDescription(activityDescription_());
+  if (ids.activity) {
+    var activity = FormApp.openById(ids.activity);
+    activity.setDescription(activityDescription_());
+    activity.getItems().forEach(function (it) {
+      if (it.getTitle() !== Q.aConsent) return;
+      var box = it.asCheckboxItem();
+      var now = box.getChoices().map(function (c) { return c.getValue(); });
+      if (now.length !== 1 || now[0] !== PHOTO_CONSENT_TEXT) {
+        box.setChoiceValues([PHOTO_CONSENT_TEXT]);
+        report.push('Updated the photo consent wording on the activity form');
+      }
+    });
+  }
 }
 
 var YES_NO = ['Yes', 'No'];
+// Photos arrive with consent (decided 18 Oct): moderators reject photos sent without this tick
+var PHOTO_CONSENT_TEXT = 'Everyone identifiable in these photos agreed to them being published, and for children, a parent or guardian agreed.';
 var MOBILE_PATTERN = '^(\\+?91[ -]?)?0?[6-9][0-9]{4}[ -]?[0-9]{5}$';
 
 function textRule_(pattern, help) {
@@ -2212,8 +2302,7 @@ function makeActivityForm_(L) {
   addLaterQuestion_(form, Q.aCampaignCount, L);
   form.addTextItem().setTitle(Q.aSpent).setValidation(numberRule_());
   form.addCheckboxItem().setTitle(Q.aPartners).setChoiceValues(L.clubs);
-  form.addCheckboxItem().setTitle(Q.aConsent).setRequired(true)
-    .setChoiceValues(['Everyone in these photos (or their guardian) agreed to them being published.']);
+  form.addCheckboxItem().setTitle(Q.aConsent).setRequired(true).setChoiceValues([PHOTO_CONSENT_TEXT]);
 
   var eventPage = form.addPageBreakItem().setTitle('About the event');
   form.addTextItem().setTitle(Q.eTitle).setRequired(true)
@@ -2628,7 +2717,7 @@ function fileContact_(a, meta) {
   var sentToday = readTab_(ps, 'contact_messages').filter(function (m) {
     return Core_str(m.forwarded_to) && Core_isoDate(new Date(m.submitted_at)) === today;
   }).length;
-  var to = Core_list(s.contact_email).join(',') || moderatorRecipients_(s);
+  var to = moderatorRecipients_('District office', 'contact_email');
   var row = {
     id: nextId_(readTab_(ps, 'contact_messages'), 'MSG-'), submitted_at: meta.submitted_at, name: Core_str(a[Q.kName]),
     reply_to: Core_str(a[Q.kReply]), topic: Core_str(a[Q.kTopic]), city: Core_str(a[Q.kCity]), message: message,
@@ -2703,6 +2792,7 @@ function onOpen() {
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Administrator')
       .addItem('Show data link details', 'showDataLink')
       .addItem('Upgrade Sheet (new tabs, columns, questions)', 'upgradeSheet')
+      .addItem('Apply moderators (Sheet access)…', 'applyModerators')
       .addItem('Send bulletin preview now', 'bulletinPreview')
       .addItem('Send bulletin message now', 'sendBulletinMessageNow')
       .addItem('Send clubs-not-posting email now', 'sendNotPostingNow')
@@ -2808,6 +2898,37 @@ function notifySubmitter_(tab, r, approved, reason) {
   } catch (e) {
     Logger.log('Email to ' + to + ' failed: ' + e.message);
   }
+}
+
+/**
+ * Administrator → Apply moderators: gives every active moderator edit access to the main Sheet, and Members and
+ * Administrator moderators the private members Sheet too; removes access from people the tab lists as inactive.
+ * Shows the changes and asks first. Only the owner of the Sheet may run it.
+ */
+function applyModerators() {
+  var ui = SpreadsheetApp.getUi();
+  var main = mainSs_();
+  var priv = privateSs_();
+  var owner = DriveApp.getFileById(main.getId()).getOwner().getEmail();
+  if (Core_str(Session.getActiveUser().getEmail()).toLowerCase() !== Core_str(owner).toLowerCase()) {
+    ui.alert('Only the owner of the Sheet can change who has access.');
+    return;
+  }
+  var emails = function (ss) { return ss.getEditors().map(function (u) { return u.getEmail(); }); };
+  var plan = Core_moderatorAccess(readTab_(main, 'moderators'), owner, emails(main), emails(priv));
+  var lines = [];
+  if (plan.addMain.length) lines.push('Give access to this Sheet: ' + plan.addMain.join(', '));
+  if (plan.removeMain.length) lines.push('Remove access to this Sheet: ' + plan.removeMain.join(', '));
+  if (plan.addPrivate.length) lines.push('Give access to the private members Sheet: ' + plan.addPrivate.join(', '));
+  if (plan.removePrivate.length) lines.push('Remove access to the private members Sheet: ' + plan.removePrivate.join(', '));
+  if (!lines.length) { ui.alert('Access already matches the moderators tab.'); return; }
+  if (ui.alert('Apply moderators', lines.join('\n\n') + '\n\nGo ahead?', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  plan.addMain.forEach(function (e) { main.addEditor(e); });
+  plan.removeMain.forEach(function (e) { main.removeEditor(e); });
+  plan.addPrivate.forEach(function (e) { priv.addEditor(e); });
+  plan.removePrivate.forEach(function (e) { priv.removeEditor(e); });
+  ui.alert('Done. Google emails each new moderator a link to the Sheet.');
+  return plan;
 }
 
 /** Asks the website to rebuild within about 30 minutes, instead of waiting for Sunday. */
@@ -2981,6 +3102,9 @@ function approveConsent(requestId) {
 
     updateRow_(ps, 'consent_requests', req._row, { status: 'approved', matched_member_id: member.member_id, approved_by: who, approved_at: nowIso_() });
     refreshPublicMembers(true);
+    notifyMember_(req, 'Listed: ' + member.name, 'Thank you. The listing for ' + member.name + ' on the Rotary District 3110 website has been approved, ' +
+      'with only the details that were ticked on the form.\n\nIt will appear at the next website update (every Sunday):\n' + siteUrl_() + 'directory/' +
+      removalLine_());
     return 'Approved ' + requestId + ' for ' + member.name;
   } finally {
     lock.releaseLock();
@@ -3131,6 +3255,9 @@ function approveRemoval(requestId) {
     updateRow_(ps, 'removal_requests', req._row, { status: 'approved', matched_member_id: m.member_id, approved_by: moderatorEmail_(), approved_at: nowIso_() });
     refreshPublicMembers(true);
     setSetting_('rebuild_requested_at', nowIso_()); // removals should not wait for Sunday
+    notifyMember_(req, 'Removed: ' + m.name, 'The details you asked us to remove for ' + m.name + ' (' + Core_str(req.remove_items) + ') have been removed ' +
+      'from the Rotary District 3110 website records.\n\nThe website updates within about 30 minutes. Search engines may take a few days ' +
+      'longer to forget a page they had already seen.');
     return 'Removed for ' + m.name + '. The website updates within about 30 minutes.';
   } finally {
     lock.releaseLock();
@@ -3144,7 +3271,30 @@ function rejectRequest(kind, requestId, reason) {
   var req = readTab_(ps, tab).filter(function (r) { return r.id === requestId; })[0];
   if (!req) throw new Error('Request not found');
   updateRow_(ps, tab, req._row, { status: 'rejected', moderator_note: reason || '', approved_by: moderatorEmail_(), approved_at: nowIso_() });
+  var what = kind === 'removal' ? 'request to remove details for ' + req.name : 'consent form for ' + req.name;
+  notifyMember_(req, 'Not done yet: ' + what, 'Thank you for sending the ' + what + '. A district moderator could not act on it this time.' +
+    (Core_str(reason) ? '\n\nReason: ' + reason : '') + '\n\nYou are welcome to send the form again with the changes.');
   return 'Rejected ' + requestId;
+}
+
+/** Confirmation email to whoever sent the consent or removal form (sample rows and forms without an email are skipped). */
+function notifyMember_(req, subject, body) {
+  var to = Core_str(req.submitter_email);
+  if (!to || Core_isTrue(req.is_sample)) return;
+  try {
+    MailApp.sendEmail(to, subject, body + '\n\nRotary District 3110');
+  } catch (e) {
+    Logger.log('Email to ' + to + ' failed: ' + e.message);
+  }
+}
+
+function siteUrl_() {
+  return Core_str(settings_().site_url).replace(/\/?$/, '/');
+}
+
+function removalLine_() {
+  var form = Core_str(settings_().form_removal_url);
+  return '\n\nTo change or remove these details at any time, use this form' + (form ? ':\n' + form : ' (linked from the website\'s Privacy page).');
 }
 
 /** Menu: stops all greetings for a person who has passed away, immediately. Their roles stay on record. */
@@ -3302,9 +3452,18 @@ function dailyJobs() {
 
 /* ---------- Weekly bulletin emails ---------- */
 
-/** Moderators, or the district account until moderators are named. */
-function moderatorRecipients_(s) {
-  return Core_list(s.moderator_emails).join(',') || Session.getEffectiveUser().getEmail();
+/**
+ * Who gets an email, by moderator type (the moderators tab). If no one of that type is named yet: the older
+ * setting (legacyKey), then the Content moderators, then moderator_emails, then the district account.
+ */
+function moderatorRecipients_(type, legacyKey) {
+  var s = settings_();
+  var rows = mainSs_().getSheetByName('moderators') ? readTab_(mainSs_(), 'moderators') : [];
+  var list = Core_moderatorEmails(rows, type || 'Content');
+  if (!list.length && legacyKey) list = Core_list(s[legacyKey]);
+  if (!list.length && type && type !== 'Content') list = Core_moderatorEmails(rows, 'Content');
+  if (!list.length) list = Core_list(s.moderator_emails);
+  return list.join(',') || Session.getEffectiveUser().getEmail();
 }
 
 /**
@@ -3331,8 +3490,8 @@ function bulletinPreview() {
     (skipped.length ? '\n\nLeft out of the website because they contain a phone number, email or payment details: ' + skipped.join('; ') : '');
   var subject = new Date(today + 'T00:00:00Z').getUTCDay() === 6 ? "Tomorrow's bulletin – no action needed"
     : 'Bulletin for Sunday ' + Core_dateLabel(sunday) + ' – no action needed';
-  MailApp.sendEmail(moderatorRecipients_(s), subject, body);
-  try { SpreadsheetApp.getUi().alert('Bulletin preview sent to ' + moderatorRecipients_(s) + '.'); } catch (e) { /* timed run */ }
+  MailApp.sendEmail(moderatorRecipients_('Content'), subject, body);
+  try { SpreadsheetApp.getUi().alert('Bulletin preview sent to ' + moderatorRecipients_('Content') + '.'); } catch (e) { /* timed run */ }
 }
 
 /**
@@ -3359,7 +3518,7 @@ function bulletinMessage(force) {
     return 'waiting for the website';
   }
   var text = Core_bulletinMessage(Core_bulletin(publicData_(), sunday), site);
-  var to = Core_list(s.bulletin_emails).join(',') || moderatorRecipients_(s);
+  var to = moderatorRecipients_('District office', 'bulletin_emails');
   MailApp.sendEmail(to, "This week's bulletin – please forward to the district groups", text +
     (live ? '' : '\n\n(The bulletin page was not on the website yet when this was sent. The link will work once the website has updated.)'));
   props.setProperty('BULLETIN_SENT', sunday);
@@ -3376,33 +3535,34 @@ function bulletinMessageRetry() {
 /** Menu: send this week's message again now (for example to a new address). */
 function sendBulletinMessageNow() {
   bulletinMessage(true);
-  var s = settings_();
-  try { SpreadsheetApp.getUi().alert("This week's bulletin message was sent to " + (Core_list(s.bulletin_emails).join(',') || moderatorRecipients_(s)) + '.'); } catch (e) { /* editor */ }
+  try { SpreadsheetApp.getUi().alert("This week's bulletin message was sent to " + moderatorRecipients_('District office', 'bulletin_emails') + '.'); } catch (e) { /* editor */ }
 }
 
 function sendReminders_() {
   var now = Date.now();
   var main = mainSs_();
   var ps = privateSs_();
-  var overdue = [];
+  // Content moderators get the activities, events, club profiles and services; Members moderators the member requests
+  var content = [];
   ['activities', 'events', 'club_profile_requests', 'public_services'].forEach(function (t) {
-    Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { overdue.push(t + ': ' + r.id + ' – ' + (r.title || r.name || r.club_name || '')); });
+    Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { content.push(t + ': ' + r.id + ' – ' + (r.title || r.name || r.club_name || '')); });
   });
+  var members = [];
   ['consent_requests', 'removal_requests'].forEach(function (t) {
-    Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { overdue.push(t + ': ' + r.id + ' – ' + r.name); });
+    Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { members.push(t + ': ' + r.id + ' – ' + r.name); });
   });
-  if (!overdue.length) return;
-  var to = Core_list(settings_().moderator_emails).join(',') || Session.getEffectiveUser().getEmail();
-  MailApp.sendEmail(to, 'Rotary 3110 website: ' + overdue.length + ' item(s) waiting more than 48 hours',
-    'These are waiting for a moderator:\n\n' + overdue.join('\n') +
-    '\n\nOpen the Sheet and use the Rotary menu to approve or reject:\n' + main.getUrl() +
-    '\n\nRemoval requests should be handled within two days.');
+  [[content, 'Content', 'Open the Sheet and use the Rotary menu to approve or reject:'],
+    [members, 'Members', 'Open the Sheet and use Rotary → Member requests. Removal requests should be handled within two days:']].forEach(function (job) {
+    if (!job[0].length) return;
+    MailApp.sendEmail(moderatorRecipients_(job[1]), 'Rotary 3110 website: ' + job[0].length + ' item(s) waiting more than 48 hours',
+      'These are waiting for a moderator:\n\n' + job[0].join('\n') + '\n\n' + job[2] + '\n' + main.getUrl());
+  });
 }
 
 /**
  * 1st of each month: a private email listing the active clubs with no activity dated in the month just ended,
  * with each club's last activity, so the district team can follow up. Never shown on the website.
- * Goes to not_posting_emails (a dummy address until the district names someone).
+ * Goes to the Club engagement moderators (until they are named: not_posting_emails, a dummy address).
  */
 function notPostingReport() {
   var s = settings_();
@@ -3413,7 +3573,7 @@ function notPostingReport() {
   var list = Core_clubsNotPosting(clubs_(), readTab_(mainSs_(), 'activities'), month);
   var names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   var label = names[+month.slice(5) - 1] + ' ' + month.slice(0, 4);
-  var to = Core_list(s.not_posting_emails).join(',') || moderatorRecipients_(s);
+  var to = moderatorRecipients_('Club engagement', 'not_posting_emails');
   var body = list.length
     ? list.length + ' club(s) posted no activity dated in ' + label + ':\n\n' + list.map(function (c) {
       return '• ' + c.club_name + (c.last_activity_date ? ' (last activity ' + Core_dateLabel(c.last_activity_date) + ')' : ' (no activity yet)');
@@ -3425,8 +3585,7 @@ function notPostingReport() {
 
 function sendNotPostingNow() {
   var n = notPostingReport();
-  var s = settings_();
-  try { SpreadsheetApp.getUi().alert('Sent to ' + (Core_list(s.not_posting_emails).join(',') || moderatorRecipients_(s)) + ': ' + n + ' club(s) listed.'); } catch (e) { /* editor */ }
+  try { SpreadsheetApp.getUi().alert('Sent to ' + moderatorRecipients_('Club engagement', 'not_posting_emails') + ': ' + n + ' club(s) listed.'); } catch (e) { /* editor */ }
 }
 
 /** Per-club activity counts for the monthly nudge and the "half of clubs posting" measure. */

@@ -145,6 +145,9 @@ function approveConsent(requestId) {
 
     updateRow_(ps, 'consent_requests', req._row, { status: 'approved', matched_member_id: member.member_id, approved_by: who, approved_at: nowIso_() });
     refreshPublicMembers(true);
+    notifyMember_(req, 'Listed: ' + member.name, 'Thank you. The listing for ' + member.name + ' on the Rotary District 3110 website has been approved, ' +
+      'with only the details that were ticked on the form.\n\nIt will appear at the next website update (every Sunday):\n' + siteUrl_() + 'directory/' +
+      removalLine_());
     return 'Approved ' + requestId + ' for ' + member.name;
   } finally {
     lock.releaseLock();
@@ -295,6 +298,9 @@ function approveRemoval(requestId) {
     updateRow_(ps, 'removal_requests', req._row, { status: 'approved', matched_member_id: m.member_id, approved_by: moderatorEmail_(), approved_at: nowIso_() });
     refreshPublicMembers(true);
     setSetting_('rebuild_requested_at', nowIso_()); // removals should not wait for Sunday
+    notifyMember_(req, 'Removed: ' + m.name, 'The details you asked us to remove for ' + m.name + ' (' + Core_str(req.remove_items) + ') have been removed ' +
+      'from the Rotary District 3110 website records.\n\nThe website updates within about 30 minutes. Search engines may take a few days ' +
+      'longer to forget a page they had already seen.');
     return 'Removed for ' + m.name + '. The website updates within about 30 minutes.';
   } finally {
     lock.releaseLock();
@@ -308,7 +314,30 @@ function rejectRequest(kind, requestId, reason) {
   var req = readTab_(ps, tab).filter(function (r) { return r.id === requestId; })[0];
   if (!req) throw new Error('Request not found');
   updateRow_(ps, tab, req._row, { status: 'rejected', moderator_note: reason || '', approved_by: moderatorEmail_(), approved_at: nowIso_() });
+  var what = kind === 'removal' ? 'request to remove details for ' + req.name : 'consent form for ' + req.name;
+  notifyMember_(req, 'Not done yet: ' + what, 'Thank you for sending the ' + what + '. A district moderator could not act on it this time.' +
+    (Core_str(reason) ? '\n\nReason: ' + reason : '') + '\n\nYou are welcome to send the form again with the changes.');
   return 'Rejected ' + requestId;
+}
+
+/** Confirmation email to whoever sent the consent or removal form (sample rows and forms without an email are skipped). */
+function notifyMember_(req, subject, body) {
+  var to = Core_str(req.submitter_email);
+  if (!to || Core_isTrue(req.is_sample)) return;
+  try {
+    MailApp.sendEmail(to, subject, body + '\n\nRotary District 3110');
+  } catch (e) {
+    Logger.log('Email to ' + to + ' failed: ' + e.message);
+  }
+}
+
+function siteUrl_() {
+  return Core_str(settings_().site_url).replace(/\/?$/, '/');
+}
+
+function removalLine_() {
+  var form = Core_str(settings_().form_removal_url);
+  return '\n\nTo change or remove these details at any time, use this form' + (form ? ':\n' + form : ' (linked from the website\'s Privacy page).');
 }
 
 /** Menu: stops all greetings for a person who has passed away, immediately. Their roles stay on record. */

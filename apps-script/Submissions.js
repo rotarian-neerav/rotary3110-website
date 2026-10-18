@@ -199,7 +199,7 @@ function fileContact_(a, meta) {
   var sentToday = readTab_(ps, 'contact_messages').filter(function (m) {
     return Core_str(m.forwarded_to) && Core_isoDate(new Date(m.submitted_at)) === today;
   }).length;
-  var to = Core_list(s.contact_email).join(',') || moderatorRecipients_(s);
+  var to = moderatorRecipients_('District office', 'contact_email');
   var row = {
     id: nextId_(readTab_(ps, 'contact_messages'), 'MSG-'), submitted_at: meta.submitted_at, name: Core_str(a[Q.kName]),
     reply_to: Core_str(a[Q.kReply]), topic: Core_str(a[Q.kTopic]), city: Core_str(a[Q.kCity]), message: message,

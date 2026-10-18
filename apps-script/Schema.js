@@ -46,6 +46,8 @@ var SCHEMA_MAIN = {
   dashboard: ['club_id', 'club_name', 'zone', 'member_count', 'last_activity_date', 'activities_this_month',
     'activities_last_month', 'activities_this_rotary_year', 'months_posted_this_rotary_year', 'needs_nudge'],
   role_checks: ['checked_at', 'tab', 'row', 'rotary_year', 'name', 'member_id', 'problem'],
+  // who moderates, by type: one row per person and type; edit a row when someone changes (never sent to the website)
+  moderators: ['type', 'name', 'email', 'active', 'from_date', 'notes'],
 };
 
 var SCHEMA_PRIVATE = {

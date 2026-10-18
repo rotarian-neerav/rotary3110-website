@@ -22,6 +22,7 @@ function onOpen() {
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Administrator')
       .addItem('Show data link details', 'showDataLink')
       .addItem('Upgrade Sheet (new tabs, columns, questions)', 'upgradeSheet')
+      .addItem('Apply moderators (Sheet access)…', 'applyModerators')
       .addItem('Send bulletin preview now', 'bulletinPreview')
       .addItem('Send bulletin message now', 'sendBulletinMessageNow')
       .addItem('Send clubs-not-posting email now', 'sendNotPostingNow')
@@ -127,6 +128,37 @@ function notifySubmitter_(tab, r, approved, reason) {
   } catch (e) {
     Logger.log('Email to ' + to + ' failed: ' + e.message);
   }
+}
+
+/**
+ * Administrator → Apply moderators: gives every active moderator edit access to the main Sheet, and Members and
+ * Administrator moderators the private members Sheet too; removes access from people the tab lists as inactive.
+ * Shows the changes and asks first. Only the owner of the Sheet may run it.
+ */
+function applyModerators() {
+  var ui = SpreadsheetApp.getUi();
+  var main = mainSs_();
+  var priv = privateSs_();
+  var owner = DriveApp.getFileById(main.getId()).getOwner().getEmail();
+  if (Core_str(Session.getActiveUser().getEmail()).toLowerCase() !== Core_str(owner).toLowerCase()) {
+    ui.alert('Only the owner of the Sheet can change who has access.');
+    return;
+  }
+  var emails = function (ss) { return ss.getEditors().map(function (u) { return u.getEmail(); }); };
+  var plan = Core_moderatorAccess(readTab_(main, 'moderators'), owner, emails(main), emails(priv));
+  var lines = [];
+  if (plan.addMain.length) lines.push('Give access to this Sheet: ' + plan.addMain.join(', '));
+  if (plan.removeMain.length) lines.push('Remove access to this Sheet: ' + plan.removeMain.join(', '));
+  if (plan.addPrivate.length) lines.push('Give access to the private members Sheet: ' + plan.addPrivate.join(', '));
+  if (plan.removePrivate.length) lines.push('Remove access to the private members Sheet: ' + plan.removePrivate.join(', '));
+  if (!lines.length) { ui.alert('Access already matches the moderators tab.'); return; }
+  if (ui.alert('Apply moderators', lines.join('\n\n') + '\n\nGo ahead?', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  plan.addMain.forEach(function (e) { main.addEditor(e); });
+  plan.removeMain.forEach(function (e) { main.removeEditor(e); });
+  plan.addPrivate.forEach(function (e) { priv.addEditor(e); });
+  plan.removePrivate.forEach(function (e) { priv.removeEditor(e); });
+  ui.alert('Done. Google emails each new moderator a link to the Sheet.');
+  return plan;
 }
 
 /** Asks the website to rebuild within about 30 minutes, instead of waiting for Sunday. */

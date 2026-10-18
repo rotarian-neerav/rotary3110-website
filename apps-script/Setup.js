@@ -14,6 +14,7 @@ function setup() {
   tidyBlankRows_(main, report);
   tidyBlankRows_(priv, report);
   ensureSettings_(report);
+  ensureModerators_(report);
   addValidation_(main, priv);
 
   var token = props_().getProperty('DATA_TOKEN');
@@ -53,6 +54,7 @@ function upgradeSheet() {
   ensureTabs_(main, SCHEMA_MAIN, report);
   ensureTabs_(privateSs_(), SCHEMA_PRIVATE, report);
   ensureSettings_(report);
+  ensureModerators_(report);
   addValidation_(main, privateSs_());
   ensureLists_(report);
   createForms_(report); // new forms only; existing forms are kept
@@ -75,7 +77,7 @@ function ensureLists_(report) {
   if (have.length < CORE_REG_STATUSES.length) report.push('Added the registration status list');
 }
 
-var TEXT_COLUMNS = ['member_id', 'chair_member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
+var TEXT_COLUMNS = ['from_date', 'member_id', 'chair_member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
   'person_b_id', 'spouse_id', 'spouse_member_id', 'matched_member_id', 'public_key', 'club_id', 'rotary_year', 'term', 'issue_month', 'month',
   'phone', 'reply_to'];
 
@@ -121,7 +123,7 @@ var DEFAULT_SETTINGS = [
   ['current_rotary_year', '2024-25', 'Rotary year shown for office bearers, teams and committees'],
   ['zones', 'Agra, Bareilly, Kanpur', 'District zones: for the district\'s own use only, never shown on the website'],
   ['professions', '', 'Comma-separated list for the directory; placeholder until the real list is agreed'],
-  ['moderator_emails', '', 'Comma-separated; they receive the 48-hour reminders'],
+  ['moderator_emails', '', 'Older setting: used only while the moderators tab names no Content moderator'],
   ['site_url', 'https://rotarian-neerav.github.io/rotary3110-website/', 'Used in emails to people who send activities'],
   ['form_activity_url', '', 'Filled in by setup'],
   ['form_club_profile_url', '', 'Filled in by setup'],
@@ -131,23 +133,37 @@ var DEFAULT_SETTINGS = [
   ['inactive_keys', '', 'Filled in by "Refresh public members"; never edit by hand'],
   ['campaign_check_above', '1000', 'A campaign count above this gets a note for the moderator'],
   ['bulletin_start_date', '', 'A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week\'s bulletin'],
-  ['bulletin_emails', '', 'Comma-separated; they receive the Sunday WhatsApp message to forward. Blank: the moderators'],
+  ['bulletin_emails', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['form_public_service_url', '', 'Filled in by setup'],
   ['form_contact_url', '', 'Filled in by setup; shown inside the website\'s Contact page'],
-  ['contact_email', '', 'Where messages from the website\'s contact form are emailed (never shown on the website). Blank: the moderators'],
+  ['contact_email', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
-  ['not_posting_emails', 'not-posting@example.com', 'Receives the monthly list of clubs that did not post (private). A dummy address until the district names someone'],
+  ['not_posting_emails', 'not-posting@example.com', 'Older setting (a dummy address): used only while the moderators tab names no Club engagement moderator'],
 ];
 
 function ensureSettings_(report) {
   var ss = mainSs_();
-  var have = readTab_(ss, 'settings').map(function (r) { return r.key; });
+  var rows = readTab_(ss, 'settings');
+  var have = rows.map(function (r) { return r.key; });
   DEFAULT_SETTINGS.forEach(function (s) {
-    if (have.indexOf(s[0]) < 0) {
+    var i = have.indexOf(s[0]);
+    if (i < 0) {
       appendRow_(ss, 'settings', { key: s[0], value: s[1], notes: s[2] });
       report.push('Added setting ' + s[0]);
+    } else if (Core_str(rows[i].notes) !== s[2]) {
+      updateRow_(ss, 'settings', rows[i]._row, { notes: s[2] }); // the notes explain the setting; values are never touched
     }
   });
+}
+
+/** An empty moderators tab gets one placeholder row per type, to be filled in with real names and Google emails. */
+function ensureModerators_(report) {
+  var ss = mainSs_();
+  if (readTab_(ss, 'moderators').length) return;
+  CORE_MODERATOR_PLACEHOLDERS.forEach(function (p) {
+    appendRow_(ss, 'moderators', { type: p[0], name: p[1], email: '', active: 'TRUE', notes: 'Placeholder: put the real name and Google email here' });
+  });
+  report.push('Added placeholder moderators (fill in names and emails, then Administrator → Apply moderators)');
 }
 
 function listRule_(values) {
@@ -156,7 +172,7 @@ function listRule_(values) {
 
 function addValidation_(main, priv) {
   // Start clean, so a dropdown copied onto the wrong column (see ensureTabs_) is removed; the rules below are put back
-  [[main, ['activities', 'events', 'club_profile_requests', 'public_services', 'clubs']],
+  [[main, ['activities', 'events', 'club_profile_requests', 'public_services', 'clubs', 'moderators']],
     [priv, ['consent_requests', 'removal_requests', 'members_master', 'contact_messages', 'couples']]].forEach(function (pair) {
     pair[1].forEach(function (tab) {
       var sh = pair[0].getSheetByName(tab);
@@ -179,6 +195,8 @@ function addValidation_(main, priv) {
   apply(main, 'club_profile_requests', 'meeting_day', listRule_(CORE_WEEKDAYS));
   apply(main, 'events', 'event_type', listRule_(CORE_EVENT_TYPES));
   apply(main, 'clubs', 'status', listRule_(['active', 'inactive']));
+  apply(main, 'moderators', 'type', listRule_(CORE_MODERATOR_TYPES));
+  apply(main, 'moderators', 'active', listRule_(['TRUE', 'FALSE']));
   // A tick-box column would fill every empty row with FALSE, so new rows would land far down the tab.
   // A TRUE/FALSE dropdown leaves empty rows empty.
   apply(main, 'activities', 'story_of_month', listRule_(['TRUE', 'FALSE']));

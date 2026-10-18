@@ -75,3 +75,18 @@ The **Release A** upgrade (17 October 2026) adds:
 - questions *Avenue of Service* (required), *Video link*, three *Covered in the press* questions and *Open to everyone?* (activity and event form), and *Meeting day* (club profile form). The activity form's description now links to the posting guide;
 - each club's own activity-form link with the club already chosen, in the clubs tab's `activity_form_link` column (refreshed with the form lists; never published);
 - the monthly clubs-not-posting email on the 1st at 9 am.
+
+The **18 October** upgrade adds:
+- the **moderators** tab (main Sheet, never sent to the website) with placeholder rows, one per type of moderator (see the moderator guide);
+- **Rotary → Administrator → Apply moderators (Sheet access)…**;
+- confirmation emails to whoever sent a consent or removal form;
+- clearer photo consent wording on the activity form (children: a parent or guardian agreed);
+- new notes on the older settings `moderator_emails`, `contact_email`, `bulletin_emails` and `not_posting_emails`: they are used only while the moderators tab names no one of that type.
+
+## 6. Name the moderators
+
+1. Open the **moderators** tab (main Sheet). Each row is one person in one type: **Content**, **Members**, **Club engagement**, **District office** or **Administrator**. Put the real name and Google email over a placeholder, and keep `active` = **TRUE**. Add rows for more people (one person can have several rows).
+   - The **District office** row is where contact form messages are emailed (this replaces the older `contact_email` setting in the **settings** tab) and who gets the Sunday WhatsApp message.
+   - **Club engagement** gets the monthly clubs-not-posting list.
+2. **Rotary → Administrator → Apply moderators (Sheet access)…** (as the Sheet's owner): it shows who will get access to the Sheet (and, for Members and Administrator, the private members Sheet) and asks before doing it.
+3. When someone stops, set their `active` to **FALSE** and run **Apply moderators** again.

@@ -30,8 +30,8 @@ Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (
 | 17 | §2 | Privacy notice page | `privacy.njk` | browser | ✅ (wording ⏳ lawyer) |
 | 18 | §3 | No Join Rotary, no Rotary India/My Rotary links, no logins, payments, prices or ads | Not built; no such links | Code review | ✅ |
 | 19 | §3 | No phone numbers/emails/member IDs on the site except agreed WhatsApp buttons | Core privacy check; build stops | U: guard tests; S: scan of every built file | ✅ |
-| 20 | §4 | Activity/event form with all listed questions, club from a list, photos < 1 MB, sign-in | Sheet script `Forms.js` + photo question by hand | U(sim): submission flows | 🟡 |
-| 21 | §4 | Club profile form; updates apply after approval | `Forms.js`, `applyClubProfile_` | U(sim): club profile | 🟡 |
+| 20 | §4 | Activity/event form with all listed questions, club from a list, photos < 1 MB, sign-in | Sheet script `Forms.js` + photo question by hand | U(sim): submission flows | ✅ live 18 Oct (photo question still by hand) |
+| 21 | §4 | Club profile form; updates apply after approval | `Forms.js`, `applyClubProfile_` | U(sim): club profile | ✅ live 18 Oct |
 | 22 | §4 | Consent form (member or secretary), separate ticks, day/month only, spouse handling, optional member ID | `Forms.js`, `Members.js` | U(sim): consent tests | 🟡 |
 | 23 | §4 | Removal form; either spouse can withdraw shared items; photos deleted | `approveRemoval` | U(sim): removal | 🟡 |
 | 24 | §4 | Everything pending until a moderator approves; who and when recorded | Status column, Rotary menu | U(sim): approve stamps who/when; S: no pending entries anywhere | 🟡 |
@@ -82,7 +82,7 @@ M = `tests/unit/modifications1.test.mjs`. Ten deliberate mistakes (ignoring `bul
 | M1.1 | Club profile form asks for permanent projects and regular services, one per line | Two questions before Confirmation (new forms and, through Upgrade Sheet, the existing form) | U(sim): questions added once, in place | 🟡 live after the upgrade |
 | M1.2 | Approval replaces the lists; blank keeps them; "none" clears them; notes for phone numbers, emails and long lines | `applyClubProfile_`, `fileClubProfile_` | U(sim): blank, none, replace, notes | 🟡 live after the upgrade |
 | M1.3 | Club page shows services and projects between office bearers and activities; clubs list shows counts; lines with a phone number or email are dropped without stopping the build | `Core_cleanLines`, `club.njk`, `clubs.njk` | M: cleaning, 160 characters, 12 lines; S: club pages; sample includes a phone line, listed in `skipped_items` | ✅ |
-| M2.1 | Moderators list campaigns in a `campaigns` tab; the activity form offers open campaigns (until 30 days after the end) and a count | Campaign questions, `Core_openCampaigns`, daily form-list refresh | M: label round trip, 30-day rule; U(sim): dropdown | 🟡 live after the upgrade |
+| M2.1 | Moderators list campaigns in a `campaigns` tab; the activity form offers open campaigns (until 30 days after the end) and a count | Campaign questions, `Core_openCampaigns`, daily form-list refresh | M: label round trip, 30-day rule; U(sim): dropdown | ✅ live 18 Oct (test campaign) |
 | M2.2 | Filing notes: count without campaign, date outside the campaign, large count, another club the same date | `campaignNotes_` | U(sim): each note | 🟡 live after the upgrade |
 | M2.3 | Running totals: approved reports only; work dated inside the campaign only (agreed correction); joint activities count for the submitting club only; a report without a count adds 0 | `Core_campaignTotals` | M: 204 + 22 + 65 = 291, partners no credit, pending/rejected/out-of-period excluded | ✅ |
 | M2.4 | Campaign pages by Rotary year; home band while running; tag on activities; line on club pages; chair links to their card; nothing when there are no campaigns | `campaigns.njk`, `campaign.njk`, `index.njk` | M: no campaigns → nothing; S: totals, home band, tags | ✅ |
@@ -94,7 +94,7 @@ M = `tests/unit/modifications1.test.mjs`. Ten deliberate mistakes (ignoring `bul
 | M3.6 | Saturday 6 pm preview to moderators; Sunday 8 am message to `bulletin_emails`, sent once the page is live (agreed correction), otherwise a rebuild and hourly retries | `bulletinPreview`, `bulletinMessage` | U(sim): preview; message waits, retries, sends once, same text as the website | 🟡 live after the upgrade |
 | M3.7 | `bulletin_exclude` is a TRUE/FALSE dropdown, not a tick box (agreed correction: tick boxes push new rows far down the tab) | `addValidation_` | Code review; U(sim): no empty rows above new entries | ✅ |
 | M3.8 | No menu entries for the bulletin or campaigns; footer links instead | `base.njk` | S: menu and footer | ✅ |
-| M4 | One upgrade step for the live Sheet, safe to run twice | Administrator → Upgrade Sheet | U(sim): run twice, everything once | 🟡 to run |
+| M4 | One upgrade step for the live Sheet, safe to run twice | Administrator → Upgrade Sheet | U(sim): run twice, everything once | ✅ run live 18 Oct |
 
 ### Release A (17 October 2026)
 
@@ -102,18 +102,18 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 
 | # | Requirement | Feature | Proof | Status |
 |---|---|---|---|---|
-| A1 | Clubs page by city, with search and a meeting-day filter; meeting day asked on the club profile form, else read from the meeting text | `clubs.njk`, `clubs.js`, `Core_meetingDay` | A: day rules; SA: every club once, its day; U(sim): weekday applied on approval; browser | ✅ / 🟡 form after the upgrade |
-| A2 | Rotary-year and Avenue of Service filters on Activities; avenue asked on the activity form (required) | `activities.njk`, `filters.js`, `CORE_AVENUES` | SA: filters match cards; U(sim): question in place, required; browser | ✅ / 🟡 form after the upgrade |
+| A1 | Clubs page by city, with search and a meeting-day filter; meeting day asked on the club profile form, else read from the meeting text | `clubs.njk`, `clubs.js`, `Core_meetingDay` | A: day rules; SA: every club once, its day; U(sim): weekday applied on approval; browser | ✅ (live 18 Oct) |
+| A2 | Rotary-year and Avenue of Service filters on Activities; avenue asked on the activity form (required) | `activities.njk`, `filters.js`, `CORE_AVENUES` | SA: filters match cards; U(sim): question in place, required; browser | ✅ (live 18 Oct) |
 | A3 | About page: RI President and DG profiles, every Past District Governor, glossary | `about.njk`, `profiles` and `past_governors` tabs | A: latest profile, PDGs newest last, cards only with an ID, fallback to the College of Governors; SA: page | ✅ (sample rows) |
 | A4 | Rotary abbreviations explained where first used on each page | `lib/gloss.mjs`, `site.js` | A: first use, longest match, never in tags/scripts/glossary; SA: once per page; browser: tap shows meaning | ✅ |
 | A5 | Year summary page for each Rotary year | `years.njk`, `year.njk` | A: totals add up; SA: matches data | ✅ |
 | A6 | "More like this" on activity and event pages | `derive.mjs`, `activity.njk`, `event.njk` | A, SA: never the page itself; browser | ✅ |
 | A7 | City pages for every city, one-club towns included | `cities.njk`, `city.njk` | A, SA: every active club in one city | ✅ |
-| A8 | Services the public can use, with the facility's own phone, address and map; the privacy check allows only these numbers | Public service form, `public_services` tab, `services.njk`, `Core_servicePhone`, `Core_validatePublic` | A: phone rules, bad numbers and emails left out, check refuses a number elsewhere; U(sim): notes, refused approval, public; SA: tap-to-call; browser | ✅ / 🟡 form after the upgrade |
+| A8 | Services the public can use, with the facility's own phone, address and map; the privacy check allows only these numbers | Public service form, `public_services` tab, `services.njk`, `Core_servicePhone`, `Core_validatePublic` | A: phone rules, bad numbers and emails left out, check refuses a number elsewhere; U(sim): notes, refused approval, public; SA: tap-to-call; browser | ✅ (live 18 Oct) |
 | A9 | "Open to everyone" on events, with a filter | `open_to_all`, `events.js` | A, U(sim), SA, browser | ✅ |
 | A10 | Contact form inside the Contact page; messages to the district email, kept privately; spam and a daily limit | Contact form, `contact_messages` (private), `fileContact_` | U(sim): emailed, spam held, limit, never public; SA: no email address on the site | 🟡 live after the upgrade; `contact_email` to set |
 | A11 | One calendar subscription for all events | `/events/calendar.ics`, webcal and Google links | SA: valid calendar, cancellations | ✅ |
-| A12 | In the news: paper, date and link on the activity, and a news page | `press_*` columns, `news.njk` | A, U(sim), SA | ✅ / 🟡 form after the upgrade |
+| A12 | In the news: paper, date and link on the activity, and a news page | `press_*` columns, `news.njk` | A, U(sim), SA | ✅ (live 18 Oct) |
 | A13 | Rotary month banner, picked by the visitor's own date | `rotaryMonths.js`, `index.njk`, `site.js` | SA: 12 months, one showing; browser | ✅ |
 | A14 | Video links: YouTube plays on tap (no-cookie player); others are links | `Core_videoLink`, `videoBlock` | A: link kinds; SA: nothing loads until tapped; browser | ✅ |
 | A15 | Add to home screen, larger text, recent pages offline | `manifest.webmanifest`, icons, `sw.js`, text-size button | SA: manifest and icons, offline page; browser: installed, pages kept, text size remembered | ✅ |

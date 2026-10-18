@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-10-18T08:06:59.311Z",
- "rebuild_requested_at": "2026-10-18T07:54:38.892Z",
+ "generated_at": "2026-10-18T18:56:03.240Z",
+ "rebuild_requested_at": "2026-10-18T18:54:03.893Z",
  "inactive_keys": [
   "k9999f805",
   "k796b7120",
@@ -14,7 +14,7 @@
  "forms": {
   "activity": "https://docs.google.com/forms/d/e/1FAIpQLSdjosTFy5YI4EHpIJQbOwbxLES-KwLZAR03sdCd-j38JDjfHA/viewform",
   "club_profile": "https://docs.google.com/forms/d/e/1FAIpQLScY02akQWUEMDAX9ISiXYaBtSk6wWTaEfCHYewiyfHlorliqQ/viewform",
-  "consent": "https://docs.google.com/forms/d/e/1FAIpQLSfm97lOJt4xhbwekdwuD9ulGZKmt3V4jZTBMWM3TFsaYqeKpQ/viewform",
+  "consent": "https://docs.google.com/forms/d/e/1FAIpQLSdTizSiXeCgN20uVudla6o4yw8S31M0_QKnVERJq9pTjqHkIA/viewform",
   "removal": "https://docs.google.com/forms/d/e/1FAIpQLSfYvPwV3lDhzHqAVUXl8Ba-0GV_g13KJ2Wbb46eUH0Co4tf0Q/viewform",
   "public_service": "https://docs.google.com/forms/d/e/1FAIpQLSc0-GmPmjiahFfPulWzNgewc4j_Sedt6voe9qLGUf-tnHI_eg/viewform",
   "contact": "https://docs.google.com/forms/d/e/1FAIpQLSecgq_GH4zgsJ2vELLFPkEYW0mUYh460HvaiFsOrZVd4LCY_w/viewform"
@@ -1410,12 +1410,12 @@
    "city": "Mathura",
    "status": "active",
    "member_count": 44,
-   "meeting": "",
-   "meeting_day": "",
+   "meeting": "Friday 7PM Hotel Abhinandan",
+   "meeting_day": "Friday",
    "links": {
-    "website": "",
-    "facebook": "",
-    "instagram": "",
+    "website": "https://rcmathuracentral.org",
+    "facebook": "https://www.facebook.com/rotarymathuracentral/about/",
+    "instagram": "https://www.instagram.com/rcmathuracentral/",
     "youtube": "",
     "x": "",
     "linkedin": ""
@@ -7871,6 +7871,70 @@
    "campaign_id": "SCHOOL-2025-26",
    "campaign_count": 120,
    "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0065",
+   "club_id": "S-016",
+   "title": "Dummy Tree Plantation",
+   "date": "2026-10-18",
+   "theme": "Protecting the environment",
+   "avenue": "Community Service",
+   "press": {
+    "paper": "https://timesofindia.indiatimes.com/science/",
+    "date": "2026-10-17",
+    "link": ""
+   },
+   "video": {
+    "kind": "youtube",
+    "id": "1gYIuGMk7Y0",
+    "url": "https://youtu.be/1gYIuGMk7Y0?si=wfWS-v_jcM2kG6EX"
+   },
+   "description": "We planted 20 Different types of flowering and non flowering Plants In Madhuban There were six rotoractors And 10 rotarians present.",
+   "photos": [
+    "drive:1bX3YdQ6drxZw8tbkvWf_APMS2Q3rTBZd",
+    "drive:1zE1Sel4q17lvSHbjhGt5xYXofFEEkJBa",
+    "drive:17GLYoWlWmJDhID9YbJGSZk7-sVOiOVgS"
+   ],
+   "post_link": "https://www.facebook.com/share/v/19cSoAP2dC/?mibextid=wwXIfr",
+   "people_helped": 50,
+   "amount_spent": 2000,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-10-18T13:40:54.077Z",
+   "campaign_id": "",
+   "campaign_count": 0,
+   "bulletin_exclude": false
+  },
+  {
+   "id": "ACT-2026-0066",
+   "club_id": "S-009",
+   "title": "Blood Donation",
+   "date": "2026-10-18",
+   "theme": "Fighting disease",
+   "avenue": "Community Service",
+   "press": null,
+   "video": {
+    "kind": "youtube",
+    "id": "1gYIuGMk7Y0",
+    "url": "https://youtu.be/1gYIuGMk7Y0?si=wfWS-v_jcM2kG6EX"
+   },
+   "description": "We collected 40 units of blood From Rotarians as well as Non rotating participants. The event was A great success it also Participation from three doctors We are there Oversee",
+   "photos": [
+    "drive:1bX3YdQ6drxZw8tbkvWf_APMS2Q3rTBZd",
+    "drive:1zE1Sel4q17lvSHbjhGt5xYXofFEEkJBa",
+    "drive:17GLYoWlWmJDhID9YbJGSZk7-sVOiOVgS"
+   ],
+   "post_link": "",
+   "people_helped": 0,
+   "amount_spent": 0,
+   "partner_clubs": [],
+   "story_of_month": false,
+   "event_id": "",
+   "approved_at": "2026-10-18T13:59:21.312Z",
+   "campaign_id": "CMP-TEST-01",
+   "campaign_count": 40,
+   "bulletin_exclude": false
   }
  ],
  "events": [
@@ -10871,6 +10935,20 @@
    "chair": "",
    "chair_ref": "",
    "sort_order": 1
+  },
+  {
+   "campaign_id": "CMP-TEST-01",
+   "rotary_year": "2026-27",
+   "name": "Test Blood Drive",
+   "unit": "units of blood",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-31",
+   "slug": "test-blood-drive",
+   "target": 500,
+   "description": "Trial for Blood Test",
+   "chair": "",
+   "chair_ref": "",
+   "sort_order": 0
   }
  ],
  "public_services": [
@@ -10964,6 +11042,19 @@
    "city": "Mathura",
    "map_link": "https://maps.google.com/?q=Rotary%20Skill%20Centre%2C%20Mathura",
    "about": ""
+  },
+  {
+   "id": "SRV-0001",
+   "club_id": "S-062",
+   "name": "Rotary Blood Bank",
+   "type": "Blood bank",
+   "timings": "Open 24 hours",
+   "phone": "74550 01110",
+   "tel": "+917455001110",
+   "address": "142k, Mathura Bypass, Mathura",
+   "city": "Mathura",
+   "map_link": "https://maps.app.goo.gl/XvuhNWW7ChhCbQpb8",
+   "about": "Blood and Platelets"
   }
  ],
  "profiles": [

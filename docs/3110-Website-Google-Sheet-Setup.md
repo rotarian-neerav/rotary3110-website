@@ -95,11 +95,13 @@ The **19 October** version (installed in the test Sheet on 19 Oct) needs only pa
 - **Rotary → Administrator → Practice round: start… / report / remove practice items…** (see the moderator guide);
 - automatic retries when Google is briefly slow ("Service … timed out"), and **Apply moderators** lists anyone it could not finish.
 
+The **19 October (evening)** version (not yet installed) also needs only paste `Code.gs` and **Deploy → Manage deployments → edit → New version**. It puts quiet clubs on one rule: no activity in the last 30 days, for the desk's Quiet clubs, the dashboard's `needs_nudge` and the monthly email (which listed the clubs with nothing in the month just ended). The email's subject is now "Clubs with no activity in the last 30 days".
+
 ## 6. Name the moderators
 
 1. Open the **moderators** tab (main Sheet). Each row is one person in one type: **Content**, **Members**, **Club engagement**, **District office** or **Administrator**. Put the real name and Google email over a placeholder, and keep `active` = **TRUE**. Add rows for more people (one person can have several rows).
    - The **District office** row is where contact form messages are emailed (this replaces the older `contact_email` setting in the **settings** tab) and who gets the Sunday WhatsApp message.
-   - **Club engagement** gets the monthly clubs-not-posting list.
+   - **Club engagement** gets the monthly list of quiet clubs (no activity in the last 30 days).
 2. Set `sheet_access` to **TRUE** only for people who want to work in the Sheet; leave it **FALSE** (or blank) for those who use only the moderation desk, which needs no Sheet access. The Administrator placeholder starts as TRUE.
 3. **Rotary → Administrator → Apply moderators (Sheet access)…** (as the Sheet's owner): it shows who will get access to the Sheet (and, for Members and Administrator rows, the private members Sheet) and asks before doing it.
 4. When someone stops, set their `active` to **FALSE** and run **Apply moderators** again. Setting `sheet_access` to FALSE and running it removes only the Sheet; the person stays on the desk and keeps getting their emails.

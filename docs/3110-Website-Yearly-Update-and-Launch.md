@@ -43,7 +43,7 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Rotary member IDs for office bearers and district team members | District | Open (temporary T-… IDs) |
 | List the clubs each Assistant Governor looks after (`functionaries → ag_clubs`) | District | Ask at production (sample until then) |
 | Every Past District Governor (`past_governors`), and the RI President's and DG's profiles and photos with permission to use them (`profiles`) | District | Ask at production (sample rows) |
-| Contact form messages and the Sunday message go to the **District office** moderators; the monthly clubs-not-posting list to **Club engagement** | District | With the moderators row above |
+| Contact form messages and the Sunday message go to the **District office** moderators; the monthly quiet-clubs list to **Club engagement** | District | With the moderators row above |
 | Clubs send their public services (blood banks, eye care…) through the public service form | Clubs | Open |
 | Two role titles from the team Excel contain zone names ("CDS Bareilly Zone", "CDS Kanpur Zone") | District | Kept as they are (decided 18 Oct) |
 | All data in the Sheet today is sample data, the team names included; collect the correct data for production | District | Ask at production |

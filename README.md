@@ -3,13 +3,13 @@
 The district's website: what our clubs achieve. Built from the district Google Sheet, published free on GitHub Pages.
 
 - **Live (test) address:** https://rotarian-neerav.github.io/rotary3110-website/
-- **Project brief:** `../3110-Website-Project-Brief.md` (version 4.2)
+- **Project brief:** `../3110-Website-Project-Brief.md` (version 4.3)
 - **Guides:** [Google setup](docs/3110-Website-Google-Sheet-Setup.md) · [Moderator guide](docs/3110-Website-Moderator-Guide.md) · [Yearly update and launch](docs/3110-Website-Yearly-Update-and-Launch.md)
 
 ## How it works
 
 ```
-Google Forms ──► main Sheet "3110Website" (pending) ──► moderator approves (Rotary menu)
+Google Forms ──► main Sheet "3110Website" (pending) ──► moderator approves (desk or Rotary menu)
                      │                                         │
 Private members Sheet ┘ (consent, spouses, never published)    ▼
                                          protected data link (Apps Script web app)
@@ -19,7 +19,7 @@ GitHub Actions: Sundays 6 am IST, or within ~30 min of "Rebuild site now"
    fetch ─► privacy check (stops on unsafe data) ─► photos resized, location data removed ─► Eleventy ─► tests ─► GitHub Pages
 ```
 
-The Sheet also emails the moderators a preview of the weekly bulletin on Saturday evening, and on Sunday morning the WhatsApp message for someone to forward to the district groups.
+The Sheet also emails the moderators a preview of the weekly bulletin on Saturday evening, and on Sunday morning the WhatsApp message for someone to forward to the district groups. Moderators work from their phone on the **moderation desk** (`…/desk/`), a page that talks to the Sheet's script after an emailed sign-in code; its guide is at `…/desk/guide/`.
 
 The rules for what may become public live in one file, [apps-script/Core.js](apps-script/Core.js), used by **both** the Sheet script and the website build, and covered by the tests.
 
@@ -35,7 +35,7 @@ The rules for what may become public live in one file, [apps-script/Core.js](app
 | `tools/` | One-off tools: Excel conversion, sample generator, brand assets, script bundler. |
 | `tests/` | Unit tests (rules, recognition, Sheet script in a simulated Google environment) and checks on the built site. |
 | `docs/` | Guides and reports. |
-| `data-snapshots/` | A dated copy of the public data, saved by each scheduled build. |
+| `data-snapshots/` | The public data saved by each scheduled build (one file; each version is dated in the git history). |
 
 ## Commands
 
@@ -60,6 +60,8 @@ Without `DATA_URL` and `DATA_TOKEN` the build uses `sample/sample-data.json`. Wi
 | `SITE_URL` | variable (optional) | e.g. `https://rotary3110.org` once the domain is bought |
 | `PATH_PREFIX` | variable (optional) | `/` once on the domain (default `/rotary3110-website/`) |
 | `CF_BEACON_TOKEN` | variable (optional) | Cloudflare Web Analytics token |
+| `HIDE_FROM_SEARCH` | variable | `true` until launch (default): every page asks search engines to stay away. Set to `false` at launch |
+| `SAMPLE_DATA` | variable | `true` until production (default): the sample-data banner on every page. Set to `false` once the Sheet holds real data |
 
 ## Moving to the district domain
 

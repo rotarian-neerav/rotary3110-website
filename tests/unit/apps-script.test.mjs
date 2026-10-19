@@ -564,14 +564,16 @@ test('contact form: kept in the private Sheet and emailed on; spam and messages 
   assert.ok(!d.includes('asha.v@example.com') && !d.includes('Asha Verma'), 'contact messages never reach the website');
 });
 
-test('monthly email: the clubs with no activity dated last month, to the dummy receiver; private', () => {
+test('monthly email: the quiet clubs (no activity in the last 30 days), the same as the dashboard, to the dummy receiver; private', () => {
   const before = env.mails.length;
   const n = env.run('notPostingReport');
   const mail = env.mails.at(-1);
   assert.equal(env.mails.length, before + 1);
   assert.equal(mail.to, 'not-posting@example.com');
-  assert.match(mail.subject, /^Clubs that did not post in [A-Z][a-z]+ \d{4}$/);
+  assert.equal(mail.subject, 'Clubs with no activity in the last 30 days');
   assert.ok(n > 10);
+  env.run('refreshDashboard');
+  assert.equal(env.main.rows('dashboard').filter((r) => String(r.needs_nudge).toUpperCase() === 'TRUE').length, n, 'the dashboard flags the same clubs');
   assert.equal((mail.body.match(/^• /gm) || []).length, n);
   assert.match(mail.body, /not shown on the website/);
 });
@@ -584,6 +586,54 @@ test('data link: public services, profiles and Past District Governors reach the
   const text = JSON.stringify(d);
   assert.ok(!/"zones?"/.test(text), 'no zones');
   assert.ok(!/T-00\d\d/.test(text), 'no member IDs of past governors');
+  assert.deepEqual(plain(core.Core_validatePublic(d)), []);
+});
+
+test('magazine folder: a new YYYY-MM.pdf is added once, with its cover picture or the PDF thumbnail; other files are ignored', () => {
+  const folderId = env.context.CONFIG.MAGAZINE_FOLDER_ID;
+  const known = env.main.rows('magazines').map((m) => String(m.issue_month).slice(0, 7));
+  assert.ok(known.length > 0, 'the sample has magazines');
+  env.files.set('MAGPDF11', { name: '2026-11.pdf', folder: folderId });
+  env.files.set('MAGJPG11', { name: '2026-11.jpg', folder: folderId });
+  env.files.set('MAGPDF12', { name: '2026-12 District News.pdf', folder: folderId });
+  env.files.set('MAGOLD', { name: known[0] + '.pdf', folder: folderId }); // a month already listed
+  env.files.set('MAGNOTE', { name: 'notes.pdf', folder: folderId });
+  env.files.set('ELSEWHERE', { name: '2027-01.pdf', folder: 'SOMEWHERE_ELSE' });
+  env.run('scanMagazines_');
+  env.run('scanMagazines_');
+  const rows = env.main.rows('magazines');
+  assert.equal(rows.length, known.length + 2, 'November and December added, once each');
+  const nov = rows.find((m) => String(m.issue_month).startsWith('2026-11'));
+  assert.equal(nov.title, 'District 3110 News – November 2026');
+  assert.equal(nov.pdf_file, 'drive:MAGPDF11');
+  assert.equal(nov.cover_image, 'drive:MAGJPG11');
+  assert.equal(rows.find((m) => String(m.issue_month).startsWith('2026-12')).cover_image, 'thumb:MAGPDF12', 'no cover picture: the PDF thumbnail');
+  const d = data();
+  assert.ok(d.magazines.some((m) => m.issue_month === '2026-11' && m.file === 'drive:MAGPDF11' && m.cover === 'drive:MAGJPG11'), 'reaches the website');
+  assert.deepEqual(plain(core.Core_validatePublic(d)), []);
+});
+
+test('MemberPhotos folder: <member ID>.jpg is used only for a member who ticked photo consent', () => {
+  // two listed members in the directory, without a photo yet: one ticked photo consent, one did not
+  const ps = env.run('privateSs_');
+  const listed = env.run('readTab_', ps, 'members_master').filter((m) => String(m.status || 'active').toLowerCase() === 'active' &&
+    core.Core_isTrue(m.listing_approved) && core.Core_isTrue(m.is_rotarian) && core.Core_isTrue(m.directory_ok) && m.member_id);
+  const [yes, no] = listed;
+  assert.ok(yes && no, 'the sample has listed members');
+  env.run('updateRow_', ps, 'members_master', yes._row, { photo_ok: true, photo_file: '', photo_approved: false });
+  env.run('updateRow_', ps, 'members_master', no._row, { photo_ok: false, photo_file: '', photo_approved: false });
+  env.files.set('1FolderPhotoOne0123456789abcdefgh', { name: `${yes.member_id}.jpg`, folder: 'PHOTOS' });
+  env.files.set('1FolderPhotoTwo0123456789abcdefgh', { name: `${no.member_id}.jpg`, folder: 'PHOTOS' });
+  env.run('refreshPublicMembers', true);
+  const after = env.priv.rows('members_master');
+  const y = after.find((m) => m.member_id === yes.member_id);
+  const n = after.find((m) => m.member_id === no.member_id);
+  assert.equal(y.photo_file, 'drive:1FolderPhotoOne0123456789abcdefgh');
+  assert.ok(core.Core_isTrue(y.photo_approved), 'placed by a moderator, so approved');
+  assert.equal(n.photo_file || '', '', 'no photo consent: the file is not used');
+  const d = data();
+  assert.equal(d.members.find((m) => m.public_key === y.public_key)?.photo, 'drive:1FolderPhotoOne0123456789abcdefgh', 'shown on the website');
+  assert.ok(!JSON.stringify(d).includes('1FolderPhotoTwo0123456789abcdefgh'));
   assert.deepEqual(plain(core.Core_validatePublic(d)), []);
 });
 

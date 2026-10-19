@@ -518,7 +518,7 @@ function deskClubs_(me) {
   all.forEach(function (c) { byId[Core_str(c.club_id)] = c; });
   var emails = deskOfficerEmails_();
   var reminded = deskReminders_();
-  return Core_quietClubs(all, readTab_(mainSs_(), 'activities'), today, 30).map(function (c) {
+  return Core_quietClubs(all, readTab_(mainSs_(), 'activities'), today, CORE_QUIET_DAYS).map(function (c) {
     var r = reminded[c.club_id];
     c.reminded_at = r ? r.at : ''; c.reminded_by = r ? r.by : ''; c.reminded_via = r ? r.via : '';
     c.can_email = !!(emails[c.club_id] || []).length;

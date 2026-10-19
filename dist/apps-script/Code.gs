@@ -301,6 +301,9 @@ var CORE_SERVICE_TYPES = ['Blood bank', 'Eye care', 'Dialysis', 'Clinic / health
 var CORE_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 // The contact form: at most this many messages are emailed on, per day, unless the setting says otherwise
 var CORE_CONTACT_DAILY_LIMIT = 20;
+// A club is quiet with no activity (approved or waiting) dated in this many days: the same rule for the desk's
+// Quiet clubs, the dashboard's needs_nudge and the monthly email
+var CORE_QUIET_DAYS = 30;
 
 // Types of moderator (the moderators tab). What each receives is in Core_moderatorEmails' callers. A row with
 // sheet_access TRUE also edits the main Sheet, and Members and Administrator rows the private members Sheet too.
@@ -692,27 +695,6 @@ function Core_quietClubs(clubs, activities, today, days) {
 function Core_looksLikeUrl(v) {
   var s = Core_str(v);
   return !/\s/.test(s) && (/^(https?:\/\/|www\.)/i.test(s) || /^[a-z0-9-]+(\.[a-z0-9-]+)*\.(com|in|org|net|co|news|info)(\/|$)/i.test(s));
-}
-
-function Core_clubsNotPosting(clubs, activities, month) {
-  var last = {};
-  var posted = {};
-  (activities || []).forEach(function (a) {
-    var st = Core_str(a.status).toLowerCase();
-    if ((st !== 'approved' && st !== 'pending') || Core_isPractice(a)) return;
-    var d = Core_isoDate(a.date);
-    var id = Core_str(a.club_id);
-    if (!d || !id || d.slice(0, 7) > month) return;
-    if (d.slice(0, 7) === month) posted[id] = true;
-    if (!last[id] || d > last[id]) last[id] = d;
-  });
-  return (clubs || []).filter(function (c) {
-    return Core_str(c.club_id) && Core_str(c.status || 'active').toLowerCase() === 'active' && !posted[Core_str(c.club_id)];
-  }).map(function (c) {
-    return { club_id: Core_str(c.club_id), club_name: Core_str(c.club_name || c.name), last_activity_date: last[Core_str(c.club_id)] || '' };
-  }).sort(function (a, b) {
-    return (a.last_activity_date || '').localeCompare(b.last_activity_date || '') || a.club_name.localeCompare(b.club_name);
-  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -1715,7 +1697,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_dateLabel: Core_dateLabel, Core_rotaryYearOf: Core_rotaryYearOf, Core_formatNumber: Core_formatNumber,
     CORE_REG_STATUSES: CORE_REG_STATUSES, CORE_NO_CAMPAIGN: CORE_NO_CAMPAIGN,
     Core_meetingDay: Core_meetingDay, Core_servicePhone: Core_servicePhone, Core_videoLink: Core_videoLink, Core_clubRef: Core_clubRef,
-    Core_contactCheck: Core_contactCheck, Core_clubsNotPosting: Core_clubsNotPosting,
+    Core_contactCheck: Core_contactCheck, CORE_QUIET_DAYS: CORE_QUIET_DAYS,
     CORE_AVENUES: CORE_AVENUES, CORE_SERVICE_TYPES: CORE_SERVICE_TYPES, CORE_WEEKDAYS: CORE_WEEKDAYS,
     CORE_MODERATOR_TYPES: CORE_MODERATOR_TYPES, Core_moderatorEmails: Core_moderatorEmails, Core_moderatorAccess: Core_moderatorAccess,
     Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl, Core_isPractice: Core_isPractice,
@@ -4106,7 +4088,7 @@ function deskClubs_(me) {
   all.forEach(function (c) { byId[Core_str(c.club_id)] = c; });
   var emails = deskOfficerEmails_();
   var reminded = deskReminders_();
-  return Core_quietClubs(all, readTab_(mainSs_(), 'activities'), today, 30).map(function (c) {
+  return Core_quietClubs(all, readTab_(mainSs_(), 'activities'), today, CORE_QUIET_DAYS).map(function (c) {
     var r = reminded[c.club_id];
     c.reminded_at = r ? r.at : ''; c.reminded_by = r ? r.by : ''; c.reminded_via = r ? r.via : '';
     c.can_email = !!(emails[c.club_id] || []).length;
@@ -4461,19 +4443,13 @@ function sendReminders_() {
 }
 
 /**
- * 1st of each month: a private email listing the active clubs with no activity dated in the month just ended,
- * with each club's last activity, so the district team can follow up. Never shown on the website.
- * Goes to the Club engagement moderators (until they are named: not_posting_emails, a dummy address).
+ * 1st of each month: a private email listing the quiet clubs (no activity dated in the last 30 days, the same rule
+ * as the desk's Quiet clubs and the dashboard), with each club's last activity, so the district team can follow up.
+ * Never shown on the website. Goes to the Club engagement moderators (until they are named: not_posting_emails, a dummy address).
  */
 function notPostingReport() {
-  var s = settings_();
-  var today = today_();
-  var y = +today.slice(0, 4);
-  var mo = +today.slice(5, 7);
-  var month = mo === 1 ? (y - 1) + '-12' : y + '-' + ('0' + (mo - 1)).slice(-2);
-  var list = Core_clubsNotPosting(clubs_(), readTab_(mainSs_(), 'activities'), month);
-  var names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  var label = names[+month.slice(5) - 1] + ' ' + month.slice(0, 4);
+  var list = Core_quietClubs(clubs_(), readTab_(mainSs_(), 'activities'), today_(), CORE_QUIET_DAYS);
+  var label = 'the last ' + CORE_QUIET_DAYS + ' days';
   var to = moderatorRecipients_('Club engagement', 'not_posting_emails');
   var body = list.length
     ? list.length + ' club(s) posted no activity dated in ' + label + ':\n\n' + list.map(function (c) {
@@ -4481,7 +4457,7 @@ function notPostingReport() {
     }).join('\n') + '\n\nThis list is private and is not shown on the website.'
     : 'Every active club posted at least one activity dated in ' + label + '.';
   var desk = deskLink_({});
-  MailApp.sendEmail(to, 'Clubs that did not post in ' + label, body + (desk && list.length ? '\n\nTo send a club a reminder by email or WhatsApp, open the moderation desk: ' + desk : '') +
+  MailApp.sendEmail(to, 'Clubs with no activity in ' + label, body + (desk && list.length ? '\n\nTo send a club a reminder by email or WhatsApp, open the moderation desk: ' + desk : '') +
     '\n\nRotary District 3110 website');
   return list.length;
 }
@@ -4500,7 +4476,10 @@ function refreshDashboard() {
   var mo = +today.slice(5, 7);
   var lastMonth = mo === 1 ? (y - 1) + '-12' : y + '-' + ('0' + (mo - 1)).slice(-2);
   var ryStart = (mo >= 7 ? y : y - 1) + '-07';
-  var acts = readTab_(ss, 'activities').filter(function (a) { return ['approved', 'pending'].indexOf(Core_str(a.status)) >= 0 && !Core_isPractice(a); });
+  var all = readTab_(ss, 'activities');
+  var acts = all.filter(function (a) { return ['approved', 'pending'].indexOf(Core_str(a.status)) >= 0 && !Core_isPractice(a); });
+  var quiet = {}; // the same rule as the desk's Quiet clubs and the monthly email
+  Core_quietClubs(clubs_(), all, today, CORE_QUIET_DAYS).forEach(function (c) { quiet[c.club_id] = true; });
   var rows = clubs_().filter(function (c) { return Core_str(c.status || 'active') === 'active'; }).map(function (c) {
     var mine = acts.filter(function (a) { return Core_str(a.club_id) === Core_str(c.club_id); }).map(function (a) { return Core_isoDate(a.date); }).filter(String).sort();
     var ry = mine.filter(function (d) { return d.slice(0, 7) >= ryStart; });
@@ -4513,7 +4492,7 @@ function refreshDashboard() {
       activities_last_month: mine.filter(function (d) { return d.slice(0, 7) === lastMonth; }).length,
       activities_this_rotary_year: ry.length,
       months_posted_this_rotary_year: months.length,
-      needs_nudge: thisCount === 0,
+      needs_nudge: !!quiet[Core_str(c.club_id)],
     };
   }).sort(function (a, b) { return (a.last_activity_date || '').localeCompare(b.last_activity_date || ''); });
   replaceRows_(ss, 'dashboard', rows);

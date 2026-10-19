@@ -49,7 +49,7 @@ The **moderators** tab in the main Sheet lists who does what: one row per person
 |---|---|---|---|
 | **Content** | Approves or rejects activities, events, club profiles, public services and campaign reports | 48-hour reminders for those; the Saturday bulletin preview | Main Sheet |
 | **Members** | Consent and removal requests, Mark as deceased | 48-hour reminders for member requests | Main Sheet and the private members Sheet |
-| **Club engagement** | Follows up with clubs that are not posting | The monthly clubs-not-posting list | Main Sheet |
+| **Club engagement** | Follows up with quiet clubs (no activity in 30 days) | The monthly quiet-clubs list | Main Sheet |
 | **District office** | Answers the public | Contact form messages; the Sunday WhatsApp message to forward | Main Sheet |
 | **Administrator** | Yearly update, Upgrade Sheet, settings, sample data | (Build-failure emails, from Release B) | Main Sheet and the private members Sheet |
 
@@ -74,7 +74,7 @@ Until a type has a real email, its emails go where they went before: the older s
 
 **Linking an event to its report:** when an approved activity reports on a calendar event, type the event's ID (e.g. `EVT-2026-0004`) in the activity's `event_id` column. The calendar entry then links to the report.
 
-**Story of the month:** tick `story_of_month` on the best activity of the month (judged on quality, not quantity).
+**Story of the month:** set `story_of_month` to **TRUE** on the best activity of the month (judged on quality, not quantity), or use **★ Story of the month** on the desk.
 
 **Avenue of Service, press and videos:** every new activity carries an Avenue of Service (`avenue`); correct it if it is clearly wrong. If the club says a newspaper covered it, `press_paper`, `press_date` and `press_link` hold the paper's name, the date and a link; the website shows only these, never a photo of the clipping. A note warns when there is a press link but no paper's name. `video_link` can be a YouTube, Instagram or Facebook link; YouTube videos play on the page.
 
@@ -188,9 +188,9 @@ Type them into the **messages** tab: name, position, message, date. Tick `featur
 
 Each month, choose a member who ticked "member spotlight" on the consent form. In **spotlights**, add the month (`2026-11`), the member's `public_key` (from **members_public**), a headline and the story.
 
-## Once a month: nudge quiet clubs
+## Quiet clubs
 
-On the 1st of each month, an email lists the clubs with no activity dated in the month just ended (to the **Club engagement** moderators; until one is named, a dummy address). The **dashboard** tab (refreshed every morning) shows the same, live: `needs_nudge = TRUE` means no activity this month. Send those clubs a friendly reminder from the desk's **Quiet clubs** tab: by email to the President and Secretary, or on WhatsApp, both with the club's own form link (the club already chosen). The posting guide is at `…/how-to-post/`. The Club engagement moderators decide who follows up which clubs. **Rotary → Administrator → Send clubs-not-posting email now** sends the email at any time.
+A club is **quiet** when it has no activity (approved or waiting) dated in the **last 30 days**. The same rule is used in three places: the desk's **Quiet clubs** tab, the **dashboard** tab (refreshed every morning; `needs_nudge = TRUE`), and an email on the 1st of each month to the **Club engagement** moderators (until one is named, a dummy address). Send those clubs a friendly reminder from the desk's **Quiet clubs** tab: by email to the President and Secretary, or on WhatsApp, both with the club's own form link (the club already chosen). The posting guide is at `…/how-to-post/`. The Club engagement moderators decide who follows up which clubs. **Rotary → Administrator → Send clubs-not-posting email now** sends the email at any time.
 
 ## Sharing links in WhatsApp
 

@@ -140,19 +140,13 @@ function sendReminders_() {
 }
 
 /**
- * 1st of each month: a private email listing the active clubs with no activity dated in the month just ended,
- * with each club's last activity, so the district team can follow up. Never shown on the website.
- * Goes to the Club engagement moderators (until they are named: not_posting_emails, a dummy address).
+ * 1st of each month: a private email listing the quiet clubs (no activity dated in the last 30 days, the same rule
+ * as the desk's Quiet clubs and the dashboard), with each club's last activity, so the district team can follow up.
+ * Never shown on the website. Goes to the Club engagement moderators (until they are named: not_posting_emails, a dummy address).
  */
 function notPostingReport() {
-  var s = settings_();
-  var today = today_();
-  var y = +today.slice(0, 4);
-  var mo = +today.slice(5, 7);
-  var month = mo === 1 ? (y - 1) + '-12' : y + '-' + ('0' + (mo - 1)).slice(-2);
-  var list = Core_clubsNotPosting(clubs_(), readTab_(mainSs_(), 'activities'), month);
-  var names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  var label = names[+month.slice(5) - 1] + ' ' + month.slice(0, 4);
+  var list = Core_quietClubs(clubs_(), readTab_(mainSs_(), 'activities'), today_(), CORE_QUIET_DAYS);
+  var label = 'the last ' + CORE_QUIET_DAYS + ' days';
   var to = moderatorRecipients_('Club engagement', 'not_posting_emails');
   var body = list.length
     ? list.length + ' club(s) posted no activity dated in ' + label + ':\n\n' + list.map(function (c) {
@@ -160,7 +154,7 @@ function notPostingReport() {
     }).join('\n') + '\n\nThis list is private and is not shown on the website.'
     : 'Every active club posted at least one activity dated in ' + label + '.';
   var desk = deskLink_({});
-  MailApp.sendEmail(to, 'Clubs that did not post in ' + label, body + (desk && list.length ? '\n\nTo send a club a reminder by email or WhatsApp, open the moderation desk: ' + desk : '') +
+  MailApp.sendEmail(to, 'Clubs with no activity in ' + label, body + (desk && list.length ? '\n\nTo send a club a reminder by email or WhatsApp, open the moderation desk: ' + desk : '') +
     '\n\nRotary District 3110 website');
   return list.length;
 }
@@ -179,7 +173,10 @@ function refreshDashboard() {
   var mo = +today.slice(5, 7);
   var lastMonth = mo === 1 ? (y - 1) + '-12' : y + '-' + ('0' + (mo - 1)).slice(-2);
   var ryStart = (mo >= 7 ? y : y - 1) + '-07';
-  var acts = readTab_(ss, 'activities').filter(function (a) { return ['approved', 'pending'].indexOf(Core_str(a.status)) >= 0 && !Core_isPractice(a); });
+  var all = readTab_(ss, 'activities');
+  var acts = all.filter(function (a) { return ['approved', 'pending'].indexOf(Core_str(a.status)) >= 0 && !Core_isPractice(a); });
+  var quiet = {}; // the same rule as the desk's Quiet clubs and the monthly email
+  Core_quietClubs(clubs_(), all, today, CORE_QUIET_DAYS).forEach(function (c) { quiet[c.club_id] = true; });
   var rows = clubs_().filter(function (c) { return Core_str(c.status || 'active') === 'active'; }).map(function (c) {
     var mine = acts.filter(function (a) { return Core_str(a.club_id) === Core_str(c.club_id); }).map(function (a) { return Core_isoDate(a.date); }).filter(String).sort();
     var ry = mine.filter(function (d) { return d.slice(0, 7) >= ryStart; });
@@ -192,7 +189,7 @@ function refreshDashboard() {
       activities_last_month: mine.filter(function (d) { return d.slice(0, 7) === lastMonth; }).length,
       activities_this_rotary_year: ry.length,
       months_posted_this_rotary_year: months.length,
-      needs_nudge: thisCount === 0,
+      needs_nudge: !!quiet[Core_str(c.club_id)],
     };
   }).sort(function (a, b) { return (a.last_activity_date || '').localeCompare(b.last_activity_date || ''); });
   replaceRows_(ss, 'dashboard', rows);

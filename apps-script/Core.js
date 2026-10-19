@@ -47,6 +47,9 @@ var CORE_SERVICE_TYPES = ['Blood bank', 'Eye care', 'Dialysis', 'Clinic / health
 var CORE_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 // The contact form: at most this many messages are emailed on, per day, unless the setting says otherwise
 var CORE_CONTACT_DAILY_LIMIT = 20;
+// A club is quiet with no activity (approved or waiting) dated in this many days: the same rule for the desk's
+// Quiet clubs, the dashboard's needs_nudge and the monthly email
+var CORE_QUIET_DAYS = 30;
 
 // Types of moderator (the moderators tab). What each receives is in Core_moderatorEmails' callers. A row with
 // sheet_access TRUE also edits the main Sheet, and Members and Administrator rows the private members Sheet too.
@@ -438,27 +441,6 @@ function Core_quietClubs(clubs, activities, today, days) {
 function Core_looksLikeUrl(v) {
   var s = Core_str(v);
   return !/\s/.test(s) && (/^(https?:\/\/|www\.)/i.test(s) || /^[a-z0-9-]+(\.[a-z0-9-]+)*\.(com|in|org|net|co|news|info)(\/|$)/i.test(s));
-}
-
-function Core_clubsNotPosting(clubs, activities, month) {
-  var last = {};
-  var posted = {};
-  (activities || []).forEach(function (a) {
-    var st = Core_str(a.status).toLowerCase();
-    if ((st !== 'approved' && st !== 'pending') || Core_isPractice(a)) return;
-    var d = Core_isoDate(a.date);
-    var id = Core_str(a.club_id);
-    if (!d || !id || d.slice(0, 7) > month) return;
-    if (d.slice(0, 7) === month) posted[id] = true;
-    if (!last[id] || d > last[id]) last[id] = d;
-  });
-  return (clubs || []).filter(function (c) {
-    return Core_str(c.club_id) && Core_str(c.status || 'active').toLowerCase() === 'active' && !posted[Core_str(c.club_id)];
-  }).map(function (c) {
-    return { club_id: Core_str(c.club_id), club_name: Core_str(c.club_name || c.name), last_activity_date: last[Core_str(c.club_id)] || '' };
-  }).sort(function (a, b) {
-    return (a.last_activity_date || '').localeCompare(b.last_activity_date || '') || a.club_name.localeCompare(b.club_name);
-  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -1461,7 +1443,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_dateLabel: Core_dateLabel, Core_rotaryYearOf: Core_rotaryYearOf, Core_formatNumber: Core_formatNumber,
     CORE_REG_STATUSES: CORE_REG_STATUSES, CORE_NO_CAMPAIGN: CORE_NO_CAMPAIGN,
     Core_meetingDay: Core_meetingDay, Core_servicePhone: Core_servicePhone, Core_videoLink: Core_videoLink, Core_clubRef: Core_clubRef,
-    Core_contactCheck: Core_contactCheck, Core_clubsNotPosting: Core_clubsNotPosting,
+    Core_contactCheck: Core_contactCheck, CORE_QUIET_DAYS: CORE_QUIET_DAYS,
     CORE_AVENUES: CORE_AVENUES, CORE_SERVICE_TYPES: CORE_SERVICE_TYPES, CORE_WEEKDAYS: CORE_WEEKDAYS,
     CORE_MODERATOR_TYPES: CORE_MODERATOR_TYPES, Core_moderatorEmails: Core_moderatorEmails, Core_moderatorAccess: Core_moderatorAccess,
     Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl, Core_isPractice: Core_isPractice,

@@ -62,18 +62,22 @@ test('contact form: a real message is forwarded; one with many links or hardly a
   assert.equal(core.Core_contactCheck('hi !!!'), 'too short to be a real message');
 });
 
-test('clubs not posting: active clubs with nothing dated in the month (approved or waiting); never posted first, then the oldest last activity', () => {
+test('quiet clubs: one 30-day rule; active clubs with nothing (approved or waiting) dated in the last 30 days; never posted first, then the oldest last activity', () => {
+  assert.equal(core.CORE_QUIET_DAYS, 30);
   const clubs = [{ club_id: 'A', club_name: 'RC A' }, { club_id: 'B', club_name: 'RC B' }, { club_id: 'C', club_name: 'RC C' }, { club_id: 'D', club_name: 'RC D', status: 'inactive' }];
   const acts = [
-    { club_id: 'A', date: '2026-09-10', status: 'approved' },
-    { club_id: 'B', date: '2026-09-20', status: 'pending' },
+    { club_id: 'A', date: '2026-09-19', status: 'approved' },
+    { club_id: 'B', date: '2026-09-18', status: 'pending' },
     { club_id: 'B', date: '2026-08-01', status: 'approved' },
-    { club_id: 'C', date: '2026-09-15', status: 'rejected' },
+    { club_id: 'C', date: '2026-10-15', status: 'rejected' },
     { club_id: 'C', date: '2026-07-04', status: 'approved' },
-    { club_id: 'A', date: '2026-10-02', status: 'approved' },
+    { club_id: 'A', date: '2026-10-25', status: 'approved' },
   ];
-  assert.deepEqual(plain(core.Core_clubsNotPosting(clubs, acts, '2026-09')), [{ club_id: 'C', club_name: 'RC C', last_activity_date: '2026-07-04' }]);
-  assert.deepEqual(plain(core.Core_clubsNotPosting(clubs, acts, '2026-08')).map((c) => c.club_id), ['A', 'C'], 'a club that has never posted comes first, then the oldest last activity');
+  // 19 Oct: A posted on 19 Sep (exactly 30 days, counts); B's last is 18 Sep (31 days); C's rejected report does not count; a future date does not count
+  assert.deepEqual(plain(core.Core_quietClubs(clubs, acts, '2026-10-19', core.CORE_QUIET_DAYS)).map((c) => [c.club_id, c.last_activity_date]),
+    [['C', '2026-07-04'], ['B', '2026-09-18']]);
+  assert.deepEqual(plain(core.Core_quietClubs([...clubs, { club_id: 'E', club_name: 'RC E' }], acts, '2026-10-19', 30)).map((c) => c.club_id), ['E', 'C', 'B'],
+    'a club that has never posted comes first');
 });
 
 /* ---------- the public data ---------- */
@@ -280,25 +284,4 @@ test('abbreviations: never inside tags, scripts, form controls, existing <abbr> 
   assert.match(out, /<option>DG<\/option>/);
   assert.match(out, /<dt>DG<\/dt><dd>District <em>Governor<\/em> DG<\/dd>/);
   assert.match(out, /<p>Then <abbr class="gloss" title="The Rotary Foundation" tabindex="0">TRF<\/abbr>\.<\/p>/);
-});
-
-/* ---------- until the new script is installed ---------- */
-
-test('data from a Sheet still running the older script (live snapshot of 14 Oct) is brought up to date and passes the privacy check', async () => {
-  const { upgradeOldData } = await import('../../lib/compat.mjs');
-  const old = JSON.parse(readFileSync(new URL('../fixtures/old-script-data.json', import.meta.url), 'utf8'));
-  assert.ok('zones' in old.site && old.clubs.some((c) => 'zone' in c), 'the snapshot is in the old shape');
-  const d = upgradeOldData(structuredClone(old));
-  assert.deepEqual(plain(core.Core_validatePublic(d)), [], 'no zone left, nothing else changed');
-  assert.ok(!/"zones?"\s*:/.test(JSON.stringify(d)));
-  assert.ok(d.clubs.filter((c) => c.meeting).every((c) => typeof c.meeting_day === 'string'));
-  assert.ok(d.events.filter((e) => e.event_type === 'Club event open to all').every((e) => e.open_to_all));
-  const s = derive(d, media, '2026-10-17');
-  assert.ok(s.cities.length > 10 && s.years.length >= 1 && Array.isArray(s.publicServices));
-  // current data passes through unchanged
-  const current = build();
-  assert.deepEqual(upgradeOldData(structuredClone(current)), current);
-  // and the latest saved live snapshot, whichever script made it, passes the privacy check
-  const latest = upgradeOldData(JSON.parse(readFileSync(new URL('../../data-snapshots/public-data.json', import.meta.url), 'utf8')));
-  assert.deepEqual(plain(core.Core_validatePublic(latest)), []);
 });

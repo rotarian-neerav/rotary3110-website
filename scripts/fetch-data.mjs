@@ -10,7 +10,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { upgradeOldData } from '../lib/compat.mjs';
 import { core, plain, sampleOptions } from '../lib/core.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -53,9 +52,6 @@ const file = fileArg > 0 ? process.argv[fileArg + 1] : '';
 const useSheet = DATA_URL && DATA_TOKEN && !process.argv.includes('--sample');
 const data = file ? JSON.parse(readFileSync(resolve(file), 'utf8')) : useSheet ? await fromSheet(DATA_URL, DATA_TOKEN) : fromSample();
 data.source = useSheet || file ? 'sheet' : 'sample';
-
-// A Sheet still running an older script: one row per ID, no zones, the newer fields filled in
-upgradeOldData(data);
 
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, JSON.stringify(data, null, 1));

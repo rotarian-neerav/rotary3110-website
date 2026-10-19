@@ -150,6 +150,6 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 
 | # | Requirement | Where | Proof | Status |
 |---|---|---|---|---|
-| L19 | A club is quiet with no activity (approved or waiting) dated in the last 30 days: one rule for the desk's Quiet clubs, the dashboard's `needs_nudge` and the monthly email | `CORE_QUIET_DAYS`, `Core_quietClubs`, `refreshDashboard`, `notPostingReport` | A: 30 days counts, 31 does not, rejected and future dates ignored; U(sim): email and dashboard list the same clubs | 🟡 new version to paste |
+| L19 | A club is quiet with no activity (approved or waiting) dated in the last 30 days: one rule for the desk's Quiet clubs, the dashboard's `needs_nudge` and the monthly email | `CORE_QUIET_DAYS`, `Core_quietClubs`, `refreshDashboard`, `notPostingReport` | A: 30 days counts, 31 does not, rejected and future dates ignored; U(sim): email and dashboard list the same clubs | 🟡 installed 19 Oct; to try live |
 | L20 | Folders the script reads are tested with files in them: a magazine PDF and cover; a member photo named by member ID, used only with photo consent | `scanMagazines_`, `attachFolderPhotos_` | U(sim) | 🟡 to try live |
 | L21 | The website reads only data from the current script (the older-script bridge is gone); no test depends on the last live snapshot | `scripts/fetch-data.mjs` | U, S | ✅ |

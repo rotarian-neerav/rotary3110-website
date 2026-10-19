@@ -95,7 +95,7 @@ The **19 October** version (installed in the test Sheet on 19 Oct) needs only pa
 - **Rotary → Administrator → Practice round: start… / report / remove practice items…** (see the moderator guide);
 - automatic retries when Google is briefly slow ("Service … timed out"), and **Apply moderators** lists anyone it could not finish.
 
-The **19 October (evening)** version (not yet installed) also needs only paste `Code.gs` and **Deploy → Manage deployments → edit → New version**. It puts quiet clubs on one rule: no activity in the last 30 days, for the desk's Quiet clubs, the dashboard's `needs_nudge` and the monthly email (which listed the clubs with nothing in the month just ended). The email's subject is now "Clubs with no activity in the last 30 days".
+The **19 October (evening)** version (installed in the test Sheet on 19 Oct) also needs only paste `Code.gs` and **Deploy → Manage deployments → edit → New version**. It puts quiet clubs on one rule: no activity in the last 30 days, for the desk's Quiet clubs, the dashboard's `needs_nudge` and the monthly email (which listed the clubs with nothing in the month just ended). The email's subject is now "Clubs with no activity in the last 30 days".
 
 ## 6. Name the moderators
 

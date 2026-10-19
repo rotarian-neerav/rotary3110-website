@@ -4,7 +4,7 @@ Every requirement in the project brief (version 3), the feature that meets it, a
 
 **Status:**
 - ✅ built and passing its checks
-- 🟡 built and checked in a simulated Google environment; to be confirmed live after the Google setup
+- 🟡 built and checked in a simulated Google environment; installed in the test Sheet (19 Oct) unless noted, still to be tried live
 - ⏳ waiting for the district
 
 Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (S); "browser" means checked by hand at phone and desktop width.
@@ -41,7 +41,7 @@ Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (
 | 28 | §4 | Records keyed by Rotary club/member IDs; club and role history kept; inactive clubs kept | Schema, `club_history`, `rotary_year` on roles | Sample covers transfers and an inactive club | ✅ (real IDs ⏳) |
 | 29 | §4 | Teams data for 2024-25 from the Excel, names/roles/clubs only, spelling fixed | `tools/convert-excel.mjs` | Conversion report: 176 = 176 rows, 0 phones/emails | ✅ |
 | 30 | §4 | Magazine: drop `YYYY-MM.pdf` in 3110Magazines | `scanMagazines_` | U(sim) data link | 🟡 |
-| 31 | §4 | Weekly refresh Sunday 6 am IST + "Rebuild site now" | GitHub Actions schedule + 15-minute check | Workflow runs green | ✅ / 🟡 rebuild-now after setup |
+| 31 | §4 | Weekly refresh Sunday 6 am IST + "Rebuild site now" | GitHub Actions schedule + 15-minute check | Workflow runs green | ✅ / 🟡 rebuild-now to confirm |
 | 32 | §5 | Public tabs never contain a birth/marriage year, unconsented member, etc.; build fails otherwise | `scripts/validate-public.mjs` | U: build-guard tests (birth year, not opted in, phone number) | ✅ |
 | 33 | §5 | Photos stripped of location data, resized | `scripts/fetch-media.mjs` | Code review (sharp drops metadata); S: sizes | ✅ |
 | 34 | §5 | Directory and celebrations kept out of search; member photos kept out of image search | noindex, robots rules, data files blocked | S: noindex/robots tests | ✅ (robots ⏳ domain) |
@@ -67,10 +67,10 @@ Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (
 | 49 | Office bearers (and team members) open their member card | Links matched by member ID through a scrambled reference | S: every office bearer with an ID links to a working card | ✅ |
 | 50 | Member card: everything the member agreed to show; every position, newest year first; old years kept | `src/member.njk`, `lib/derive.mjs` | U: Sharat Chandra's 4 roles, newest first, no unconsented fields; S: card checks | ✅ |
 | 51 | No birthday, anniversary, spouse or mobile number on cards; cards of people who have not consented hidden from search engines | `member.njk` | S: card checks, sitemap | ✅ |
-| 52 | Someone deceased or departed: no card or listing; this year's roles hidden; past roles and spotlight stories keep the name as plain text | `Core_buildPublicData` (inactive IDs from the private Sheet) | U: deceased and left; S: deceased sample member | 🟡 live after the script update |
+| 52 | Someone deceased or departed: no card or listing; this year's roles hidden; past roles and spotlight stories keep the name as plain text | `Core_buildPublicData` (inactive IDs from the private Sheet) | U: deceased and left; S: deceased sample member | 🟡 installed; to try live |
 | 53 | Home page order: achievements, events, latest, recognition, spotlight, celebrations, magazine, messages | `src/index.njk` | S: section order | ✅ |
 | 54 | Home page events: at most 8, all district events first (the next 8 if there are more) | `homeEvents` in `lib/derive.mjs` | U: worked cases; S: home page | ✅ |
-| 55 | Moderators see roles whose member ID is missing or wrong | Rotary → Check roles and member IDs (and every morning), `role_checks` tab | U: role check cases; U(sim): tab filled | 🟡 live after the script update |
+| 55 | Moderators see roles whose member ID is missing or wrong | Rotary → Check roles and member IDs (and every morning), `role_checks` tab | U: role check cases; U(sim): tab filled | 🟡 installed; to try live |
 | 56 | Search engines get every page (the sitemap had only the first club, activity and event) | `addAllPagesToCollections` | S: every club, activity and event in the sitemap | ✅ |
 
 ### modifications1 (October 2026): club services and projects, district campaigns, weekly bulletin
@@ -79,19 +79,19 @@ M = `tests/unit/modifications1.test.mjs`. Ten deliberate mistakes (ignoring `bul
 
 | # | Requirement | Feature | Proof | Status |
 |---|---|---|---|---|
-| M1.1 | Club profile form asks for permanent projects and regular services, one per line | Two questions before Confirmation (new forms and, through Upgrade Sheet, the existing form) | U(sim): questions added once, in place | 🟡 live after the upgrade |
-| M1.2 | Approval replaces the lists; blank keeps them; "none" clears them; notes for phone numbers, emails and long lines | `applyClubProfile_`, `fileClubProfile_` | U(sim): blank, none, replace, notes | 🟡 live after the upgrade |
+| M1.1 | Club profile form asks for permanent projects and regular services, one per line | Two questions before Confirmation (new forms and, through Upgrade Sheet, the existing form) | U(sim): questions added once, in place | 🟡 installed; to try live |
+| M1.2 | Approval replaces the lists; blank keeps them; "none" clears them; notes for phone numbers, emails and long lines | `applyClubProfile_`, `fileClubProfile_` | U(sim): blank, none, replace, notes | 🟡 installed; to try live |
 | M1.3 | Club page shows services and projects between office bearers and activities; clubs list shows counts; lines with a phone number or email are dropped without stopping the build | `Core_cleanLines`, `club.njk`, `clubs.njk` | M: cleaning, 160 characters, 12 lines; S: club pages; sample includes a phone line, listed in `skipped_items` | ✅ |
 | M2.1 | Moderators list campaigns in a `campaigns` tab; the activity form offers open campaigns (until 30 days after the end) and a count | Campaign questions, `Core_openCampaigns`, daily form-list refresh | M: label round trip, 30-day rule; U(sim): dropdown | ✅ live 18 Oct (test campaign) |
-| M2.2 | Filing notes: count without campaign, date outside the campaign, large count, another club the same date | `campaignNotes_` | U(sim): each note | 🟡 live after the upgrade |
+| M2.2 | Filing notes: count without campaign, date outside the campaign, large count, another club the same date | `campaignNotes_` | U(sim): each note | 🟡 installed; to try live |
 | M2.3 | Running totals: approved reports only; work dated inside the campaign only (agreed correction); joint activities count for the submitting club only; a report without a count adds 0 | `Core_campaignTotals` | M: 204 + 22 + 65 = 291, partners no credit, pending/rejected/out-of-period excluded | ✅ |
 | M2.4 | Campaign pages by Rotary year; home band while running; tag on activities; line on club pages; chair links to their card; nothing when there are no campaigns | `campaigns.njk`, `campaign.njk`, `index.njk` | M: no campaigns → nothing; S: totals, home band, tags | ✅ |
 | M3.1 | Weekly bulletin assembled from approved data by fixed rules, shared by the website and the Sheet | `Core_bulletin` | M: approval window (Sat 11 pm in, Sun 9 am next week), one per club, rotation by city (by zone until Release A), story first, excluded rows, coming-up window, closing soon, campaign totals, quiet week | ✅ |
 | M3.2 | `/bulletin/`, a dated page per Sunday from `bulletin_start_date`, archive; dated pages in the sitemap; past bulletins keep their registration lines (agreed correction) | `bulletin*.njk` | M: archive, unchanged past bulletin; S: pages, canonical, sitemap | ✅ |
 | M3.3 | WhatsApp message of at most 1,000 characters, Copy and Share buttons | `Core_bulletinMessage`, `bulletin.js` | M: lines and length; S: message on the page | ✅ |
-| M3.4 | Event registration: closing date and fee on the form; status set by moderators; line worked out, never typed; cancelled events stay listed (and calendar files say cancelled) | `Core_registrationLine` | M: every case; S: cancelled, postponed, fee | ✅ / 🟡 form after the upgrade |
+| M3.4 | Event registration: closing date and fee on the form; status set by moderators; line worked out, never typed; cancelled events stay listed (and calendar files say cancelled) | `Core_registrationLine` | M: every case; S: cancelled, postponed, fee | ✅ / 🟡 form to try live |
 | M3.5 | Fee never shows payment details; the privacy check refuses UPI, IFSC or A/c | `Core_buildPublicData`, `Core_validatePublic` | M: fee dropped and listed; check refuses | ✅ |
-| M3.6 | Saturday 6 pm preview to moderators; Sunday 8 am message to `bulletin_emails`, sent once the page is live (agreed correction), otherwise a rebuild and hourly retries | `bulletinPreview`, `bulletinMessage` | U(sim): preview; message waits, retries, sends once, same text as the website | 🟡 live after the upgrade |
+| M3.6 | Saturday 6 pm preview to moderators; Sunday 8 am message to `bulletin_emails`, sent once the page is live (agreed correction), otherwise a rebuild and hourly retries | `bulletinPreview`, `bulletinMessage` | U(sim): preview; message waits, retries, sends once, same text as the website | 🟡 installed; to try live |
 | M3.7 | `bulletin_exclude` is a TRUE/FALSE dropdown, not a tick box (agreed correction: tick boxes push new rows far down the tab) | `addValidation_` | Code review; U(sim): no empty rows above new entries | ✅ |
 | M3.8 | No menu entries for the bulletin or campaigns; footer links instead | `base.njk` | S: menu and footer | ✅ |
 | M4 | One upgrade step for the live Sheet, safe to run twice | Administrator → Upgrade Sheet | U(sim): run twice, everything once | ✅ run live 18 Oct |
@@ -111,7 +111,7 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 | A7 | City pages for every city, one-club towns included | `cities.njk`, `city.njk` | A, SA: every active club in one city | ✅ |
 | A8 | Services the public can use, with the facility's own phone, address and map; the privacy check allows only these numbers | Public service form, `public_services` tab, `services.njk`, `Core_servicePhone`, `Core_validatePublic` | A: phone rules, bad numbers and emails left out, check refuses a number elsewhere; U(sim): notes, refused approval, public; SA: tap-to-call; browser | ✅ (live 18 Oct) |
 | A9 | "Open to everyone" on events, with a filter | `open_to_all`, `events.js` | A, U(sim), SA, browser | ✅ |
-| A10 | Contact form inside the Contact page; messages to the district email, kept privately; spam and a daily limit | Contact form, `contact_messages` (private), `fileContact_` | U(sim): emailed, spam held, limit, never public; SA: no email address on the site | 🟡 live after the upgrade; `contact_email` to set |
+| A10 | Contact form inside the Contact page; messages to the district email, kept privately; spam and a daily limit | Contact form, `contact_messages` (private), `fileContact_` | U(sim): emailed, spam held, limit, never public; SA: no email address on the site | ✅ tried live 19 Oct |
 | A11 | One calendar subscription for all events | `/events/calendar.ics`, webcal and Google links | SA: valid calendar, cancellations | ✅ |
 | A12 | In the news: paper, date and link on the activity, and a news page | `press_*` columns, `news.njk` | A, U(sim), SA | ✅ (live 18 Oct) |
 | A13 | Rotary month banner, picked by the visitor's own date | `rotaryMonths.js`, `index.njk`, `site.js` | SA: 12 months, one showing; browser | ✅ |
@@ -119,7 +119,7 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 | A15 | Add to home screen, larger text, recent pages offline | `manifest.webmanifest`, icons, `sw.js`, text-size button | SA: manifest and icons, offline page; browser: installed, pages kept, text size remembered | ✅ |
 | A16 | Posting guide; each club's own form link with the club chosen (private) | `how-to-post.njk`, `makeClubFormLinks_` | U(sim): every active club, never published; SA: page | ✅ |
 | A17 | Activity pages marked as news articles for Google | NewsArticle JSON-LD | SA: every activity page | ✅ |
-| A18 | Monthly private email of clubs not posting (dummy receiver for now) | `notPostingReport`, `Core_clubsNotPosting` | A: rules; U(sim): email | 🟡 live after the upgrade |
+| A18 | Monthly private email of clubs not posting (dummy receiver for now) | `notPostingReport`, `Core_clubsNotPosting` | A: rules; U(sim): email | 🟡 installed; to try live |
 | A19 | Site search | Pagefind, `search.njk` | SA: only listable pages indexed; browser: results | ✅ |
 | A20 | Zones off the website; Assistant Governors with their clubs; bulletin rotates by city | `Core_buildPublicData`, `Core_validatePublic`, `leadership.njk` | A: no zone in the data, check refuses one; SA: no zone on any page; M: city rotation | ✅ (sample `ag_clubs`) |
 
@@ -132,16 +132,16 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 | L3 | Menu of seven: Home, Activities, Events, Clubs, District Leadership, Member Directory, About; Teams, Recognition, Magazine and Messages from the footer and their nearest page | `base.njk`, `activities.njk`, `about.njk` | SA: menu and links | ✅ |
 | L4 | Every page says the data is sample data until production (`SAMPLE_DATA`) | `base.njk`, `build.yml` | SA: banner | ✅ |
 | L5 | New forms moved into the folder that holds the Sheet | `keepInSheetFolder_` | U(sim): all six moved, none twice; live: all six in 3110Website-Testing | ✅ |
-| L6 | Types of moderator in a **moderators** tab (Content, Members, Club engagement, District office, Administrator), placeholders until named; each email goes by type | `moderators` tab, `moderatorRecipients_`, `Core_moderatorEmails` | U(sim): placeholders once, recipients by type, fallbacks, reminders split, never published | 🟡 live after Upgrade Sheet |
-| L7 | Apply moderators: active moderators with sheet_access TRUE edit the main Sheet, Members and Administrator rows the private one too; inactive people and sheet_access FALSE lose access; owner only, asks first | `applyModerators`, `Core_moderatorAccess` | U(sim): owner only, adds, removes only listed people, sheet_access FALSE | 🟡 live after Upgrade Sheet |
-| L8 | Confirmation emails for consent and removal (approved, removed, rejected with reason) | `notifyMember_` | U(sim): three emails, never published | 🟡 live after Upgrade Sheet |
-| L9 | Photo consent names children's parents or guardians; existing form updated | `PHOTO_CONSENT_TEXT`, `addLaterQuestions_` | U(sim): new and older form, once | 🟡 live after Upgrade Sheet |
-| L10 | Moderation desk (`/desk/`): sign-in with an emailed code or link, 7-day session, active moderators only; each type sees its own part; every action in moderator_log | `Desk.js`, `desk.js` | U(sim): codes, wrong codes, forged sessions, lockout, views per type; browser at phone width | 🟡 live after new version + Upgrade Sheet |
-| L11 | Alert emails with personal Approve / Reject buttons (7 days, confirmed on the desk, once); member requests only on the desk | `alertContent_`, `alertMembers_`, `deskConfirm_` | U(sim): per-moderator links, altered and expired links, "Already approved", no personal details in member alerts | 🟡 live after new version + Upgrade Sheet |
-| L12 | Desk: Correct, Story of the month, Leave out of bulletin (also from the Saturday email), Mark as deceased, quiet-club reminders (email once a week, WhatsApp), contact messages answered | `Desk.js` | U(sim) | 🟡 live after new version + Upgrade Sheet |
-| L13 | Contact messages answered from the desk by the district account, signed Rotary District 3110; no moderator name or email ever reaches the public or clubs (no Reply-to, reminders signed by the website team) | `fileContact_`, `deskReply_`, `deskNudge_` | U(sim) | 🟡 live after new version |
-| L14 | A newspaper name that is a web address moves to the newspaper link, with a note | `Core_looksLikeUrl` | U | 🟡 live after new version |
+| L6 | Types of moderator in a **moderators** tab (Content, Members, Club engagement, District office, Administrator), placeholders until named; each email goes by type | `moderators` tab, `moderatorRecipients_`, `Core_moderatorEmails` | U(sim): placeholders once, recipients by type, fallbacks, reminders split, never published | ✅ in use 19 Oct |
+| L7 | Apply moderators: active moderators with sheet_access TRUE edit the main Sheet, Members and Administrator rows the private one too; inactive people and sheet_access FALSE lose access; owner only, asks first | `applyModerators`, `Core_moderatorAccess` | U(sim): owner only, adds, removes only listed people, sheet_access FALSE | 🟡 installed; to try live |
+| L8 | Confirmation emails for consent and removal (approved, removed, rejected with reason) | `notifyMember_` | U(sim): three emails, never published | 🟡 installed; to try live |
+| L9 | Photo consent names children's parents or guardians; existing form updated | `PHOTO_CONSENT_TEXT`, `addLaterQuestions_` | U(sim): new and older form, once | 🟡 installed; to try live |
+| L10 | Moderation desk (`/desk/`): sign-in with an emailed code or link, 7-day session, active moderators only; each type sees its own part; every action in moderator_log | `Desk.js`, `desk.js` | U(sim): codes, wrong codes, forged sessions, lockout, views per type; browser at phone width | ✅ sign-in used live 19 Oct |
+| L11 | Alert emails with personal Approve / Reject buttons (7 days, confirmed on the desk, once); member requests only on the desk | `alertContent_`, `alertMembers_`, `deskConfirm_` | U(sim): per-moderator links, altered and expired links, "Already approved", no personal details in member alerts | 🟡 installed; to try live |
+| L12 | Desk: Correct, Story of the month, Leave out of bulletin (also from the Saturday email), Mark as deceased, quiet-club reminders (email once a week, WhatsApp), contact messages answered | `Desk.js` | U(sim) | 🟡 installed; to try live |
+| L13 | Contact messages answered from the desk by the district account, signed Rotary District 3110; no moderator name or email ever reaches the public or clubs (no Reply-to, reminders signed by the website team) | `fileContact_`, `deskReply_`, `deskNudge_` | U(sim) | ✅ tried live 19 Oct |
+| L14 | A newspaper name that is a web address moves to the newspaper link, with a note | `Core_looksLikeUrl` | U | 🟡 installed; to try live |
 | L15 | The web app never serves a page (no page can call the script's other functions) | `doGet`, `doPost` | U: only the Sheet sidebar uses HtmlService | ✅ |
-| L16 | Practice round: practice items per moderator and type with their emails; never published, counted, reminded or applied; report per person; removal | `Practice.js`, `Core_isPractice` | U(sim): every type, the whole round, nothing published, clubs unchanged, only moderators emailed | 🟡 live after new version |
+| L16 | Practice round: practice items per moderator and type with their emails; never published, counted, reminded or applied; report per person; removal | `Practice.js`, `Core_isPractice` | U(sim): every type, the whole round, nothing published, clubs unchanged, only moderators emailed | 🟡 installed; to try live |
 | L17 | Moderator guide page per type, linked from the desk (`/desk/guide/`), hidden from search | `src/desk-guide.njk` | S: builds; noindex, not in the sitemap | ✅ |
-| L18 | When Google is briefly slow ("Service … timed out"), opening, reading and writing cells and giving or removing Sheet access are tried again (3 tries); adding rows and emails are not; Apply moderators lists anyone it could not finish | `retry_`, `applyModerators` | U(sim): retries, real errors not retried, Rebuild site now, Apply moderators | 🟡 live after new version |
+| L18 | When Google is briefly slow ("Service … timed out"), opening, reading and writing cells and giving or removing Sheet access are tried again (3 tries); adding rows and emails are not; Apply moderators lists anyone it could not finish | `retry_`, `applyModerators` | U(sim): retries, real errors not retried, Rebuild site now, Apply moderators | 🟡 installed; to try live |

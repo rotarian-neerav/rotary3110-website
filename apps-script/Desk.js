@@ -685,9 +685,9 @@ function deskEmailHtml_(card, intro, buttons, how, imageIds) {
 }
 
 /** A new activity, event, club profile update or public service: one email to each Content moderator, with personal Approve and Reject links. */
-function alertContent_(tab, row) {
+function alertContent_(tab, row, only) {
   try {
-    var to = moderatorRecipients_('Content').split(',').filter(String);
+    var to = only || moderatorRecipients_('Content').split(',').filter(String);
     if (!deskQuota_(to.length)) { Logger.log('Alert for ' + row.id + ' not sent: daily email allowance nearly used'); return; }
     var card = deskCard_(tab, row);
     var images = deskInlineImages_(card.photos);
@@ -710,9 +710,9 @@ function alertContent_(tab, row) {
 }
 
 /** A new consent or removal form: the Members moderators are told to open the desk (no details in the email beyond the name). */
-function alertMembers_(kind, row) {
+function alertMembers_(kind, row, only) {
   try {
-    var to = moderatorRecipients_('Members').split(',').filter(String);
+    var to = only || moderatorRecipients_('Members').split(',').filter(String);
     if (!deskQuota_(to.length)) return;
     var club = deskClubName_(row.club_id);
     var what = kind === 'removal' ? 'Removal request' : 'Consent form';

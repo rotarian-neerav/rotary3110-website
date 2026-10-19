@@ -220,23 +220,28 @@ function fileContact_(a, meta) {
   if (!spam && sentToday >= limit) row.note = 'Not emailed: more than ' + limit + ' messages today';
   if (!spam && sentToday < limit) {
     try {
-      var email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.reply_to) ? row.reply_to : '';
-      var mobile = Core_mobile(row.reply_to);
-      MailApp.sendEmail(to, 'Website message: ' + row.topic + ' – from ' + row.name,
-        'A message from the contact form on the district website.\n\nFrom: ' + row.name + '\nReply to: ' + row.reply_to +
-        (row.city ? '\nCity: ' + row.city : '') + '\nAbout: ' + row.topic + '\n\n' + message + '\n\n' +
-        (email ? 'Please answer from the moderation desk (Messages → Reply), not by pressing Reply here: the desk sends your answer from the ' +
-            'district account, signed Rotary District 3110, so your own name and email stay private.'
-          : mobile ? 'They gave a mobile number: +' + mobile + '. Please call or WhatsApp from the district office phone, not your personal phone.'
-          : 'They gave no email or mobile number we can use.') +
-        ' All messages are kept in the contact_messages tab of the private Sheet' + (deskLink_({}) ? ' and on the moderation desk: ' + deskLink_({}) : '.'),
-        { name: 'Rotary 3110 website' }); // never replyTo the sender: a reply would show the moderator's own email
+      contactAlert_(row, to);
       row.forwarded_to = to;
     } catch (e) {
       row.note = 'Email failed: ' + e.message;
     }
   }
   appendRow_(ps, 'contact_messages', row);
+}
+
+/** Tells the District office moderators about a contact message (also used by the practice round). */
+function contactAlert_(row, to) {
+  var email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.reply_to) ? row.reply_to : '';
+  var mobile = Core_mobile(row.reply_to);
+  MailApp.sendEmail(to, 'Website message: ' + row.topic + ' – from ' + row.name,
+    'A message from the contact form on the district website.\n\nFrom: ' + row.name + '\nReply to: ' + row.reply_to +
+    (row.city ? '\nCity: ' + row.city : '') + '\nAbout: ' + row.topic + '\n\n' + row.message + '\n\n' +
+    (email ? 'Please answer from the moderation desk (Messages → Reply), not by pressing Reply here: the desk sends your answer from the ' +
+        'district account, signed Rotary District 3110, so your own name and email stay private.'
+      : mobile ? 'They gave a mobile number: +' + mobile + '. Please call or WhatsApp from the district office phone, not your personal phone.'
+      : 'They gave no email or mobile number we can use.') +
+    ' All messages are kept in the contact_messages tab of the private Sheet' + (deskLink_({}) ? ' and on the moderation desk: ' + deskLink_({}) : '.'),
+    { name: 'Rotary 3110 website' }); // never replyTo the sender: a reply would show the moderator's own email
 }
 
 function fileConsent_(a, meta) {

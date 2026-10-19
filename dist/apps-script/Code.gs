@@ -36,11 +36,30 @@ function props_() {
 }
 
 function mainSs_() {
-  return SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.openById(props_().getProperty('MAIN_SHEET_ID'));
+  return SpreadsheetApp.getActiveSpreadsheet() || retry_(function () { return SpreadsheetApp.openById(props_().getProperty('MAIN_SHEET_ID')); });
 }
 
 function privateSs_() {
-  return SpreadsheetApp.openById(CONFIG.PRIVATE_SHEET_ID);
+  return retry_(function () { return SpreadsheetApp.openById(CONFIG.PRIVATE_SHEET_ID); });
+}
+
+// Google's own words when it is only briefly slow or busy ("Service Drive timed out while accessing document…")
+var RETRY_RE = /timed out|try again|temporarily|unavailable|internal error|backend error|service error/i;
+
+/**
+ * Runs fn, and runs it again (up to 3 tries, with a short pause) when Google is only briefly slow. Used only for
+ * steps that are safe to repeat: opening a Sheet, reading, writing a cell, giving or removing access. Never for
+ * adding a row or sending an email, which a slow answer may already have done.
+ */
+function retry_(fn) {
+  for (var i = 1; ; i++) {
+    try {
+      return fn();
+    } catch (e) {
+      if (i >= 3 || !RETRY_RE.test(String(e && e.message))) throw e;
+      Utilities.sleep(2000 * i);
+    }
+  }
 }
 
 function nowIso_() {
@@ -55,7 +74,7 @@ function today_() {
 function readTab_(ss, name) {
   var sh = ss.getSheetByName(name);
   if (!sh || sh.getLastRow() < 1) return [];
-  var values = sh.getDataRange().getValues();
+  var values = retry_(function () { return sh.getDataRange().getValues(); });
   var headers = values[0];
   var out = [];
   for (var r = 1; r < values.length; r++) {
@@ -73,7 +92,7 @@ function readTab_(ss, name) {
 
 function headers_(ss, name) {
   var sh = ss.getSheetByName(name);
-  return sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  return retry_(function () { return sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0]; });
 }
 
 /** Writes some fields of one row (by sheet row number), leaving the other cells alone. */
@@ -83,7 +102,7 @@ function updateRow_(ss, name, rowNumber, fields) {
   Object.keys(fields).forEach(function (key) {
     var col = headers.indexOf(key);
     if (col < 0) throw new Error('Column "' + key + '" not found in ' + name);
-    sh.getRange(rowNumber, col + 1).setValue(fields[key]);
+    retry_(function () { sh.getRange(rowNumber, col + 1).setValue(fields[key]); });
   });
 }
 
@@ -591,6 +610,11 @@ function Core_moderatorActive(r) {
   return !(r.active === false || Core_str(r.active).toUpperCase() === 'FALSE') && CORE_EMAIL_RE.test(Core_str(r.email));
 }
 
+/** A practice-round item (ID PRAC-…): seen only on the moderation desk, never published or counted. */
+function Core_isPractice(r) {
+  return /^PRAC-/i.test(Core_str(r && r.id));
+}
+
 /** Emails of the active moderators of one type, each once, lower case. */
 function Core_moderatorEmails(rows, type) {
   var out = [];
@@ -653,7 +677,7 @@ function Core_quietClubs(clubs, activities, today, days) {
   (activities || []).forEach(function (a) {
     var s = Core_str(a.status).toLowerCase();
     var d = Core_isoDate(a.date);
-    if ((s !== 'approved' && s !== 'pending') || !d || d > today) return;
+    if ((s !== 'approved' && s !== 'pending') || !d || d > today || Core_isPractice(a)) return;
     var id = Core_str(a.club_id);
     if (!last[id] || d > last[id]) last[id] = d;
   });
@@ -675,7 +699,7 @@ function Core_clubsNotPosting(clubs, activities, month) {
   var posted = {};
   (activities || []).forEach(function (a) {
     var st = Core_str(a.status).toLowerCase();
-    if (st !== 'approved' && st !== 'pending') return;
+    if ((st !== 'approved' && st !== 'pending') || Core_isPractice(a)) return;
     var d = Core_isoDate(a.date);
     var id = Core_str(a.club_id);
     if (!d || !id || d.slice(0, 7) > month) return;
@@ -1202,7 +1226,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
   var skipped = [];
   var duplicates = [];
   var activities = Core_uniqueRows((tabs.activities || []).filter(function (a) {
-    return Core_str(a.status).toLowerCase() === 'approved';
+    return Core_str(a.status).toLowerCase() === 'approved' && !Core_isPractice(a);
   }), duplicates).map(function (a) {
     var avenue = '';
     CORE_AVENUES.forEach(function (v) { if (v.toLowerCase() === Core_str(a.avenue).toLowerCase()) avenue = v; });
@@ -1240,7 +1264,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
   activities.forEach(function (a) { activityIds[a.id] = a; });
 
   var events = Core_uniqueRows((tabs.events || []).filter(function (e) {
-    return Core_str(e.status).toLowerCase() === 'approved';
+    return Core_str(e.status).toLowerCase() === 'approved' && !Core_isPractice(e);
   }), duplicates).map(function (e) {
     var report = Core_str(e.report_activity_id);
     var fee = Core_safeText(e.fee, 'event ' + Core_str(e.id) + ' fee', skippedItems);
@@ -1279,7 +1303,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
 
   // Lasting facilities the public can use, with the institution's own phone number, address and map link
   var publicServices = Core_uniqueRows((tabs.public_services || []).filter(function (s) {
-    return Core_str(s.status).toLowerCase() === 'approved';
+    return Core_str(s.status).toLowerCase() === 'approved' && !Core_isPractice(s);
   }), duplicates).map(function (s) {
     var where = 'public service ' + Core_str(s.id);
     var phone = Core_servicePhone(s.phone);
@@ -1605,7 +1629,7 @@ function Core_titleWords(title) {
 /** Rows still pending after the given number of hours. */
 function Core_overdue(rows, nowMs, hours) {
   return rows.filter(function (r) {
-    if (Core_str(r.status).toLowerCase() !== 'pending') return false;
+    if (Core_str(r.status).toLowerCase() !== 'pending' || Core_isPractice(r)) return false;
     var t = new Date(r.submitted_at).getTime();
     return !isNaN(t) && nowMs - t > hours * 3600000;
   });
@@ -1694,7 +1718,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_contactCheck: Core_contactCheck, Core_clubsNotPosting: Core_clubsNotPosting,
     CORE_AVENUES: CORE_AVENUES, CORE_SERVICE_TYPES: CORE_SERVICE_TYPES, CORE_WEEKDAYS: CORE_WEEKDAYS,
     CORE_MODERATOR_TYPES: CORE_MODERATOR_TYPES, Core_moderatorEmails: Core_moderatorEmails, Core_moderatorAccess: Core_moderatorAccess,
-    Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl,
+    Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl, Core_isPractice: Core_isPractice,
   };
 }
 
@@ -2782,23 +2806,28 @@ function fileContact_(a, meta) {
   if (!spam && sentToday >= limit) row.note = 'Not emailed: more than ' + limit + ' messages today';
   if (!spam && sentToday < limit) {
     try {
-      var email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.reply_to) ? row.reply_to : '';
-      var mobile = Core_mobile(row.reply_to);
-      MailApp.sendEmail(to, 'Website message: ' + row.topic + ' – from ' + row.name,
-        'A message from the contact form on the district website.\n\nFrom: ' + row.name + '\nReply to: ' + row.reply_to +
-        (row.city ? '\nCity: ' + row.city : '') + '\nAbout: ' + row.topic + '\n\n' + message + '\n\n' +
-        (email ? 'Please answer from the moderation desk (Messages → Reply), not by pressing Reply here: the desk sends your answer from the ' +
-            'district account, signed Rotary District 3110, so your own name and email stay private.'
-          : mobile ? 'They gave a mobile number: +' + mobile + '. Please call or WhatsApp from the district office phone, not your personal phone.'
-          : 'They gave no email or mobile number we can use.') +
-        ' All messages are kept in the contact_messages tab of the private Sheet' + (deskLink_({}) ? ' and on the moderation desk: ' + deskLink_({}) : '.'),
-        { name: 'Rotary 3110 website' }); // never replyTo the sender: a reply would show the moderator's own email
+      contactAlert_(row, to);
       row.forwarded_to = to;
     } catch (e) {
       row.note = 'Email failed: ' + e.message;
     }
   }
   appendRow_(ps, 'contact_messages', row);
+}
+
+/** Tells the District office moderators about a contact message (also used by the practice round). */
+function contactAlert_(row, to) {
+  var email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.reply_to) ? row.reply_to : '';
+  var mobile = Core_mobile(row.reply_to);
+  MailApp.sendEmail(to, 'Website message: ' + row.topic + ' – from ' + row.name,
+    'A message from the contact form on the district website.\n\nFrom: ' + row.name + '\nReply to: ' + row.reply_to +
+    (row.city ? '\nCity: ' + row.city : '') + '\nAbout: ' + row.topic + '\n\n' + row.message + '\n\n' +
+    (email ? 'Please answer from the moderation desk (Messages → Reply), not by pressing Reply here: the desk sends your answer from the ' +
+        'district account, signed Rotary District 3110, so your own name and email stay private.'
+      : mobile ? 'They gave a mobile number: +' + mobile + '. Please call or WhatsApp from the district office phone, not your personal phone.'
+      : 'They gave no email or mobile number we can use.') +
+    ' All messages are kept in the contact_messages tab of the private Sheet' + (deskLink_({}) ? ' and on the moderation desk: ' + deskLink_({}) : '.'),
+    { name: 'Rotary 3110 website' }); // never replyTo the sender: a reply would show the moderator's own email
 }
 
 function fileConsent_(a, meta) {
@@ -2863,6 +2892,9 @@ function onOpen() {
       .addItem('Send bulletin preview now', 'bulletinPreview')
       .addItem('Send bulletin message now', 'sendBulletinMessageNow')
       .addItem('Send clubs-not-posting email now', 'sendNotPostingNow')
+      .addItem('Practice round: start…', 'startPractice')
+      .addItem('Practice round: report', 'practiceReport')
+      .addItem('Practice round: remove practice items…', 'removePractice')
       .addItem('Run setup again', 'setup'))
     .addToUi();
 }
@@ -2924,7 +2956,7 @@ function approveBlock_(tab, r) {
 /** Approves one row (already checked with approveBlock_) and tells the sender. */
 function approveRow_(tab, r, who) {
   updateRow_(mainSs_(), tab, r._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
-  if (tab === 'club_profile_requests') applyClubProfile_(r);
+  if (tab === 'club_profile_requests' && !Core_isPractice(r)) applyClubProfile_(r);
   notifySubmitter_(tab, r, true, '');
 }
 
@@ -2973,18 +3005,20 @@ function notifySubmitter_(tab, r, approved, reason) {
 /**
  * Administrator → Apply moderators: gives every active moderator edit access to the main Sheet, and Members and
  * Administrator moderators the private members Sheet too; removes access from people the tab lists as inactive.
- * Shows the changes and asks first. Only the owner of the Sheet may run it.
+ * Shows the changes and asks first. Only the owner of the Sheet may run it. When Google is slow, each step is
+ * tried again; anyone it still could not change is listed at the end, and running it again finishes the job.
  */
 function applyModerators() {
   var ui = SpreadsheetApp.getUi();
   var main = mainSs_();
   var priv = privateSs_();
-  var owner = DriveApp.getFileById(main.getId()).getOwner().getEmail();
+  // the Sheet itself knows its owner; asking Drive is slower and is what timed out on 19 Oct
+  var owner = retry_(function () { var o = main.getOwner(); return o ? o.getEmail() : DriveApp.getFileById(main.getId()).getOwner().getEmail(); });
   if (Core_str(Session.getActiveUser().getEmail()).toLowerCase() !== Core_str(owner).toLowerCase()) {
     ui.alert('Only the owner of the Sheet can change who has access.');
     return;
   }
-  var emails = function (ss) { return ss.getEditors().map(function (u) { return u.getEmail(); }); };
+  var emails = function (ss) { return retry_(function () { return ss.getEditors(); }).map(function (u) { return u.getEmail(); }); };
   var plan = Core_moderatorAccess(readTab_(main, 'moderators'), owner, emails(main), emails(priv));
   var lines = [];
   if (plan.addMain.length) lines.push('Give access to this Sheet: ' + plan.addMain.join(', '));
@@ -2993,11 +3027,20 @@ function applyModerators() {
   if (plan.removePrivate.length) lines.push('Remove access to the private members Sheet: ' + plan.removePrivate.join(', '));
   if (!lines.length) { ui.alert('Access already matches the moderators tab.'); return; }
   if (ui.alert('Apply moderators', lines.join('\n\n') + '\n\nGo ahead?', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
-  plan.addMain.forEach(function (e) { main.addEditor(e); });
-  plan.removeMain.forEach(function (e) { main.removeEditor(e); });
-  plan.addPrivate.forEach(function (e) { priv.addEditor(e); });
-  plan.removePrivate.forEach(function (e) { priv.removeEditor(e); });
-  ui.alert('Done. Google emails each new moderator a link to the Sheet.');
+  var failed = [];
+  var step = function (list, what, fn) {
+    list.forEach(function (e) {
+      try { retry_(function () { fn(e); }); } catch (err) { failed.push(what + ' ' + e + ' (' + err.message + ')'); }
+    });
+  };
+  step(plan.addMain, 'Give this Sheet to', function (e) { main.addEditor(e); });
+  step(plan.removeMain, 'Remove this Sheet from', function (e) { main.removeEditor(e); });
+  step(plan.addPrivate, 'Give the private members Sheet to', function (e) { priv.addEditor(e); });
+  step(plan.removePrivate, 'Remove the private members Sheet from', function (e) { priv.removeEditor(e); });
+  ui.alert(failed.length
+    ? 'Done, except (Google did not answer in time; run Apply moderators again to finish):\n\n' + failed.join('\n')
+    : 'Done. Google emails each new moderator a link to the Sheet.');
+  plan.failed = failed;
   return plan;
 }
 
@@ -3158,6 +3201,10 @@ function approveConsent_(requestId, who) {
     var req = readTab_(ps, 'consent_requests').filter(function (r) { return r.id === requestId; })[0];
     if (!req || Core_str(req.status) !== 'pending') throw new Error('Request ' + requestId + ' is not pending.');
     if (!Core_isTrue(req.declaration)) throw new Error('The declaration was not ticked; reject and ask the member to send the form again.');
+    if (Core_isPractice(req)) {
+      updateRow_(ps, 'consent_requests', req._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
+      return 'Practice: approved. Nothing was changed in the members list.';
+    }
     var member = findOrCreateMember_(ps, req, 'Created from consent request ' + requestId);
     var fields = {
       directory_ok: Core_isTrue(req.directory_ok), contact_ok: Core_isTrue(req.contact_ok), photo_ok: Core_isTrue(req.photo_ok),
@@ -3310,6 +3357,10 @@ function approveRemoval_(requestId, who) {
     var ps = privateSs_();
     var req = readTab_(ps, 'removal_requests').filter(function (r) { return r.id === requestId; })[0];
     if (!req || Core_str(req.status) !== 'pending') throw new Error('Request ' + requestId + ' is not pending.');
+    if (Core_isPractice(req)) {
+      updateRow_(ps, 'removal_requests', req._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
+      return 'Practice: done. Nothing was removed.';
+    }
     var master = readTab_(ps, 'members_master');
     var i = Core_matchMember(req, master);
     if (i < 0) throw new Error('No member matches this request. Check the name, club and mobile number, then fill in member_id on the request.');
@@ -4222,9 +4273,9 @@ function deskEmailHtml_(card, intro, buttons, how, imageIds) {
 }
 
 /** A new activity, event, club profile update or public service: one email to each Content moderator, with personal Approve and Reject links. */
-function alertContent_(tab, row) {
+function alertContent_(tab, row, only) {
   try {
-    var to = moderatorRecipients_('Content').split(',').filter(String);
+    var to = only || moderatorRecipients_('Content').split(',').filter(String);
     if (!deskQuota_(to.length)) { Logger.log('Alert for ' + row.id + ' not sent: daily email allowance nearly used'); return; }
     var card = deskCard_(tab, row);
     var images = deskInlineImages_(card.photos);
@@ -4247,9 +4298,9 @@ function alertContent_(tab, row) {
 }
 
 /** A new consent or removal form: the Members moderators are told to open the desk (no details in the email beyond the name). */
-function alertMembers_(kind, row) {
+function alertMembers_(kind, row, only) {
   try {
-    var to = moderatorRecipients_('Members').split(',').filter(String);
+    var to = only || moderatorRecipients_('Members').split(',').filter(String);
     if (!deskQuota_(to.length)) return;
     var club = deskClubName_(row.club_id);
     var what = kind === 'removal' ? 'Removal request' : 'Consent form';
@@ -4449,7 +4500,7 @@ function refreshDashboard() {
   var mo = +today.slice(5, 7);
   var lastMonth = mo === 1 ? (y - 1) + '-12' : y + '-' + ('0' + (mo - 1)).slice(-2);
   var ryStart = (mo >= 7 ? y : y - 1) + '-07';
-  var acts = readTab_(ss, 'activities').filter(function (a) { return ['approved', 'pending'].indexOf(Core_str(a.status)) >= 0; });
+  var acts = readTab_(ss, 'activities').filter(function (a) { return ['approved', 'pending'].indexOf(Core_str(a.status)) >= 0 && !Core_isPractice(a); });
   var rows = clubs_().filter(function (c) { return Core_str(c.status || 'active') === 'active'; }).map(function (c) {
     var mine = acts.filter(function (a) { return Core_str(a.club_id) === Core_str(c.club_id); }).map(function (a) { return Core_isoDate(a.date); }).filter(String).sort();
     var ry = mine.filter(function (d) { return d.slice(0, 7) >= ryStart; });
@@ -4584,4 +4635,228 @@ function clearSampleData() {
   refreshDashboard();
   requestRebuild();
   ui.alert('Sample data cleared.\n' + (removed.join('\n') || 'Nothing to clear.'));
+}
+
+
+// ===== Practice.js =====
+/**
+ * Practice round: before moderators start for real, each one gets practice items made for them on the moderation
+ * desk, with the same emails a real item sends, and an email listing what to try. Practice items have IDs
+ * starting PRAC- and is_sample = TRUE: they are never published or counted (Core_isPractice), approving one never
+ * changes a club or the members list, and nobody outside the moderators is emailed. "Practice round: report"
+ * shows who has done what; "remove practice items" (or Clear all sample data) deletes them.
+ */
+
+var PRACTICE_TYPES = ['Content', 'Members', 'District office', 'Club engagement'];
+
+// What each practice item is, what to do with it, and how the report tells it was done
+var PRACTICE_ITEMS = [
+  { type: 'Content', tab: 'activities', title: 'Practice: Tree plantation in the city park',
+    task: 'Check the club\'s link, then Approve. Try it from the Approve button in its email.',
+    done: function (r) { return Core_str(r.status) === 'approved' ? '' : 'not approved yet'; } },
+  { type: 'Content', tab: 'activities', title: 'Practice: Blood donation camp',
+    task: 'The text has a member\'s personal mobile number. Tap Correct, remove the number, Save, then Approve.',
+    done: function (r) {
+      if (Core_str(r.status) !== 'approved') return 'not approved yet';
+      return /\d{5}\s?\d{5}/.test(Core_str(r.description)) ? 'approved, but the mobile number is still in the text' : '';
+    } },
+  { type: 'Content', tab: 'events', title: 'Practice: Club assembly and fellowship dinner',
+    task: 'The fee has UPI payment details. Tap Correct, change the fee to "₹300 per person", Save, then Approve.',
+    done: function (r) {
+      if (Core_str(r.status) !== 'approved') return 'not approved yet';
+      return CORE_PAYMENT_RE.test(Core_str(r.fee)) ? 'approved, but the fee still has payment details' : '';
+    } },
+  { type: 'Content', tab: 'activities', title: 'Practice: Visit to an old-age home',
+    task: 'It has no photo and no link, so it cannot be published. Reject it, with a reason the club will understand.',
+    done: function (r) { return Core_str(r.status) === 'rejected' ? '' : 'not rejected yet'; } },
+  { type: 'Members', tab: 'consent_requests', title: 'Practice: Rtn Asha Sharma',
+    task: 'The declaration was not ticked. Reject it, with a reason the member will understand. Then try Mark as deceased: search for any name, look, and do not confirm.',
+    done: function (r) { return Core_str(r.status) === 'rejected' ? '' : 'not rejected yet'; } },
+  { type: 'District office', tab: 'contact_messages', title: 'Practice: Ramesh Gupta',
+    task: 'Tap Reply, write a short answer and tap Send. It comes to your own inbox, exactly as the public would get it: from the district account, without your name.',
+    done: function (r) { return Core_str(r.replies) ? '' : 'no reply sent yet'; } },
+  { type: 'District office', tab: 'contact_messages', title: 'Practice: Sunita',
+    task: 'She gave only a mobile number. Do not call it (it is not real); for a real message you would call from the district office phone. Tap Mark answered.',
+    done: function (r) { return Core_str(r.status) === 'answered' ? '' : 'not marked answered yet'; } },
+];
+
+var PRACTICE_CLUB_TASK = 'Open Quiet clubs, choose any club and tap WhatsApp, then send the message to yourself, not to the club. ' +
+  'Do not tap Email in the practice round: it really emails that club\'s President and Secretary.';
+
+/** Who practises what: the active moderators of each type; a type with nobody yet goes to the district account. */
+function practicePeople_() {
+  var rows = deskModeratorRows_();
+  var out = {};
+  PRACTICE_TYPES.forEach(function (t) {
+    var list = Core_moderatorEmails(rows, t);
+    out[t] = list.length ? list : [deskOwner_()];
+  });
+  return out;
+}
+
+/** Rotary → Administrator → Practice round: start… */
+function startPractice() {
+  var ui = SpreadsheetApp.getUi();
+  var people = practicePeople_();
+  var lines = PRACTICE_TYPES.map(function (t) { return t + ': ' + people[t].map(deskName_).join(', '); });
+  if (ui.alert('Start a practice round',
+    'Each person gets practice items on the moderation desk, the emails that go with them, and an email saying what to try:\n\n' +
+    lines.join('\n') + '\n\nPractice items are never published. Go ahead?', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  var made = practiceAdd_(people);
+  ui.alert('Practice round started: ' + made.length + ' practice items. Each person has an email saying what to try.\n\n' +
+    'Rotary → Administrator → Practice round: report shows who has done what.');
+  return made;
+}
+
+function practiceAdd_(people) {
+  var main = mainSs_();
+  var ps = privateSs_();
+  var now = nowIso_();
+  var today = today_();
+  var club = clubs_().filter(function (c) { return Core_str(c.status || 'active').toLowerCase() === 'active'; })[0] || {};
+  var city = Core_str(club.city) || 'Agra';
+  var made = [];
+  var add = function (ss, tab, row) {
+    row.id = nextId_(readTab_(ss, tab), 'PRAC-');
+    row.is_sample = true;
+    appendRow_(ss, tab, row);
+    made.push(row);
+    return row;
+  };
+  var sent = function (email, name) {
+    return { submitted_at: now, submitter_email: '', submitter_name: 'Practice (' + name + ')', submitter_role: 'Secretary',
+      submitter_mobile: '', status: 'pending', source: 'practice', moderator_note: 'Practice for ' + name };
+  };
+  var forItem = function (title) { return PRACTICE_ITEMS.filter(function (i) { return i.title === title; })[0]; };
+  setSetting_('practice_started_at', now);
+
+  people.Content.forEach(function (email) {
+    var name = deskName_(email);
+    var act = function (title, more) {
+      return Object.assign(sent(email, name), { club_id: Core_str(club.club_id), club_name: Core_str(club.club_name), title: title,
+        date: Core_addDays(today, -3), theme: 'Protecting the environment', avenue: 'Community Service', photo_consent: false }, more);
+    };
+    var rows = [
+      ['activities', act(PRACTICE_ITEMS[0].title, { description: 'Members planted 50 neem and peepal saplings along the park boundary and fixed tree guards. ' +
+        'Students of the nearby school will water them through the summer.', post_link: siteUrl_() + 'how-to-post/', people_helped: 200 })],
+      ['activities', act(PRACTICE_ITEMS[1].title, { theme: 'Fighting disease', description: '42 units of blood were collected at the club\'s camp with the district hospital. ' +
+        'For the next camp call Rtn Mehta on 98765 43210.', post_link: siteUrl_() + 'how-to-post/' })],
+      ['events', Object.assign(sent(email, name), { title: PRACTICE_ITEMS[2].title, event_type: 'Club event open to all',
+        start_date: Core_addDays(today, 10), start_time: '19:00', venue: 'Hotel Grand', city: city, organiser: Core_str(club.club_name),
+        description: 'Monthly club assembly followed by a fellowship dinner with families.', fee: '₹300 per person, pay by UPI 9876543210@upi',
+        moderator_note: 'Practice for ' + name + '; Fee contains payment details: remove before approving' })],
+      ['activities', act(PRACTICE_ITEMS[3].title, { theme: 'Club service / Other', description: 'Members spent the evening with the residents and gave them blankets.',
+        moderator_note: 'Practice for ' + name + '; No photo or link: reject or ask the club for one' })],
+    ];
+    rows.forEach(function (x) { alertContent_(x[0], add(main, x[0], x[1]), [email]); });
+  });
+
+  people.Members.forEach(function (email) {
+    var name = deskName_(email);
+    var req = add(ps, 'consent_requests', { submitted_at: now, submitter_email: '', filled_by: 'The member', club_id: Core_str(club.club_id),
+      name: forItem('Practice: Rtn Asha Sharma').title, directory_ok: true, profession: 'Teacher', area: city, contact_ok: false, photo_ok: false,
+      declaration: false, status: 'pending', moderator_note: 'Practice for ' + name });
+    alertMembers_('consent', req, [email]);
+  });
+
+  people['District office'].forEach(function (email) {
+    var name = deskName_(email);
+    [
+      { name: forItem('Practice: Ramesh Gupta').title, reply_to: email, topic: 'I want to join Rotary', city: city,
+        message: 'Namaste. I run a small business in ' + city + ' and would like to join a Rotary club near me. How do I start?' },
+      { name: forItem('Practice: Sunita').title, reply_to: '90000 00000', topic: 'Blood needed', city: city,
+        message: 'My father needs two units of B+ blood at the district hospital tomorrow. Can Rotary help?' },
+    ].forEach(function (m) {
+      var row = add(ps, 'contact_messages', Object.assign(m, { submitted_at: now, status: 'new', forwarded_to: email, note: 'Practice for ' + name }));
+      try { contactAlert_(row, email); } catch (e) { Logger.log('Practice alert not sent: ' + e.message); }
+    });
+  });
+
+  practiceEmails_(people);
+  return made;
+}
+
+/** One email per person: what to try, for each of their types. */
+function practiceEmails_(people) {
+  var tasks = {};
+  PRACTICE_TYPES.forEach(function (t) {
+    people[t].forEach(function (email) {
+      tasks[email] = tasks[email] || [];
+      tasks[email].push('\n' + t.toUpperCase() + '\n' + (t === 'Club engagement' ? '• ' + PRACTICE_CLUB_TASK
+        : PRACTICE_ITEMS.filter(function (i) { return i.type === t; }).map(function (i) { return '• "' + i.title + '": ' + i.task; }).join('\n')));
+    });
+  });
+  var desk = deskLink_({});
+  Object.keys(tasks).forEach(function (email) {
+    if (!deskQuota_(1)) return;
+    MailApp.sendEmail(email, 'Practice round on the moderation desk',
+      'Dear ' + deskName_(email) + ',\n\nBefore the website opens, please try the moderation desk with a few practice items made just for you. ' +
+      'They look real, but they are never published and nobody outside the moderators is emailed.\n\n' +
+      'Open the desk' + (desk ? ': ' + desk : ' from any moderator email') + '\nSign in with this email address; a code comes by email.\n' +
+      'The guide for each type of moderator: ' + siteUrl_() + 'desk/guide/\n' + tasks[email].join('\n') +
+      '\n\nWhen you have finished, tell the website administrator. Thank you!\nRotary District 3110 website',
+      { name: 'Rotary 3110 website' });
+  });
+}
+
+/** Rotary → Administrator → Practice round: report. Who has done what, person by person. */
+function practiceReport() {
+  var lines = practiceReportLines_();
+  try { SpreadsheetApp.getUi().alert('Practice round', lines.join('\n') || 'No practice items. Start a practice round first.', SpreadsheetApp.getUi().ButtonSet.OK); } catch (e) { /* called from code */ }
+  return lines;
+}
+
+function practiceReportLines_() {
+  var tabs = { activities: mainSs_(), events: mainSs_(), consent_requests: privateSs_(), contact_messages: privateSs_() };
+  var byPerson = {};
+  var put = function (who, line) { (byPerson[who] = byPerson[who] || []).push(line); };
+  var cache = {};
+  PRACTICE_ITEMS.forEach(function (item) {
+    var rows = cache[item.tab] = cache[item.tab] || readTab_(tabs[item.tab], item.tab).filter(Core_isPractice);
+    rows.filter(function (r) { return Core_str(r.title || r.name) === item.title; }).forEach(function (r) {
+      var who = practiceFor_(r);
+      var problem = item.done(r);
+      put(who.trim(), (problem ? '✗ ' : '✓ ') + item.title.replace(/^Practice: /, '') + (problem ? ': ' + problem : ''));
+    });
+  });
+  var since = Core_str(readTab_(mainSs_(), 'settings').filter(function (r) { return r.key === 'practice_started_at'; }).map(function (r) { return r.value; })[0]);
+  if (since) {
+    var log = readTab_(mainSs_(), 'moderator_log');
+    practicePeople_()['Club engagement'].forEach(function (email) {
+      var tried = log.some(function (l) { return Core_str(l.moderator).toLowerCase() === email && /^reminder /.test(Core_str(l.action)) && Core_isoTimestamp(l.at) >= Core_isoTimestamp(since); });
+      put(deskName_(email), (tried ? '✓ ' : '✗ ') + 'Quiet clubs reminder' + (tried ? '' : ': not tried yet'));
+    });
+  }
+  var out = [];
+  Object.keys(byPerson).forEach(function (who) { out.push(who + '\n  ' + byPerson[who].join('\n  ')); });
+  return out;
+}
+
+/** Whom a practice item was made for: the "Practice for …" mark, or (a rejection replaces the note) whoever acted on it. */
+function practiceFor_(r) {
+  var m = [r.submitter_name, r.moderator_note, r.note].map(Core_str).join('; ').match(/Practice (?:for |\()([^;:)]+)/);
+  return Core_str(m ? m[1] : deskName_(r.approved_by)) || '?';
+}
+
+/** Rotary → Administrator → Practice round: remove practice items… (the moderator_log keeps its record). */
+function removePractice() {
+  var ui = SpreadsheetApp.getUi();
+  if (ui.alert('Remove practice items?', 'Every practice item (ID starting PRAC-) is deleted from both Sheets. Nothing else changes.', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  var removed = [];
+  [mainSs_(), privateSs_()].forEach(function (ss) {
+    ss.getSheets().forEach(function (sh) {
+      if (sh.getLastRow() < 2) return;
+      var values = retry_(function () { return sh.getDataRange().getValues(); });
+      var col = values[0].indexOf('id');
+      if (col < 0 || sh.getName() === 'moderator_log') return;
+      var keep = values.filter(function (row, i) { return i === 0 || !Core_isPractice({ id: row[col] }); });
+      if (keep.length === values.length) return;
+      sh.getRange(1, 1, values.length, values[0].length).clearContent();
+      sh.getRange(1, 1, keep.length, keep[0].length).setValues(keep);
+      removed.push(sh.getName() + ': ' + (values.length - keep.length));
+    });
+  });
+  setSetting_('practice_started_at', '');
+  ui.alert('Practice items removed.\n' + (removed.join('\n') || 'There were none.'));
+  return removed;
 }

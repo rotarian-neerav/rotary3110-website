@@ -2,7 +2,7 @@
 
 Moderators check everything before it appears on the website. Any Content moderator can approve any club's entry. Target: **within 48 hours**. If something waits longer, the moderators of that type get a reminder email at 7 am.
 
-**Most moderators never need to open the Sheet.** They work from their email and the **moderation desk**, a simple page on the website made for phones (below). The Sheet and its **Rotary** menu stay for the Administrator, and for anyone who prefers them. The first time you use the **Rotary** menu, Google asks you to allow the script. That is how the Sheet records *who* approved each entry.
+**Most moderators never need to open the Sheet.** They work from their email and the **moderation desk**, a simple page on the website made for phones (below). A short phone guide for each type of moderator is at `…/desk/guide/` (the **Guide** button on the desk). The Sheet and its **Rotary** menu stay for the Administrator, and for anyone who prefers them. The first time you use the **Rotary** menu, Google asks you to allow the script. That is how the Sheet records *who* approved each entry.
 
 ## The moderation desk (no Sheet needed)
 
@@ -24,6 +24,22 @@ Moderators check everything before it appears on the website. Any Content modera
 - **Every action is recorded:** `approved_by` on the row, as with the Rotary menu, and a line in the **moderator_log** tab (who, what, when).
 - **Who can sign in:** only active rows of the moderators tab (and the district account). Setting someone's `active` to **FALSE** locks them out of the desk at once.
 - **Member requests** are never approved from an email button, only on the signed-in desk. Their alert email shows just the name and club.
+
+## Practice round (before the website opens)
+
+**Rotary → Administrator → Practice round: start…** (the Administrator) gives every active moderator practice items made for them on the desk, titled "Practice: …", with the same emails a real item sends and one email listing what to try:
+
+| Type | Practice items |
+|---|---|
+| Content | A good activity to approve (from the email's button); one with a personal mobile number to remove with **Correct**, then approve; an event whose fee has UPI details to correct, then approve; one with no photo or link to reject |
+| Members | A consent form without the declaration ticked, to reject; a search in **Mark as deceased**, without confirming |
+| District office | A message with the moderator's own email as the reply address, to answer with **Reply** (it arrives in their own inbox, as the public would get it); a phone-only message to mark answered, without calling |
+| Club engagement | No items: send a **WhatsApp** reminder to themselves from **Quiet clubs** (not **Email**, which really emails the club) |
+
+A type with no moderator yet gets its practice items on the district account. Practice items have IDs starting `PRAC-` and `is_sample` TRUE: they are never published, never counted for quiet clubs or the dashboard, never sent 48-hour reminders, and approving one never changes a club or the members list. Nobody outside the moderators is emailed.
+
+- **Practice round: report** lists, person by person, what each has done (✓) and what is still to do (✗).
+- **Practice round: remove practice items…** deletes them when everyone has finished (**Clear all sample data** removes them too). The **moderator_log** keeps its record.
 
 ## Types of moderator
 
@@ -94,7 +110,7 @@ Clubs send one **Public service run by a club** form per facility. New ones appe
 
 ## Contact messages
 
-Messages from the website's contact form go to the private Sheet's **contact_messages** tab and are emailed to the **District office** moderators (moderators tab). If the person gave an email, just press **Reply** in your email program; if they gave a mobile number, the email has a WhatsApp link. Then mark it answered on the desk's **Messages** tab (or set `status` to **answered** in the Sheet). Messages that look like spam (more than two links, or hardly any words) are kept with status **spam** and not emailed; so are messages beyond `contact_daily_limit` in a day. The reply details are never shown on the website.
+Messages from the website's contact form go to the private Sheet's **contact_messages** tab and are emailed to the **District office** moderators (moderators tab). **Never press Reply on that email**: it would show your own name and email. Answer on the desk instead: **Messages → Reply**, type the answer, **Send**. It goes from the district account, signed "Rotary District 3110"; the answer is kept in the `replies` column and the message is marked answered. If the person gave only a mobile number, call or WhatsApp from the district office phone, then **Mark answered** (or set `status` to **answered** in the Sheet). Messages that look like spam (more than two links, or hardly any words) are kept with status **spam** and not emailed; so are messages beyond `contact_daily_limit` in a day. The reply details are never shown on the website.
 
 ## Member requests (consent and removal)
 

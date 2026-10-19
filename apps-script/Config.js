@@ -32,11 +32,30 @@ function props_() {
 }
 
 function mainSs_() {
-  return SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.openById(props_().getProperty('MAIN_SHEET_ID'));
+  return SpreadsheetApp.getActiveSpreadsheet() || retry_(function () { return SpreadsheetApp.openById(props_().getProperty('MAIN_SHEET_ID')); });
 }
 
 function privateSs_() {
-  return SpreadsheetApp.openById(CONFIG.PRIVATE_SHEET_ID);
+  return retry_(function () { return SpreadsheetApp.openById(CONFIG.PRIVATE_SHEET_ID); });
+}
+
+// Google's own words when it is only briefly slow or busy ("Service Drive timed out while accessing document…")
+var RETRY_RE = /timed out|try again|temporarily|unavailable|internal error|backend error|service error/i;
+
+/**
+ * Runs fn, and runs it again (up to 3 tries, with a short pause) when Google is only briefly slow. Used only for
+ * steps that are safe to repeat: opening a Sheet, reading, writing a cell, giving or removing access. Never for
+ * adding a row or sending an email, which a slow answer may already have done.
+ */
+function retry_(fn) {
+  for (var i = 1; ; i++) {
+    try {
+      return fn();
+    } catch (e) {
+      if (i >= 3 || !RETRY_RE.test(String(e && e.message))) throw e;
+      Utilities.sleep(2000 * i);
+    }
+  }
 }
 
 function nowIso_() {
@@ -51,7 +70,7 @@ function today_() {
 function readTab_(ss, name) {
   var sh = ss.getSheetByName(name);
   if (!sh || sh.getLastRow() < 1) return [];
-  var values = sh.getDataRange().getValues();
+  var values = retry_(function () { return sh.getDataRange().getValues(); });
   var headers = values[0];
   var out = [];
   for (var r = 1; r < values.length; r++) {
@@ -69,7 +88,7 @@ function readTab_(ss, name) {
 
 function headers_(ss, name) {
   var sh = ss.getSheetByName(name);
-  return sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  return retry_(function () { return sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0]; });
 }
 
 /** Writes some fields of one row (by sheet row number), leaving the other cells alone. */
@@ -79,7 +98,7 @@ function updateRow_(ss, name, rowNumber, fields) {
   Object.keys(fields).forEach(function (key) {
     var col = headers.indexOf(key);
     if (col < 0) throw new Error('Column "' + key + '" not found in ' + name);
-    sh.getRange(rowNumber, col + 1).setValue(fields[key]);
+    retry_(function () { sh.getRange(rowNumber, col + 1).setValue(fields[key]); });
   });
 }
 

@@ -170,6 +170,7 @@ class FakeSheet {
 class FakeSpreadsheet {
   constructor(id, name) { this.id = id; this.name = name; this.sheets = [new FakeSheet('Sheet1')]; this.editors = ['rotarian.neerav@gmail.com']; }
   getEditors() { return this.editors.map((e) => ({ getEmail: () => e })); }
+  getOwner() { return { getEmail: () => 'rotarian.neerav@gmail.com' }; }
   addEditor(e) { if (!this.editors.includes(e)) this.editors.push(e); return this; }
   removeEditor(e) { this.editors = this.editors.filter((x) => x !== e); return this; }
   getId() { return this.id; }
@@ -193,6 +194,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
   const props = new Map();
   const cache = new Map();
   const mails = [];
+  const slept = [];
   const alerts = [];
   const prompts = [];
   const triggers = [];
@@ -257,6 +259,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
     LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
     Session: { getActiveUser: () => ({ getEmail: () => activeUser }), getEffectiveUser: () => ({ getEmail: () => 'rotarian.neerav@gmail.com' }) },
     Utilities: {
+      sleep: (ms) => { slept.push(ms); },
       getUuid: () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, () => Math.floor(Math.random() * 16).toString(16)),
       base64Encode: (bytes) => Buffer.from(bytes).toString('base64'),
       // like Apps Script: signed bytes (-128..127)
@@ -335,6 +338,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
     priv,
     props,
     mails,
+    slept,
     alerts,
     prompts,
     trashed,

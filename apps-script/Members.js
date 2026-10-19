@@ -131,6 +131,10 @@ function approveConsent_(requestId, who) {
     var req = readTab_(ps, 'consent_requests').filter(function (r) { return r.id === requestId; })[0];
     if (!req || Core_str(req.status) !== 'pending') throw new Error('Request ' + requestId + ' is not pending.');
     if (!Core_isTrue(req.declaration)) throw new Error('The declaration was not ticked; reject and ask the member to send the form again.');
+    if (Core_isPractice(req)) {
+      updateRow_(ps, 'consent_requests', req._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
+      return 'Practice: approved. Nothing was changed in the members list.';
+    }
     var member = findOrCreateMember_(ps, req, 'Created from consent request ' + requestId);
     var fields = {
       directory_ok: Core_isTrue(req.directory_ok), contact_ok: Core_isTrue(req.contact_ok), photo_ok: Core_isTrue(req.photo_ok),
@@ -283,6 +287,10 @@ function approveRemoval_(requestId, who) {
     var ps = privateSs_();
     var req = readTab_(ps, 'removal_requests').filter(function (r) { return r.id === requestId; })[0];
     if (!req || Core_str(req.status) !== 'pending') throw new Error('Request ' + requestId + ' is not pending.');
+    if (Core_isPractice(req)) {
+      updateRow_(ps, 'removal_requests', req._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
+      return 'Practice: done. Nothing was removed.';
+    }
     var master = readTab_(ps, 'members_master');
     var i = Core_matchMember(req, master);
     if (i < 0) throw new Error('No member matches this request. Check the name, club and mobile number, then fill in member_id on the request.');

@@ -91,6 +91,10 @@ The **18 October (desk)** upgrade adds the moderation desk (section 7):
 - a **sheet_access** column (TRUE/FALSE) in the **moderators** tab: Sheet access is now chosen per person;
 - a newspaper name that is really a web address is moved to the newspaper link, with a note.
 
+The **19 October** version needs only paste `Code.gs` and **Deploy → Manage deployments → edit → New version** (no Upgrade Sheet, no new columns). It adds:
+- **Rotary → Administrator → Practice round: start… / report / remove practice items…** (see the moderator guide);
+- automatic retries when Google is briefly slow ("Service … timed out"), and **Apply moderators** lists anyone it could not finish.
+
 ## 6. Name the moderators
 
 1. Open the **moderators** tab (main Sheet). Each row is one person in one type: **Content**, **Members**, **Club engagement**, **District office** or **Administrator**. Put the real name and Google email over a placeholder, and keep `active` = **TRUE**. Add rows for more people (one person can have several rows).

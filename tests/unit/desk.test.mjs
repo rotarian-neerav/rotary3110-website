@@ -362,3 +362,81 @@ test('the web app never serves a page (so no page can call the script\'s other f
   const bad = JSON.parse(env.context.doPost({ postData: { contents: 'not json' } }).content);
   assert.deepEqual(bad, { ok: false, error: 'bad request' });
 });
+
+test('practice round: each moderator gets their own practice items and emails; nothing is published or changed; the report shows who did what; removal clears them', () => {
+  env.setUser(OWNER);
+  const before = env.mails.length;
+  const clubsBefore = JSON.stringify(env.main.rows('clubs'));
+  const made = env.run('startPractice');
+  assert.equal(made.length, 4 + 1 + 2, 'Content 4, Members 1, District office 2');
+  assert.ok(made.every((r) => /^PRAC-\d{4}$/.test(r.id) && r.is_sample === true));
+  const sent = env.mails.slice(before);
+  const subjects = (email) => sent.filter((m) => m.to === email).map((m) => m.subject);
+  assert.deepEqual(subjects('asha@example.com').filter((s) => /^To check: Practice:/.test(s)).length, 4);
+  assert.equal(subjects('meera@example.com').filter((s) => /^Consent form to check: Practice: Rtn Asha Sharma/.test(s)).length, 1);
+  assert.equal(subjects('dina@example.com').filter((s) => /^Website message: .* – from Practice:/.test(s)).length, 2);
+  for (const e of ['asha@example.com', 'meera@example.com', 'kabir@example.com', 'dina@example.com']) {
+    const intro = sent.find((m) => m.to === e && m.subject === 'Practice round on the moderation desk');
+    assert.ok(intro, e);
+    assert.match(intro.body, /\/desk\/guide\//);
+  }
+  assert.match(sent.find((m) => m.to === 'kabir@example.com' && /^Practice round/.test(m.subject)).body, /send the message to yourself, not to the club/);
+  assert.equal(subjects('old@example.com').length, 0, 'inactive moderators are left out');
+  assert.equal(subjects(OWNER).length, 0, 'every type has someone, so the district account gets nothing');
+  assert.ok(sent.every((m) => /@example\.com$/.test(m.to)), 'only moderators are emailed');
+
+  const report0 = env.run('practiceReport').join('\n');
+  assert.match(report0, /Asha Content\n {2}✗ Tree plantation in the city park: not approved yet/);
+  assert.match(report0, /Kabir Clubs\n {2}✗ Quiet clubs reminder: not tried yet/);
+
+  // Content: approve, correct then approve, reject
+  const s = signIn('asha@example.com');
+  const items = env.post({ fn: 'list', session: s }).content.pending.filter((c) => /^Practice:/.test(c.title));
+  const byTitle = (t) => items.find((c) => c.title.startsWith('Practice: ' + t));
+  assert.equal(items.length, 4);
+  assert.match(byTitle('Tree').notes.join(';'), /Practice for Asha Content/);
+  assert.match(byTitle('Visit').block, /needs a photo or a link/);
+  assert.ok(env.post({ fn: 'approve', session: s, tab: 'activities', id: byTitle('Tree').id }).ok);
+  const blood = byTitle('Blood');
+  assert.ok(env.post({ fn: 'edit', session: s, tab: 'activities', id: blood.id, fields: { description: blood.text.replace(/ For the next camp.*$/, '') } }).ok);
+  assert.ok(env.post({ fn: 'approve', session: s, tab: 'activities', id: blood.id }).ok);
+  const dinner = byTitle('Club assembly');
+  assert.ok(env.post({ fn: 'edit', session: s, tab: 'events', id: dinner.id, fields: { fee: '₹300 per person' } }).ok);
+  assert.ok(env.post({ fn: 'approve', session: s, tab: 'events', id: dinner.id }).ok);
+  assert.ok(env.post({ fn: 'reject', session: s, tab: 'activities', id: byTitle('Visit').id, reason: 'Please send a photo or a link to your post.' }).ok);
+
+  // Members: approving is refused (no declaration); reject
+  const m = signIn('meera@example.com');
+  const consent = env.post({ fn: 'list', session: m }).members.consent.find((c) => c.name === 'Practice: Rtn Asha Sharma');
+  assert.match(env.post({ fn: 'member', session: m, kind: 'consent', action: 'approve', id: consent.id }).error, /declaration was not ticked/);
+  assert.ok(env.post({ fn: 'member', session: m, kind: 'consent', action: 'reject', id: consent.id, reason: 'Please tick the declaration and send the form again.' }).ok);
+
+  // District office: the reply reaches the moderator's own inbox from the district account; the phone-only one is marked answered
+  const d = signIn('dina@example.com');
+  const office = env.post({ fn: 'list', session: d }).office;
+  const sentBefore = env.mails.length;
+  assert.ok(env.post({ fn: 'reply', session: d, id: office.find((x) => x.name === 'Practice: Ramesh Gupta').id, text: 'Welcome! A club near you will call.' }).ok);
+  assert.deepEqual([env.mails.at(-1).to, env.mails.at(-1).options.name, env.mails.length - sentBefore], ['dina@example.com', 'Rotary District 3110', 1]);
+  assert.ok(env.post({ fn: 'answered', session: d, id: office.find((x) => x.name === 'Practice: Sunita').id }).ok);
+
+  // Club engagement: WhatsApp to themselves
+  const k = signIn('kabir@example.com');
+  assert.ok(env.post({ fn: 'nudge', session: k, club_id: env.post({ fn: 'list', session: k }).clubs[0].club_id, via: 'whatsapp' }).ok);
+
+  const report = env.run('practiceReport');
+  assert.ok(report.join('\n').indexOf('✗') < 0, report.join('\n'));
+  assert.equal(report.length, 4);
+  assert.match(report.join('\n'), /Asha Content\n {2}✓ Tree plantation in the city park\n {2}✓ Blood donation camp\n {2}✓ Club assembly and fellowship dinner\n {2}✓ Visit to an old-age home/);
+
+  // never published, never counted, nothing real changed, nobody outside the moderators emailed
+  const pub = data();
+  assert.ok(![...pub.activities, ...pub.events].some((x) => /^PRAC-/.test(x.id)));
+  assert.equal(JSON.stringify(env.main.rows('clubs')), clubsBefore);
+  assert.ok(env.mails.slice(before).every((x) => /@example\.com$/.test(x.to)));
+  assert.ok(!core.Core_overdue([{ id: 'PRAC-0001', status: 'pending', submitted_at: '2020-01-01' }], Date.now(), 48).length, 'no 48-hour reminders for practice items');
+
+  const removed = env.run('removePractice');
+  assert.deepEqual([...removed].sort(), ['activities: 3', 'consent_requests: 1', 'contact_messages: 2', 'events: 1']);
+  assert.equal(env.run('practiceReport').length, 0);
+  assert.ok(env.main.rows('moderator_log').some((l) => l.action === 'replied'), 'the log keeps its record');
+});

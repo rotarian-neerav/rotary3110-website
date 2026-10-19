@@ -356,6 +356,11 @@ function Core_moderatorActive(r) {
   return !(r.active === false || Core_str(r.active).toUpperCase() === 'FALSE') && CORE_EMAIL_RE.test(Core_str(r.email));
 }
 
+/** A practice-round item (ID PRAC-…): seen only on the moderation desk, never published or counted. */
+function Core_isPractice(r) {
+  return /^PRAC-/i.test(Core_str(r && r.id));
+}
+
 /** Emails of the active moderators of one type, each once, lower case. */
 function Core_moderatorEmails(rows, type) {
   var out = [];
@@ -418,7 +423,7 @@ function Core_quietClubs(clubs, activities, today, days) {
   (activities || []).forEach(function (a) {
     var s = Core_str(a.status).toLowerCase();
     var d = Core_isoDate(a.date);
-    if ((s !== 'approved' && s !== 'pending') || !d || d > today) return;
+    if ((s !== 'approved' && s !== 'pending') || !d || d > today || Core_isPractice(a)) return;
     var id = Core_str(a.club_id);
     if (!last[id] || d > last[id]) last[id] = d;
   });
@@ -440,7 +445,7 @@ function Core_clubsNotPosting(clubs, activities, month) {
   var posted = {};
   (activities || []).forEach(function (a) {
     var st = Core_str(a.status).toLowerCase();
-    if (st !== 'approved' && st !== 'pending') return;
+    if ((st !== 'approved' && st !== 'pending') || Core_isPractice(a)) return;
     var d = Core_isoDate(a.date);
     var id = Core_str(a.club_id);
     if (!d || !id || d.slice(0, 7) > month) return;
@@ -967,7 +972,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
   var skipped = [];
   var duplicates = [];
   var activities = Core_uniqueRows((tabs.activities || []).filter(function (a) {
-    return Core_str(a.status).toLowerCase() === 'approved';
+    return Core_str(a.status).toLowerCase() === 'approved' && !Core_isPractice(a);
   }), duplicates).map(function (a) {
     var avenue = '';
     CORE_AVENUES.forEach(function (v) { if (v.toLowerCase() === Core_str(a.avenue).toLowerCase()) avenue = v; });
@@ -1005,7 +1010,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
   activities.forEach(function (a) { activityIds[a.id] = a; });
 
   var events = Core_uniqueRows((tabs.events || []).filter(function (e) {
-    return Core_str(e.status).toLowerCase() === 'approved';
+    return Core_str(e.status).toLowerCase() === 'approved' && !Core_isPractice(e);
   }), duplicates).map(function (e) {
     var report = Core_str(e.report_activity_id);
     var fee = Core_safeText(e.fee, 'event ' + Core_str(e.id) + ' fee', skippedItems);
@@ -1044,7 +1049,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
 
   // Lasting facilities the public can use, with the institution's own phone number, address and map link
   var publicServices = Core_uniqueRows((tabs.public_services || []).filter(function (s) {
-    return Core_str(s.status).toLowerCase() === 'approved';
+    return Core_str(s.status).toLowerCase() === 'approved' && !Core_isPractice(s);
   }), duplicates).map(function (s) {
     var where = 'public service ' + Core_str(s.id);
     var phone = Core_servicePhone(s.phone);
@@ -1370,7 +1375,7 @@ function Core_titleWords(title) {
 /** Rows still pending after the given number of hours. */
 function Core_overdue(rows, nowMs, hours) {
   return rows.filter(function (r) {
-    if (Core_str(r.status).toLowerCase() !== 'pending') return false;
+    if (Core_str(r.status).toLowerCase() !== 'pending' || Core_isPractice(r)) return false;
     var t = new Date(r.submitted_at).getTime();
     return !isNaN(t) && nowMs - t > hours * 3600000;
   });
@@ -1459,6 +1464,6 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_contactCheck: Core_contactCheck, Core_clubsNotPosting: Core_clubsNotPosting,
     CORE_AVENUES: CORE_AVENUES, CORE_SERVICE_TYPES: CORE_SERVICE_TYPES, CORE_WEEKDAYS: CORE_WEEKDAYS,
     CORE_MODERATOR_TYPES: CORE_MODERATOR_TYPES, Core_moderatorEmails: Core_moderatorEmails, Core_moderatorAccess: Core_moderatorAccess,
-    Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl,
+    Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl, Core_isPractice: Core_isPractice,
   };
 }

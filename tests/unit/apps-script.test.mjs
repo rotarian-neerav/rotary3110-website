@@ -766,3 +766,44 @@ test('photo consent: the activity form names children and guardians; Upgrade She
   assert.deepEqual([...item.choices], [env.context.PHOTO_CONSENT_TEXT]);
   assert.ok(!env.run('upgradeSheet').some((l) => /photo consent wording/.test(l)), 'once');
 });
+
+test('Google briefly slow: steps safe to repeat are tried again, others are not; Apply moderators lists what it could not finish', () => {
+  const slow = (n, msg = 'Service Drive timed out while accessing document with ID x.') => { let left = n; return () => { if (left-- > 0) throw new Error(msg); return 'ok'; }; };
+  const start = env.slept.length;
+  assert.equal(env.run('retry_', slow(2)), 'ok');
+  assert.deepEqual(env.slept.slice(start), [2000, 4000]);
+  assert.throws(() => env.run('retry_', slow(3)), /timed out/, 'three tries at most');
+  const n = env.slept.length;
+  assert.throws(() => env.run('retry_', slow(1, 'Column "x" not found in settings')), /not found/);
+  assert.equal(env.slept.length, n, 'a real error is not tried again');
+
+  // Rebuild site now goes through when the settings tab answers slowly once
+  const settings = env.main.getSheetByName('settings');
+  let once = true;
+  settings.getDataRange = function () {
+    if (once) { once = false; throw new Error('Service Spreadsheets timed out while accessing document with ID x.'); }
+    return Object.getPrototypeOf(this).getDataRange.call(this);
+  };
+  const t0 = Date.now();
+  env.run('requestRebuild');
+  delete settings.getDataRange;
+  const stamp = env.main.rows('settings').find((r) => r.key === 'rebuild_requested_at').value;
+  assert.ok(new Date(stamp).getTime() >= t0 - 1000, 'rebuild requested');
+
+  // Apply moderators: a person Google keeps timing out on is listed; the others are done; running again finishes
+  env.setUser('rotarian.neerav@gmail.com');
+  const mods = env.main.getSheetByName('moderators');
+  mods.appendRow(['Content', 'Slow One', 'slow.one@example.com', 'TRUE', '', '', 'TRUE']);
+  mods.appendRow(['Content', 'Quick One', 'quick.one@example.com', 'TRUE', '', '', 'TRUE']);
+  const add = env.main.addEditor;
+  env.main.addEditor = function (e) { if (e === 'slow.one@example.com') throw new Error('Service Drive timed out while accessing document with ID x.'); return add.call(this, e); };
+  const plan = env.run('applyModerators');
+  assert.equal(plan.failed.length, 1);
+  assert.match(plan.failed[0], /slow\.one@example\.com/);
+  assert.match(env.alerts.at(-1), /Done, except[\s\S]*run Apply moderators again[\s\S]*slow\.one@example\.com/);
+  assert.ok(env.main.editors.includes('quick.one@example.com') && !env.main.editors.includes('slow.one@example.com'));
+  delete env.main.addEditor;
+  const again = env.run('applyModerators');
+  assert.deepEqual([[...again.addMain], again.failed.length], [['slow.one@example.com'], 0]);
+  assert.ok(env.main.editors.includes('slow.one@example.com'));
+});

@@ -26,6 +26,9 @@ function onOpen() {
       .addItem('Send bulletin preview now', 'bulletinPreview')
       .addItem('Send bulletin message now', 'sendBulletinMessageNow')
       .addItem('Send clubs-not-posting email now', 'sendNotPostingNow')
+      .addItem('Practice round: start…', 'startPractice')
+      .addItem('Practice round: report', 'practiceReport')
+      .addItem('Practice round: remove practice items…', 'removePractice')
       .addItem('Run setup again', 'setup'))
     .addToUi();
 }
@@ -87,7 +90,7 @@ function approveBlock_(tab, r) {
 /** Approves one row (already checked with approveBlock_) and tells the sender. */
 function approveRow_(tab, r, who) {
   updateRow_(mainSs_(), tab, r._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
-  if (tab === 'club_profile_requests') applyClubProfile_(r);
+  if (tab === 'club_profile_requests' && !Core_isPractice(r)) applyClubProfile_(r);
   notifySubmitter_(tab, r, true, '');
 }
 
@@ -136,18 +139,20 @@ function notifySubmitter_(tab, r, approved, reason) {
 /**
  * Administrator → Apply moderators: gives every active moderator edit access to the main Sheet, and Members and
  * Administrator moderators the private members Sheet too; removes access from people the tab lists as inactive.
- * Shows the changes and asks first. Only the owner of the Sheet may run it.
+ * Shows the changes and asks first. Only the owner of the Sheet may run it. When Google is slow, each step is
+ * tried again; anyone it still could not change is listed at the end, and running it again finishes the job.
  */
 function applyModerators() {
   var ui = SpreadsheetApp.getUi();
   var main = mainSs_();
   var priv = privateSs_();
-  var owner = DriveApp.getFileById(main.getId()).getOwner().getEmail();
+  // the Sheet itself knows its owner; asking Drive is slower and is what timed out on 19 Oct
+  var owner = retry_(function () { var o = main.getOwner(); return o ? o.getEmail() : DriveApp.getFileById(main.getId()).getOwner().getEmail(); });
   if (Core_str(Session.getActiveUser().getEmail()).toLowerCase() !== Core_str(owner).toLowerCase()) {
     ui.alert('Only the owner of the Sheet can change who has access.');
     return;
   }
-  var emails = function (ss) { return ss.getEditors().map(function (u) { return u.getEmail(); }); };
+  var emails = function (ss) { return retry_(function () { return ss.getEditors(); }).map(function (u) { return u.getEmail(); }); };
   var plan = Core_moderatorAccess(readTab_(main, 'moderators'), owner, emails(main), emails(priv));
   var lines = [];
   if (plan.addMain.length) lines.push('Give access to this Sheet: ' + plan.addMain.join(', '));
@@ -156,11 +161,20 @@ function applyModerators() {
   if (plan.removePrivate.length) lines.push('Remove access to the private members Sheet: ' + plan.removePrivate.join(', '));
   if (!lines.length) { ui.alert('Access already matches the moderators tab.'); return; }
   if (ui.alert('Apply moderators', lines.join('\n\n') + '\n\nGo ahead?', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
-  plan.addMain.forEach(function (e) { main.addEditor(e); });
-  plan.removeMain.forEach(function (e) { main.removeEditor(e); });
-  plan.addPrivate.forEach(function (e) { priv.addEditor(e); });
-  plan.removePrivate.forEach(function (e) { priv.removeEditor(e); });
-  ui.alert('Done. Google emails each new moderator a link to the Sheet.');
+  var failed = [];
+  var step = function (list, what, fn) {
+    list.forEach(function (e) {
+      try { retry_(function () { fn(e); }); } catch (err) { failed.push(what + ' ' + e + ' (' + err.message + ')'); }
+    });
+  };
+  step(plan.addMain, 'Give this Sheet to', function (e) { main.addEditor(e); });
+  step(plan.removeMain, 'Remove this Sheet from', function (e) { main.removeEditor(e); });
+  step(plan.addPrivate, 'Give the private members Sheet to', function (e) { priv.addEditor(e); });
+  step(plan.removePrivate, 'Remove the private members Sheet from', function (e) { priv.removeEditor(e); });
+  ui.alert(failed.length
+    ? 'Done, except (Google did not answer in time; run Apply moderators again to finish):\n\n' + failed.join('\n')
+    : 'Done. Google emails each new moderator a link to the Sheet.');
+  plan.failed = failed;
   return plan;
 }
 

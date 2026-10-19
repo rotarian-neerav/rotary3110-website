@@ -11,7 +11,7 @@
 
   var T = {
     en: {
-      title: 'Moderation desk', signOut: 'Sign out', other: 'हिन्दी', loading: 'Loading…', working: 'Working…',
+      title: 'Moderation desk', guide: 'Guide', signOut: 'Sign out', other: 'हिन्दी', loading: 'Loading…', working: 'Working…',
       noApi: 'Open the desk from the link in any moderator email. After that, this phone remembers it.',
       signInIntro: 'Type the email address that is on the moderators list. We will email you a 6-digit code.',
       email: 'Your email', sendCode: 'Send me a code', code: 'The 6-digit code from the email', signIn: 'Sign in', otherEmail: 'Use a different email',
@@ -37,7 +37,7 @@
         regular_services: 'Regular services', name: 'Name', timings: 'Timings', phone: 'Phone (shown on the website)', address: 'Address', about: 'About' },
     },
     hi: {
-      title: 'मॉडरेशन डेस्क', signOut: 'साइन आउट', other: 'English', loading: 'लोड हो रहा है…', working: 'काम हो रहा है…',
+      title: 'मॉडरेशन डेस्क', guide: 'गाइड', signOut: 'साइन आउट', other: 'English', loading: 'लोड हो रहा है…', working: 'काम हो रहा है…',
       noApi: 'किसी भी मॉडरेटर ईमेल में दिए गए लिंक से डेस्क खोलें। उसके बाद यह फ़ोन इसे याद रखेगा।',
       signInIntro: 'मॉडरेटर सूची में दर्ज अपना ईमेल पता लिखें। हम आपको 6 अंकों का कोड ईमेल करेंगे।',
       email: 'आपका ईमेल', sendCode: 'मुझे कोड भेजें', code: 'ईमेल में आया 6 अंकों का कोड', signIn: 'साइन इन करें', otherEmail: 'दूसरा ईमेल इस्तेमाल करें',

@@ -1,6 +1,6 @@
 // City and zone for each club, worked out from the club's name.
 // Zones follow the "Co Chairman - <Zone> Zone" labels in the district Excel.
-// This list should be checked once by the district (see docs/data-conversion-report.md).
+// This list should be checked once by the district (see docs/3110-Website-Excel-Data-Conversion-Report.md).
 
 export const ZONES = ['Agra', 'Bareilly', 'Kanpur'];
 

@@ -1,6 +1,6 @@
 // Builds the sample (dummy) data for both spreadsheets, plus placeholder images and PDFs.
 // Every row is marked is_sample = TRUE so "Clear all sample data" removes it.
-// Output: sample/sample-data.json, sample/media/*, sample/magazines/*, docs/sample-data-report.md
+// Output: sample/sample-data.json, sample/media/*, sample/magazines/*, docs/3110-Website-Sample-Data-Report.md
 //
 // The generator is seeded, so running it again gives the same data.
 
@@ -942,7 +942,7 @@ function writeReport() {
     ...cases.map(([label, n]) => `| ${label} | ${n || '❌ 0'} |`),
     '',
   ];
-  writeFileSync(resolve(ROOT, 'docs/sample-data-report.md'), lines.join('\n'));
+  writeFileSync(resolve(ROOT, 'docs/3110-Website-Sample-Data-Report.md'), lines.join('\n'));
   if (missing.length) {
     console.error('Missing sample cases:', missing.map(([l]) => l).join('; '));
     process.exit(1);

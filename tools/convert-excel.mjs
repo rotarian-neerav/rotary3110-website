@@ -2,7 +2,7 @@
 // Phone numbers and emails in the Excel are never read into the output.
 //
 // Usage: node tools/convert-excel.mjs [path-to-xlsx]
-// Writes tools/out/excel-converted.json and docs/data-conversion-report.md
+// Writes tools/out/excel-converted.json and docs/3110-Website-Excel-Data-Conversion-Report.md
 
 import ExcelJS from 'exceljs';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -219,7 +219,7 @@ function writeReport(out, distinctPeople) {
     '',
   ];
   mkdirSync(resolve(ROOT, 'docs'), { recursive: true });
-  writeFileSync(resolve(ROOT, 'docs/data-conversion-report.md'), lines.join('\n'));
+  writeFileSync(resolve(ROOT, 'docs/3110-Website-Excel-Data-Conversion-Report.md'), lines.join('\n'));
 }
 
 main().catch((err) => {

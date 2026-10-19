@@ -3,8 +3,8 @@
 The district's website: what our clubs achieve. Built from the district Google Sheet, published free on GitHub Pages.
 
 - **Live (test) address:** https://rotarian-neerav.github.io/rotary3110-website/
-- **Project brief:** `../Rotary District Website – Project Brief.md` (version 3)
-- **Guides:** [Google setup](docs/google-setup.md) · [Moderator guide](docs/moderator-guide.md) · [Yearly update and launch](docs/yearly-update-and-launch.md)
+- **Project brief:** `../3110-Website-Project-Brief.md` (version 4.2)
+- **Guides:** [Google setup](docs/3110-Website-Google-Sheet-Setup.md) · [Moderator guide](docs/3110-Website-Moderator-Guide.md) · [Yearly update and launch](docs/3110-Website-Yearly-Update-and-Launch.md)
 
 ## How it works
 

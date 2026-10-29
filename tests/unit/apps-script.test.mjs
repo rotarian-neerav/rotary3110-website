@@ -857,3 +857,29 @@ test('Google briefly slow: steps safe to repeat are tried again, others are not;
   assert.deepEqual([[...again.addMain], again.failed.length], [['slow.one@example.com'], 0]);
   assert.ok(env.main.editors.includes('slow.one@example.com'));
 });
+
+/* ---------- real data (29 Oct): gender column; Reset for production, once ---------- */
+
+test('Reset for production: every data row goes from both Sheets, form tabs included; settings, lists, moderators and clubs stay; only once', () => {
+  assert.ok(env.priv.getSheetByName('members_master').getRange(1, 1, 1, 40).getValues()[0].includes('gender'), 'members_master has gender');
+  const raw = env.main.getSheetByName('raw_activity_form') || env.main.insertSheet('raw_activity_form');
+  raw.appendRow(['Timestamp', 'Email address']);
+  raw.appendRow(['13/10/2026 19:13:01', 'test@example.com']);
+  const keep = { settings: env.main.rows('settings').length, lists: env.main.rows('lists').length, moderators: env.main.rows('moderators').length, clubs: env.main.rows('clubs').length };
+  assert.ok(env.main.rows('activities').length && env.priv.rows('members_master').length && keep.clubs);
+  const removed = env.run('resetForProduction');
+  assert.ok(removed.length > 5, removed.join('\n'));
+  for (const t of ['activities', 'events', 'officers', 'functionaries', 'public_services', 'campaigns', 'messages', 'members_public', 'moderator_log']) {
+    assert.equal(env.main.rows(t).length, 0, t);
+  }
+  for (const t of ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests', 'contact_messages']) assert.equal(env.priv.rows(t).length, 0, t);
+  assert.equal(raw.getLastRow(), 1, 'form responses removed, header kept');
+  assert.deepEqual({ settings: env.main.rows('settings').length, lists: env.main.rows('lists').length, moderators: env.main.rows('moderators').length, clubs: env.main.rows('clubs').length }, keep);
+  assert.ok(env.main.rows('settings').find((r) => r.key === 'form_activity_url').value, 'form links kept');
+  assert.deepEqual(plain(core.Core_validatePublic(data())), []);
+  // a second run refuses, so real data imported afterwards is safe
+  env.main.getSheetByName('activities').appendRow(['ACT-REAL']);
+  assert.deepEqual(plain(env.run('resetForProduction')), []);
+  assert.match(env.alerts.at(-1), /already reset for production/);
+  assert.equal(env.main.rows('activities').length, 1);
+});

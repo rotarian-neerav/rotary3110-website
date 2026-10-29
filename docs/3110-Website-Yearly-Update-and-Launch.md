@@ -2,8 +2,9 @@
 
 ## Before launch: replacing the sample data
 
-1. In the Sheet: **Rotary → Sample data → Clear all sample data…** removes every row marked `is_sample` from both Sheets.
-   This also removes the 2024-25 teams and committees loaded from the district Excel, because they were marked as sample as agreed.
+1. Name a version of both Sheets (**File → Version history → Name current version**). Then **Rotary → Administrator → Reset for production (once)…** removes every data row from both Sheets, sample and test rows and form responses alike, and keeps settings (with the form links), lists, moderators and clubs. It works only once.
+   (**Clear all sample data…** removes only rows marked `is_sample`, so rows typed in during live tests would stay; it remains for test Sheets.)
+   Import the real clubs, members_master and club_history with **File → Import → Upload → Replace current sheet**, with "Convert text to numbers, dates, and formulas" **unticked**; then **Administrator → Upgrade Sheet**.
 2. Load the real data (paste into each tab, keeping the column order; leave `is_sample` empty):
    - **clubs**: real Rotary club IDs, names, city, zone (for the district's own use; never shown on the website), member count, and meeting day if known.
    - **officers**: one row per office bearer: Rotary year, club ID, member ID, name, role.

@@ -156,6 +156,12 @@ class FakeSheet {
     this.maxCols += n;
     if (this.rules.has(after)) for (let i = 1; i <= n; i++) this.rules.set(after + i, this.rules.get(after));
   }
+  insertRowsAfter() {}
+  // Like Google Sheets: a tab cannot lose all of its rows below the header
+  deleteRows(from, n) {
+    if (from + n - 1 >= this.getMaxRows()) throw new Error('Exception: Sorry, it is not possible to delete all non-frozen rows.');
+    this.data.splice(from - 1, n);
+  }
   getRange(r, c, nr, nc) { return new FakeRange(this, r, c, nr, nc); }
   getDataRange() { return new FakeRange(this, 1, 1, Math.max(1, this.getLastRow()), Math.max(1, this.getLastColumn())); }
   appendRow(values) { const r = this.getLastRow() + 1; values.forEach((v, i) => this.set(r, i + 1, v)); }

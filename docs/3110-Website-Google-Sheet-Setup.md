@@ -97,6 +97,8 @@ The **19 October** version (installed in the test Sheet on 19 Oct) needs only pa
 
 The **19 October (evening)** version (installed in the test Sheet on 19 Oct) also needs only paste `Code.gs` and **Deploy → Manage deployments → edit → New version**. It puts quiet clubs on one rule: no activity in the last 30 days, for the desk's Quiet clubs, the dashboard's `needs_nudge` and the monthly email (which listed the clubs with nothing in the month just ended). The email's subject is now "Clubs with no activity in the last 30 days".
 
+The **29 October** version: paste `Code.gs`, **Deploy → Manage deployments → edit → New version**, then **Administrator → Upgrade Sheet** (it adds the private `gender` column to members_master). It also adds **Administrator → Reset for production (once)…**, used a single time before the real data is imported (see the yearly update and launch guide).
+
 ## 6. Name the moderators
 
 1. Open the **moderators** tab (main Sheet). Each row is one person in one type: **Content**, **Members**, **Club engagement**, **District office** or **Administrator**. Put the real name and Google email over a placeholder, and keep `active` = **TRUE**. Add rows for more people (one person can have several rows).

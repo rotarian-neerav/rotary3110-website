@@ -56,7 +56,9 @@ var SCHEMA_PRIVATE = {
   members_master: ['member_id', 'name', 'club_id', 'is_rotarian', 'status', 'mobile', 'email', 'dob', 'marriage_date',
     'spouse_id', 'directory_ok', 'contact_ok', 'photo_ok', 'birthday_ok', 'anniversary_ok', 'profession', 'area',
     'description', 'website', 'spotlight_ok', 'photo_file', 'photo_approved', 'listing_approved', 'listing_approved_by',
-    'listing_approved_at', 'public_key', 'consent_source', 'consent_updated_at', 'notes', 'is_sample'],
+    'listing_approved_at', 'public_key', 'consent_source', 'consent_updated_at', 'notes', 'is_sample',
+    // added 29 October 2026 with the real member list; private, never sent to the website
+    'gender'],
   club_history: ['member_id', 'club_id', 'from_date', 'to_date', 'reason', 'is_sample'],
   couples: ['couple_id', 'person_a_id', 'person_b_id', 'anniversary', 'a_consent', 'b_consent', 'couple_photo_ok_a',
     'couple_photo_ok_b', 'couple_photo_file', 'couple_photo_approved', 'status', 'notes', 'is_sample'],

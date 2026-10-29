@@ -231,7 +231,9 @@ var SCHEMA_PRIVATE = {
   members_master: ['member_id', 'name', 'club_id', 'is_rotarian', 'status', 'mobile', 'email', 'dob', 'marriage_date',
     'spouse_id', 'directory_ok', 'contact_ok', 'photo_ok', 'birthday_ok', 'anniversary_ok', 'profession', 'area',
     'description', 'website', 'spotlight_ok', 'photo_file', 'photo_approved', 'listing_approved', 'listing_approved_by',
-    'listing_approved_at', 'public_key', 'consent_source', 'consent_updated_at', 'notes', 'is_sample'],
+    'listing_approved_at', 'public_key', 'consent_source', 'consent_updated_at', 'notes', 'is_sample',
+    // added 29 October 2026 with the real member list; private, never sent to the website
+    'gender'],
   club_history: ['member_id', 'club_id', 'from_date', 'to_date', 'reason', 'is_sample'],
   couples: ['couple_id', 'person_a_id', 'person_b_id', 'anniversary', 'a_consent', 'b_consent', 'couple_photo_ok_a',
     'couple_photo_ok_b', 'couple_photo_file', 'couple_photo_approved', 'status', 'notes', 'is_sample'],
@@ -2877,6 +2879,7 @@ function onOpen() {
       .addItem('Practice round: start…', 'startPractice')
       .addItem('Practice round: report', 'practiceReport')
       .addItem('Practice round: remove practice items…', 'removePractice')
+      .addItem('Reset for production (once)…', 'resetForProduction')
       .addItem('Run setup again', 'setup'))
     .addToUi();
 }
@@ -4614,6 +4617,45 @@ function clearSampleData() {
   refreshDashboard();
   requestRebuild();
   ui.alert('Sample data cleared.\n' + (removed.join('\n') || 'Nothing to clear.'));
+}
+
+/** Tabs that Reset for production leaves alone: settings and form links, lists, moderators, and clubs (so the forms keep a club list until the real one is imported). */
+var RESET_KEEP_TABS = ['settings', 'lists', 'moderators', 'clubs'];
+
+/**
+ * Administrator → Reset for production (once): before the real data is imported, removes every data row, sample or
+ * test, from both Sheets, the form-response tabs included. Headers, settings, lists, moderators and clubs stay.
+ * Runs only once: afterwards the Sheet holds real data, so the command refuses.
+ */
+function resetForProduction() {
+  var ui = SpreadsheetApp.getUi();
+  var done = Core_str(props_().getProperty('PRODUCTION_RESET_AT'));
+  if (done) { ui.alert('The Sheet was already reset for production on ' + done + '. It now holds real data, so this command does nothing.'); return []; }
+  if (ui.alert('Reset for production?', 'Every data row in both Sheets will be deleted (sample and test rows, form responses, the moderator log). ' +
+    'Kept: settings, lists, moderators and clubs.\n\nName a version first (File → Version history). This can only be done once.', ui.ButtonSet.YES_NO) !== ui.Button.YES) return [];
+  var removed = [];
+  [mainSs_(), privateSs_()].forEach(function (ss) {
+    ss.getSheets().forEach(function (sh) {
+      var name = sh.getName();
+      var last = sh.getLastRow();
+      if (RESET_KEEP_TABS.indexOf(name) >= 0 || last < 2) return;
+      if (/^raw_/.test(name)) {
+        // a form writes after its last row, so its rows are deleted rather than emptied (one blank row is added first: a tab keeps at least one)
+        sh.insertRowsAfter(sh.getMaxRows(), 1);
+        sh.deleteRows(2, last - 1);
+      } else {
+        sh.getRange(2, 1, last - 1, Math.max(1, sh.getLastColumn())).clearContent();
+      }
+      removed.push(ss.getName() + ' → ' + name + ': ' + (last - 1));
+    });
+  });
+  setSetting_('inactive_keys', '');
+  props_().setProperty('PRODUCTION_RESET_AT', today_());
+  refreshPublicMembers(true);
+  refreshDashboard();
+  ui.alert('Reset for production done.\n' + (removed.join('\n') || 'Nothing to remove.') +
+    '\n\nNext: import the real clubs, members_master and club_history, then Update form lists and Rebuild site now.');
+  return removed;
 }
 
 

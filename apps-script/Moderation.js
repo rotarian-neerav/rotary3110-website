@@ -29,6 +29,7 @@ function onOpen() {
       .addItem('Practice round: start…', 'startPractice')
       .addItem('Practice round: report', 'practiceReport')
       .addItem('Practice round: remove practice items…', 'removePractice')
+      .addItem('Reset for production (once)…', 'resetForProduction')
       .addItem('Run setup again', 'setup'))
     .addToUi();
 }

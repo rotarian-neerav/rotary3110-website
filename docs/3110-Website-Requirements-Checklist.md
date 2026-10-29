@@ -153,3 +153,10 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 | L19 | A club is quiet with no activity (approved or waiting) dated in the last 30 days: one rule for the desk's Quiet clubs, the dashboard's `needs_nudge` and the monthly email | `CORE_QUIET_DAYS`, `Core_quietClubs`, `refreshDashboard`, `notPostingReport` | A: 30 days counts, 31 does not, rejected and future dates ignored; U(sim): email and dashboard list the same clubs | 🟡 installed 19 Oct; to try live |
 | L20 | Folders the script reads are tested with files in them: a magazine PDF and cover; a member photo named by member ID, used only with photo consent | `scanMagazines_`, `attachFolderPhotos_` | U(sim) | 🟡 to try live |
 | L21 | The website reads only data from the current script (the older-script bridge is gone); no test depends on the last live snapshot | `scripts/fetch-data.mjs` | U, S | ✅ |
+
+**29 October: real data**
+
+| # | Requirement | Where | Proof | Status |
+|---|---|---|---|---|
+| L22 | Before the real data, one command removes every sample and test row from both Sheets (form responses too), keeping settings, form links, lists, moderators and clubs; it cannot run twice | `resetForProduction` | U(sim) | 🟡 to paste and run |
+| L23 | The real member list (Rotary International export) imported with real club and member IDs, Rotaract clubs and honorary members included, names cleaned by the agreed rules, gender kept privately; addresses not taken | Import files; `members_master.gender` | Checked by script: 3,990 members, no repeated member ID, no title left that was to be dropped | 🟡 to import |

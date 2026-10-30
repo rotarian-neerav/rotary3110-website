@@ -126,7 +126,7 @@ test('approving stamps who and when, emails the sender, and makes it public with
 test('data link: a public file list too large for one cache entry is kept in parts and read back whole', () => {
   const list = Array.from({ length: 4000 }, (_, i) => `drive:1LongDriveFileId${String(i).padStart(20, '0')}`);
   env.run('putAllowedFiles_', list);
-  assert.deepEqual(env.run('getAllowedFiles_'), list);
+  assert.equal(JSON.stringify(env.run('getAllowedFiles_')), JSON.stringify(list));
 });
 
 test('an activity with neither photo nor link cannot be approved; rejecting emails the reason', () => {

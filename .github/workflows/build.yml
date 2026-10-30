@@ -76,8 +76,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Keep processed photos between builds
-        uses: actions/cache@v6
+      - name: Bring back the photos earlier builds processed
+        uses: actions/cache/restore@v6
         with:
           path: .cache/media
           key: media-${{ github.run_id }}
@@ -92,6 +92,15 @@ jobs:
           DATA_TOKEN: ${{ secrets.DATA_TOKEN }}
           CF_BEACON_TOKEN: ${{ vars.CF_BEACON_TOKEN }}
         run: npm run build
+
+      # Kept even when the build or a later check fails, so the next build does not process every photo again
+      # (the photo map is written once the photos are done)
+      - name: Keep the processed photos for the next build
+        if: ${{ !cancelled() && hashFiles('.cache/media-map.json') != '' }}
+        uses: actions/cache/save@v6
+        with:
+          path: .cache/media
+          key: media-${{ github.run_id }}
 
       - name: Check the built site
         run: npm run test:site

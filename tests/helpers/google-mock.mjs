@@ -261,7 +261,19 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
       ProtectionType: { SHEET: 'SHEET' },
     },
     PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => props.get(k) ?? null, setProperty: (k, v) => props.set(k, v) }) },
-    CacheService: { getScriptCache: () => ({ get: (k) => cache.get(k) ?? null, put: (k, v) => cache.set(k, v), remove: (k) => cache.delete(k) }) },
+    CacheService: {
+      getScriptCache: () => {
+        // like Apps Script: a value over 100 KB is refused
+        const put = (k, v) => { if (String(v).length > 100 * 1024) throw new Error('Argument too large: value'); cache.set(k, v); };
+        return {
+          get: (k) => cache.get(k) ?? null,
+          getAll: (keys) => Object.fromEntries(keys.filter((k) => cache.has(k)).map((k) => [k, cache.get(k)])),
+          put,
+          putAll: (values) => Object.entries(values).forEach(([k, v]) => put(k, v)),
+          remove: (k) => cache.delete(k),
+        };
+      },
+    },
     LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
     Session: { getActiveUser: () => ({ getEmail: () => activeUser }), getEffectiveUser: () => ({ getEmail: () => 'rotarian.neerav@gmail.com' }) },
     Utilities: {

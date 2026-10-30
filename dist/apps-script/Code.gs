@@ -3498,8 +3498,32 @@ function publicData_() {
   Core_walk(data, '', function (path, v) {
     if (typeof v === 'string' && /^(drive|thumb):/.test(v)) allowed[v] = true;
   });
-  CacheService.getScriptCache().put('allowed_files', JSON.stringify(Object.keys(allowed)), 21600);
+  putAllowedFiles_(Object.keys(allowed));
   return data;
+}
+
+// The cache takes at most 100 KB per value, and a year of activity photos is more than that, so the list is kept in parts
+function putAllowedFiles_(list) {
+  var parts = {};
+  var n = 0;
+  for (var i = 0; i < list.length; i += 1500) parts['allowed_files_' + n++] = JSON.stringify(list.slice(i, i + 1500));
+  parts.allowed_files_parts = String(n);
+  CacheService.getScriptCache().putAll(parts, 21600);
+}
+
+function getAllowedFiles_() {
+  var cache = CacheService.getScriptCache();
+  var n = Number(cache.get('allowed_files_parts'));
+  if (!n) return null;
+  var keys = [];
+  for (var i = 0; i < n; i++) keys.push('allowed_files_' + i);
+  var got = cache.getAll(keys);
+  var list = [];
+  for (i = 0; i < n; i++) {
+    if (!got[keys[i]]) return null; // a part has expired: build the list again
+    list = list.concat(JSON.parse(got[keys[i]]));
+  }
+  return list;
 }
 
 /**
@@ -3530,9 +3554,8 @@ function inactiveMemberIds_() {
 
 function fileFor_(mode, id) {
   var ref = (mode === 'thumb' ? 'thumb:' : 'drive:') + id;
-  var cached = CacheService.getScriptCache().get('allowed_files');
-  if (!cached) { publicData_(); cached = CacheService.getScriptCache().get('allowed_files'); }
-  var allowed = JSON.parse(cached || '[]');
+  var allowed = getAllowedFiles_();
+  if (!allowed) { publicData_(); allowed = getAllowedFiles_() || []; }
   // the thumbnail of a published photo is allowed too: the build falls back to it for formats it cannot read (HEIC, BMP)
   if (allowed.indexOf(ref) < 0 && !(mode === 'thumb' && allowed.indexOf('drive:' + id) >= 0)) {
     return { ok: false, error: 'file is not part of the public data' };

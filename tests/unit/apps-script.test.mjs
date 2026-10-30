@@ -123,6 +123,12 @@ test('approving stamps who and when, emails the sender, and makes it public with
   assert.equal(env.doGet({ mode: 'file', id: 'someOtherPrivateFile123456789', token }).ok, false, 'only public photos can be fetched');
 });
 
+test('data link: a public file list too large for one cache entry is kept in parts and read back whole', () => {
+  const list = Array.from({ length: 4000 }, (_, i) => `drive:1LongDriveFileId${String(i).padStart(20, '0')}`);
+  env.run('putAllowedFiles_', list);
+  assert.deepEqual(env.run('getAllowedFiles_'), list);
+});
+
 test('an activity with neither photo nor link cannot be approved; rejecting emails the reason', () => {
   env.submit('activity', {
     [Q.club]: 'RC Kanpur', [Q.name]: 'Rtn X', [Q.role]: 'Member', [Q.mobile]: '9811111111', [Q.kind]: Q.kindActivity,

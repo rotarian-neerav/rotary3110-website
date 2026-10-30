@@ -3532,7 +3532,11 @@ function fileFor_(mode, id) {
   var ref = (mode === 'thumb' ? 'thumb:' : 'drive:') + id;
   var cached = CacheService.getScriptCache().get('allowed_files');
   if (!cached) { publicData_(); cached = CacheService.getScriptCache().get('allowed_files'); }
-  if (JSON.parse(cached || '[]').indexOf(ref) < 0) return { ok: false, error: 'file is not part of the public data' };
+  var allowed = JSON.parse(cached || '[]');
+  // the thumbnail of a published photo is allowed too: the build falls back to it for formats it cannot read (HEIC, BMP)
+  if (allowed.indexOf(ref) < 0 && !(mode === 'thumb' && allowed.indexOf('drive:' + id) >= 0)) {
+    return { ok: false, error: 'file is not part of the public data' };
+  }
   var file = DriveApp.getFileById(id);
   var blob = mode === 'thumb' ? file.getThumbnail() : file.getBlob();
   if (!blob) return { ok: false, error: 'no picture available' };

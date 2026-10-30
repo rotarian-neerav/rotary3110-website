@@ -101,9 +101,11 @@ test('activity pages: avenue, press line, video (no-cookie player on tap), news 
   for (const a of data.activities) {
     const html = page(`activities/${a.id.toLowerCase()}`);
     const root = parse(html);
-    const ld = JSON.parse(root.querySelector('script[type="application/ld+json"]').text);
+    // a browser reads a script's text as it stands, without decoding &amp; and the like
+    const ld = JSON.parse(root.querySelector('script[type="application/ld+json"]').rawText);
     assert.equal(ld['@type'], 'NewsArticle');
     assert.equal(ld.headline, a.title);
+    assert.ok(root.querySelector('title').text.startsWith(`${a.title} – `), `${a.id}: the title is escaped once, not twice`);
     assert.match(ld.image, /^https?:\/\//);
     if (a.avenue) assert.equal(root.querySelector('.chip-avenue').text.trim(), a.avenue);
     if (a.press) {

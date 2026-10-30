@@ -72,7 +72,7 @@ const PROFESSION_LINES = {
 /* ---------- activity templates per theme ---------- */
 const ACTIVITY_TEMPLATES = {
   'Promoting peace': [
-    ['Inter-school debate on peace and tolerance', 'Students from six schools debated how communities can resolve conflicts peacefully. Winners received certificates and books.'],
+    ['Children\'s debate on "peace & tolerance"', 'Students from six schools debated how communities can resolve conflicts peacefully. Winners received certificates and books.'],
     ['Peace walk on International Day of Peace', 'Club members, students and local residents walked together carrying messages of harmony. The walk ended with a pledge.'],
   ],
   'Fighting disease': [

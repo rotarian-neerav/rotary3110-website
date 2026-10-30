@@ -9,6 +9,12 @@ import shortLinks from './src/_data/shortLinks.js';
 const PATH_PREFIX = process.env.PATH_PREFIX || '/';
 const SITE_URL = (process.env.SITE_URL || 'http://localhost:8080').replace(/\/$/, '');
 
+// Computed front matter is rendered with Nunjucks' escaping on, so a title arrives as "Mother&#39;s Day";
+// the page head turns such values back into plain text before escaping them once, or writing them into JSON
+const ESCAPED = { '&amp;': '&', '&quot;': '"', '&#39;': "'", '&lt;': '<', '&gt;': '>', '&#92;': '\\' };
+const unescaped = (v) => (typeof v === 'string' ? v.replace(/&(amp|quot|#39|lt|gt|#92);/g, (m) => ESCAPED[m])
+  : Array.isArray(v) ? v.map(unescaped)
+  : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, unescaped(x)])) : v);
 const icsEscape = (s = '') => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
 const compact = (d, t) => d.replace(/-/g, '') + (t ? 'T' + t.replace(':', '') + '00' : '');
 const nextDay = (iso) => {
@@ -79,7 +85,9 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter('date', formatDate);
   eleventyConfig.addFilter('month', formatMonth);
   eleventyConfig.addFilter('dayMonth', formatDayMonth);
-  eleventyConfig.addFilter('json', (v) => JSON.stringify(v));
+  // a "</script>" in someone's text cannot end the script the JSON sits in
+  eleventyConfig.addFilter('json', (v) => JSON.stringify(v).replace(/</g, '\\u003c'));
+  eleventyConfig.addFilter('unescaped', unescaped);
   eleventyConfig.addFilter('number', (n) => Number(n || 0).toLocaleString('en-IN'));
   eleventyConfig.addFilter('initials', (name = '') =>
     name.replace(/^(Rtn|PDG|DGE|DGN|DG|Dr|CA)\.?\s+/g, '').replace(/^(Rtn|PDG|DGE|DGN|DG|Dr|CA)\.?\s+/g, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join(''));

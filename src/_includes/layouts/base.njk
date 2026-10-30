@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{%- set pageTitle = (title + " · " + t.district) if title else (t.district + " · " + t.tagline) %}
-{%- set pageDescription = description or "News, events and service activities from the Rotary clubs of District 3110." %}
+{%- set plainTitle = title | unescaped %}
+{%- set pageTitle = (plainTitle + " · " + t.district) if title else (t.district + " · " + t.tagline) %}
+{%- set pageDescription = (description | unescaped) or "News, events and service activities from the Rotary clubs of District 3110." %}
 {%- set shareImage = (ogImage | absolute) if ogImage else ("/assets/img/og-default.jpg" | absolute) %}
 <title>{{ pageTitle }}</title>
 <meta name="description" content="{{ pageDescription | truncate(180) }}">
@@ -14,7 +15,7 @@
 {%- endif %}
 <meta property="og:type" content="{{ ogType or 'website' }}">
 <meta property="og:site_name" content="{{ t.district }}">
-<meta property="og:title" content="{{ title or t.district }}">
+<meta property="og:title" content="{{ plainTitle or t.district }}">
 <meta property="og:description" content="{{ pageDescription | truncate(180) }}">
 <meta property="og:url" content="{{ page.url | absolute }}">
 <meta property="og:image" content="{{ shareImage }}">
@@ -34,7 +35,7 @@
 <link rel="stylesheet" href="/assets/css/{{ s }}">
 {%- endfor %}
 {%- if jsonld %}
-<script type="application/ld+json">{{ jsonld | json | safe }}</script>
+<script type="application/ld+json">{{ jsonld | unescaped | json | safe }}</script>
 {%- endif %}
 </head>
 <body class="{{ bodyClass }}">

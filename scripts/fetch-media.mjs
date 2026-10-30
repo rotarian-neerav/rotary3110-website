@@ -57,6 +57,7 @@ async function sourceBytes(ref) {
 const map = {};
 let made = 0;
 let failed = 0;
+let thumbs = 0;
 
 async function processImage(ref, kind) {
   if (!ref || map[ref]) return;
@@ -66,12 +67,22 @@ async function processImage(ref, kind) {
   const wanted = Object.entries(variants).map(([name, v]) => [name, v, `${base}-${name}.${v.jpg ? 'jpg' : 'webp'}`]);
   const allCached = wanted.every(([, , file]) => existsSync(resolve(CACHE, file)));
   try {
-    const bytes = allCached ? null : await sourceBytes(ref);
+    let bytes = allCached ? null : await sourceBytes(ref);
+    if (bytes && ref.startsWith('drive:')) {
+      // HEIC, BMP and broken uploads: use the picture Google Drive itself makes of the file instead
+      try {
+        await sharp(bytes, { failOn: 'none' }).resize(8).toBuffer(); // a real decode: reading the header alone passes for HEIC
+      } catch {
+        bytes = await sourceBytes('thumb:' + ref.slice(6));
+        thumbs++;
+      }
+    }
     for (const [name, v, file] of wanted) {
       const target = resolve(CACHE, file);
       if (!existsSync(target)) {
-        // .rotate() applies the phone's orientation; sharp drops EXIF/GPS metadata unless asked to keep it
-        let img = sharp(bytes).rotate();
+        // .rotate() applies the phone's orientation; sharp drops EXIF/GPS metadata unless asked to keep it.
+        // failOn 'none': phone JPEGs with small encoding faults still decode instead of being skipped
+        let img = sharp(bytes, { failOn: 'none' }).rotate();
         img = v.h
           ? img.resize(v.w, v.h, v.contain ? { fit: 'contain', background: '#ffffff' } : { fit: 'cover', position: 'attention' })
           : img.resize({ width: v.w, withoutEnlargement: true });
@@ -115,4 +126,4 @@ for (const m of data.magazines) {
 }
 
 writeFileSync(resolve(ROOT, '.cache/media-map.json'), JSON.stringify({ images: map, pdfs }, null, 1));
-console.log(`Media ready: ${Object.keys(map).length} images (${made} newly processed${failed ? `, ${failed} skipped` : ''}).`);
+console.log(`Media ready: ${Object.keys(map).length} images (${made} newly processed${thumbs ? `, ${thumbs} from Drive's own picture` : ''}${failed ? `, ${failed} skipped` : ''}).`);

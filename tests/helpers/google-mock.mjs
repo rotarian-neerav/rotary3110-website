@@ -202,10 +202,11 @@ class FakeSpreadsheet {
   }
 }
 
-export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3KHpFQ1Bvh0eZun1_Rlile1gXUN0u9FOkItjScoxI' } = {}) {
+export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIVATE', magazineFolderId = 'MAGAZINES' } = {}) {
   const main = new FakeSpreadsheet(mainId, '3110Website');
   const priv = new FakeSpreadsheet(privateId, 'Private sheet for Full Members List');
-  const props = new Map();
+  // the ids the owner puts in Project Settings → Script properties
+  const props = new Map([['PRIVATE_SHEET_ID', privateId], ['MAGAZINE_FOLDER_ID', magazineFolderId]]);
   const cache = new Map();
   const mails = [];
   const slept = [];

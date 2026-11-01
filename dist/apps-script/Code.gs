@@ -11,10 +11,8 @@
  */
 
 var CONFIG = {
-  // The private members spreadsheet (never published)
-  PRIVATE_SHEET_ID: '1WA3KHpFQ1Bvh0eZun1_Rlile1gXUN0u9FOkItjScoxI',
-  // Google Drive folder with the magazine PDFs (anyone with the link can view)
-  MAGAZINE_FOLDER_ID: '1ULN-pi2vpWasTad4bG5j4e6SKPR9inBj',
+  // The private members spreadsheet and the magazine folder (anyone with the link can view) are named in the
+  // script's properties, not here, because this code is public: see privateSheetId_ and magazineFolderId_ below.
   // Private folder for member photos the district already holds, files named <member ID>.jpg
   MEMBER_PHOTOS_FOLDER_NAME: 'MemberPhotos',
   // Where "Load sample data" reads the sample from (the public website repository)
@@ -35,12 +33,27 @@ function props_() {
   return PropertiesService.getScriptProperties();
 }
 
+/** An id kept in Apps Script → Project Settings → Script properties; a clear message when it is missing. */
+function idProperty_(key, what) {
+  var id = Core_str(props_().getProperty(key));
+  if (!id) throw new Error(what + ' is not set: add the script property ' + key + ' (Apps Script → Project Settings → Script properties)');
+  return id;
+}
+
+function privateSheetId_() {
+  return idProperty_('PRIVATE_SHEET_ID', 'The private members Sheet');
+}
+
+function magazineFolderId_() {
+  return idProperty_('MAGAZINE_FOLDER_ID', 'The magazine folder');
+}
+
 function mainSs_() {
   return SpreadsheetApp.getActiveSpreadsheet() || retry_(function () { return SpreadsheetApp.openById(props_().getProperty('MAIN_SHEET_ID')); });
 }
 
 function privateSs_() {
-  return retry_(function () { return SpreadsheetApp.openById(CONFIG.PRIVATE_SHEET_ID); });
+  return retry_(function () { return SpreadsheetApp.openById(privateSheetId_()); });
 }
 
 // Google's own words when it is only briefly slow or busy ("Service Drive timed out while accessing document…")
@@ -1165,7 +1178,13 @@ function Core_buildPublicData(tabs, nowIso, options) {
     var id = Core_str(r.member_id);
     var inactive = !!(id && inactiveIds[id]);
     var p = inactive ? null : photoByMemberId[id];
-    var contact = !inactive && Core_isTrue(r.contact_ok) && Core_str(r.contact_link) ? Core_str(r.contact_link) : '';
+    var link = Core_str(r.contact_link);
+    // only a WhatsApp link to an Indian mobile: anything else typed in the Sheet is left out, not published
+    if (link && !CORE_WA_LINK_RE.test(link)) {
+      skippedItems.push('role ' + Core_str(r.role) + ' ' + Core_str(r.club_id) + ' contact link');
+      link = '';
+    }
+    var contact = !inactive && Core_isTrue(r.contact_ok) && link ? link : '';
     return {
       rotary_year: Core_str(r.rotary_year),
       person_key: p ? p.key : '',
@@ -1472,6 +1491,7 @@ function Core_hash(s) {
 
 var CORE_PHONE_RE = /(?:^|[^\w])(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}(?!\w)/; // digits inside a word are not phone numbers
 var CORE_EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
+var CORE_WA_LINK_RE = /^https:\/\/wa\.me\/91[6-9]\d{9}$/;
 var CORE_YEAR_RE = /\b(19|20)\d{2}\b/;
 
 /** Returns a list of problems. An empty list means the data is safe to publish. */
@@ -1484,7 +1504,7 @@ function Core_validatePublic(data) {
     if (!m.directory_ok && !m.photo_ok && !m.birthday_ok) err(w, 'member has not opted in to anything');
     if (!m.directory_ok && (m.profession || m.area || m.description || m.website)) err(w, 'directory details without directory consent');
     if (m.contact_link && !(m.contact_ok && m.directory_ok)) err(w, 'contact link without consent');
-    if (m.contact_link && !/^https:\/\/wa\.me\/91[6-9]\d{9}$/.test(m.contact_link)) err(w, 'contact link is not a WhatsApp link');
+    if (m.contact_link && !CORE_WA_LINK_RE.test(m.contact_link)) err(w, 'contact link is not a WhatsApp link');
     if (m.photo && !m.photo_ok) err(w, 'photo without photo consent');
     if (m.birthday && !m.birthday_ok) err(w, 'birthday without consent');
     if (m.birthday && !/^\d{2}-\d{2}$/.test(m.birthday)) err(w, 'birthday must be day and month only, got "' + m.birthday + '"');
@@ -1515,6 +1535,7 @@ function Core_validatePublic(data) {
 
   (data.officers || []).concat(data.functionaries || []).forEach(function (p, i) {
     if (p.contact_link && !p.contact_ok) err('roles[' + i + '] ' + p.name, 'contact link without consent');
+    if (p.contact_link && !CORE_WA_LINK_RE.test(p.contact_link)) err('roles[' + i + '] ' + p.name, 'contact link is not a WhatsApp link');
     if (p.person_ref && !/^P[0-9a-f]{12}$/.test(p.person_ref)) err('roles[' + i + '] ' + p.name, 'person reference is not a scrambled reference');
   });
   (data.members || []).forEach(function (m, i) {
@@ -1951,7 +1972,7 @@ function memberPhotosFolder_() {
 
 /** Main and private Sheets must be restricted; the magazine folder must be open to anyone with the link. */
 function checkSharing_(main, report) {
-  [main.getId(), CONFIG.PRIVATE_SHEET_ID].forEach(function (id) {
+  [main.getId(), privateSheetId_()].forEach(function (id) {
     var f = DriveApp.getFileById(id);
     var access = f.getSharingAccess();
     if (access !== DriveApp.Access.PRIVATE) {
@@ -1959,7 +1980,7 @@ function checkSharing_(main, report) {
       report.push('Restricted sharing of ' + f.getName());
     }
   });
-  var mag = DriveApp.getFolderById(CONFIG.MAGAZINE_FOLDER_ID);
+  var mag = DriveApp.getFolderById(magazineFolderId_());
   if (mag.getSharingAccess() !== DriveApp.Access.ANYONE_WITH_LINK) {
     mag.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     report.push('Opened the magazine folder to anyone with the link');
@@ -2265,8 +2286,8 @@ function createForms_(report) {
   var L = formLists_();
   var makers = { activity: makeActivityForm_, club_profile: makeClubProfileForm_, consent: makeConsentForm_, removal: makeRemovalForm_,
     public_service: makePublicServiceForm_, contact: makeContactForm_ };
-  var destinations = { activity: mainSs_().getId(), club_profile: mainSs_().getId(), consent: CONFIG.PRIVATE_SHEET_ID, removal: CONFIG.PRIVATE_SHEET_ID,
-    public_service: mainSs_().getId(), contact: CONFIG.PRIVATE_SHEET_ID };
+  var destinations = { activity: mainSs_().getId(), club_profile: mainSs_().getId(), consent: privateSheetId_(), removal: privateSheetId_(),
+    public_service: mainSs_().getId(), contact: privateSheetId_() };
   var rawNames = { activity: 'raw_activity_form', club_profile: 'raw_club_profile_form', consent: 'raw_consent_form', removal: 'raw_removal_form',
     public_service: 'raw_public_service_form', contact: 'raw_contact_form' };
 
@@ -3580,7 +3601,7 @@ function fileFor_(mode, id) {
 function scanMagazines_() {
   var ss = mainSs_();
   var known = readTab_(ss, 'magazines').map(function (m) { return Core_str(m.issue_month).slice(0, 7); });
-  var folder = DriveApp.getFolderById(CONFIG.MAGAZINE_FOLDER_ID);
+  var folder = DriveApp.getFolderById(magazineFolderId_());
   var covers = {};
   var pdfs = [];
   var files = folder.getFiles();
@@ -3756,7 +3777,8 @@ function deskSendCode_(email) {
   var hour = Math.floor(Date.now() / 3600000);
   var mine = Number(cache.get('deskrate:' + email + ':' + hour) || 0);
   var all = Number(cache.get('deskrate:all:' + hour) || 0);
-  if (mine >= 5 || all >= 40) throw deskError_('Too many codes were asked for. Please try again in an hour.');
+  // the same answer as for an unknown email, so the limit does not show who is a moderator
+  if (mine >= 5 || all >= 40) return reply;
   cache.put('deskrate:' + email + ':' + hour, String(mine + 1), 3600);
   cache.put('deskrate:all:' + hour, String(all + 1), 3600);
   var code = ('00000' + (parseInt(Utilities.getUuid().replace(/-/g, '').slice(0, 8), 16) % 1000000)).slice(-6);
@@ -3778,16 +3800,23 @@ function deskSignIn_(req) {
     email = deskRead_(req.token, ['in']).email;
   } else {
     email = Core_str(req.email).toLowerCase();
-    var cache = CacheService.getScriptCache();
-    var key = 'deskcode:' + email;
-    var saved = JSON.parse(cache.get(key) || 'null');
-    if (!saved) throw deskError_('The code has expired. Ask for a new one.');
-    if (saved.h !== deskSign_('code~' + email + '~' + Core_str(req.code).replace(/\D/g, ''))) {
-      saved.n += 1;
-      if (saved.n >= 5) cache.remove(key); else cache.put(key, JSON.stringify(saved), DESK_SIGNIN_MINUTES * 60);
-      throw deskError_(saved.n >= 5 ? 'Too many wrong codes. Ask for a new one.' : 'That code is not right. Use the code in the latest email.');
+    // one guess at a time, so many guesses sent together still count towards the five allowed
+    var lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+      var cache = CacheService.getScriptCache();
+      var key = 'deskcode:' + email;
+      var saved = JSON.parse(cache.get(key) || 'null');
+      if (!saved) throw deskError_('The code has expired. Ask for a new one.');
+      if (saved.h !== deskSign_('code~' + email + '~' + Core_str(req.code).replace(/\D/g, ''))) {
+        saved.n += 1;
+        if (saved.n >= 5) cache.remove(key); else cache.put(key, JSON.stringify(saved), DESK_SIGNIN_MINUTES * 60);
+        throw deskError_(saved.n >= 5 ? 'Too many wrong codes. Ask for a new one.' : 'That code is not right. Use the code in the latest email.');
+      }
+      cache.remove(key);
+    } finally {
+      lock.releaseLock();
     }
-    cache.remove(key);
   }
   var types = deskTypes_(email);
   if (!types.length) throw deskError_('This email is not on the moderators list.');

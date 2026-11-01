@@ -35,7 +35,6 @@ The rules for what may become public live in one file, [apps-script/Core.js](app
 | `tools/` | One-off tools: Excel conversion, sample generator, brand assets, script bundler. |
 | `tests/` | Unit tests (rules, recognition, Sheet script in a simulated Google environment) and checks on the built site. |
 | `docs/` | Guides and reports. |
-| `data-snapshots/` | The public data saved by each scheduled build (one file; each version is dated in the git history). |
 
 ## Commands
 

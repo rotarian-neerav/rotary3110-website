@@ -900,7 +900,13 @@ function Core_buildPublicData(tabs, nowIso, options) {
     var id = Core_str(r.member_id);
     var inactive = !!(id && inactiveIds[id]);
     var p = inactive ? null : photoByMemberId[id];
-    var contact = !inactive && Core_isTrue(r.contact_ok) && Core_str(r.contact_link) ? Core_str(r.contact_link) : '';
+    var link = Core_str(r.contact_link);
+    // only a WhatsApp link to an Indian mobile: anything else typed in the Sheet is left out, not published
+    if (link && !CORE_WA_LINK_RE.test(link)) {
+      skippedItems.push('role ' + Core_str(r.role) + ' ' + Core_str(r.club_id) + ' contact link');
+      link = '';
+    }
+    var contact = !inactive && Core_isTrue(r.contact_ok) && link ? link : '';
     return {
       rotary_year: Core_str(r.rotary_year),
       person_key: p ? p.key : '',
@@ -1207,6 +1213,7 @@ function Core_hash(s) {
 
 var CORE_PHONE_RE = /(?:^|[^\w])(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}(?!\w)/; // digits inside a word are not phone numbers
 var CORE_EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
+var CORE_WA_LINK_RE = /^https:\/\/wa\.me\/91[6-9]\d{9}$/;
 var CORE_YEAR_RE = /\b(19|20)\d{2}\b/;
 
 /** Returns a list of problems. An empty list means the data is safe to publish. */
@@ -1219,7 +1226,7 @@ function Core_validatePublic(data) {
     if (!m.directory_ok && !m.photo_ok && !m.birthday_ok) err(w, 'member has not opted in to anything');
     if (!m.directory_ok && (m.profession || m.area || m.description || m.website)) err(w, 'directory details without directory consent');
     if (m.contact_link && !(m.contact_ok && m.directory_ok)) err(w, 'contact link without consent');
-    if (m.contact_link && !/^https:\/\/wa\.me\/91[6-9]\d{9}$/.test(m.contact_link)) err(w, 'contact link is not a WhatsApp link');
+    if (m.contact_link && !CORE_WA_LINK_RE.test(m.contact_link)) err(w, 'contact link is not a WhatsApp link');
     if (m.photo && !m.photo_ok) err(w, 'photo without photo consent');
     if (m.birthday && !m.birthday_ok) err(w, 'birthday without consent');
     if (m.birthday && !/^\d{2}-\d{2}$/.test(m.birthday)) err(w, 'birthday must be day and month only, got "' + m.birthday + '"');
@@ -1250,6 +1257,7 @@ function Core_validatePublic(data) {
 
   (data.officers || []).concat(data.functionaries || []).forEach(function (p, i) {
     if (p.contact_link && !p.contact_ok) err('roles[' + i + '] ' + p.name, 'contact link without consent');
+    if (p.contact_link && !CORE_WA_LINK_RE.test(p.contact_link)) err('roles[' + i + '] ' + p.name, 'contact link is not a WhatsApp link');
     if (p.person_ref && !/^P[0-9a-f]{12}$/.test(p.person_ref)) err('roles[' + i + '] ' + p.name, 'person reference is not a scrambled reference');
   });
   (data.members || []).forEach(function (m, i) {

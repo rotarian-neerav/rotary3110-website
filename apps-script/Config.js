@@ -7,10 +7,8 @@
  */
 
 var CONFIG = {
-  // The private members spreadsheet (never published)
-  PRIVATE_SHEET_ID: '1WA3KHpFQ1Bvh0eZun1_Rlile1gXUN0u9FOkItjScoxI',
-  // Google Drive folder with the magazine PDFs (anyone with the link can view)
-  MAGAZINE_FOLDER_ID: '1ULN-pi2vpWasTad4bG5j4e6SKPR9inBj',
+  // The private members spreadsheet and the magazine folder (anyone with the link can view) are named in the
+  // script's properties, not here, because this code is public: see privateSheetId_ and magazineFolderId_ below.
   // Private folder for member photos the district already holds, files named <member ID>.jpg
   MEMBER_PHOTOS_FOLDER_NAME: 'MemberPhotos',
   // Where "Load sample data" reads the sample from (the public website repository)
@@ -31,12 +29,27 @@ function props_() {
   return PropertiesService.getScriptProperties();
 }
 
+/** An id kept in Apps Script → Project Settings → Script properties; a clear message when it is missing. */
+function idProperty_(key, what) {
+  var id = Core_str(props_().getProperty(key));
+  if (!id) throw new Error(what + ' is not set: add the script property ' + key + ' (Apps Script → Project Settings → Script properties)');
+  return id;
+}
+
+function privateSheetId_() {
+  return idProperty_('PRIVATE_SHEET_ID', 'The private members Sheet');
+}
+
+function magazineFolderId_() {
+  return idProperty_('MAGAZINE_FOLDER_ID', 'The magazine folder');
+}
+
 function mainSs_() {
   return SpreadsheetApp.getActiveSpreadsheet() || retry_(function () { return SpreadsheetApp.openById(props_().getProperty('MAIN_SHEET_ID')); });
 }
 
 function privateSs_() {
-  return retry_(function () { return SpreadsheetApp.openById(CONFIG.PRIVATE_SHEET_ID); });
+  return retry_(function () { return SpreadsheetApp.openById(privateSheetId_()); });
 }
 
 // Google's own words when it is only briefly slow or busy ("Service Drive timed out while accessing document…")

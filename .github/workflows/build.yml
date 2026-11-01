@@ -10,13 +10,12 @@ on:
     - cron: "*/15 * * * *"
   push:
     branches: [main]
-    paths-ignore: ["data-snapshots/**", "docs/**", "**.md"]
+    paths-ignore: ["docs/**", "**.md"]
   workflow_dispatch:
 
+# Read-only by default; only the publishing job may publish (nothing pushes to the repository)
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
 concurrency:
   group: pages
@@ -63,11 +62,17 @@ jobs:
     needs: check
     if: needs.check.outputs.build == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false # no build step can push with the workflow's token
 
       - uses: actions/setup-node@v7
         with:
@@ -105,17 +110,14 @@ jobs:
       - name: Check the built site
         run: npm run test:site
 
-      - name: Save a dated copy of the public data
-        if: github.event_name != 'push'
-        run: |
-          mkdir -p data-snapshots
-          cp .cache/public-data.json data-snapshots/public-data.json
-          date -u +"%Y-%m-%dT%H:%M:%SZ" > data-snapshots/last-build.txt
-          git config user.name "Rotary District 3110 (automatic build)"
-          git config user.email "rotarian.neerav@gmail.com"
-          git add data-snapshots
-          git commit -m "Public data snapshot $(cat data-snapshots/last-build.txt)" || echo "No change"
-          git push || echo "Snapshot not pushed"
+      # A copy of the public data with each build, kept 90 days (Actions tab → the run → Artifacts), not in the
+      # repository: a copy in git history would keep people who later withdrew or died public for ever
+      - name: Keep a copy of the public data
+        uses: actions/upload-artifact@v7
+        with:
+          name: public-data
+          path: .cache/public-data.json
+          retention-days: 90
 
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5

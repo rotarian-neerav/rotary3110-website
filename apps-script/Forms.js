@@ -242,8 +242,8 @@ function createForms_(report) {
   var L = formLists_();
   var makers = { activity: makeActivityForm_, club_profile: makeClubProfileForm_, consent: makeConsentForm_, removal: makeRemovalForm_,
     public_service: makePublicServiceForm_, contact: makeContactForm_ };
-  var destinations = { activity: mainSs_().getId(), club_profile: mainSs_().getId(), consent: CONFIG.PRIVATE_SHEET_ID, removal: CONFIG.PRIVATE_SHEET_ID,
-    public_service: mainSs_().getId(), contact: CONFIG.PRIVATE_SHEET_ID };
+  var destinations = { activity: mainSs_().getId(), club_profile: mainSs_().getId(), consent: privateSheetId_(), removal: privateSheetId_(),
+    public_service: mainSs_().getId(), contact: privateSheetId_() };
   var rawNames = { activity: 'raw_activity_form', club_profile: 'raw_club_profile_form', consent: 'raw_consent_form', removal: 'raw_removal_form',
     public_service: 'raw_public_service_form', contact: 'raw_contact_form' };
 

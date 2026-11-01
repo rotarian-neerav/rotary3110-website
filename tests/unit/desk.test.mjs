@@ -119,10 +119,15 @@ test('signing in: a code only for active moderators, wrong codes refused, a 12-h
   const out = env.post({ fn: 'list', session: ok.session });
   assert.deepEqual([out.ok, out.signedOut, out.error], [false, true, 'This email is no longer on the moderators list.']);
   sh.set(2, 4, 'TRUE');
-  // too many codes for one email in an hour
-  for (let i = 0; i < 4; i++) env.post({ fn: 'code', email: 'kabir@example.com' });
-  env.post({ fn: 'code', email: 'kabir@example.com' });
-  assert.match(env.post({ fn: 'code', email: 'kabir@example.com' }).error, /Too many codes/);
+  // too many codes for one email in an hour: no more are sent, and the answer is the one an unknown email gets,
+  // so the limit does not give away who is a moderator
+  for (let i = 0; i < 5; i++) env.post({ fn: 'code', email: 'kabir@example.com' });
+  const sent = env.mails.length;
+  const limited = env.post({ fn: 'code', email: 'kabir@example.com' });
+  const stranger = env.post({ fn: 'code', email: 'stranger@example.com' });
+  assert.equal(env.mails.length, sent, 'no code beyond the limit');
+  assert.deepEqual([limited.ok, limited.error], [true, undefined]);
+  assert.equal(limited.message.replace('kabir@', 'stranger@'), stranger.message);
 });
 
 test('each type sees only its part of the desk; the district account sees everything', () => {

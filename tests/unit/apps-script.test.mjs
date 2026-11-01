@@ -586,6 +586,18 @@ test('form answers that start with = + - or @ are kept as text, never turned int
   assert.equal(env.main.getSheetByName('activities').formulas.size, 0, 'no formula in the main Sheet');
 });
 
+test('the private Sheet and the magazine folder are named in the script properties, not the public code; without them the data link says what to add', () => {
+  const code = readFileSync(resolve(ROOT, 'dist/apps-script/Code.gs'), 'utf8');
+  assert.doesNotMatch(code, /PRIVATE_SHEET_ID:|MAGAZINE_FOLDER_ID:/);
+  const saved = env.props.get('PRIVATE_SHEET_ID');
+  env.props.delete('PRIVATE_SHEET_ID');
+  const r = env.doGet({ mode: 'data', token });
+  env.props.set('PRIVATE_SHEET_ID', saved);
+  assert.equal(r.ok, false);
+  assert.match(r.error, /add the script property PRIVATE_SHEET_ID \(Apps Script → Project Settings → Script properties\)/);
+  assert.ok(data().clubs.length, 'works again once it is set');
+});
+
 test('monthly email: the quiet clubs (no activity in the last 30 days), the same as the dashboard, to the dummy receiver; private', () => {
   const before = env.mails.length;
   const n = env.run('notPostingReport');
@@ -612,7 +624,7 @@ test('data link: public services, profiles and Past District Governors reach the
 });
 
 test('magazine folder: a new YYYY-MM.pdf is added once, with its cover picture or the PDF thumbnail; other files are ignored', () => {
-  const folderId = env.context.CONFIG.MAGAZINE_FOLDER_ID;
+  const folderId = env.props.get('MAGAZINE_FOLDER_ID');
   const known = env.main.rows('magazines').map((m) => String(m.issue_month).slice(0, 7));
   assert.ok(known.length > 0, 'the sample has magazines');
   env.files.set('MAGPDF11', { name: '2026-11.pdf', folder: folderId });

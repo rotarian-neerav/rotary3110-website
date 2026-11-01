@@ -110,6 +110,7 @@ test('privacy check catches each kind of problem', () => {
     ['phone number in a description', (d) => { d.activities[0].description += ' Call 98765 43210'; }, 'phone number'],
     ['email in a title', (d) => { d.events[0].title += ' (write to a.b@example.com)'; }, 'email address'],
     ['member ID published', (d) => { d.members[0].member_id = '1234567'; }, 'member ID'],
+    ['office bearer contact that is not WhatsApp', (d) => { Object.assign(d.officers[0], { contact_ok: true, contact_link: 'javascript:alert(1)' }); }, 'not a WhatsApp link'],
     ['marriage year in a couple', (d) => { d.couples[0].anniversary = '2001-10-16'; }, 'anniversary must be day and month only'],
   ];
   for (const [label, breakIt, expected] of cases) {
@@ -118,6 +119,19 @@ test('privacy check catches each kind of problem', () => {
     const errors = plain(core.Core_validatePublic(d));
     assert.ok(errors.some((e) => e.includes(expected)), `${label}: expected an error mentioning "${expected}", got ${JSON.stringify(errors.slice(0, 3))}`);
   }
+});
+
+test("an office bearer's contact link is published only as a WhatsApp link to a mobile; anything else typed in the Sheet is left out and listed", () => {
+  const main = structuredClone(sample.main);
+  const [good, bad, mail] = main.officers.filter((o) => o.rotary_year === main.settings.find((s) => s.key === 'current_rotary_year').value).slice(0, 3);
+  Object.assign(good, { contact_ok: true, contact_link: 'https://wa.me/919876543210' });
+  Object.assign(bad, { contact_ok: true, contact_link: 'javascript:alert(1)' });
+  Object.assign(mail, { contact_ok: true, contact_link: 'mailto:a.b@example.com' });
+  const d = plain(core.Core_buildPublicData(main, '2026-10-13T00:00:00Z'));
+  const link = (o) => d.officers.find((x) => x.name === o.name && x.role === o.role && x.club_id === o.club_id).contact_link;
+  assert.deepEqual([link(good), link(bad), link(mail)], ['https://wa.me/919876543210', '', '']);
+  assert.equal(d.skipped_items.filter((s) => / contact link$/.test(s)).length, 2);
+  assert.deepEqual(plain(core.Core_validatePublic(d)), []);
 });
 
 test('matching a request to a member: ID first, then mobile + club', () => {

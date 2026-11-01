@@ -121,7 +121,7 @@ function fileFor_(mode, id) {
 function scanMagazines_() {
   var ss = mainSs_();
   var known = readTab_(ss, 'magazines').map(function (m) { return Core_str(m.issue_month).slice(0, 7); });
-  var folder = DriveApp.getFolderById(CONFIG.MAGAZINE_FOLDER_ID);
+  var folder = DriveApp.getFolderById(magazineFolderId_());
   var covers = {};
   var pdfs = [];
   var files = folder.getFiles();

@@ -10,6 +10,10 @@ You will need two files from this project: `dist/apps-script/Code.gs` and `dist/
 3. Select everything in `Code.gs` and delete it. Open `dist/apps-script/Code.gs` from this project, copy **all** of it, and paste it in.
 4. Click **+** next to "Files" → **HTML** → name it exactly `Sidebar` (Google adds `.html`). Delete what is in it, then paste the whole of `dist/apps-script/Sidebar.html`.
 5. Click the **gear icon (Project Settings)** → set **Time zone** to *(GMT+05:30) India Standard Time*.
+   Further down, under **Script properties**, click **Add script property** twice and add:
+   - `PRIVATE_SHEET_ID`: the private members Sheet's ID (in its address, the long part between `/d/` and `/edit`);
+   - `MAGAZINE_FOLDER_ID`: the magazine folder's ID (in its address, the long part after `/folders/`).
+   Then **Save script properties**. They are kept here, not in the code, because the code is public.
 6. Back in the editor (the `< >` icon), click the **save** icon.
 
 ## 2. Run the setup (3 minutes)
@@ -98,6 +102,14 @@ The **19 October** version (installed in the test Sheet on 19 Oct) needs only pa
 The **19 October (evening)** version (installed in the test Sheet on 19 Oct) also needs only paste `Code.gs` and **Deploy → Manage deployments → edit → New version**. It puts quiet clubs on one rule: no activity in the last 30 days, for the desk's Quiet clubs, the dashboard's `needs_nudge` and the monthly email (which listed the clubs with nothing in the month just ended). The email's subject is now "Clubs with no activity in the last 30 days".
 
 The **29 October** version: paste `Code.gs`, **Deploy → Manage deployments → edit → New version**, then **Administrator → Upgrade Sheet** (it adds the private `gender` column to members_master). It also adds **Administrator → Reset for production (once)…**, used a single time before the real data is imported (see the yearly update and launch guide).
+
+The **1 November** version keeps form answers as plain text (an answer starting with `=` could otherwise become
+a formula), gives the moderation desk the fingerprint it checks links against, and reads the private Sheet's and the
+magazine folder's IDs from the script properties. **Before** pasting it: in the editor, find `PRIVATE_SHEET_ID:` and
+`MAGAZINE_FOLDER_ID:` near the top of the old `Code.gs` and add both, with the same values (without the quotes), under
+**Project Settings → Script properties** (see step 5 of part 1). Then paste `Code.gs`, **Deploy → Manage
+deployments → edit → New version**, and **Rotary → Rebuild site now**. Without the two properties the data link
+answers "add the script property …" and the build stops, leaving the website as it was.
 
 ## 6. Name the moderators
 

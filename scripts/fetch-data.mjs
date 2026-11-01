@@ -46,7 +46,7 @@ function fromSample() {
 }
 
 const { DATA_URL, DATA_TOKEN } = process.env;
-// --file <path>: a saved copy of the Sheet's data (e.g. data-snapshots/public-data.json), for testing locally
+// --file <path>: a saved copy of the Sheet's data (a build's public-data artifact, kept 90 days), for testing locally
 const fileArg = process.argv.indexOf('--file');
 const file = fileArg > 0 ? process.argv[fileArg + 1] : '';
 const useSheet = DATA_URL && DATA_TOKEN && !process.argv.includes('--sample');

@@ -232,7 +232,7 @@ function memberPhotosFolder_() {
 
 /** Main and private Sheets must be restricted; the magazine folder must be open to anyone with the link. */
 function checkSharing_(main, report) {
-  [main.getId(), CONFIG.PRIVATE_SHEET_ID].forEach(function (id) {
+  [main.getId(), privateSheetId_()].forEach(function (id) {
     var f = DriveApp.getFileById(id);
     var access = f.getSharingAccess();
     if (access !== DriveApp.Access.PRIVATE) {
@@ -240,7 +240,7 @@ function checkSharing_(main, report) {
       report.push('Restricted sharing of ' + f.getName());
     }
   });
-  var mag = DriveApp.getFolderById(CONFIG.MAGAZINE_FOLDER_ID);
+  var mag = DriveApp.getFolderById(magazineFolderId_());
   if (mag.getSharingAccess() !== DriveApp.Access.ANYONE_WITH_LINK) {
     mag.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     report.push('Opened the magazine folder to anyone with the link');

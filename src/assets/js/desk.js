@@ -77,10 +77,34 @@
     var i = p.indexOf('=');
     if (i > 0) hash[p.slice(0, i)] = decodeURIComponent(p.slice(i + 1));
   });
-  if (hash.k && /^[\w-]{20,}$/.test(hash.k)) store.set('deskApi', hash.k);
   if (location.hash) history.replaceState(null, '', location.pathname); // links are personal: keep them out of the history
-  var apiId = store.get('deskApi');
-  var session = store.get('deskSession');
+  var apiId = null;
+  var session = null;
+  // The desk talks only to the district's Sheet script: the page carries a one-way fingerprint of its id (sent by the
+  // script at each build), and a link naming another script is refused. Until the Sheet sends one, a new id at least
+  // signs this phone out, so a session is never handed to another script.
+  var apiFp = root.getAttribute('data-api-fp') || '';
+  function sha256(s) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function (buf) {
+      return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+    });
+  }
+  function genuine(id) {
+    if (!id || !/^[\w-]{20,}$/.test(id)) return Promise.resolve(false);
+    if (!apiFp) return Promise.resolve(true);
+    return sha256(id).then(function (h) { return h === apiFp; }, function () { return false; });
+  }
+  var ready = Promise.all([genuine(hash.k), genuine(store.get('deskApi'))]).then(function (ok) {
+    if (hash.k && ok[0]) {
+      if (store.get('deskApi') !== hash.k) store.set('deskSession', null);
+      store.set('deskApi', hash.k);
+    } else if (!ok[1]) {
+      store.set('deskApi', null);
+      store.set('deskSession', null);
+    }
+    apiId = store.get('deskApi');
+    session = store.get('deskSession');
+  });
   var state = { tab: store.get('deskTab') || 'check', data: null, me: null };
 
   function esc(s) {
@@ -193,23 +217,30 @@
     }).join('') + '</div><p class="small muted">' + esc(t('tapPhoto')) + '</p>';
   }
 
+  // only a picture type and base64 characters go into the page
+  function imgHtml(d) {
+    if (!/^image\/[\w.+-]+$/.test(d.mimeType || '') || !/^[A-Za-z0-9+/=]+$/.test(d.base64 || '')) return '';
+    return '<img alt="" src="data:' + d.mimeType + ';base64,' + d.base64 + '">';
+  }
+
   function loadPhotos(scope) {
     Array.prototype.forEach.call(scope.querySelectorAll('.desk-photo[data-ref]:not([data-loaded])'), function (b) {
       b.setAttribute('data-loaded', '1');
       var req = { fn: 'photo', ref: b.getAttribute('data-ref') };
       if (b.getAttribute('data-token')) req.token = b.getAttribute('data-token');
       api(req).then(function (d) {
-        if (!/^image\//.test(d.mimeType)) return;
-        b.innerHTML = '<img alt="" src="data:' + d.mimeType + ';base64,' + d.base64 + '">';
+        var img = imgHtml(d);
+        if (img) b.innerHTML = img;
       }).catch(function () { b.textContent = '–'; });
       b.addEventListener('click', function () {
         if (b.getAttribute('data-full')) return;
         b.setAttribute('data-full', '1');
         req.full = true;
         api(req).then(function (d) {
-          if (!/^image\//.test(d.mimeType)) return;
+          var img = imgHtml(d);
+          if (!img) return;
           b.classList.add('desk-photo-full');
-          b.innerHTML = '<img alt="" src="data:' + d.mimeType + ';base64,' + d.base64 + '">';
+          b.innerHTML = img;
         }).catch(function () { /* the small picture stays */ });
       });
     });
@@ -583,8 +614,10 @@
   }
 
   applyLang();
-  if (!apiId) start();
-  else if (hash.a) showLink(hash.a, hash['do']);
-  else if (hash.s) showLinkSignIn(hash.s);
-  else start();
+  ready.then(function () {
+    if (!apiId) start();
+    else if (hash.a) showLink(hash.a, hash['do']);
+    else if (hash.s) showLinkSignIn(hash.s);
+    else start();
+  });
 })();

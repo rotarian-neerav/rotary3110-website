@@ -1,6 +1,7 @@
 // The moderation desk (Desk.js) and the alert emails, against a simulated Google: signing in with an emailed code,
 // personal one-tap links from emails, what each type of moderator may see and do, and that nothing leaks.
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -75,6 +76,12 @@ test('the build remembers the web app address; emails link to the desk page with
   data();
   assert.equal(env.props.get('WEB_APP_URL'), 'https://script.google.com/macros/s/TEST/exec');
   assert.match(env.run('deskLink_', {}), /^https:\/\/rotarian-neerav\.github\.io\/rotary3110-website\/desk\/#k=TEST$/);
+});
+
+test('the data link carries a one-way fingerprint of the script id in the desk links, for the desk page to check links against', () => {
+  const fp = data().desk_api_fp;
+  assert.equal(fp, createHash('sha256').update('TEST').digest('hex'));
+  assert.ok(!JSON.stringify(data()).includes('/s/TEST/'), 'the script address itself is not in the data');
 });
 
 test('signing in: a code only for active moderators, wrong codes refused, a 12-hour session; inactive people are locked out', () => {

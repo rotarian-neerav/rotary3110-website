@@ -95,6 +95,15 @@ function headers_(ss, name) {
   return retry_(function () { return sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0]; });
 }
 
+/**
+ * A value as it must be written. Google reads text a script writes as if someone typed it, so an answer from a public
+ * form starting with = (or + - @) would become a formula, able to read other cells and send them out. The leading
+ * apostrophe tells Sheets it is text; it is not stored, and reading the cell gives the text exactly as sent.
+ */
+function cellValue_(v) {
+  return typeof v === 'string' && /^[=+\-@]/.test(v) ? "'" + v : v;
+}
+
 /** Writes some fields of one row (by sheet row number), leaving the other cells alone. */
 function updateRow_(ss, name, rowNumber, fields) {
   var sh = ss.getSheetByName(name);
@@ -102,7 +111,7 @@ function updateRow_(ss, name, rowNumber, fields) {
   Object.keys(fields).forEach(function (key) {
     var col = headers.indexOf(key);
     if (col < 0) throw new Error('Column "' + key + '" not found in ' + name);
-    retry_(function () { sh.getRange(rowNumber, col + 1).setValue(fields[key]); });
+    retry_(function () { sh.getRange(rowNumber, col + 1).setValue(cellValue_(fields[key])); });
   });
 }
 
@@ -110,7 +119,7 @@ function updateRow_(ss, name, rowNumber, fields) {
 function appendRow_(ss, name, obj) {
   var sh = ss.getSheetByName(name);
   var headers = headers_(ss, name);
-  sh.appendRow(headers.map(function (h) { return obj[h] == null ? '' : obj[h]; }));
+  sh.appendRow(headers.map(function (h) { return obj[h] == null ? '' : cellValue_(obj[h]); }));
   return sh.getLastRow();
 }
 
@@ -120,7 +129,7 @@ function replaceRows_(ss, name, rows) {
   var headers = headers_(ss, name);
   if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, sh.getMaxColumns()).clearContent();
   if (!rows.length) return;
-  var values = rows.map(function (o) { return headers.map(function (h) { return o[h] == null ? '' : o[h]; }); });
+  var values = rows.map(function (o) { return headers.map(function (h) { return o[h] == null ? '' : cellValue_(o[h]); }); });
   sh.getRange(2, 1, values.length, headers.length).setValues(values);
 }
 
@@ -3470,6 +3479,7 @@ function doGet(e) {
     if (p.mode === 'status') return json_({ ok: true, rebuild_requested_at: Core_isoTimestamp(settings_().rebuild_requested_at) });
     if (p.mode === 'data') {
       var data = publicData_();
+      data.desk_api_fp = deskApiFingerprint_();
       return json_({ ok: true, data: data });
     }
     if (p.mode === 'file' || p.mode === 'thumb') return json_(fileFor_(p.mode, p.id));
@@ -3803,6 +3813,17 @@ function rememberWebAppUrl_() {
     var u = ScriptApp.getService().getUrl();
     if (/\/exec$/.test(u) && props_().getProperty('WEB_APP_URL') !== u) props_().setProperty('WEB_APP_URL', u);
   } catch (e) { /* not deployed */ }
+}
+
+/**
+ * A one-way fingerprint (SHA-256) of the script id the desk links carry. The build puts it on the desk page, which
+ * then refuses a link naming any other script, so a moderator's session can never be sent elsewhere.
+ */
+function deskApiFingerprint_() {
+  var m = webAppUrl_().match(/\/s\/([^/]+)\/exec/);
+  if (!m) return '';
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, m[1], Utilities.Charset.UTF_8)
+    .map(function (b) { return ('0' + ((b + 256) % 256).toString(16)).slice(-2); }).join('');
 }
 
 /** A link to the desk page; the web app's id travels after the # (never sent to the website's server). */

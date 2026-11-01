@@ -20,6 +20,7 @@ function doGet(e) {
     if (p.mode === 'status') return json_({ ok: true, rebuild_requested_at: Core_isoTimestamp(settings_().rebuild_requested_at) });
     if (p.mode === 'data') {
       var data = publicData_();
+      data.desk_api_fp = deskApiFingerprint_();
       return json_({ ok: true, data: data });
     }
     if (p.mode === 'file' || p.mode === 'thumb') return json_(fileFor_(p.mode, p.id));

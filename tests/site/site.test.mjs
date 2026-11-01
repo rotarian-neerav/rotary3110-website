@@ -170,6 +170,13 @@ test('robots.txt blocks AI crawlers and image search of member photos, not norma
   if (process.env.HIDE_FROM_SEARCH !== 'true') assert.doesNotMatch(robots, /User-agent: \*\nDisallow: \/\n/);
 });
 
+test('the moderation desk carries only the fingerprint the Sheet sent (or none with sample data), never a script address', () => {
+  const desk = parse(page('desk')).querySelector('[data-desk]');
+  const fp = desk.getAttribute('data-api-fp');
+  assert.equal(fp, /^[0-9a-f]{64}$/.test(data.desk_api_fp || '') ? data.desk_api_fp : '');
+  assert.doesNotMatch(page('desk'), /script\.google\.com\/macros\/s\//);
+});
+
 test('pages stay light for slow connections', () => {
   const home = statSync(join(SITE, 'index.html')).size;
   const css = statSync(join(SITE, 'assets/css/site.css')).size;

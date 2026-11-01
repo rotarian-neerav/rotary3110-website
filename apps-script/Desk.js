@@ -205,6 +205,17 @@ function rememberWebAppUrl_() {
   } catch (e) { /* not deployed */ }
 }
 
+/**
+ * A one-way fingerprint (SHA-256) of the script id the desk links carry. The build puts it on the desk page, which
+ * then refuses a link naming any other script, so a moderator's session can never be sent elsewhere.
+ */
+function deskApiFingerprint_() {
+  var m = webAppUrl_().match(/\/s\/([^/]+)\/exec/);
+  if (!m) return '';
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, m[1], Utilities.Charset.UTF_8)
+    .map(function (b) { return ('0' + ((b + 256) % 256).toString(16)).slice(-2); }).join('');
+}
+
 /** A link to the desk page; the web app's id travels after the # (never sent to the website's server). */
 function deskLink_(params) {
   var m = webAppUrl_().match(/\/s\/([^/]+)\/exec/);

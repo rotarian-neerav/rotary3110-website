@@ -11,8 +11,8 @@ styles: ["desk.css"]
 ---
 {#- The moderation desk. Everything on it comes from the Sheet script after the moderator signs in; this page
     itself holds no data. The script's web address arrives after the # in the links that moderators are emailed,
-    and is remembered on the phone. -#}
-<div class="wrap section narrow desk" data-desk>
+    and is remembered on the phone; the page accepts only the script whose fingerprint the Sheet sent at the build. -#}
+<div class="wrap section narrow desk" data-desk data-api-fp="{{ site.deskApiFp }}">
   <div class="desk-head">
     <h1 data-t="title">Moderation desk</h1>
     <div class="desk-tools">

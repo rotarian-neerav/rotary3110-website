@@ -1,7 +1,7 @@
 // A small stand-in for Google's Apps Script services, enough to run the Sheet script's logic in Node.
 // Spreadsheets are plain 2D arrays; Forms, triggers and UI calls are recorded rather than performed.
 import { readFileSync } from 'node:fs';
-import { createHmac } from 'node:crypto';
+import { createHash, createHmac } from 'node:crypto';
 import vm from 'node:vm';
 
 /** Returns a callable object where any method call returns itself, for builder-style APIs. */
@@ -125,9 +125,17 @@ class FakeRange {
 }
 
 class FakeSheet {
-  constructor(name) { this.name = name; this.data = []; this.formUrl = null; this.maxCols = 26; this.rules = new Map(); }
+  constructor(name) { this.name = name; this.data = []; this.formUrl = null; this.maxCols = 26; this.rules = new Map(); this.formulas = new Map(); }
   cell(r, c) { return (this.data[r - 1] || [])[c - 1] ?? ''; }
   set(r, c, v) {
+    // Like Google Sheets: text a script writes is read as if typed. A leading apostrophe marks text and is not
+    // stored; text starting with = becomes a formula (kept in `formulas`; its value here is an error, as most are)
+    this.formulas.delete(r + ',' + c);
+    if (typeof v === 'string' && v.charAt(0) === "'") v = v.slice(1);
+    else if (typeof v === 'string' && v.charAt(0) === '=') {
+      this.formulas.set(r + ',' + c, v);
+      v = '#ERROR!';
+    }
     // Like Google Sheets: a value outside a column's dropdown list is refused (rules kept per column, below the header)
     const rule = r > 1 && this.rules.get(c);
     if (rule && rule.list && v !== '' && v != null && !rule.list.some((x) => String(x).toLowerCase() === String(v).toLowerCase())) {
@@ -282,6 +290,9 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = '1WA3
       base64Encode: (bytes) => Buffer.from(bytes).toString('base64'),
       // like Apps Script: signed bytes (-128..127)
       computeHmacSha256Signature: (value, key) => [...createHmac('sha256', key).update(value).digest()].map((b) => (b > 127 ? b - 256 : b)),
+      computeDigest: (algorithm, value) => [...createHash('sha256').update(value).digest()].map((b) => (b > 127 ? b - 256 : b)),
+      DigestAlgorithm: { SHA_256: 'SHA_256' },
+      Charset: { UTF_8: 'UTF_8' },
     },
     Logger: { log: () => {} },
     MailApp: { sendEmail: (to, subject, body, options = {}) => mails.push({ to, subject, body, options }), getRemainingDailyQuota: () => quota.left },

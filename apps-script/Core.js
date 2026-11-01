@@ -1335,6 +1335,53 @@ function Core_matchMember(request, master) {
   return -1;
 }
 
+/**
+ * Who sent a consent form, judged by the sender's Google account: 'member' when it is the member's own email on file,
+ * 'officer' when it is the email on file of one of the club's office bearers (officers: this year's rows), otherwise
+ * 'other'. Also the warnings for the moderator, and any removal request the member sent after this form.
+ */
+function Core_consentSender(request, master, officers, removals) {
+  var lower = function (v) { return Core_str(v).toLowerCase(); };
+  var i = Core_matchMember(request, master);
+  var member = i >= 0 ? master[i] : null;
+  var sender = lower(request.submitter_email);
+  var memberEmail = member ? lower(member.email) : '';
+  var clubs = [Core_str(request.club_id), member ? Core_str(member.club_id) : ''].filter(String);
+  var byId = {};
+  master.forEach(function (m) { byId[Core_str(m.member_id)] = m; });
+  var officer = !!sender && (officers || []).some(function (o) {
+    var m = byId[Core_str(o.member_id)];
+    return m && clubs.indexOf(Core_str(o.club_id)) >= 0 && lower(m.email) === sender;
+  });
+  var who = sender && sender === memberEmail ? 'member' : officer ? 'officer' : 'other';
+  var saysSecretary = /secretary/i.test(Core_str(request.filled_by));
+  var warnings = [];
+  if (!saysSecretary && who !== 'member' && memberEmail) {
+    warnings.push("Says the member filled it, but it was sent from " + (sender || 'no Google account') + ", not the member's email on file");
+  }
+  if (saysSecretary && who === 'other') warnings.push('Says the club secretary filled it, but ' + (sender || 'the sender') + ' is not an office bearer of the club on file');
+  if (member && Core_str(request.member_id) && Core_str(request.member_id) === Core_str(member.member_id)) {
+    var words = function (n) { return Core_plainName(n).split(' ').filter(function (w) { return w.length > 2; }); };
+    var known = words(member.name);
+    if (!words(request.name).some(function (w) { return known.indexOf(w) >= 0; })) {
+      warnings.push('Matched by member ID, but the name on the form differs from the member list (' + Core_str(member.name) + ')');
+    }
+  }
+  if (who !== 'member' && !memberEmail) {
+    warnings.push((member ? 'No email on file for the member' : 'Not in the member list') + ', so nobody could tell them: confirm with the member or their club first');
+  }
+  var removal = '';
+  if (member) {
+    var sent = new Date(request.submitted_at).getTime() || 0;
+    (removals || []).forEach(function (r) {
+      if (Core_str(r.status).toLowerCase() === 'rejected' || removal) return;
+      if (Core_matchMember(r, master) === i && (new Date(r.submitted_at).getTime() || 0) >= sent) removal = Core_str(r.id) || 'a removal request';
+    });
+  }
+  if (removal) warnings.unshift('The member asked to remove their details after this form was sent (' + removal + '): reject this form');
+  return { who: who, memberEmail: memberEmail, memberName: member ? Core_str(member.name) : '', warnings: warnings, removal: removal };
+}
+
 /** Flags a likely duplicate: same club, dates within a day, similar titles. Returns the other id or ''. */
 function Core_findDuplicate(row, existing) {
   var date = Core_isoDate(row.date);
@@ -1441,7 +1488,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_isTrue: Core_isTrue, Core_isoDate: Core_isoDate, Core_dayMonth: Core_dayMonth, Core_rows: Core_rows,
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
-    Core_matchMember: Core_matchMember, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
+    Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
     Core_checkRoles: Core_checkRoles, Core_plainName: Core_plainName,
     Core_uniqueRows: Core_uniqueRows, Core_cleanLines: Core_cleanLines, Core_lineParts: Core_lineParts, Core_isDistrictEvent: Core_isDistrictEvent,

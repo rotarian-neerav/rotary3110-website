@@ -18,6 +18,8 @@ var CONFIG = {
   // Where "Load sample data" reads the sample from (the public website repository)
   SAMPLE_URL: 'https://raw.githubusercontent.com/rotarian-neerav/rotary3110-website/main/sample/sample-data.json',
   REMINDER_HOURS: 48,
+  // a consent form not sent from the member's own email waits this long, so the member can object to the email they get
+  CONSENT_HOLD_DAYS: 3,
 };
 
 /** Titles of the photo questions that must be added to the forms by hand (Google does not let scripts add them). */
@@ -263,7 +265,9 @@ var SCHEMA_PRIVATE = {
     'directory_ok', 'profession', 'area', 'description', 'website', 'spotlight_ok', 'contact_ok', 'photo_ok', 'photo_file',
     'birthday_ok', 'birthday', 'anniversary_ok', 'spouse_is_rotarian', 'spouse_name', 'spouse_club_id', 'spouse_member_id',
     'spouse_agrees', 'anniversary', 'couple_photo_file', 'couple_photo_spouse_agrees', 'declaration', 'status',
-    'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
+    'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample',
+    // added 1 November 2026: whether the member was told at their email on file
+    'member_notice'],
   // messages from the website's contact form; the reply details stay here and are never published
   contact_messages: ['id', 'submitted_at', 'name', 'reply_to', 'topic', 'city', 'message', 'status', 'forwarded_to', 'note', 'is_sample', 'replies'],
   removal_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'name', 'member_id', 'mobile', 'remove_items',
@@ -1613,6 +1617,53 @@ function Core_matchMember(request, master) {
   return -1;
 }
 
+/**
+ * Who sent a consent form, judged by the sender's Google account: 'member' when it is the member's own email on file,
+ * 'officer' when it is the email on file of one of the club's office bearers (officers: this year's rows), otherwise
+ * 'other'. Also the warnings for the moderator, and any removal request the member sent after this form.
+ */
+function Core_consentSender(request, master, officers, removals) {
+  var lower = function (v) { return Core_str(v).toLowerCase(); };
+  var i = Core_matchMember(request, master);
+  var member = i >= 0 ? master[i] : null;
+  var sender = lower(request.submitter_email);
+  var memberEmail = member ? lower(member.email) : '';
+  var clubs = [Core_str(request.club_id), member ? Core_str(member.club_id) : ''].filter(String);
+  var byId = {};
+  master.forEach(function (m) { byId[Core_str(m.member_id)] = m; });
+  var officer = !!sender && (officers || []).some(function (o) {
+    var m = byId[Core_str(o.member_id)];
+    return m && clubs.indexOf(Core_str(o.club_id)) >= 0 && lower(m.email) === sender;
+  });
+  var who = sender && sender === memberEmail ? 'member' : officer ? 'officer' : 'other';
+  var saysSecretary = /secretary/i.test(Core_str(request.filled_by));
+  var warnings = [];
+  if (!saysSecretary && who !== 'member' && memberEmail) {
+    warnings.push("Says the member filled it, but it was sent from " + (sender || 'no Google account') + ", not the member's email on file");
+  }
+  if (saysSecretary && who === 'other') warnings.push('Says the club secretary filled it, but ' + (sender || 'the sender') + ' is not an office bearer of the club on file');
+  if (member && Core_str(request.member_id) && Core_str(request.member_id) === Core_str(member.member_id)) {
+    var words = function (n) { return Core_plainName(n).split(' ').filter(function (w) { return w.length > 2; }); };
+    var known = words(member.name);
+    if (!words(request.name).some(function (w) { return known.indexOf(w) >= 0; })) {
+      warnings.push('Matched by member ID, but the name on the form differs from the member list (' + Core_str(member.name) + ')');
+    }
+  }
+  if (who !== 'member' && !memberEmail) {
+    warnings.push((member ? 'No email on file for the member' : 'Not in the member list') + ', so nobody could tell them: confirm with the member or their club first');
+  }
+  var removal = '';
+  if (member) {
+    var sent = new Date(request.submitted_at).getTime() || 0;
+    (removals || []).forEach(function (r) {
+      if (Core_str(r.status).toLowerCase() === 'rejected' || removal) return;
+      if (Core_matchMember(r, master) === i && (new Date(r.submitted_at).getTime() || 0) >= sent) removal = Core_str(r.id) || 'a removal request';
+    });
+  }
+  if (removal) warnings.unshift('The member asked to remove their details after this form was sent (' + removal + '): reject this form');
+  return { who: who, memberEmail: memberEmail, memberName: member ? Core_str(member.name) : '', warnings: warnings, removal: removal };
+}
+
 /** Flags a likely duplicate: same club, dates within a day, similar titles. Returns the other id or ''. */
 function Core_findDuplicate(row, existing) {
   var date = Core_isoDate(row.date);
@@ -1719,7 +1770,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_isTrue: Core_isTrue, Core_isoDate: Core_isoDate, Core_dayMonth: Core_dayMonth, Core_rows: Core_rows,
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
-    Core_matchMember: Core_matchMember, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
+    Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
     Core_checkRoles: Core_checkRoles, Core_plainName: Core_plainName,
     Core_uniqueRows: Core_uniqueRows, Core_cleanLines: Core_cleanLines, Core_lineParts: Core_lineParts, Core_isDistrictEvent: Core_isDistrictEvent,
@@ -2861,8 +2912,38 @@ function fileConsent_(a, meta) {
     anniversary: dayMonthAnswer_(a[Q.cAnniversaryDate]), couple_photo_file: fileIds_(firstStartingWith_(a, 'Couple photo')),
     couple_photo_spouse_agrees: checked_(a[Q.cCoupleAgree]), declaration: checked_(a[Q.cDeclaration]), status: 'pending',
   };
-  appendRow_(ps, 'consent_requests', req);
+  var row = appendRow_(ps, 'consent_requests', req);
+  var notice = noticeMember_(ps, req);
+  if (headers_(ps, 'consent_requests').indexOf('member_notice') >= 0) updateRow_(ps, 'consent_requests', row, { member_notice: notice });
   alertMembers_('consent', req);
+}
+
+/**
+ * When a consent form did not come from the member's own email, the member hears about it at the email on file,
+ * with time to object before anything is shown (safeguard, 1 Nov 2026). Returns what happened, for the moderator.
+ */
+function noticeMember_(ps, req) {
+  var check = consentChecker_(ps)(req);
+  if (check.who === 'member') return "Not needed: sent from the member's own email";
+  if (!check.memberEmail) return 'Not told: no email on file';
+  if (!deskQuota_(1)) return 'Not told: the daily email limit was reached';
+  var choices = [
+    [req.directory_ok, 'a listing in the members directory'], [req.contact_ok, 'a WhatsApp button'], [req.photo_ok, 'your photo'],
+    [req.birthday_ok, 'birthday greetings'], [req.anniversary_ok, 'anniversary greetings'],
+  ].filter(function (c) { return c[0]; }).map(function (c) { return '- ' + c[1]; });
+  var until = Core_dateLabel(Core_isoDate(new Date(consentHoldUntil_(req, check))));
+  try {
+    MailApp.sendEmail(check.memberEmail, 'Your details were sent to the Rotary District 3110 website',
+      'Dear ' + (check.memberName || req.name) + ',\n\nA member consent form was sent for you to the district website by ' + req.submitter_email +
+      (req.filled_by ? ' (as "' + req.filled_by + '")' : '') + '.\n\nIt asks to show:\n' + (choices.join('\n') || '- nothing') +
+      '\n\nIf you or your club sent it, there is nothing to do. A district moderator checks every form, and nothing is shown before ' + until + '.' +
+      '\n\nIf you did not agree to this, reply to this email or use the removal form, and nothing will be shown.' + removalLine_() +
+      '\n\nRotary District 3110', { name: 'Rotary District 3110' });
+    return 'Told by email ' + today_();
+  } catch (e) {
+    Logger.log('Notice to the member failed: ' + e.message);
+    return 'Not told: the email failed';
+  }
 }
 
 function fileRemoval_(a, meta) {
@@ -3174,9 +3255,14 @@ function memberRequests_(withThumbs) {
       return blob ? 'data:image/png;base64,' + Utilities.base64Encode(blob.getBytes()) : '';
     } catch (e) { return ''; }
   };
+  var sender = consentChecker_(ps, master);
   var consent = readTab_(ps, 'consent_requests').filter(function (r) { return Core_str(r.status) === 'pending'; }).map(function (r) {
+    var check = Core_isPractice(r) ? { who: 'member', warnings: [] } : sender(r);
+    var hold = consentHoldUntil_(r, check);
     return {
       id: r.id, name: r.name, club: clubName(r.club_id), filledBy: r.filled_by, match: describe(r), submitted: Core_isoTimestamp(r.submitted_at),
+      sentFrom: Core_str(r.submitter_email), sender: CONSENT_SENDERS[check.who], memberNotice: Core_str(r.member_notice),
+      holdUntil: hold > Date.now() ? new Date(hold).toISOString() : '', needsConfirm: check.who === 'other', blocked: !!check.removal,
       choices: [
         r.directory_ok ? 'Directory: ' + [r.profession, r.area].filter(String).join(', ') : '',
         r.contact_ok ? 'WhatsApp button' : '',
@@ -3186,11 +3272,11 @@ function memberRequests_(withThumbs) {
       ].filter(String),
       description: r.description, website: r.website, photo: thumb(r.photo_file), couplePhoto: thumb(r.couple_photo_file),
       photoRef: Core_str(r.photo_file).split(',')[0].trim(), couplePhotoRef: Core_str(r.couple_photo_file).split(',')[0].trim(),
-      warnings: [
+      warnings: check.warnings.concat([
         r.declaration ? '' : 'Declaration not ticked',
         r.anniversary_ok && r.spouse_is_rotarian !== 'Yes' && !r.spouse_agrees ? 'Spouse agreement not ticked' : '',
         r.directory_ok && !r.profession ? 'No profession given' : '',
-      ].filter(String),
+      ]).filter(String),
     };
   });
   var removal = readTab_(ps, 'removal_requests').filter(function (r) { return Core_str(r.status) === 'pending'; }).map(function (r) {
@@ -3203,12 +3289,33 @@ function memberRequests_(withThumbs) {
   return { consent: consent, removal: removal, waiting: waiting };
 }
 
-/** Called by the sidebar: approve a consent request. */
-function approveConsent(requestId) {
-  return approveConsent_(requestId, moderatorEmail_());
+var CONSENT_SENDERS = { member: "The member's own email", officer: 'An office bearer of the club', other: 'Not the member or a club office bearer' };
+
+/**
+ * Safeguards against a consent form sent for someone without their agreement (1 Nov 2026): who sent it, judged
+ * against the members list and this year's office bearers. Returns a function of one consent request.
+ */
+function consentChecker_(ps, master) {
+  master = master || readTab_(ps, 'members_master');
+  var year = Core_str(settings_().current_rotary_year);
+  var officers = readTab_(mainSs_(), 'officers').filter(function (o) { return !year || Core_str(o.rotary_year) === year; });
+  var removals = readTab_(ps, 'removal_requests');
+  return function (req) { return Core_consentSender(req, master, officers, removals); };
 }
 
-function approveConsent_(requestId, who) {
+/** Until when a request waits for the member to object (0 when it came from the member's own email). */
+function consentHoldUntil_(req, check) {
+  if (check.who === 'member') return 0;
+  var sent = new Date(req.submitted_at).getTime();
+  return isNaN(sent) ? 0 : sent + CONFIG.CONSENT_HOLD_DAYS * 86400000;
+}
+
+/** Called by the sidebar: approve a consent request (confirmed: the moderator checked with the member or their club). */
+function approveConsent(requestId, confirmed) {
+  return approveConsent_(requestId, moderatorEmail_(), confirmed);
+}
+
+function approveConsent_(requestId, who, confirmed) {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
@@ -3219,6 +3326,17 @@ function approveConsent_(requestId, who) {
     if (Core_isPractice(req)) {
       updateRow_(ps, 'consent_requests', req._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
       return 'Practice: approved. Nothing was changed in the members list.';
+    }
+    var check = consentChecker_(ps)(req);
+    if (check.removal) throw new Error('The member asked to remove their details after this form was sent (' + check.removal + '); reject this form.');
+    if (check.who === 'other' && !confirmed) {
+      throw new Error('This form did not come from the member or an office bearer of their club. Check with the member (or their club President ' +
+        'or Secretary) first, then tick "I have confirmed this with the member" and approve.');
+    }
+    var hold = consentHoldUntil_(req, check);
+    if (!confirmed && hold > Date.now()) {
+      throw new Error('The member has until ' + Core_dateLabel(Core_isoDate(new Date(hold))) + ' to object to this form. Approve after that, ' +
+        'or check with the member now and tick "I have confirmed this with the member".');
     }
     var member = findOrCreateMember_(ps, req, 'Created from consent request ' + requestId);
     var fields = {
@@ -3242,7 +3360,9 @@ function approveConsent_(requestId, who) {
     if (fields.anniversary_ok) linkCouple_(ps, member, req);
     else withdrawCouples_(ps, member.member_id, 'Anniversary not ticked on consent request ' + requestId);
 
-    updateRow_(ps, 'consent_requests', req._row, { status: 'approved', matched_member_id: member.member_id, approved_by: who, approved_at: nowIso_() });
+    var done = { status: 'approved', matched_member_id: member.member_id, approved_by: who, approved_at: nowIso_() };
+    if (confirmed) done.moderator_note = 'Confirmed with the member or their club by ' + who;
+    updateRow_(ps, 'consent_requests', req._row, done);
     refreshPublicMembers(true);
     notifyMember_(req, 'Listed: ' + member.name, 'Thank you. The listing for ' + member.name + ' on the Rotary District 3110 website has been approved, ' +
       'with only the details that were ticked on the form.\n\nIt will appear at the next website update (every Sunday):\n' + siteUrl_() + 'directory/' +
@@ -3684,7 +3804,7 @@ function desk_(req) {
   if (fn === 'approve' || fn === 'reject') return deskModerate_(me, fn, req.tab, req.id, req.reason);
   if (fn === 'edit') return deskEdit_(me, req.tab, req.id, req.fields || {});
   if (fn === 'flag') return deskFlag_(me, req.tab, req.id, req.field, req.value);
-  if (fn === 'member') return deskMember_(me, req.kind, req.action, req.id, req.reason);
+  if (fn === 'member') return deskMember_(me, req.kind, req.action, req.id, req.reason, req.confirmed === true);
   if (fn === 'search') return deskSearch_(me, req.q);
   if (fn === 'deceased') return deskDeceased_(me, req.member_id);
   if (fn === 'nudge') return deskNudge_(me, req.club_id, req.via);
@@ -4086,16 +4206,16 @@ function deskPhoto_(me, ref, full, token) {
 
 /* ---------- Members ---------- */
 
-function deskMember_(me, kind, action, id, reason) {
+function deskMember_(me, kind, action, id, reason, confirmed) {
   if (!me.views.members) throw deskError_('Only Members moderators can do this.');
   if (kind !== 'consent' && kind !== 'removal') throw deskError_('Unknown request.');
   var message;
-  if (action === 'approve') message = kind === 'consent' ? approveConsent_(id, me.email) : approveRemoval_(id, me.email);
+  if (action === 'approve') message = kind === 'consent' ? approveConsent_(id, me.email, confirmed) : approveRemoval_(id, me.email);
   else if (action === 'reject') {
     if (!Core_str(reason)) throw deskError_('Please write a reason. It is sent to the person who sent the form.');
     message = rejectRequest_(kind, id, Core_str(reason).slice(0, 500), me.email);
   } else throw deskError_('Unknown action.');
-  deskLog_(me, action, kind + '_requests', id, reason);
+  deskLog_(me, action, kind + '_requests', id, confirmed ? 'confirmed with the member or club' : reason);
   return { message: message };
 }
 
@@ -4508,8 +4628,12 @@ function sendReminders_() {
     Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { content.push(t + ': ' + r.id + ' – ' + (r.title || r.name || r.club_name || '')); });
   });
   var members = [];
+  var sender = consentChecker_(ps);
   ['consent_requests', 'removal_requests'].forEach(function (t) {
-    Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { members.push(t + ': ' + r.id + ' – ' + r.name); });
+    Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) {
+      if (t === 'consent_requests' && consentHoldUntil_(r, sender(r)) > now) return; // still waiting for the member to object
+      members.push(t + ': ' + r.id + ' – ' + r.name);
+    });
   });
   var desk = deskLink_({});
   [[content, 'Content', 'Open the Sheet and use the Rotary menu to approve or reject:'],

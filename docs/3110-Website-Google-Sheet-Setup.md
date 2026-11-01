@@ -111,6 +111,12 @@ magazine folder's IDs from the script properties. **Before** pasting it: in the 
 deployments → edit → New version**, and **Rotary → Rebuild site now**. Without the two properties the data link
 answers "add the script property …" and the build stops, leaving the website as it was.
 
+The **consent safeguards** version (1 November, later the same day) adds safeguards to the member consent form: when a form does not come from the member's
+own email, the member is emailed at the address on file and has 3 days to object, and a form from someone who is
+neither the member nor an office bearer of the club needs the moderator to confirm it with the member. Paste `Code.gs`
+and `Sidebar.html`, **Deploy → Manage deployments → edit → New version**, then **Rotary → Administrator → Upgrade
+Sheet (new tabs, columns, questions)** once (it adds the `member_notice` column to the private **consent_requests** tab).
+
 ## 6. Name the moderators
 
 1. Open the **moderators** tab (main Sheet). Each row is one person in one type: **Content**, **Members**, **Club engagement**, **District office** or **Administrator**. Put the real name and Google email over a placeholder, and keep `active` = **TRUE**. Add rows for more people (one person can have several rows).

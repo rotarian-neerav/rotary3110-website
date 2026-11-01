@@ -53,7 +53,7 @@ function desk_(req) {
   if (fn === 'approve' || fn === 'reject') return deskModerate_(me, fn, req.tab, req.id, req.reason);
   if (fn === 'edit') return deskEdit_(me, req.tab, req.id, req.fields || {});
   if (fn === 'flag') return deskFlag_(me, req.tab, req.id, req.field, req.value);
-  if (fn === 'member') return deskMember_(me, req.kind, req.action, req.id, req.reason);
+  if (fn === 'member') return deskMember_(me, req.kind, req.action, req.id, req.reason, req.confirmed === true);
   if (fn === 'search') return deskSearch_(me, req.q);
   if (fn === 'deceased') return deskDeceased_(me, req.member_id);
   if (fn === 'nudge') return deskNudge_(me, req.club_id, req.via);
@@ -455,16 +455,16 @@ function deskPhoto_(me, ref, full, token) {
 
 /* ---------- Members ---------- */
 
-function deskMember_(me, kind, action, id, reason) {
+function deskMember_(me, kind, action, id, reason, confirmed) {
   if (!me.views.members) throw deskError_('Only Members moderators can do this.');
   if (kind !== 'consent' && kind !== 'removal') throw deskError_('Unknown request.');
   var message;
-  if (action === 'approve') message = kind === 'consent' ? approveConsent_(id, me.email) : approveRemoval_(id, me.email);
+  if (action === 'approve') message = kind === 'consent' ? approveConsent_(id, me.email, confirmed) : approveRemoval_(id, me.email);
   else if (action === 'reject') {
     if (!Core_str(reason)) throw deskError_('Please write a reason. It is sent to the person who sent the form.');
     message = rejectRequest_(kind, id, Core_str(reason).slice(0, 500), me.email);
   } else throw deskError_('Unknown action.');
-  deskLog_(me, action, kind + '_requests', id, reason);
+  deskLog_(me, action, kind + '_requests', id, confirmed ? 'confirmed with the member or club' : reason);
   return { message: message };
 }
 

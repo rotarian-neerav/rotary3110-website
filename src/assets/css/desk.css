@@ -20,6 +20,7 @@
 .desk-kind { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
 .desk-text { white-space: pre-wrap; }
 .desk-note { background: #fff4dc; padding: 8px 10px; border-radius: 6px; }
+.desk-confirm { display: flex; gap: 8px; align-items: flex-start; margin: 10px 0; font-weight: 600; }
 .desk-bad { background: #fde8e6; color: #8c1d18; padding: 8px 10px; border-radius: 6px; }
 .desk-lines { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 8px 0; font-size: .95rem; }
 .desk-lines dt { color: var(--muted); }

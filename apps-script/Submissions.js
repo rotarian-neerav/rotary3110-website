@@ -261,8 +261,38 @@ function fileConsent_(a, meta) {
     anniversary: dayMonthAnswer_(a[Q.cAnniversaryDate]), couple_photo_file: fileIds_(firstStartingWith_(a, 'Couple photo')),
     couple_photo_spouse_agrees: checked_(a[Q.cCoupleAgree]), declaration: checked_(a[Q.cDeclaration]), status: 'pending',
   };
-  appendRow_(ps, 'consent_requests', req);
+  var row = appendRow_(ps, 'consent_requests', req);
+  var notice = noticeMember_(ps, req);
+  if (headers_(ps, 'consent_requests').indexOf('member_notice') >= 0) updateRow_(ps, 'consent_requests', row, { member_notice: notice });
   alertMembers_('consent', req);
+}
+
+/**
+ * When a consent form did not come from the member's own email, the member hears about it at the email on file,
+ * with time to object before anything is shown (safeguard, 1 Nov 2026). Returns what happened, for the moderator.
+ */
+function noticeMember_(ps, req) {
+  var check = consentChecker_(ps)(req);
+  if (check.who === 'member') return "Not needed: sent from the member's own email";
+  if (!check.memberEmail) return 'Not told: no email on file';
+  if (!deskQuota_(1)) return 'Not told: the daily email limit was reached';
+  var choices = [
+    [req.directory_ok, 'a listing in the members directory'], [req.contact_ok, 'a WhatsApp button'], [req.photo_ok, 'your photo'],
+    [req.birthday_ok, 'birthday greetings'], [req.anniversary_ok, 'anniversary greetings'],
+  ].filter(function (c) { return c[0]; }).map(function (c) { return '- ' + c[1]; });
+  var until = Core_dateLabel(Core_isoDate(new Date(consentHoldUntil_(req, check))));
+  try {
+    MailApp.sendEmail(check.memberEmail, 'Your details were sent to the Rotary District 3110 website',
+      'Dear ' + (check.memberName || req.name) + ',\n\nA member consent form was sent for you to the district website by ' + req.submitter_email +
+      (req.filled_by ? ' (as "' + req.filled_by + '")' : '') + '.\n\nIt asks to show:\n' + (choices.join('\n') || '- nothing') +
+      '\n\nIf you or your club sent it, there is nothing to do. A district moderator checks every form, and nothing is shown before ' + until + '.' +
+      '\n\nIf you did not agree to this, reply to this email or use the removal form, and nothing will be shown.' + removalLine_() +
+      '\n\nRotary District 3110', { name: 'Rotary District 3110' });
+    return 'Told by email ' + today_();
+  } catch (e) {
+    Logger.log('Notice to the member failed: ' + e.message);
+    return 'Not told: the email failed';
+  }
 }
 
 function fileRemoval_(a, meta) {

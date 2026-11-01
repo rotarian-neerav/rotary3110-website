@@ -14,6 +14,8 @@ var CONFIG = {
   // Where "Load sample data" reads the sample from (the public website repository)
   SAMPLE_URL: 'https://raw.githubusercontent.com/rotarian-neerav/rotary3110-website/main/sample/sample-data.json',
   REMINDER_HOURS: 48,
+  // a consent form not sent from the member's own email waits this long, so the member can object to the email they get
+  CONSENT_HOLD_DAYS: 3,
 };
 
 /** Titles of the photo questions that must be added to the forms by hand (Google does not let scripts add them). */

@@ -29,6 +29,10 @@
     var runner = google.script.run.withSuccessHandler(function (r) { say(r); load(); }).withFailureHandler(function (e) { say(e.message); });
     runner[fn].apply(runner, args);
   }
+  function approveOne(id) {
+    var tick = document.getElementById('ok-' + id);
+    act('approveConsent', [id, !!(tick && tick.checked)]);
+  }
   function reject(kind, id) {
     var reason = prompt('Reason for rejecting ' + id + ' (kept in the Sheet):');
     if (reason !== null) act('rejectRequest', [kind, id, reason]);
@@ -39,11 +43,16 @@
     if (!d.consent.length) h += '<p class="muted">None waiting.</p>';
     d.consent.forEach(function (r) {
       h += '<div class="card"><h3>' + esc(r.name) + '</h3><div class="muted">' + esc(r.club) + ' · ' + esc(r.filledBy) + ' · ' + esc(r.id) + '</div>' +
-        '<div class="muted">' + esc(r.match) + '</div><ul>' + r.choices.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>' +
+        '<div class="muted">' + esc(r.match) + '</div>' +
+        (r.sentFrom ? '<div class="muted">Sent from ' + esc(r.sentFrom) + ' · ' + esc(r.sender) + '</div>' : '') +
+        (r.memberNotice ? '<div class="muted">Member: ' + esc(r.memberNotice) + '</div>' : '') +
+        '<ul>' + r.choices.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>' +
         (r.description ? '<div>“' + esc(r.description) + '”</div>' : '') +
         (r.photo ? '<img src="' + r.photo + '" alt="Member photo">' : '') + (r.couplePhoto ? '<img src="' + r.couplePhoto + '" alt="Couple photo">' : '') +
         r.warnings.map(function (w) { return '<div class="warn">⚠ ' + esc(w) + '</div>'; }).join('') +
-        '<div><button class="ok" onclick="act(\'approveConsent\', [\'' + r.id + '\'])">Approve</button><button onclick="reject(\'consent\', \'' + r.id + '\')">Reject</button></div></div>';
+        (r.holdUntil ? '<div class="warn">⚠ The member can object until ' + esc(r.holdUntil.slice(0, 10)) + '. Approve after that, or confirm with them now.</div>' : '') +
+        (!r.blocked && (r.needsConfirm || r.holdUntil) ? '<label><input type="checkbox" id="ok-' + esc(r.id) + '"> I have confirmed this with the member (or their club President or Secretary)</label>' : '') +
+        '<div>' + (r.blocked ? '' : '<button class="ok" onclick="approveOne(\'' + r.id + '\')">Approve</button>') + '<button onclick="reject(\'consent\', \'' + r.id + '\')">Reject</button></div></div>';
     });
     h += '<h2>Removal requests (' + d.removal.length + ')</h2>';
     if (!d.removal.length) h += '<p class="muted">None waiting.</p>';

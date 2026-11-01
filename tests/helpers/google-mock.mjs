@@ -386,12 +386,12 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
     setActive(tab, row, numRows = 1) { activeSheet = main.getSheetByName(tab); activeSheet.select(row, numRows); },
     setUser(email) { activeUser = email; },
     /** Simulates a Google Form submission with answers given as {question title: answer}. */
-    submit(formKey, answers, email = 'secretary@example.com') {
+    submit(formKey, answers, email = 'secretary@example.com', at = new Date('2026-10-13T10:00:00Z')) {
       const ids = JSON.parse(props.get('FORM_IDS'));
       context.onAnyFormSubmit({
         source: { getId: () => ids[formKey] },
         response: {
-          getTimestamp: () => new Date('2026-10-13T10:00:00Z'),
+          getTimestamp: () => at,
           getRespondentEmail: () => email,
           getItemResponses: () => Object.entries(answers).map(([title, value]) => ({ getItem: () => ({ getTitle: () => title }), getResponse: () => value })),
         },

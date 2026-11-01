@@ -66,7 +66,9 @@ var SCHEMA_PRIVATE = {
     'directory_ok', 'profession', 'area', 'description', 'website', 'spotlight_ok', 'contact_ok', 'photo_ok', 'photo_file',
     'birthday_ok', 'birthday', 'anniversary_ok', 'spouse_is_rotarian', 'spouse_name', 'spouse_club_id', 'spouse_member_id',
     'spouse_agrees', 'anniversary', 'couple_photo_file', 'couple_photo_spouse_agrees', 'declaration', 'status',
-    'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
+    'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample',
+    // added 1 November 2026: whether the member was told at their email on file
+    'member_notice'],
   // messages from the website's contact form; the reply details stay here and are never published
   contact_messages: ['id', 'submitted_at', 'name', 'reply_to', 'topic', 'city', 'message', 'status', 'forwarded_to', 'note', 'is_sample', 'replies'],
   removal_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'name', 'member_id', 'mobile', 'remove_items',

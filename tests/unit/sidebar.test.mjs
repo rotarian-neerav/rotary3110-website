@@ -28,25 +28,27 @@ test('Approve, Remove and Reject buttons reach the server', () => {
   const calls = [];
   const msg = { textContent: '', style: {} };
   const out = { innerHTML: '' };
+  const tick = { checked: true };
   const ctx = {
     google: { script: { run: makeRunner(calls, {
-      getMemberRequests: { consent: [{ id: 'CON-0001', name: 'XYZ1', club: 'RC Aligarh', filledBy: 'The member', match: 'new', choices: ['Photo'], warnings: [] }], removal: [{ id: 'REM-0001', name: 'XYZ', club: 'RC Aligarh', items: 'Birthday', match: 'm' }], waiting: [] },
+      getMemberRequests: { consent: [{ id: 'CON-0001', name: 'XYZ1', club: 'RC Aligarh', filledBy: 'The member', match: 'new', choices: ['Photo'], warnings: [], needsConfirm: true }], removal: [{ id: 'REM-0001', name: 'XYZ', club: 'RC Aligarh', items: 'Birthday', match: 'm' }], waiting: [] },
       approveConsent: 'Approved CON-0001', approveRemoval: 'Removed', rejectRequest: 'Rejected',
     }) } },
-    document: { getElementById: (id) => (id === 'msg' ? msg : out) },
+    document: { getElementById: (id) => (id === 'msg' ? msg : id === 'ok-CON-0001' ? tick : out) },
     prompt: () => 'not suitable',
   };
   vm.createContext(ctx);
   vm.runInContext(script, ctx);
   assert.match(out.innerHTML, /CON-0001/, 'panel lists the request');
-  vm.runInContext("act('approveConsent', ['CON-0001'])", ctx);
+  vm.runInContext("approveOne('CON-0001')", ctx);
   assert.equal(msg.textContent, 'Approved CON-0001');
   vm.runInContext("act('approveRemoval', ['REM-0001'])", ctx);
   vm.runInContext("reject('consent', 'CON-0001')", ctx);
   assert.deepEqual(calls.filter((c) => c[0] !== 'getMemberRequests'), [
-    ['approveConsent', 'CON-0001'], ['approveRemoval', 'REM-0001'], ['rejectRequest', 'consent', 'CON-0001', 'not suitable'],
+    ['approveConsent', 'CON-0001', true], ['approveRemoval', 'REM-0001'], ['rejectRequest', 'consent', 'CON-0001', 'not suitable'],
   ]);
   // the buttons in the panel call act(...) with the right names
-  assert.match(out.innerHTML, /act\('approveConsent', \['CON-0001'\]\)/);
+  assert.match(out.innerHTML, /approveOne\('CON-0001'\)/);
+  assert.match(out.innerHTML, /id="ok-CON-0001"/, 'with the confirmation tick');
   assert.match(out.innerHTML, /act\('approveRemoval', \['REM-0001'\]\)/);
 });

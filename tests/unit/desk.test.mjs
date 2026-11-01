@@ -277,7 +277,10 @@ test('member requests: the Members moderator is alerted with only the name; appr
   assert.equal(req.photo, '', 'no pictures in the list itself');
   assert.ok(env.post({ fn: 'photo', session: s, ref: req.photoRef }).base64);
   assert.match(env.post({ fn: 'photo', session: signIn('asha@example.com'), ref: req.photoRef }).error, /not available/, 'not for Content moderators');
-  const ok = env.post({ fn: 'member', session: s, kind: 'consent', action: 'approve', id: req.id });
+  assert.equal(req.sentFrom, 'desk.member@example.com');
+  assert.ok(req.needsConfirm, 'not in the member list: the moderator must confirm first');
+  assert.match(env.post({ fn: 'member', session: s, kind: 'consent', action: 'approve', id: req.id }).error, /did not come from the member/);
+  const ok = env.post({ fn: 'member', session: s, kind: 'consent', action: 'approve', id: req.id, confirmed: true });
   assert.ok(ok.ok, ok.error);
   assert.equal(env.priv.rows('consent_requests').find((r) => r.id === req.id).approved_by, 'meera@example.com');
   assert.equal(env.mails.at(-1).to, 'desk.member@example.com', 'the confirmation email still goes');

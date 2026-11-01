@@ -25,6 +25,8 @@
       leftOut: 'Left out of the bulletin', inBulletin: 'In the bulletin',
       recentActs: 'Approved activities, last 30 days', upcoming: 'Coming events', none: 'None.',
       consent: 'Consent forms', removal: 'Removal requests', removeNow: 'Remove now', couples: 'Couples waiting',
+      sentFrom: 'Sent from', memberTold: 'Member', holdUntil: 'The member can object until {day}. Approve after that, or confirm with them now.',
+      confirmed: 'I have confirmed this with the member (or their club President or Secretary)',
       datesDiffer: 'Dates differ: check with the couple', waitingSpouse: "Waiting for the spouse's own form",
       deceased: 'Mark as deceased', searchName: 'Type at least three letters of the name', search: 'Search',
       confirmDeceased: 'Mark {name} as deceased? Birthday and anniversary greetings stop at once.', noOne: 'No one found.',
@@ -51,6 +53,8 @@
       leftOut: 'बुलेटिन से हटाया गया', inBulletin: 'बुलेटिन में है',
       recentActs: 'पिछले 30 दिनों की स्वीकृत गतिविधियाँ', upcoming: 'आने वाले कार्यक्रम', none: 'कोई नहीं।',
       consent: 'सहमति फ़ॉर्म', removal: 'हटाने के अनुरोध', removeNow: 'अभी हटाएँ', couples: 'प्रतीक्षा में दंपति',
+      sentFrom: 'किस ईमेल से भेजा', memberTold: 'सदस्य', holdUntil: 'सदस्य {day} तक आपत्ति कर सकते हैं। उसके बाद स्वीकृत करें, या अभी उनसे पुष्टि करें।',
+      confirmed: 'मैंने सदस्य (या उनके क्लब के अध्यक्ष या सचिव) से इसकी पुष्टि कर ली है',
       datesDiffer: 'तारीखें अलग हैं: दंपति से पूछें', waitingSpouse: 'जीवनसाथी के अपने फ़ॉर्म की प्रतीक्षा',
       deceased: 'दिवंगत चिह्नित करें', searchName: 'नाम के कम से कम तीन अक्षर लिखें', search: 'खोजें',
       confirmDeceased: '{name} को दिवंगत चिह्नित करें? जन्मदिन और वर्षगाँठ की शुभकामनाएँ तुरंत बंद हो जाएँगी।', noOne: 'कोई नहीं मिला।',
@@ -321,7 +325,10 @@
       Array.prototype.forEach.call(el.querySelectorAll('[data-do]'), function (b) {
         b.addEventListener('click', function () {
           var what = b.getAttribute('data-do');
-          var finish = function (d) { say(d.message); el.classList.add('desk-done'); el.querySelector('[data-actions]').remove(); panel.innerHTML = ''; };
+          var finish = function (d) {
+        say(d.message); el.classList.add('desk-done'); el.querySelector('[data-actions]').remove(); panel.innerHTML = '';
+        var tick = el.querySelector('.desk-confirm'); if (tick) tick.remove();
+      };
           if (what === 'approve') {
             say(t('working'));
             api({ fn: 'approve', tab: c.tab, id: c.id }).then(finish).catch(function (err) { say(err.message, true); });
@@ -476,11 +483,15 @@
     m.consent.forEach(function (r) {
       h += '<article class="desk-card" data-member="consent|' + esc(r.id) + '"><p class="desk-kind">' + esc(r.id) + ' · ' + esc(day(r.submitted)) + '</p><h2>' + esc(r.name) + '</h2>' +
         '<p class="muted">' + esc(r.club) + (r.filledBy ? ' · ' + esc(r.filledBy) : '') + '</p><p class="small">' + esc(r.match) + '</p>' +
+        (r.sentFrom ? '<p class="small">' + esc(t('sentFrom')) + ': ' + esc(r.sentFrom) + (r.sender ? ' · ' + esc(r.sender) : '') + '</p>' : '') +
+        (r.memberNotice ? '<p class="small">' + esc(t('memberTold')) + ': ' + esc(r.memberNotice) + '</p>' : '') +
         (r.warnings.length ? '<p class="desk-note">' + r.warnings.map(esc).join('<br>') + '</p>' : '') +
+        (r.holdUntil ? '<p class="desk-note">' + esc(t('holdUntil').replace('{day}', day(r.holdUntil))) + '</p>' : '') +
         '<ul>' + r.choices.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
         (r.description ? '<p class="desk-text">“' + esc(r.description) + '”</p>' : '') +
         photosHtml([r.photoRef, r.couplePhotoRef].filter(Boolean)) +
-        '<div class="desk-actions" data-actions><button type="button" class="btn btn-go" data-m="approve">' + esc(t('approve')) + '</button>' +
+        (!r.blocked && (r.needsConfirm || r.holdUntil) ? '<label class="desk-confirm"><input type="checkbox" data-confirmed> ' + esc(t('confirmed')) + '</label>' : '') +
+        '<div class="desk-actions" data-actions>' + (r.blocked ? '' : '<button type="button" class="btn btn-go" data-m="approve">' + esc(t('approve')) + '</button>') +
         '<button type="button" class="btn btn-no" data-m="reject">' + esc(t('reject')) + '</button></div><div data-panel></div></article>';
     });
     h += '<h2>' + esc(t('removal')) + ' (' + m.removal.length + ')</h2>';
@@ -504,12 +515,16 @@
     Array.prototype.forEach.call(view.querySelectorAll('[data-member]'), function (el) {
       var parts = el.getAttribute('data-member').split('|');
       var panel = el.querySelector('[data-panel]');
-      var finish = function (d) { say(d.message); el.classList.add('desk-done'); el.querySelector('[data-actions]').remove(); panel.innerHTML = ''; };
+      var finish = function (d) {
+        say(d.message); el.classList.add('desk-done'); el.querySelector('[data-actions]').remove(); panel.innerHTML = '';
+        var tick = el.querySelector('.desk-confirm'); if (tick) tick.remove();
+      };
       Array.prototype.forEach.call(el.querySelectorAll('[data-m]'), function (b) {
         b.addEventListener('click', function () {
           if (b.getAttribute('data-m') === 'approve') {
             say(t('working'));
-            api({ fn: 'member', kind: parts[0], action: 'approve', id: parts[1] }).then(finish).catch(function (err) { say(err.message, true); });
+            var tick = el.querySelector('[data-confirmed]');
+            api({ fn: 'member', kind: parts[0], action: 'approve', id: parts[1], confirmed: !!(tick && tick.checked) }).then(finish).catch(function (err) { say(err.message, true); });
           } else {
             rejectPanel(panel, function (reason) {
               say(t('working'));

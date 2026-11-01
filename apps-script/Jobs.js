@@ -125,8 +125,12 @@ function sendReminders_() {
     Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { content.push(t + ': ' + r.id + ' – ' + (r.title || r.name || r.club_name || '')); });
   });
   var members = [];
+  var sender = consentChecker_(ps);
   ['consent_requests', 'removal_requests'].forEach(function (t) {
-    Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { members.push(t + ': ' + r.id + ' – ' + r.name); });
+    Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) {
+      if (t === 'consent_requests' && consentHoldUntil_(r, sender(r)) > now) return; // still waiting for the member to object
+      members.push(t + ': ' + r.id + ' – ' + r.name);
+    });
   });
   var desk = deskLink_({});
   [[content, 'Content', 'Open the Sheet and use the Rotary menu to approve or reject:'],

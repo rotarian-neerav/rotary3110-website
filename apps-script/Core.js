@@ -1382,6 +1382,11 @@ function Core_consentSender(request, master, officers, removals) {
   return { who: who, memberEmail: memberEmail, memberName: member ? Core_str(member.name) : '', warnings: warnings, removal: removal };
 }
 
+/** An error as callers of the web app see it: the first line, without long IDs (Drive files, Sheets), at most 300 characters. */
+function Core_safeError(err) {
+  return String((err && err.message) || err).split(/\r?\n/)[0].replace(/[A-Za-z0-9_-]{25,}/g, '…').slice(0, 300);
+}
+
 /** Flags a likely duplicate: same club, dates within a day, similar titles. Returns the other id or ''. */
 function Core_findDuplicate(row, existing) {
   var date = Core_isoDate(row.date);
@@ -1488,7 +1493,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_isTrue: Core_isTrue, Core_isoDate: Core_isoDate, Core_dayMonth: Core_dayMonth, Core_rows: Core_rows,
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
-    Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
+    Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
     Core_checkRoles: Core_checkRoles, Core_plainName: Core_plainName,
     Core_uniqueRows: Core_uniqueRows, Core_cleanLines: Core_cleanLines, Core_lineParts: Core_lineParts, Core_isDistrictEvent: Core_isDistrictEvent,

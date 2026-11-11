@@ -1664,6 +1664,11 @@ function Core_consentSender(request, master, officers, removals) {
   return { who: who, memberEmail: memberEmail, memberName: member ? Core_str(member.name) : '', warnings: warnings, removal: removal };
 }
 
+/** An error as callers of the web app see it: the first line, without long IDs (Drive files, Sheets), at most 300 characters. */
+function Core_safeError(err) {
+  return String((err && err.message) || err).split(/\r?\n/)[0].replace(/[A-Za-z0-9_-]{25,}/g, '…').slice(0, 300);
+}
+
 /** Flags a likely duplicate: same club, dates within a day, similar titles. Returns the other id or ''. */
 function Core_findDuplicate(row, existing) {
   var date = Core_isoDate(row.date);
@@ -1770,7 +1775,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_isTrue: Core_isTrue, Core_isoDate: Core_isoDate, Core_dayMonth: Core_dayMonth, Core_rows: Core_rows,
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
-    Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
+    Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
     Core_checkRoles: Core_checkRoles, Core_plainName: Core_plainName,
     Core_uniqueRows: Core_uniqueRows, Core_cleanLines: Core_cleanLines, Core_lineParts: Core_lineParts, Core_isDistrictEvent: Core_isDistrictEvent,
@@ -2279,6 +2284,13 @@ function addLaterQuestions_(report) {
     report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
   });
   if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
+  if (ids.consent) {
+    var consentForm = FormApp.openById(ids.consent);
+    if (consentForm.getDescription() !== CONSENT_DESCRIPTION) {
+      consentForm.setDescription(CONSENT_DESCRIPTION);
+      report.push('Updated the consent form wording (the member is emailed when someone else fills it in)');
+    }
+  }
   if (ids.activity) {
     var activity = FormApp.openById(ids.activity);
     activity.setDescription(activityDescription_());
@@ -2295,6 +2307,12 @@ function addLaterQuestions_(report) {
 }
 
 var YES_NO = ['Yes', 'No'];
+// Senders are told the member hears about the form (consent safeguards, 1 Nov 2026)
+var CONSENT_DESCRIPTION = 'Choose what the district website may show about you. Each item is a separate choice, and you can change your mind at any time ' +
+  'using the removal form. Birthdays and anniversaries are shown as day and month only, never the year.\n\n' +
+  'If you fill this in for another member (for example as club secretary), we email the member at the address the district has for them, ' +
+  'with your email address and what you asked to show, and wait a few days before anything is shown.\n\n' +
+  'DRAFT WORDING – to be checked by a lawyer before launch.';
 // Photos arrive with consent (decided 18 Oct): moderators reject photos sent without this tick
 var PHOTO_CONSENT_TEXT = 'Everyone identifiable in these photos agreed to them being published, and for children, a parent or guardian agreed.';
 var MOBILE_PATTERN = '^(\\+?91[ -]?)?0?[6-9][0-9]{4}[ -]?[0-9]{5}$';
@@ -2477,10 +2495,7 @@ function makeClubProfileForm_(L) {
 }
 
 function makeConsentForm_(L) {
-  var form = baseForm_('Member consent – Rotary District 3110',
-    'Choose what the district website may show about you. Each item is a separate choice, and you can change your mind at any time ' +
-    'using the removal form. Birthdays and anniversaries are shown as day and month only, never the year.\n\n' +
-    'DRAFT WORDING – to be checked by a lawyer before launch.');
+  var form = baseForm_('Member consent – Rotary District 3110', CONSENT_DESCRIPTION);
   form.addListItem().setTitle(Q.cClub).setChoiceValues(L.clubs).setRequired(true);
   form.addTextItem().setTitle(Q.cName).setRequired(true);
   form.addTextItem().setTitle(Q.cMemberId).setHelpText('Helps us find your record. Never published.')
@@ -2984,6 +2999,7 @@ function onOpen() {
       .addItem('Show data link details', 'showDataLink')
       .addItem('Upgrade Sheet (new tabs, columns, questions)', 'upgradeSheet')
       .addItem('Apply moderators (Sheet access)…', 'applyModerators')
+      .addItem('Sign everyone out of the desk…', 'deskSignOutAll')
       .addItem('Send bulletin preview now', 'bulletinPreview')
       .addItem('Send bulletin message now', 'sendBulletinMessageNow')
       .addItem('Send clubs-not-posting email now', 'sendNotPostingNow')
@@ -3626,7 +3642,9 @@ function doGet(e) {
     if (p.mode === 'file' || p.mode === 'thumb') return json_(fileFor_(p.mode, p.id));
     return json_({ ok: false, error: 'unknown mode' });
   } catch (err) {
-    return json_({ ok: false, error: String(err.message || err) });
+    // the full message stays in the Apps Script log; the build gets a short one without long IDs, enough to diagnose
+    Logger.log('Data link stopped: ' + (err && err.stack || err));
+    return json_({ ok: false, error: Core_safeError(err) });
   }
 }
 
@@ -3770,6 +3788,7 @@ function scanMagazines_() {
 var DESK_SESSION_HOURS = 7 * 24;
 var DESK_LINK_DAYS = 7;
 var DESK_SIGNIN_MINUTES = 15;
+var DESK_CODE_ANSWER_MS = 2500;
 var DESK_KINDS = { activities: 'Activity', events: 'Event', club_profile_requests: 'Club profile update', public_services: 'Public service' };
 // What a moderator may correct on the desk before approving (spelling, length, a phone number in the text)
 var DESK_EDITABLE = {
@@ -3787,7 +3806,8 @@ function doPost(e) {
     out.ok = true;
     return json_(out);
   } catch (err) {
-    return json_({ ok: false, error: String(err.message || err), signedOut: !!err.signedOut });
+    if (!err.desk) Logger.log('Desk request stopped: ' + (err && err.stack || err));
+    return json_({ ok: false, error: Core_safeError(err), signedOut: !!err.signedOut });
   }
 }
 
@@ -3816,6 +3836,7 @@ function desk_(req) {
 function deskError_(message, signedOut) {
   var e = new Error(message);
   e.signedOut = !!signedOut;
+  e.desk = true; // a message written for moderators, not a fault
   return e;
 }
 
@@ -3847,7 +3868,7 @@ function deskRead_(token, kinds) {
   if (parts.length !== 6) throw deskError_('This link is not complete. Open it again from the email.');
   if (deskSign_(parts.slice(0, 5).join('~')) !== parts[5] || kinds.indexOf(parts[0]) < 0) throw deskError_('This link is not valid.');
   if (Date.now() > Number(parts[4])) throw deskError_('This link has expired. Open the moderation desk instead.');
-  return { kind: parts[0], tab: parts[1], id: parts[2], email: parts[3] };
+  return { kind: parts[0], tab: parts[1], id: parts[2], email: parts[3], expires: Number(parts[4]) };
 }
 
 /* ---------- Who is asking ---------- */
@@ -3881,6 +3902,9 @@ function deskMe_(email, types) {
 function deskUser_(session) {
   var t;
   try { t = deskRead_(session, ['ses']); } catch (e) { throw deskError_('Please sign in again.', true); }
+  // sessions started before "Sign everyone out of the desk" no longer count
+  var from = Number(PropertiesService.getScriptProperties().getProperty('DESK_SESSIONS_FROM') || 0);
+  if (t.expires - DESK_SESSION_HOURS * 3600000 < from) throw deskError_('Please sign in again.', true);
   var types = deskTypes_(t.email);
   if (!types.length) throw deskError_('This email is no longer on the moderators list.', true);
   return deskMe_(t.email, types);
@@ -3889,6 +3913,17 @@ function deskUser_(session) {
 /* ---------- Signing in ---------- */
 
 function deskSendCode_(email) {
+  var started = Date.now();
+  try {
+    return deskSendCodeNow_(email);
+  } finally {
+    // every answer takes about as long as sending the email, so timing does not show who is a moderator either
+    var wait = DESK_CODE_ANSWER_MS - (Date.now() - started);
+    if (wait > 0) Utilities.sleep(wait);
+  }
+}
+
+function deskSendCodeNow_(email) {
   email = Core_str(email).toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw deskError_('Please type your email address.');
   var reply = { message: 'If ' + email + ' is on the moderators list, a code is on its way. Nothing after two minutes? Look in Spam, check the spelling, or ask the website administrator.' };
@@ -4497,6 +4532,15 @@ function alertMembers_(kind, row, only) {
   } catch (e) {
     Logger.log('Alert not sent: ' + e.message);
   }
+}
+
+/** Rotary → Administrator → Sign everyone out of the desk…: every desk session ends; moderators sign in again with a new code. */
+function deskSignOutAll() {
+  var ui = SpreadsheetApp.getUi();
+  if (ui.alert('Sign everyone out of the desk', 'Every moderator is signed out of the moderation desk on every phone and computer, ' +
+    'and signs in again with a new code. Use it if a phone is lost or a session may be in the wrong hands. Go ahead?', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  PropertiesService.getScriptProperties().setProperty('DESK_SESSIONS_FROM', String(Date.now()));
+  ui.alert('Everyone is signed out of the moderation desk.');
 }
 
 

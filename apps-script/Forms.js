@@ -184,6 +184,13 @@ function addLaterQuestions_(report) {
     report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
   });
   if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
+  if (ids.consent) {
+    var consentForm = FormApp.openById(ids.consent);
+    if (consentForm.getDescription() !== CONSENT_DESCRIPTION) {
+      consentForm.setDescription(CONSENT_DESCRIPTION);
+      report.push('Updated the consent form wording (the member is emailed when someone else fills it in)');
+    }
+  }
   if (ids.activity) {
     var activity = FormApp.openById(ids.activity);
     activity.setDescription(activityDescription_());
@@ -200,6 +207,12 @@ function addLaterQuestions_(report) {
 }
 
 var YES_NO = ['Yes', 'No'];
+// Senders are told the member hears about the form (consent safeguards, 1 Nov 2026)
+var CONSENT_DESCRIPTION = 'Choose what the district website may show about you. Each item is a separate choice, and you can change your mind at any time ' +
+  'using the removal form. Birthdays and anniversaries are shown as day and month only, never the year.\n\n' +
+  'If you fill this in for another member (for example as club secretary), we email the member at the address the district has for them, ' +
+  'with your email address and what you asked to show, and wait a few days before anything is shown.\n\n' +
+  'DRAFT WORDING – to be checked by a lawyer before launch.';
 // Photos arrive with consent (decided 18 Oct): moderators reject photos sent without this tick
 var PHOTO_CONSENT_TEXT = 'Everyone identifiable in these photos agreed to them being published, and for children, a parent or guardian agreed.';
 var MOBILE_PATTERN = '^(\\+?91[ -]?)?0?[6-9][0-9]{4}[ -]?[0-9]{5}$';
@@ -382,10 +395,7 @@ function makeClubProfileForm_(L) {
 }
 
 function makeConsentForm_(L) {
-  var form = baseForm_('Member consent – Rotary District 3110',
-    'Choose what the district website may show about you. Each item is a separate choice, and you can change your mind at any time ' +
-    'using the removal form. Birthdays and anniversaries are shown as day and month only, never the year.\n\n' +
-    'DRAFT WORDING – to be checked by a lawyer before launch.');
+  var form = baseForm_('Member consent – Rotary District 3110', CONSENT_DESCRIPTION);
   form.addListItem().setTitle(Q.cClub).setChoiceValues(L.clubs).setRequired(true);
   form.addTextItem().setTitle(Q.cName).setRequired(true);
   form.addTextItem().setTitle(Q.cMemberId).setHelpText('Helps us find your record. Never published.')

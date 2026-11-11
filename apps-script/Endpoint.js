@@ -26,7 +26,9 @@ function doGet(e) {
     if (p.mode === 'file' || p.mode === 'thumb') return json_(fileFor_(p.mode, p.id));
     return json_({ ok: false, error: 'unknown mode' });
   } catch (err) {
-    return json_({ ok: false, error: String(err.message || err) });
+    // the full message stays in the Apps Script log; the build gets a short one without long IDs, enough to diagnose
+    Logger.log('Data link stopped: ' + (err && err.stack || err));
+    return json_({ ok: false, error: Core_safeError(err) });
   }
 }
 

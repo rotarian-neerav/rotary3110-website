@@ -949,6 +949,12 @@ test('photo consent: the activity form names children and guardians; Upgrade She
   assert.ok(env.run('upgradeSheet').some((l) => /photo consent wording/.test(l)));
   assert.deepEqual([...item.choices], [env.context.PHOTO_CONSENT_TEXT]);
   assert.ok(!env.run('upgradeSheet').some((l) => /photo consent wording/.test(l)), 'once');
+  // the consent form says that the member is emailed when someone else fills it in (1 Nov safeguards)
+  const consentForm = env.forms[JSON.parse(env.props.get('FORM_IDS')).consent];
+  consentForm.description = 'older wording';
+  assert.ok(env.run('upgradeSheet').some((l) => /consent form wording/.test(l)));
+  assert.match(consentForm.description, /we email the member at the address the district has for them/);
+  assert.ok(!env.run('upgradeSheet').some((l) => /consent form wording/.test(l)), 'once');
 });
 
 test('Google briefly slow: steps safe to repeat are tried again, others are not; Apply moderators lists what it could not finish', () => {

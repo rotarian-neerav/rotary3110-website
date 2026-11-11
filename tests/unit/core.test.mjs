@@ -157,3 +157,9 @@ test('48-hour reminder finds only overdue pending rows', () => {
   ];
   assert.equal(core.Core_overdue(rows, now, 48).length, 1);
 });
+
+test('errors from the web app: first line only, long IDs hidden', () => {
+  assert.equal(core.Core_safeError(new Error('No item with ID 1AbCdEfGhIjKlMnOpQrStUvWxYz012 found\n  at openById')), 'No item with ID … found');
+  assert.equal(core.Core_safeError('Argument too large: value'), 'Argument too large: value');
+  assert.match(core.Core_safeError(new Error('add the script property PRIVATE_SHEET_ID (Apps Script → Project Settings → Script properties)')), /PRIVATE_SHEET_ID/, 'our own messages stay readable');
+});

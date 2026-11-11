@@ -19,6 +19,7 @@
 var DESK_SESSION_HOURS = 7 * 24;
 var DESK_LINK_DAYS = 7;
 var DESK_SIGNIN_MINUTES = 15;
+var DESK_CODE_ANSWER_MS = 2500;
 var DESK_KINDS = { activities: 'Activity', events: 'Event', club_profile_requests: 'Club profile update', public_services: 'Public service' };
 // What a moderator may correct on the desk before approving (spelling, length, a phone number in the text)
 var DESK_EDITABLE = {
@@ -36,7 +37,8 @@ function doPost(e) {
     out.ok = true;
     return json_(out);
   } catch (err) {
-    return json_({ ok: false, error: String(err.message || err), signedOut: !!err.signedOut });
+    if (!err.desk) Logger.log('Desk request stopped: ' + (err && err.stack || err));
+    return json_({ ok: false, error: Core_safeError(err), signedOut: !!err.signedOut });
   }
 }
 
@@ -65,6 +67,7 @@ function desk_(req) {
 function deskError_(message, signedOut) {
   var e = new Error(message);
   e.signedOut = !!signedOut;
+  e.desk = true; // a message written for moderators, not a fault
   return e;
 }
 
@@ -96,7 +99,7 @@ function deskRead_(token, kinds) {
   if (parts.length !== 6) throw deskError_('This link is not complete. Open it again from the email.');
   if (deskSign_(parts.slice(0, 5).join('~')) !== parts[5] || kinds.indexOf(parts[0]) < 0) throw deskError_('This link is not valid.');
   if (Date.now() > Number(parts[4])) throw deskError_('This link has expired. Open the moderation desk instead.');
-  return { kind: parts[0], tab: parts[1], id: parts[2], email: parts[3] };
+  return { kind: parts[0], tab: parts[1], id: parts[2], email: parts[3], expires: Number(parts[4]) };
 }
 
 /* ---------- Who is asking ---------- */
@@ -130,6 +133,9 @@ function deskMe_(email, types) {
 function deskUser_(session) {
   var t;
   try { t = deskRead_(session, ['ses']); } catch (e) { throw deskError_('Please sign in again.', true); }
+  // sessions started before "Sign everyone out of the desk" no longer count
+  var from = Number(PropertiesService.getScriptProperties().getProperty('DESK_SESSIONS_FROM') || 0);
+  if (t.expires - DESK_SESSION_HOURS * 3600000 < from) throw deskError_('Please sign in again.', true);
   var types = deskTypes_(t.email);
   if (!types.length) throw deskError_('This email is no longer on the moderators list.', true);
   return deskMe_(t.email, types);
@@ -138,6 +144,17 @@ function deskUser_(session) {
 /* ---------- Signing in ---------- */
 
 function deskSendCode_(email) {
+  var started = Date.now();
+  try {
+    return deskSendCodeNow_(email);
+  } finally {
+    // every answer takes about as long as sending the email, so timing does not show who is a moderator either
+    var wait = DESK_CODE_ANSWER_MS - (Date.now() - started);
+    if (wait > 0) Utilities.sleep(wait);
+  }
+}
+
+function deskSendCodeNow_(email) {
   email = Core_str(email).toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw deskError_('Please type your email address.');
   var reply = { message: 'If ' + email + ' is on the moderators list, a code is on its way. Nothing after two minutes? Look in Spam, check the spelling, or ask the website administrator.' };
@@ -746,4 +763,13 @@ function alertMembers_(kind, row, only) {
   } catch (e) {
     Logger.log('Alert not sent: ' + e.message);
   }
+}
+
+/** Rotary → Administrator → Sign everyone out of the desk…: every desk session ends; moderators sign in again with a new code. */
+function deskSignOutAll() {
+  var ui = SpreadsheetApp.getUi();
+  if (ui.alert('Sign everyone out of the desk', 'Every moderator is signed out of the moderation desk on every phone and computer, ' +
+    'and signs in again with a new code. Use it if a phone is lost or a session may be in the wrong hands. Go ahead?', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  PropertiesService.getScriptProperties().setProperty('DESK_SESSIONS_FROM', String(Date.now()));
+  ui.alert('Everyone is signed out of the moderation desk.');
 }

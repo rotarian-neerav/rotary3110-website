@@ -51,7 +51,7 @@ const signIn = (email) => {
 const activity = (title, extra = {}) => {
   env.submit('activity', {
     [Q.club]: 'RC Agra North', [Q.name]: 'Rtn Test Secretary', [Q.role]: 'Secretary', [Q.mobile]: '98765 43210', [Q.kind]: Q.kindActivity,
-    [Q.aTitle]: title, [Q.aDate]: '2026-10-11', [Q.aTheme]: 'Club service / Other',
+    [Q.aTitle]: title, [Q.aDate]: new Date(Date.now() - 5 * 86400000).toISOString().slice(0, 10), [Q.aTheme]: 'Club service / Other', // a recent date stays in the desk's last 30 days
     [Q.aDesc]: 'Members distributed blankets at three night shelters in the city before the cold wave.',
     'Photos (up to 3, each under 1 MB)': ['1DeskPhotoAbCdEfGhIjKlMnOpQrStUv'], [Q.aConsent]: ['yes'], ...extra,
   });
@@ -454,4 +454,23 @@ test('practice round: each moderator gets their own practice items and emails; n
   assert.deepEqual([...removed].sort(), ['activities: 3', 'consent_requests: 1', 'contact_messages: 2', 'events: 1']);
   assert.equal(env.run('practiceReport').length, 0);
   assert.ok(env.main.rows('moderator_log').some((l) => l.action === 'replied'), 'the log keeps its record');
+});
+
+test('"Sign everyone out of the desk" ends every session at once; signing in again works', () => {
+  const s = signIn('asha@example.com');
+  assert.ok(env.post({ fn: 'list', session: s }).ok);
+  env.run('deskSignOutAll');
+  const out = env.post({ fn: 'list', session: s });
+  assert.equal(out.ok, false);
+  assert.equal(out.signedOut, true, 'the page shows the sign-in again');
+  assert.ok(env.post({ fn: 'list', session: signIn('asha@example.com') }).ok, 'a new session works');
+});
+
+test('asking for a code takes the same time for anyone, so timing does not show who is a moderator', () => {
+  for (const email of ['stranger@example.com', 'asha@example.com']) {
+    const before = env.slept.length;
+    env.post({ fn: 'code', email });
+    assert.equal(env.slept.length, before + 1, email);
+    assert.ok(env.slept.at(-1) > 2000, 'waits until about 2.5 seconds have passed');
+  }
 });

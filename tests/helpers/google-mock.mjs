@@ -346,6 +346,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
           setDestination: (_t, ssId) => { const ss = ssId === privateId ? priv : main; const sh = ss.insertSheet('Form Responses ' + formSeq); sh.formUrl = `https://docs.google.com/forms/d/${id}/edit`; return form.proxy; },
           getItems: () => [...form.items],
           setDescription: (d) => { form.description = d; return form.proxy; },
+          getDescription: () => form.description,
           moveItem: (from, to) => { const [it] = form.items.splice(from, 1); form.items.splice(to, 0, it); return it; },
         });
         form.proxy = fluent(form);

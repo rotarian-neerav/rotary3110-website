@@ -117,6 +117,12 @@ neither the member nor an office bearer of the club needs the moderator to confi
 and `Sidebar.html`, **Deploy → Manage deployments → edit → New version**, then **Rotary → Administrator → Upgrade
 Sheet (new tabs, columns, questions)** once (it adds the `member_notice` column to the private **consent_requests** tab).
 
+The **11 November** version adds **Rotary → Administrator → Sign everyone out of the desk…** (for a lost phone or a
+session in the wrong hands), says on the consent form that the member is emailed when someone else fills it in, and
+keeps the data link's error answers short (the full message stays in **Executions**). Paste `Code.gs` (`Sidebar.html`
+is unchanged), **Deploy → Manage deployments → edit → New version**, then **Upgrade Sheet (new tabs, columns,
+questions)** once, which updates the consent form's wording.
+
 ## 6. Name the moderators
 
 1. Open the **moderators** tab (main Sheet). Each row is one person in one type: **Content**, **Members**, **Club engagement**, **District office** or **Administrator**. Put the real name and Google email over a placeholder, and keep `active` = **TRUE**. Add rows for more people (one person can have several rows).

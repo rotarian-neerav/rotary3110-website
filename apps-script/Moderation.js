@@ -23,6 +23,7 @@ function onOpen() {
       .addItem('Show data link details', 'showDataLink')
       .addItem('Upgrade Sheet (new tabs, columns, questions)', 'upgradeSheet')
       .addItem('Apply moderators (Sheet access)…', 'applyModerators')
+      .addItem('Sign everyone out of the desk…', 'deskSignOutAll')
       .addItem('Send bulletin preview now', 'bulletinPreview')
       .addItem('Send bulletin message now', 'sendBulletinMessageNow')
       .addItem('Send clubs-not-posting email now', 'sendNotPostingNow')

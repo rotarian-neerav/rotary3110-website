@@ -57,6 +57,10 @@ The **moderators** tab in the main Sheet lists who does what: one row per person
 1. In the **moderators** tab, set the leaving person's `active` to **FALSE** (keep the row as a record), and add a row for the new person with their Google email, `active` **TRUE**, and `sheet_access` **TRUE** only if they want the Sheet.
 2. **Rotary → Administrator → Apply moderators (Sheet access)…**. It lists who gets access and who loses it, and asks before changing anything. Only people listed in the tab are ever removed; the owner and anyone not in the tab are left alone. Google emails each new moderator a link to the Sheet.
 
+**Lost phone, or a desk session in the wrong hands?** **Rotary → Administrator → Sign everyone out of the desk…** ends
+every desk session at once; moderators sign in again with a new code. To lock out one person for good, set their
+`active` to FALSE in the moderators tab.
+
 Until a type has a real email, its emails go where they went before: the older settings (`contact_email`, `bulletin_emails`, `not_posting_emails`), then the Content moderators, then `moderator_emails`, then the district account. The placeholder rows (Moderator A–D, District office, Website administrator) are ignored until an email is filled in.
 
 ## Activities and events

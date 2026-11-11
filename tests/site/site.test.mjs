@@ -46,7 +46,7 @@ test('nothing pending, rejected or without photo/link appears anywhere', () => {
 
 test('no phone numbers or email addresses, except consented WhatsApp links and public services\' own numbers', () => {
   // digits inside a word (e.g. a photo file's hash) are not phone numbers
-  const phone = /(?<![\w/=.-])(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}(?!\w)/g;
+  const phone = /(?<![\w/=.-])(?:(?:\+?91[\s.-]?|0)?(?:[6-9]\d{4}[\s.-]?\d{5}|[6-9]\d{2}[\s.-]?\d{3}[\s.-]?\d{4}|[6-9]\d{3}[\s.-]?\d{3}[\s.-]?\d{3})|0\d{2,4}[\s.-]?\d{6,8})(?!\w)/g;
   const email = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
   // an approved public service's own number may appear, only as its tap-to-call link
   const serviceLinks = new Set((data.public_services || []).filter((x) => x.phone).map((x) => `<a class="service-phone" href="tel:${x.tel}">${x.phone}</a>`));

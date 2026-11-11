@@ -121,6 +121,15 @@ test('privacy check catches each kind of problem', () => {
   }
 });
 
+test('phone numbers are caught however they are written; figures, dates and IDs are not', () => {
+  const phones = ['Call 98765 43210', 'call 987-654-3210', '9876.543.210 for details', '+91 98765 43210', '098765 43210',
+    'Ph: 0522 2234567', '0522-2234567', '011 23456789', '+91-9876543210'];
+  const notPhones = ['Rs 6,00,000 raised', '2,10,691 people', 'on 12-10-2024', 'Club ID 31100023', 'photo_98765432101.jpg',
+    '150 kits, 300 meals', 'District 3110', '₹ 1,50,000 / 75 schools', 'Rotary year 2024-25'];
+  for (const s of phones) assert.ok(core.Core_unsafeText(s), `should catch: ${s}`);
+  for (const s of notPhones) assert.ok(!core.Core_unsafeText(s), `should not catch: ${s}`);
+});
+
 test("an office bearer's contact link is published only as a WhatsApp link to a mobile; anything else typed in the Sheet is left out and listed", () => {
   const main = structuredClone(sample.main);
   const [good, bad, mail] = main.officers.filter((o) => o.rotary_year === main.settings.find((s) => s.key === 'current_rotary_year').value).slice(0, 3);

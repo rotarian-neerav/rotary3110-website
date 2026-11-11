@@ -1493,7 +1493,9 @@ function Core_hash(s) {
 /* Safety checks: the build (and the data link) refuse unsafe data     */
 /* ------------------------------------------------------------------ */
 
-var CORE_PHONE_RE = /(?:^|[^\w])(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}(?!\w)/; // digits inside a word are not phone numbers
+// Mobiles as people write them (98765 43210, 987-654-3210, 9876.543.210, with +91 or a leading 0) and landlines
+// with an area code (0522 2234567). Digits inside a word are not phone numbers.
+var CORE_PHONE_RE = /(?:^|[^\w])(?:(?:\+?91[\s.-]?|0)?(?:[6-9]\d{4}[\s.-]?\d{5}|[6-9]\d{2}[\s.-]?\d{3}[\s.-]?\d{4}|[6-9]\d{3}[\s.-]?\d{3}[\s.-]?\d{3})|0\d{2,4}[\s.-]?\d{6,8})(?!\w)/;
 var CORE_EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
 var CORE_WA_LINK_RE = /^https:\/\/wa\.me\/91[6-9]\d{9}$/;
 var CORE_YEAR_RE = /\b(19|20)\d{2}\b/;
@@ -1777,7 +1779,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
     Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
-    Core_checkRoles: Core_checkRoles, Core_plainName: Core_plainName,
+    Core_checkRoles: Core_checkRoles, Core_plainName: Core_plainName, Core_unsafeText: Core_unsafeText,
     Core_uniqueRows: Core_uniqueRows, Core_cleanLines: Core_cleanLines, Core_lineParts: Core_lineParts, Core_isDistrictEvent: Core_isDistrictEvent,
     Core_registrationLine: Core_registrationLine, Core_campaignLabel: Core_campaignLabel, Core_campaignIdForLabel: Core_campaignIdForLabel,
     Core_openCampaigns: Core_openCampaigns, Core_campaignTotals: Core_campaignTotals, Core_inCampaign: Core_inCampaign,

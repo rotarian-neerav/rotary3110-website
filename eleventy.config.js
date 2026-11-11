@@ -1,9 +1,10 @@
 import { HtmlBasePlugin } from '@11ty/eleventy';
 import { core } from './lib/core.mjs';
-import { formatDate, formatDayMonth, formatMonth } from './lib/derive.mjs';
+import { formatDate, formatDayMonth, formatMonth, waHello } from './lib/derive.mjs';
 import { glossHtml } from './lib/gloss.mjs';
 import glossary from './src/_data/glossary.js';
 import shortLinks from './src/_data/shortLinks.js';
+import t from './src/_data/t.json' with { type: 'json' };
 
 // The site lives at /rotary3110-website/ on GitHub's free address until the domain is bought.
 const PATH_PREFIX = process.env.PATH_PREFIX || '/';
@@ -99,6 +100,8 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter('waText', (text) => 'https://wa.me/?text=' + encodeURIComponent(text));
   eleventyConfig.addFilter('bulletinMessage', (raw) => core.Core_bulletinMessage(raw, SITE_URL + PATH_PREFIX));
   eleventyConfig.addFilter('tel', (wa = '') => 'tel:+' + wa.replace(/\D/g, ''));
+  // A WhatsApp chat opens with a first line already typed, so the member knows the message came through the website
+  eleventyConfig.addFilter('waHello', (wa = '') => waHello(wa, t.directory.wa_hello));
   eleventyConfig.addFilter('xml', (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'));
   // "14 Oct 2026, 6:05 am" in India time
   eleventyConfig.addFilter('dateTime', (iso) => {

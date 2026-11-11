@@ -80,7 +80,7 @@
     <span class="role">{{ roleLine(r) }}</span>
     {%- if r.club %}<span class="club"><a href="{{ r.club.url }}">{{ r.club.name }}</a></span>{% endif %}
     {%- if r.agClubs and r.agClubs.length %}<span class="ag-clubs">Looks after: {% for c in r.agClubs %}<a href="{{ c.url }}">{{ c.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</span>{% endif %}
-    {%- if r.contact_ok and r.contact_link %}<a class="btn-small wa" href="{{ r.contact_link }}" rel="noopener">WhatsApp</a>{% endif %}
+    {%- if r.contact_ok and r.contact_link %}<a class="btn-small wa" href="{{ r.contact_link | waHello }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
   </div>
 </li>
 {% endmacro %}

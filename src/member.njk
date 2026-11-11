@@ -21,9 +21,9 @@ eleventyComputed:
         {%- if p.club %}<p class="club"><a href="{{ p.club.url }}">{{ p.club.name }}</a></p>{% endif %}
         {%- if p.profession %}<p class="role">{{ p.profession }}{% if p.area %} · {{ p.area }}{% endif %}</p>{% endif %}
         <p class="dir-actions">
-          {%- if p.wa %}<a class="btn-small wa" href="{{ p.wa }}" target="_blank" rel="noopener">WhatsApp</a><a class="btn-small" href="{{ p.wa | tel }}">Call</a>
+          {%- if p.wa %}<a class="btn-small wa" href="{{ p.wa | waHello }}" target="_blank" rel="noopener">WhatsApp</a><a class="btn-small" href="{{ p.wa | tel }}">Call</a>
           {%- elif p.sampleContact %}<span class="small muted">Sample entry – WhatsApp and call buttons are switched off</span>
-          {%- elif p.officialContact %}<a class="btn-small wa" href="{{ p.officialContact }}" target="_blank" rel="noopener">Contact</a>{% endif %}
+          {%- elif p.officialContact %}<a class="btn-small wa" href="{{ p.officialContact | waHello }}" target="_blank" rel="noopener">Contact</a>{% endif %}
           {%- if p.website %}<a class="btn-small" href="{{ p.website }}" target="_blank" rel="noopener">Website ↗</a>{% endif %}
         </p>
       </div>

@@ -58,6 +58,14 @@ test('no phone numbers or email addresses, except consented WhatsApp links and p
   }
 });
 
+test('every WhatsApp button for a person opens with the website greeting, including in the directory', () => {
+  for (const f of htmlFiles) {
+    for (const m of read(f).matchAll(/href="(https:\/\/wa\.me\/\d+[^"]*)"/g)) assert.match(m[1], /\?text=Hello/, `no greeting on a WhatsApp button in ${relative(SITE, f)}`);
+  }
+  assert.match(page('directory'), /data-wa-hello="Hello, I found you on the Rotary District 3110 website\."/);
+  assert.match(read(join(SITE, 'assets/js/directory.js')), /data-wa-hello/);
+});
+
 test('WhatsApp links appear only for members who agreed', () => {
   const dir = JSON.parse(read(join(SITE, 'data/directory.json')));
   const consented = new Set(data.members.filter((m) => m.contact_ok).map((m) => m.contact_link));

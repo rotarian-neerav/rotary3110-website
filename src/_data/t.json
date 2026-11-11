@@ -97,6 +97,7 @@
     "note": "Shown only for members who agreed, with day and month only."
   },
   "directory": {
+    "wa_hello": "Hello, I found you on the Rotary District 3110 website.",
     "intro": "Find a fellow Rotarian by profession and place. Only members who agreed are listed.",
     "search": "Search name or keyword",
     "profession": "Profession",

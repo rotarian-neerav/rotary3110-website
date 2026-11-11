@@ -5,6 +5,7 @@
   var listEl = document.querySelector('[data-directory-results]');
   var countEl = document.querySelector('[data-directory-count]');
   var members = [];
+  var hello = form.getAttribute('data-wa-hello') || '';
 
   function norm(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
 
@@ -12,7 +13,7 @@
     var buttons = '';
     if (m.sampleContact) buttons = '<span class="small muted">Sample entry – WhatsApp and call buttons are switched off</span>';
     if (m.wa) {
-      buttons = '<a class="btn-small wa" href="' + escapeHtml(m.wa) + '" target="_blank" rel="noopener">WhatsApp</a>' +
+      buttons = '<a class="btn-small wa" href="' + escapeHtml(m.wa + (hello ? '?text=' + encodeURIComponent(hello) : '')) + '" target="_blank" rel="noopener">WhatsApp</a>' +
         '<a class="btn-small" href="tel:+' + escapeHtml(m.wa.replace(/\D/g, '')) + '">Call</a>';
     }
     if (m.website) buttons += '<a class="btn-small" href="' + escapeHtml(m.website) + '" target="_blank" rel="noopener">Website ↗</a>';

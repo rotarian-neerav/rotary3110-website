@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { core, plain, sampleOptions } from '../../lib/core.mjs';
-import { derive, homeEvents } from '../../lib/derive.mjs';
+import { derive, homeEvents, waHello } from '../../lib/derive.mjs';
 
 const sample = JSON.parse(readFileSync(new URL('../../sample/sample-data.json', import.meta.url), 'utf8'));
 const media = { images: {}, pdfs: {} };
@@ -143,4 +143,13 @@ test('the privacy check refuses a person reference that is not scrambled', () =>
   const d = build();
   d.officers[0].person_ref = 'P9000001';
   assert.ok(core.Core_validatePublic(d).some((e) => /scrambled/.test(e)));
+});
+
+test('a WhatsApp button opens the chat with the website greeting already typed; other links are left alone', () => {
+  const hello = JSON.parse(readFileSync(new URL('../../src/_data/t.json', import.meta.url), 'utf8')).directory.wa_hello;
+  assert.match(hello, /Rotary District 3110 website/);
+  assert.equal(waHello('https://wa.me/919876543210', hello), 'https://wa.me/919876543210?text=Hello%2C%20I%20found%20you%20on%20the%20Rotary%20District%203110%20website.');
+  assert.equal(waHello('https://wa.me/919876543210?text=x', hello), 'https://wa.me/919876543210?text=x', 'a link that already has a message');
+  assert.equal(waHello('https://chat.whatsapp.com/abc', hello), 'https://chat.whatsapp.com/abc', 'a group invite');
+  assert.equal(waHello('', hello), '');
 });

@@ -16,6 +16,11 @@ const read = (f) => readFileSync(f, 'utf8');
 const page = (url) => read(join(SITE, url, 'index.html'));
 const dom = (url) => parse(page(url));
 const sample = data.source === 'sample';
+// Pages with nothing on them yet are left out of the menu, footer and links (11 Nov 2026)
+const has = {
+  events: (data.events || []).length > 0, services: (data.public_services || []).length > 0,
+  news: (data.activities || []).some((a) => a.press), magazine: (data.magazines || []).length > 0, messages: (data.messages || []).length > 0,
+};
 const citySlug = (c) => c.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 function walk(dir) {
   return readdirSync(dir).flatMap((f) => {
@@ -276,7 +281,8 @@ test('In the news and the year summaries match the data', () => {
 test('the footer links to the new pages; form short links open in a new tab', () => {
   const footer = dom('').querySelectorAll('.site-footer a').map((a) => a.getAttribute('href'));
   for (const p of ['/services/', '/cities/', '/news/', '/years/', '/about/', '/contact/', '/how-to-post/', '/public-service/', '/events/calendar.ics']) {
-    assert.ok(footer.some((h) => h.endsWith(p)), p);
+    const shown = p === '/services/' ? has.services : p === '/news/' ? has.news : true;
+    assert.equal(footer.some((h) => h.endsWith(p)), shown, p);
   }
   const ps = dom('').querySelector('.site-footer a[href$="/public-service/"]');
   assert.equal(ps.getAttribute('target'), '_blank');
@@ -287,13 +293,17 @@ test('the footer links to the new pages; form short links open in a new tab', ()
 test('the menu has seven items; the pages that left it are linked from the footer and from their nearest page', () => {
   const home = dom('');
   const nav = home.querySelectorAll('nav[aria-label="Main"] a').map((a) => a.getAttribute('href').replace(PREFIX, ''));
-  assert.deepEqual(nav, ['/', '/activities/', '/events/', '/clubs/', '/leadership/', '/directory/', '/about/']);
+  assert.deepEqual(nav, ['/', '/activities/', ...(has.events ? ['/events/'] : []), '/clubs/', '/leadership/', '/directory/', '/about/']);
   const footer = home.querySelectorAll('.site-footer a').map((a) => a.getAttribute('href').replace(PREFIX, ''));
-  for (const href of ['/teams/', '/recognition/', '/magazine/', '/messages/']) assert.ok(footer.includes(href), `footer links ${href}`);
+  for (const href of ['/teams/', '/recognition/']) assert.ok(footer.includes(href), `footer links ${href}`);
+  assert.equal(footer.includes('/magazine/'), has.magazine, 'footer links the magazine only once there is one');
+  assert.equal(footer.includes('/messages/'), has.messages, 'footer links messages only once there are some');
   const acts = dom('activities').querySelectorAll('main a').map((a) => a.getAttribute('href').replace(PREFIX, ''));
-  assert.ok(acts.includes('/recognition/') && acts.includes('/magazine/'));
+  assert.ok(acts.includes('/recognition/'));
+  assert.equal(acts.includes('/magazine/'), has.magazine);
   const about = dom('about').querySelectorAll('main a').map((a) => a.getAttribute('href').replace(PREFIX, ''));
-  assert.ok(about.includes('/messages/') && about.includes('/teams/') && about.includes('/contact/'));
+  assert.ok(about.includes('/teams/') && about.includes('/contact/'));
+  assert.equal(about.includes('/messages/'), has.messages);
   assert.ok(dom('leadership').querySelectorAll('main a').some((a) => a.getAttribute('href').replace(PREFIX, '') === '/teams/'));
 });
 

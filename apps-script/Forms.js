@@ -211,8 +211,7 @@ var YES_NO = ['Yes', 'No'];
 var CONSENT_DESCRIPTION = 'Choose what the district website may show about you. Each item is a separate choice, and you can change your mind at any time ' +
   'using the removal form. Birthdays and anniversaries are shown as day and month only, never the year.\n\n' +
   'If you fill this in for another member (for example as club secretary), we email the member at the address the district has for them, ' +
-  'with your email address and what you asked to show, and wait a few days before anything is shown.\n\n' +
-  'DRAFT WORDING – to be checked by a lawyer before launch.';
+  'with your email address and what you asked to show, and wait a few days before anything is shown.';
 // Photos arrive with consent (decided 18 Oct): moderators reject photos sent without this tick
 var PHOTO_CONSENT_TEXT = 'Everyone identifiable in these photos agreed to them being published, and for children, a parent or guardian agreed.';
 var MOBILE_PATTERN = '^(\\+?91[ -]?)?0?[6-9][0-9]{4}[ -]?[0-9]{5}$';

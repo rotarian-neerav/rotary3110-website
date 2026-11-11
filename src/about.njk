@@ -1,7 +1,7 @@
 ---
 layout: layouts/base.njk
 title: About the district
-description: What Rotary and Rotary District 3110 are, this year's RI President and District Governor, every Past District Governor, and the Rotary words and abbreviations used on this site.
+description: What Rotary and Rotary District 3110 are, this year's District Governor, every Past District Governor, and the Rotary words and abbreviations used on this site.
 permalink: /about/
 ---
 {% from "macros.njk" import avatar %}
@@ -9,7 +9,7 @@ permalink: /about/
   <h1>{{ t.about.title }}</h1>
   <p class="lead">Rotary brings together people who want to take action in their communities. Its clubs meet every week or two, and their members give their time and skills to service projects close to home and around the world.</p>
   <p>Rotary International is a worldwide association of Rotary clubs, with more than a million members. Clubs are grouped into districts, each led by a District Governor for one Rotary year (1 July to 30 June).</p>
-  <p>Rotary District 3110 has {{ site.activeClubs.length }} clubs in {{ site.cities.length }} cities and towns of Uttar Pradesh and Uttarakhand. You can <a href="/clubs/">find a club by city or meeting day</a>, see <a href="/activities/">what the clubs have done</a>, or look up <a href="/services/">services the public can use</a>.</p>
+  <p>Rotary District 3110 has {{ site.activeClubs.length }} clubs in {{ site.cities.length }} cities and towns of Uttar Pradesh and Uttarakhand. You can <a href="/clubs/">find a club by city or meeting day</a>, see <a href="/activities/">what the clubs have done</a>{% if site.has.services %}, or look up <a href="/services/">services the public can use</a>{% endif %}.</p>
 
   {%- if site.profiles.length %}
   <h2>{{ t.about.leaders }}</h2>
@@ -28,7 +28,7 @@ permalink: /about/
     {%- endfor %}
   </div>
   {%- endif %}
-  <p class="small"><a href="/leadership/">The full district leadership →</a> · <a href="/teams/">Teams and committees →</a> · <a href="/messages/">Messages from the leaders →</a></p>
+  <p class="small"><a href="/leadership/">The full district leadership →</a> · <a href="/teams/">Teams and committees →</a>{% if site.has.messages %} · <a href="/messages/">Messages from the leaders →</a>{% endif %}</p>
 
   {%- if site.pastGovernors.length %}
   <h2 id="past-district-governors">{{ t.about.past_dgs }}</h2>

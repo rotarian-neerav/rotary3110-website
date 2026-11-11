@@ -10,7 +10,7 @@
    - **officers**: one row per office bearer: Rotary year, club ID, member ID, name, role.
    - **functionaries**: teams and committees, one row per person per role (see the `page`, `section`, `committee`, `role`, `zone`, `term` columns). For each Assistant Governor, list the clubs they look after in `ag_clubs` (club names or IDs, separated by commas).
    - **past_governors**: every Past District Governor, including those no longer with us: Rotary year, name, club, and member ID if they are living (the member ID only links their card; it is never shown).
-   - **profiles**: the RI President and the District Governor for the About page: role, Rotary year, name, theme, a short profile, a photo the district may use (Drive file), and a link.
+   - **profiles**: the District Governor for the About page (an RI President row is not shown, decided 11 Nov 2026): role, Rotary year, name, theme, a short profile, a photo the district may use (Drive file), and a link.
    - **public_services**: facilities the clubs run (or ask clubs to send the public service form).
    - **members_master** (private Sheet): the full member list, with Rotary member IDs, club, mobile, date of birth, marriage date.
    - **club_history** (private Sheet): one row per member per club, with from and to dates.
@@ -30,7 +30,7 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 5. **Members who moved clubs** (private Sheet): in **club_history**, put an end date on the old club row and add a new row for the new club. Change `club_id` in **members_master**.
 6. **Rotary → Check roles and member IDs**: fix anything in the **role_checks** tab, so each person's new roles join their member card. Last year's roles stay on the cards under last year.
 7. **campaigns**: add the new year's district campaigns (see the moderator guide). Last year's campaign pages stay, under last year.
-8. **past_governors**: add the governor who has just finished. **profiles**: add the new RI President and District Governor (the newest row of each role is shown). **functionaries**: fill in `ag_clubs` for the new Assistant Governors.
+8. **past_governors**: add the governor who has just finished. **profiles**: add the new District Governor (the newest row is shown). **functionaries**: fill in `ag_clubs` for the new Assistant Governors.
 9. **Rotary → Update form lists** (this also renews each club's own form link), then **Rotary → Rebuild site now**.
 
 ## Launch checklist (from the brief, section 12)
@@ -43,7 +43,7 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Real Rotary club IDs | District | Open (dummy S-001…) |
 | Rotary member IDs for office bearers and district team members | District | Open (temporary T-… IDs) |
 | List the clubs each Assistant Governor looks after (`functionaries → ag_clubs`) | District | Ask at production (sample until then) |
-| Every Past District Governor (`past_governors`), and the RI President's and DG's profiles and photos with permission to use them (`profiles`) | District | Ask at production (sample rows) |
+| Every Past District Governor (`past_governors`), and the DG's profile and photo with permission to use them (`profiles`) | District | Ask at production (sample rows) |
 | Contact form messages and the Sunday message go to the **District office** moderators; the monthly quiet-clubs list to **Club engagement** | District | With the moderators row above |
 | Clubs send their public services (blood banks, eye care…) through the public service form | Clubs | Open |
 | Two role titles from the team Excel contain zone names ("CDS Bareilly Zone", "CDS Kanpur Zone") | District | Kept as they are (decided 18 Oct) |
@@ -53,7 +53,7 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Let search engines in: set the repository variable `HIDE_FROM_SEARCH` to `false` | District | Open (hidden since 17 Oct) |
 | Take down the sample banner: set the repository variable `SAMPLE_DATA` to `false` once the production Sheet holds real data | District | Open (banner on since 18 Oct) |
 | Profession list (`lists` tab): an evolving list; moderators add professions as members ask | Moderators | Ongoing (decided 18 Oct) |
-| Lawyer checks the consent form wording and privacy notice, including spouse consent | District | Go ahead without waiting (decided 18 Oct) |
+| Lawyer checks the consent form wording and privacy notice, including spouse consent | District | Approved 11 Nov 2026; draft notes removed |
 | Photo policy for identifiable children | DG's office | Decided 18 Oct: photos arrive with consent (form tick: a parent or guardian agreed for children) |
 | Collect clubs' website and social links through the club profile form | Clubs | Open |
 | DG's office collects leaders' photo consent and photos | DG's office | Consent received (18 Oct); photos to be supplied with the real data |

@@ -17,5 +17,5 @@ permalink: /contact/
   {%- else %}
   <p class="callout">{{ t.contact.soon }}</p>
   {%- endif %}
-  <p class="small">Looking for a club? <a href="/clubs/">Find one by city or meeting day</a>. Need a blood bank, eye care or dialysis? See <a href="/services/">services you can use</a>.</p>
+  <p class="small">Looking for a club? <a href="/clubs/">Find one by city or meeting day</a>.{% if site.has.services %} Need a blood bank, eye care or dialysis? See <a href="/services/">services you can use</a>.{% endif %}</p>
 </div>

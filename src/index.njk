@@ -60,12 +60,14 @@ eleventyComputed:
   </div>
 </section>
 {%- endif %}
+{%- if site.has.events %}
 <section class="wrap section" id="upcoming-events">
   <div class="section-head"><h2>{{ t.home.upcoming }}</h2><a href="/events/">{{ t.home.all_events }}{% if site.upcomingEvents.length > site.homeEvents.length %} ({{ site.upcomingEvents.length }}){% endif %} →</a></div>
   <div class="event-grid">
     {%- for e in site.homeEvents %}{{ eventItem(e, t) }}{% else %}<p>{{ t.events.empty }}</p>{% endfor %}
   </div>
 </section>
+{%- endif %}
 
 <section class="wrap section" id="latest">
   <div class="section-head"><h2>{{ t.home.latest }}</h2><a href="/activities/">{{ t.home.all_activities }} →</a></div>

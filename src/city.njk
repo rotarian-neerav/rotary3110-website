@@ -30,7 +30,7 @@ eleventyComputed:
     {%- if city.events.length %}
     <div class="event-grid">{% for e in city.events %}{{ eventItem(e, t) }}{% endfor %}</div>
     {%- else %}
-    <p>{{ t.cities.no_events }} <a href="/events/">All district events →</a></p>
+    <p>{{ t.cities.no_events }}{% if site.has.events %} <a href="/events/">All district events →</a>{% endif %}</p>
     {%- endif %}
   </section>
 

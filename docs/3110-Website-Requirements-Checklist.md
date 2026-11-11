@@ -27,7 +27,7 @@ Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (
 | 14 | §3.8 | Celebrations this week: day and month only, couples' anniversaries need both, couples in two clubs shown once with both clubs, couple photo with both consents, no non-member spouse birthdays | `celebrations.js`, Core rules | U: couples; U(sim): Rotarian spouses in two clubs; S: no years | ✅ |
 | 15 | §3.9 | Celebrations stop at once for someone who passed away | "Mark as deceased" + `inactive_keys` guard | U(sim): mark as deceased; U: privacy check | 🟡 |
 | 16 | §9 | Recognition: most active per member (min 3), most consistent, story of the month | `lib/recognition.mjs` | U: worked examples; S: home page matches September 2026 sample | ✅ |
-| 17 | §3.10 | Privacy notice page | `privacy.njk` | browser | ✅ (wording ⏳ lawyer) |
+| 17 | §3.10 | Privacy notice page | `privacy.njk` | browser | ✅ (wording approved by the lawyer, 11 Nov 2026) |
 | 18 | §4 | No Join Rotary, no Rotary India/My Rotary links, no logins, payments, prices or ads | Not built; no such links | Code review | ✅ |
 | 19 | §4 | No phone numbers/emails/member IDs on the site except agreed WhatsApp buttons | Core privacy check; build stops | U: guard tests; S: scan of every built file | ✅ |
 | 20 | §5.1 | Activity/event form with all listed questions, club from a list, photos < 1 MB, sign-in | Sheet script `Forms.js` + photo question by hand | U(sim): submission flows | ✅ live 18 Oct (photo question still by hand) |
@@ -104,7 +104,7 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 |---|---|---|---|---|
 | A1 | Clubs page by city, with search and a meeting-day filter; meeting day asked on the club profile form, else read from the meeting text | `clubs.njk`, `clubs.js`, `Core_meetingDay` | A: day rules; SA: every club once, its day; U(sim): weekday applied on approval; browser | ✅ (live 18 Oct) |
 | A2 | Rotary-year and Avenue of Service filters on Activities; avenue asked on the activity form (required) | `activities.njk`, `filters.js`, `CORE_AVENUES` | SA: filters match cards; U(sim): question in place, required; browser | ✅ (live 18 Oct) |
-| A3 | About page: RI President and DG profiles, every Past District Governor, glossary | `about.njk`, `profiles` and `past_governors` tabs | A: latest profile, PDGs newest last, cards only with an ID, fallback to the College of Governors; SA: page | ✅ (sample rows) |
+| A3 | About page: the DG profile (the RI President's dropped, 11 Nov 2026), every Past District Governor, glossary | `about.njk`, `profiles` and `past_governors` tabs | A: latest profile, PDGs newest last, cards only with an ID, fallback to the College of Governors; SA: page | ✅ (sample rows) |
 | A4 | Rotary abbreviations explained where first used on each page | `lib/gloss.mjs`, `site.js` | A: first use, longest match, never in tags/scripts/glossary; SA: once per page; browser: tap shows meaning | ✅ |
 | A5 | Year summary page for each Rotary year | `years.njk`, `year.njk` | A: totals add up; SA: matches data | ✅ |
 | A6 | "More like this" on activity and event pages | `derive.mjs`, `activity.njk`, `event.njk` | A, SA: never the page itself; browser | ✅ |

@@ -59,8 +59,9 @@
           {%- set navItems = [
             ["/", t.nav.home], ["/activities/", t.nav.activities], ["/events/", t.nav.events], ["/clubs/", t.nav.clubs],
             ["/leadership/", t.nav.leadership], ["/directory/", t.nav.directory], ["/about/", t.nav.about] ] %}
-          {%- for item in navItems %}
+          {%- for item in navItems %}{% if item[0] != "/events/" or site.has.events %}
           <li><a href="{{ item[0] }}"{% if page.url == item[0] or (item[0] != '/' and page.url.startsWith(item[0])) %} aria-current="page"{% endif %}>{{ item[1] }}</a></li>
+          {%- endif %}
           {%- endfor %}
         </ul>
       </nav>
@@ -90,21 +91,21 @@
         <li><a href="/remove/">{{ t.footer.remove }}</a></li>
       </ul>
       <ul>
-        <li><a href="/services/">{{ t.footer.services }}</a></li>
+        {%- if site.has.services %}<li><a href="/services/">{{ t.footer.services }}</a></li>{% endif %}
         <li><a href="/cities/">{{ t.footer.cities }}</a></li>
         <li><a href="/bulletin/">{{ t.footer.bulletin }}</a></li>
         {%- if site.campaigns.length %}<li><a href="/campaigns/">{{ t.footer.campaigns }}</a></li>{% endif %}
-        <li><a href="/news/">{{ t.footer.news }}</a></li>
+        {%- if site.has.news %}<li><a href="/news/">{{ t.footer.news }}</a></li>{% endif %}
         <li><a href="/years/">{{ t.footer.years }}</a></li>
         <li><a href="/recognition/">{{ t.nav.recognition }}</a></li>
-        <li><a href="/magazine/">{{ t.nav.magazine }}</a></li>
-        <li><a href="/spotlight/">{{ t.nav.spotlight }}</a></li>
+        {%- if site.has.magazine %}<li><a href="/magazine/">{{ t.nav.magazine }}</a></li>{% endif %}
+        {%- if site.has.spotlight %}<li><a href="/spotlight/">{{ t.nav.spotlight }}</a></li>{% endif %}
         <li><a href="/celebrations/">Celebrations</a></li>
       </ul>
       <ul>
         <li><a href="/about/">{{ t.footer.about_link }}</a></li>
         <li><a href="/teams/">{{ t.nav.teams }}</a></li>
-        <li><a href="/messages/">{{ t.nav.messages }}</a></li>
+        {%- if site.has.messages %}<li><a href="/messages/">{{ t.nav.messages }}</a></li>{% endif %}
         <li><a href="/contact/">{{ t.footer.contact }}</a></li>
         <li><a href="/privacy/">{{ t.footer.privacy }}</a></li>
         <li><a href="/events/calendar.ics">District calendar (subscribe)</a></li>

@@ -153,3 +153,23 @@ test('a WhatsApp button opens the chat with the website greeting already typed; 
   assert.equal(waHello('https://chat.whatsapp.com/abc', hello), 'https://chat.whatsapp.com/abc', 'a group invite');
   assert.equal(waHello('', hello), '');
 });
+
+test('a past year shown as a showcase: recognition starts from its newest month with activities, not an empty month', () => {
+  const now = site();
+  assert.equal(now.recognition.month, '2026-09', 'normal case: last calendar month');
+  const later = derive(build(), media, '2029-03-15');
+  const newest = later.activities.reduce((m, a) => (a.date > m ? a.date : m), '').slice(0, 7);
+  assert.equal(later.recognition.month, newest);
+  assert.equal(later.recognitionHistory[0].month, newest);
+  assert.ok(later.recognitionHistory.at(-1).month.endsWith('-07') || later.recognitionHistory.length === 12, 'back to the start of that Rotary year');
+});
+
+test('pages with nothing on them yet are flagged so the menu can leave them out; only the Governor\'s profile is shown', () => {
+  const full = site();
+  assert.deepEqual(full.has, { events: true, services: true, news: true, magazine: true, spotlight: true, messages: true });
+  const d = build();
+  const empty = derive({ ...d, events: [], public_services: [], magazines: [], spotlights: [], messages: [], activities: d.activities.map((a) => ({ ...a, press: null })) }, media, '2026-10-13');
+  assert.deepEqual(empty.has, { events: false, services: false, news: false, magazine: false, spotlight: false, messages: false });
+  assert.ok(d.profiles.some((p) => p.role !== 'District Governor'), 'sample still sends an RI President profile');
+  assert.deepEqual(full.profiles.map((p) => p.role), ['District Governor']);
+});

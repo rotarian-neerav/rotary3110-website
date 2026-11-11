@@ -189,7 +189,8 @@ test('city pages: their clubs, events in the city and services; a page for one-c
 
 test('About page: profiles, every Past District Governor (a card link only for those with one), the glossary', () => {
   const root = dom('about');
-  assert.equal(root.querySelectorAll('.profile-card').length, (data.profiles || []).length);
+  assert.equal(root.querySelectorAll('.profile-card').length, (data.profiles || []).filter((p) => p.role === 'District Governor').length, "only the Governor's profile");
+  assert.ok(!/Draft for legal review/.test(page('privacy')), 'the lawyer approved the privacy notice (11 Nov 2026)');
   const rows = root.querySelectorAll('.past-dgs tbody tr');
   assert.equal(rows.length, (data.past_governors || []).length || rows.length);
   if (sample) {

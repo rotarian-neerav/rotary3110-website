@@ -56,7 +56,7 @@ Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (
 | 43 | §12 | Free hosting, accounts under the district | GitHub Pages on rotarian-neerav | Live | ✅ |
 | 44 | §12 | One command clears all sample data | Rotary → Sample data → Clear all sample data | U(sim): clear keeps real rows, site data still valid | 🟡 |
 | 45 | §7 | Weekly public-data backup | Each build keeps a copy of the public data as a download for 90 days (Actions → the run → Artifacts); the Sheet keeps its own version history | Committed to the repository 13 Oct – 1 Nov 2026; since 1 Nov an artifact, so people who withdraw or die do not stay in the public history | ✅ |
-| 46 | §16 | Launch items (moderators, IDs, professions, lawyer, domain, etc.) | `docs/3110-Website-Yearly-Update-and-Launch.md` | – | ⏳ |
+| 46 | §16 | Launch items (moderators, IDs, professions, lawyer, domain, etc.) | `docs/3110-Website-Yearly-Update-and-Launch.md` | – | ⏳ (IDs, lawyer, domain done 11 Nov 2026; moderators and the launch switches left) |
 
 ### Added in October 2026
 

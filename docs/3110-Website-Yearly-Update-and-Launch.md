@@ -40,25 +40,25 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Named owner for the yearly update, with a backup | District | Open |
 | Moderators: fill in the **moderators** tab (types Content, Members, Club engagement, District office, Administrator), set `sheet_access` TRUE only for those who want the Sheet (the moderation desk needs none), then **Administrator → Apply moderators**; repeat whenever a moderator changes | District | Placeholders in the Sheet (18 Oct) |
 | Practice round: **Administrator → Practice round: start…**; each moderator works through their practice items (guide at `…/desk/guide/`); check **Practice round: report**, then **remove practice items** | Administrator + moderators | Installed (19 Oct): the Administrator tries it first, then the moderators once the tab has their real emails |
-| Real Rotary club IDs | District | Open (dummy S-001…) |
-| Rotary member IDs for office bearers and district team members | District | Open (temporary T-… IDs) |
+| Real Rotary club IDs | District | Done (Rotary International export, 30 Oct 2026) |
+| Rotary member IDs for office bearers and district team members | District | Done for 2024-25 (30 Oct 2026) |
 | List the clubs each Assistant Governor looks after (`functionaries → ag_clubs`) | District | Ask at production (sample until then) |
 | Every Past District Governor (`past_governors`), and the DG's profile and photo with permission to use them (`profiles`) | District | Ask at production (sample rows) |
 | Contact form messages and the Sunday message go to the **District office** moderators; the monthly quiet-clubs list to **Club engagement** | District | With the moderators row above |
 | Clubs send their public services (blood banks, eye care…) through the public service form | Clubs | Open |
 | Two role titles from the team Excel contain zone names ("CDS Bareilly Zone", "CDS Kanpur Zone") | District | Kept as they are (decided 18 Oct) |
-| All data in the Sheet today is sample data, the team names included; collect the correct data for production | District | Ask at production |
-| Testing files (Sheet, private Sheet, forms, MemberPhotos, 3110Magazines) live in the Drive folder **3110Website-Testing**; production files go in **3110Website** | Owner of the files | Test files moved (18 Oct); production set-up at Release B |
+| Real data instead of sample data | District | Done 29-30 Oct 2026 (2024-25); the site launches as a 2024-25 showcase (decided 11 Nov 2026) |
+| Google files (Sheet, private Sheet, forms, MemberPhotos, 3110Magazines) | Owner of the files | The test files became the live ones; folder and main Sheet renamed **3110Website** (11 Nov 2026) |
 | Release B before going public: test site and test Sheet, fresh production Sheet, lock on sample data, Sheet backup, build-failure email, visitor counts, broken-link check, "Start new Rotary year" | Developer + district | Open |
-| Let search engines in: set the repository variable `HIDE_FROM_SEARCH` to `false` | District | Open (hidden since 17 Oct) |
-| Take down the sample banner: set the repository variable `SAMPLE_DATA` to `false` once the production Sheet holds real data | District | Open (banner on since 18 Oct) |
+| Let search engines in: set the repository variable `HIDE_FROM_SEARCH` to `false` | District | At launch, after the moderators tab |
+| Take down the sample banner: set the repository variable `SAMPLE_DATA` to `false` | District | At launch, together with the line above |
 | Profession list (`lists` tab): an evolving list; moderators add professions as members ask | Moderators | Ongoing (decided 18 Oct) |
 | Lawyer checks the consent form wording and privacy notice, including spouse consent | District | Approved 11 Nov 2026; draft notes removed |
 | Photo policy for identifiable children | DG's office | Decided 18 Oct: photos arrive with consent (form tick: a parent or guardian agreed for children) |
 | Collect clubs' website and social links through the club profile form | Clubs | Open |
-| DG's office collects leaders' photo consent and photos | DG's office | Consent received (18 Oct); photos to be supplied with the real data |
+| DG's office collects leaders' photo consent and photos | DG's office | Done for the 2024-25 leaders on the site (11 Nov 2026); more photos welcome |
 | Cloudflare account under the district email for visitor statistics | District | Open |
-| Connect the domain and register the site with Google Search Console | District | Domain bought; connected at the very end |
+| Connect the domain and register the site with Google Search Console | District | rotary3110.org connected with HTTPS (11 Nov 2026); Search Console at launch |
 | 2-step verification and recovery details on the district Google and GitHub accounts | District | After go-live (decided 18 Oct) |
 | Replace the sample data with the real data (above), including the fuller team Excel | District + moderators | Real data exists; to be supplied at production |
 | Name the person who forwards the Sunday bulletin message (a **District office** moderator) | District | With the moderators row above |

@@ -283,7 +283,9 @@ test('home page: sections in the agreed order; at most 8 events, district events
   assert.ok(events.length <= 8);
   const district = events.map((e) => !!e.querySelector('.chip-district'));
   assert.ok(district.indexOf(false) < 0 || district.slice(district.indexOf(false)).every((d) => !d), 'district events first');
-  if (data.source === 'sample') assert.equal(events.length, 8);
+  // as many as are still upcoming, up to 8 (the sample's events are dated, so fewer remain as time passes)
+  const today = new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10);
+  if (data.source === 'sample') assert.equal(events.length, Math.min(8, data.events.filter((e) => (e.end_date || e.start_date) >= today).length));
 });
 
 test('form links open in a new tab', () => {
@@ -387,4 +389,29 @@ test('activities tagged to a campaign show the tag, linking to the campaign page
     if (!core.Core_inCampaign(c, a.date)) continue;
     assert.match(page(`activities/${a.id.toLowerCase()}`), new RegExp(`class="chip chip-campaign" href="[^"]*/campaigns/${c.slug}/"`), a.id);
   }
+});
+
+test('every page says what it may load (content security policy) and keeps its address to itself (referrer)', async () => {
+  const { createHash } = await import('node:crypto');
+  for (const f of htmlFiles) {
+    const doc = parse(read(f));
+    if (!doc.querySelector('head')) continue; // short-link redirects and the like
+    const csp = doc.querySelector('meta[http-equiv="Content-Security-Policy"]');
+    assert.ok(csp, `policy on ${relative(SITE, f)}`);
+    assert.equal(doc.querySelector('meta[name="referrer"]')?.getAttribute('content'), 'same-origin', relative(SITE, f));
+    // the only inline script allowed is the text-size line; its hash must match the policy, or that line stops working
+    for (const s of doc.querySelectorAll('script:not([src]):not([type="application/ld+json"])')) {
+      const hash = createHash('sha256').update(s.text).digest('base64');
+      assert.ok(csp.getAttribute('content').includes(`'sha256-${hash}'`), `inline script on ${relative(SITE, f)} is not in the policy`);
+    }
+    assert.ok(!/\son[a-z]+="/.test(read(f).replace(/<script[\s\S]*?<\/script>/g, '')), `no inline event handlers on ${relative(SITE, f)}`);
+  }
+});
+
+test('club pages describe the club for search engines (name, city, part of the district)', () => {
+  const c = data.clubs.find((x) => x.status === 'active') || data.clubs[0];
+  const ld = JSON.parse(parse(page(`clubs/${c.slug}`)).querySelector('script[type="application/ld+json"]').text);
+  assert.equal(ld['@type'], 'Organization');
+  assert.equal(ld.address.addressLocality, c.city);
+  assert.equal(ld.parentOrganization.name, 'Rotary District 3110');
 });

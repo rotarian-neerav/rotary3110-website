@@ -8,7 +8,7 @@ scripts: ["clubs.js"]
 <div class="wrap section">
   <h1>Our clubs</h1>
   <p class="lead">{{ site.activeClubs.length }} clubs in {{ site.cities.length }} cities and towns. Tap a club to see when it meets, its office bearers and activities.</p>
-  <form class="filters club-filters" role="search" onsubmit="return false" data-club-filter hidden>
+  <form class="filters club-filters" role="search" data-no-submit data-club-filter hidden>
     <label class="grow">{{ t.clubs.search }}
       <input type="search" name="q" autocomplete="off" placeholder="e.g. Agra, Heritage, Kanpur">
     </label>

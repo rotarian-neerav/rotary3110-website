@@ -46,3 +46,7 @@ This repository is **public**. Never commit members' data, phone numbers, emails
   head unescapes them (`unescaped` filter) before escaping once. `json` writes `<` as `<`.
 - Real club data has apostrophes, quotes, `&`, HEIC photos, dates typed wrongly. Sample data should include
   such cases so the tests meet them before the live build does.
+- Every page carries a content security policy (`base.njk`). A new outside service (images, frames, scripts) must
+  be added to it, and the inline text-size script is allowed by its hash: change that line and the site test says
+  the hash no longer matches. Inline `onsubmit=`/`onclick=` are blocked; use `data-no-submit` or a script.
+- Tests with fixed dates age: "last 30 days" or "upcoming" checks need dates worked out from today.

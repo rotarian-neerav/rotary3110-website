@@ -10,7 +10,7 @@ scripts: ["services.js"]
   <h1>{{ t.services.title }}</h1>
   <p class="lead">{{ t.services.intro }}</p>
   {%- if site.publicServices.length %}
-  <form class="filters" onsubmit="return false" data-service-filter hidden>
+  <form class="filters" data-no-submit data-service-filter hidden>
     <label>{{ t.services.city }}
       <select name="city">
         <option value="">{{ t.services.all_cities }}</option>

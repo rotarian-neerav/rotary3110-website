@@ -3,6 +3,12 @@
 (function () {
   var root = document.querySelector('[data-desk]');
   if (!root) return;
+  // Never inside another site's frame, where a hidden page could trick a moderator into tapping Approve.
+  // (GitHub Pages cannot send the header that forbids framing; once the site is behind Cloudflare it can.)
+  if (window.top !== window.self) {
+    root.innerHTML = '<p>Open the moderation desk directly: <a href="' + location.pathname + '" target="_top">' + location.host + location.pathname + '</a></p>';
+    return;
+  }
   var out = root.querySelector('[data-out]');
   var msgBox = root.querySelector('[data-msg]');
   var meBox = root.querySelector('[data-me]');

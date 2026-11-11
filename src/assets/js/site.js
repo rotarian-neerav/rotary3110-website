@@ -84,6 +84,11 @@
     });
   }
 
+  // Filter and search boxes work as you type; pressing Enter must not reload the page
+  document.addEventListener('submit', function (e) {
+    if (e.target.hasAttribute && e.target.hasAttribute('data-no-submit')) e.preventDefault();
+  });
+
   // YouTube videos load only when tapped, using YouTube's no-cookie player.
   // A video whose picture YouTube no longer has keeps the play button on a dark box.
   document.addEventListener('error', function (e) {

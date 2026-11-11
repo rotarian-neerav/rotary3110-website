@@ -9,6 +9,19 @@ permalink: "{{ c.url }}"
 eleventyComputed:
   title: "{{ c.display_name }}"
   description: "{{ c.display_name }}, {{ c.city }} – {% if c.meeting_day %}meets on {{ c.meeting_day }}; {% endif %}office bearers{% if c.services.length %}, regular services{% endif %}{% if c.publicServices.length %}, services the public can use{% endif %} and service activities. Part of Rotary District 3110."
+  jsonld:
+    "@context": "https://schema.org"
+    "@type": "Organization"
+    name: "{{ c.display_name }}"
+    url: "{{ c.url | absolute }}"
+    address:
+      "@type": "PostalAddress"
+      addressLocality: "{{ c.city }}"
+      addressCountry: "IN"
+    parentOrganization:
+      "@type": "Organization"
+      name: "Rotary District 3110"
+      url: "{{ '/' | absolute }}"
 ---
 {% from "macros.njk" import activityCard, avatar, serviceCard %}
 <div class="wrap section">

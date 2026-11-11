@@ -9,7 +9,7 @@ scripts: ["directory.js"]
 <div class="wrap section">
   <h1>Member directory</h1>
   <p class="lead">{{ t.directory.intro }}</p>
-  <form class="filters directory-filters" role="search" onsubmit="return false" data-directory>
+  <form class="filters directory-filters" role="search" data-no-submit data-directory>
     <label>{{ t.directory.profession }}
       <select name="profession"><option value="">{{ t.directory.any_profession }}</option>{% for p in site.professions %}<option>{{ p }}</option>{% endfor %}</select>
     </label>

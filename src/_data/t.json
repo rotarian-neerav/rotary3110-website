@@ -20,6 +20,9 @@
     "search": "Search"
   },
   "home": {
+    "governor": "District Governor",
+    "governor_theme": "Theme",
+    "governor_more": "Meet the Governor",
     "latest": "Latest from our clubs",
     "all_activities": "See all activities",
     "upcoming": "Upcoming events",

@@ -329,6 +329,20 @@ test('campaign pages: one per campaign with the right total; the list groups the
   assert.ok(page('campaigns').includes(`Rotary year ${data.campaigns[0].rotary_year}`));
 });
 
+test("home page: this year's District Governor in the banner, with photo, only for the site's Rotary year", () => {
+  const year = data.site.rotary_year;
+  const profile = (data.profiles || []).find((p) => p.role === 'District Governor' && p.rotary_year === year && p.photo);
+  const card = parse(page('')).querySelector('.hero #governor');
+  if (data.source === 'sample') assert.ok(profile, 'sample data should have a District Governor profile with a photo for the site year');
+  if (!profile) return;
+  assert.ok(card, 'governor card in the home banner');
+  assert.ok(card.querySelector('img')?.getAttribute('src'), 'governor photo');
+  assert.ok(card.text.includes(profile.name.replace(/^(DG|Rtn)\.?\s+/, '')), 'governor name');
+  assert.ok(card.text.includes(`District Governor ${year}`), 'role and year');
+  assert.match(card.getAttribute('href') || '', /\/about\/#district-governor$/);
+  assert.ok(parse(page('about')).querySelector('#district-governor'), 'the link target exists on the About page');
+});
+
 test('home page: campaign band while one runs, and the line to this week\'s bulletin', () => {
   const html = page('');
   assert.match(html, /id="this-week"[\s\S]*?href="[^"]*\/bulletin\/"/);

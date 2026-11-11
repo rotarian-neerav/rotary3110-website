@@ -601,7 +601,7 @@ const profiles = [
   { role: 'President of Rotary International', rotary_year: '2026-27', name: 'Sample: RI President', theme: 'Sample theme of the year',
     profile: 'This is a sample profile used while the website is being tested. The district will give the RI President\'s official profile and photo.',
     photo: 'sample:message-1.jpg', link: 'https://www.rotary.org/en/about-rotary/rotary-leadership', sort_order: 1, is_sample: true },
-  { role: 'District Governor', rotary_year: '2026-27', name: 'Sample: District Governor', theme: 'Sample district theme',
+  { role: 'District Governor', rotary_year: ROTARY_YEAR, name: 'Sample: District Governor', theme: 'Sample district theme',
     profile: 'This is a sample profile used while the website is being tested. The District Governor\'s profile and photo will replace it.',
     photo: 'sample:message-2.jpg', link: '', sort_order: 2, is_sample: true },
 ];

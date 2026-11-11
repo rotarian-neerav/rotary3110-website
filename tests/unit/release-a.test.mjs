@@ -155,7 +155,7 @@ test('About page: the latest profile of each role; Past District Governors newes
   const d = build();
   assert.deepEqual(d.profiles.map((p) => p.role), ['President of Rotary International', 'District Governor']);
   const tabs = structuredClone(sample.main);
-  tabs.profiles.push({ ...tabs.profiles[1], rotary_year: '2025-26', name: 'Older DG' });
+  tabs.profiles.push({ ...tabs.profiles[1], rotary_year: '2023-24', name: 'Older DG' });
   assert.equal(build(tabs).profiles.find((p) => p.role === 'District Governor').name, 'Sample: District Governor', 'the newest year wins');
   assert.equal(d.past_governors.length, 28);
   assert.ok(d.past_governors.every((g, i) => i === 0 || d.past_governors[i - 1].term <= g.term), 'newest last');

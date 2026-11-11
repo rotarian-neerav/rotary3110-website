@@ -10,16 +10,30 @@ eleventyComputed:
     logo: "{{ '/assets/img/logo.png' | absolute }}"
 ---
 {% from "macros.njk" import activityCard, eventItem, avatar, campaignCard %}
+{%- set dg = site.governor %}
 <section class="hero">
-  <div class="wrap">
-    <h1>{{ t.tagline }}</h1>
-    <p class="lead">Service projects, events and stories from {{ site.activeClubs.length }} Rotary clubs in {{ site.cities.length }} cities and towns of Uttar Pradesh and Uttarakhand.</p>
-    <ul class="stats">
-      <li><strong>{{ site.activities.length | number }}</strong> activities shared</li>
-      <li><strong>{{ site.stats.clubsPosting }}</strong> clubs posting</li>
-      <li><strong>{{ site.stats.peopleHelped | number }}</strong> people helped</li>
-    </ul>
-    <a class="btn btn-gold" href="/submit/">{{ t.home.share_button }}</a>
+  <div class="wrap{% if dg %} hero-grid{% endif %}">
+    <div class="hero-text">
+      <h1>{{ t.tagline }}</h1>
+      <p class="lead">Service projects, events and stories from {{ site.activeClubs.length }} Rotary clubs in {{ site.cities.length }} cities and towns of Uttar Pradesh and Uttarakhand.</p>
+      <ul class="stats">
+        <li><strong>{{ site.activities.length | number }}</strong> activities shared</li>
+        <li><strong>{{ site.stats.clubsPosting }}</strong> clubs posting</li>
+        <li><strong>{{ site.stats.peopleHelped | number }}</strong> people helped</li>
+      </ul>
+      <a class="btn btn-gold" href="/submit/">{{ t.home.share_button }}</a>
+    </div>
+    {%- if dg %}
+    <{% if dg.url %}a href="{{ dg.url }}"{% else %}div{% endif %} class="dg-card" id="governor">
+      <img src="{{ dg.image.sq.src }}" alt="Photo of {{ dg.name }}" width="220" height="220">
+      <span class="dg-text">
+        <span class="dg-role">{{ t.home.governor }} {{ dg.year }}</span>
+        <strong class="dg-name">{{ dg.name }}</strong>
+        {%- if dg.theme %}<span class="dg-theme">{{ t.home.governor_theme }}: {{ dg.theme }}</span>{% endif %}
+        {%- if dg.url %}<span class="dg-more">{{ t.home.governor_more }} →</span>{% endif %}
+      </span>
+    </{% if dg.url %}a{% else %}div{% endif %}>
+    {%- endif %}
   </div>
 </section>
 {%- if site.bulletin %}

@@ -81,6 +81,23 @@ p { margin: 0 0 1em; }
 .hero .lead { color: #e6eefb; }
 .stats { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-wrap: wrap; gap: 8px 22px; }
 .stats strong { display: block; font-size: 1.5rem; color: var(--gold); }
+/* The District Governor in the home banner: beside the heading on phones, a large photo on the right on wider screens */
+.hero-grid { display: grid; gap: 18px; }
+.dg-card { display: flex; align-items: center; gap: 14px; color: #fff; text-decoration: none; order: -1; }
+.dg-card img { width: 76px; height: 76px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; flex: none; background: #e8f0fa; }
+.dg-text { display: flex; flex-direction: column; line-height: 1.3; }
+.dg-role { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--gold); font-weight: 700; }
+.dg-name { font-size: 1.1rem; color: #fff; }
+.dg-theme { font-size: .9rem; color: #e6eefb; }
+.dg-more { display: none; }
+a.dg-card:hover .dg-name, a.dg-card:focus-visible .dg-name { text-decoration: underline; }
+@media (min-width: 760px) {
+  .hero-grid { grid-template-columns: 1fr 300px; align-items: center; gap: 40px; }
+  .dg-card { order: 0; flex-direction: column; text-align: center; gap: 12px; }
+  .dg-card img { width: 220px; height: 220px; border-width: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+  .dg-name { font-size: 1.3rem; }
+  .dg-more { display: block; margin-top: 6px; color: var(--gold); font-weight: 700; }
+}
 
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .section-head h2 { margin-top: .6em; }

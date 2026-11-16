@@ -62,7 +62,7 @@
     <p class="meta">{% if e.isDistrict %}<span class="chip chip-district">District</span> {% endif %}{% if e.openToAll %}<span class="chip chip-open">{{ t.events.open }}</span> {% endif %}{{ t.events.organiser }}: {{ e.organiser }} · <span class="chip">{{ e.event_type }}</span></p>
     {%- if not e.isPast %}{{ registrationLine(e.registration) }}{% endif %}
     {%- if e.isPast and e.report %}
-    <p><a href="{{ e.report.url }}">{{ t.events.report }} →</a></p>
+    <p class="more-links"><a class="more" href="{{ e.report.url }}">{{ t.events.report }} →</a></p>
     {%- endif %}
   </div>
 </article>

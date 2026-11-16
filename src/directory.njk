@@ -1,7 +1,7 @@
 ---
 layout: layouts/base.njk
 title: Member directory
-description: Find a fellow Rotarian of District 3110 by profession and place. Only members who agreed are listed.
+description: Find a fellow Rotarian of District 3110 by name, role, profession or place. This year's office bearers, and members who agreed to be listed.
 permalink: /directory/
 noindex: true
 scripts: ["directory.js"]
@@ -17,7 +17,7 @@ scripts: ["directory.js"]
       <select name="area"><option value="">{{ t.directory.any_area }}</option>{% for a in site.areas %}<option>{{ a }}</option>{% endfor %}</select>
     </label>
     <label class="grow">{{ t.directory.search }}
-      <input type="search" name="q" placeholder="e.g. chartered accountant Agra" autocomplete="off">
+      <input type="search" name="q" placeholder="e.g. president Agra, or chartered accountant" autocomplete="off">
     </label>
   </form>
   <p class="small" data-directory-count aria-live="polite"></p>

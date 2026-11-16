@@ -28,7 +28,7 @@ permalink: /about/
     {%- endfor %}
   </div>
   {%- endif %}
-  <p class="small"><a href="/leadership/">The full district leadership →</a> · <a href="/teams/">Teams and committees →</a>{% if site.has.messages %} · <a href="/messages/">Messages from the leaders →</a>{% endif %}</p>
+  <p class="more-links"><a class="more" href="/leadership/">The full district leadership →</a><a class="more" href="/teams/">Teams and committees →</a>{% if site.has.messages %}<a class="more" href="/messages/">Messages from the leaders →</a>{% endif %}</p>
 
   {%- if site.pastGovernors.length %}
   <h2 id="past-district-governors">{{ t.about.past_dgs }}</h2>
@@ -48,5 +48,5 @@ permalink: /about/
     <div id="term-{{ g.term | lower | replace(' ', '-') }}"><dt>{{ g.term }}</dt><dd><strong>{{ g.full }}.</strong> {{ g.text }}</dd></div>
     {%- endfor %}
   </dl>
-  <p class="small"><a href="/contact/">Contact the district →</a></p>
+  <p class="more-links"><a class="more" href="/contact/">Contact the district →</a></p>
 </div>

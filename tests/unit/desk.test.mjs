@@ -2,11 +2,11 @@
 // personal one-tap links from emails, what each type of moderator may see and do, and that nothing leaks.
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { before, beforeEach, test } from 'node:test';
 import { createGoogleEnv } from '../helpers/google-mock.mjs';
+import { bundleCode } from '../../tools/bundle-apps-script.mjs';
 import { core } from '../../lib/core.mjs';
 
 const ROOT = resolve(import.meta.dirname, '../..');
@@ -19,9 +19,8 @@ const OWNER = 'rotarian.neerav@gmail.com';
 beforeEach(() => { if (env) env.quota.left = 100; });
 
 before(() => {
-  execFileSync(process.execPath, [resolve(ROOT, 'tools/bundle-apps-script.mjs')]);
   env = createGoogleEnv({ sampleJson: readFileSync(resolve(ROOT, 'sample/sample-data.json'), 'utf8') });
-  env.load(readFileSync(resolve(ROOT, 'dist/apps-script/Code.gs'), 'utf8'));
+  env.load(bundleCode());
   Object.assign(Q, env.context.Q);
   env.run('setup');
   token = env.props.get('DATA_TOKEN');
@@ -371,7 +370,7 @@ test('contact messages: answered from the desk by the district account, never by
 });
 
 test('the web app never serves a page (so no page can call the script\'s other functions); unknown requests are refused', () => {
-  const code = readFileSync(resolve(ROOT, 'dist/apps-script/Code.gs'), 'utf8');
+  const code = bundleCode();
   const uses = code.match(/HtmlService\.\w+/g) || [];
   assert.deepEqual([...new Set(uses)], ['HtmlService.createTemplateFromFile'], 'only the Sheet sidebar');
   assert.match(code, /function openMemberRequests\(\) \{\s+var html = HtmlService\.createTemplateFromFile\('Sidebar'\)/);

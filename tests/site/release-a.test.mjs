@@ -343,3 +343,21 @@ test('"See all" links and the month box link are outlined buttons, easy to spot 
   const css = read(join(SITE, 'assets/css/site.css'));
   assert.match(css, /\.section-head > a, a\.more \{[^}]*border: 2px solid var\(--royal\)[^}]*border-radius: 999px/);
 });
+
+test('standalone "go to more" links are outlined buttons too: About, Activities (16 Nov)', () => {
+  const about = dom('/about/');
+  assert.ok(about.querySelectorAll('.more-links a').length >= 3 && about.querySelectorAll('.more-links a').every((a) => a.classList.contains('more')));
+  assert.ok(dom('/activities/').querySelectorAll('.more-links a.more').length >= 2);
+});
+
+test("the directory lists this year's office bearers and team by role, with no contact buttons until they ask (16 Nov)", () => {
+  const dir = JSON.parse(read(join(SITE, 'data/directory.json')));
+  const year = data.site.rotary_year;
+  const holders = new Set([...data.officers, ...data.functionaries].filter((r) => r.rotary_year === year && r.person_ref).map((r) => r.name));
+  const byRole = dir.filter((d) => d.roles);
+  assert.ok(byRole.length > 0 && holders.size > 0);
+  for (const name of holders) assert.ok(dir.some((d) => d.name === name), `${name} holds a role this year but is not in the directory`);
+  const listedKeys = new Set(data.members.filter((m) => m.directory_ok && m.contact_ok).map((m) => m.public_key));
+  for (const d of dir) if (d.wa || d.sampleContact) assert.ok(listedKeys.has(d.k), `${d.name} has a contact button without asking`);
+  assert.equal(new Set(dir.map((d) => d.u).filter(Boolean)).size, dir.filter((d) => d.u).length, 'each person once');
+});

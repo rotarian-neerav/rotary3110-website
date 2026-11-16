@@ -29,7 +29,7 @@ eleventyComputed:
       </div>
     </header>
     {%- if p.description %}<p class="lead">{{ p.description }}</p>{% endif %}
-    {%- for s in p.spotlights %}<p><a href="/spotlight/#{{ s.month }}">Member spotlight, {{ s.monthLabel }}: {{ s.headline }} →</a></p>{% endfor %}
+    {%- for s in p.spotlights %}<p class="more-links"><a class="more" href="/spotlight/#{{ s.month }}">Member spotlight, {{ s.monthLabel }}: {{ s.headline }} →</a></p>{% endfor %}
 
     {%- if p.years.length %}
     <h2>Roles in the district</h2>

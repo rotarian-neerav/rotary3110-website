@@ -1,11 +1,11 @@
 // Runs the whole Sheet script (dist/apps-script/Code.gs) against a simulated Google environment:
 // setup, form submissions, moderation, members and spouses, removals, deceased, clean-up and the data link.
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { before, beforeEach, test } from 'node:test';
 import { createGoogleEnv } from '../helpers/google-mock.mjs';
+import { bundleCode } from '../../tools/bundle-apps-script.mjs';
 import { core, plain } from '../../lib/core.mjs';
 
 const ROOT = resolve(import.meta.dirname, '../..');
@@ -17,9 +17,8 @@ const Q = {}; // question titles, read from the script itself
 beforeEach(() => { if (env) env.quota.left = 100; });
 
 before(() => {
-  execFileSync(process.execPath, [resolve(ROOT, 'tools/bundle-apps-script.mjs')]);
   env = createGoogleEnv({ sampleJson: readFileSync(resolve(ROOT, 'sample/sample-data.json'), 'utf8') });
-  env.load(readFileSync(resolve(ROOT, 'dist/apps-script/Code.gs'), 'utf8'));
+  env.load(bundleCode());
   Object.assign(Q, env.context.Q);
   env.run('setup');
   token = env.props.get('DATA_TOKEN');
@@ -690,7 +689,7 @@ test('form answers that start with = + - or @ are kept as text, never turned int
 });
 
 test('the private Sheet and the magazine folder are named in the script properties, not the public code; without them the data link says what to add', () => {
-  const code = readFileSync(resolve(ROOT, 'dist/apps-script/Code.gs'), 'utf8');
+  const code = bundleCode();
   assert.doesNotMatch(code, /PRIVATE_SHEET_ID:|MAGAZINE_FOLDER_ID:/);
   const saved = env.props.get('PRIVATE_SHEET_ID');
   env.props.delete('PRIVATE_SHEET_ID');
@@ -1157,4 +1156,9 @@ test('Reset for production: every data row goes from both Sheets, form tabs incl
   assert.deepEqual(plain(env.run('resetForProduction')), []);
   assert.match(env.alerts.at(-1), /already reset for production/);
   assert.equal(env.main.rows('activities').length, 1);
+});
+
+test('the committed Code.gs is the bundle of the current source files (run npm run bundle-script after a change)', () => {
+  const norm = (t) => t.replace(/\r\n/g, '\n');
+  assert.ok(norm(readFileSync(resolve(ROOT, 'dist/apps-script/Code.gs'), 'utf8')) === norm(bundleCode()), 'dist/apps-script/Code.gs is out of date');
 });

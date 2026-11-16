@@ -19,7 +19,8 @@
     if (m.website) buttons += '<a class="btn-small" href="' + escapeHtml(m.website) + '" target="_blank" rel="noopener">Website ↗</a>';
     return '<li class="dir-card">' + avatarHtml(m.name, m.photo, 64) +
       '<div><h3>' + (m.u ? '<a href="' + escapeHtml(siteUrl(m.u)) + '">' + escapeHtml(m.name) + '</a>' : escapeHtml(m.name)) + '</h3>' +
-      '<p class="role">' + escapeHtml(m.profession) + ' · ' + escapeHtml(m.area) + '</p>' +
+      (m.profession || m.area ? '<p class="role">' + escapeHtml([m.profession, m.area].filter(Boolean).join(' · ')) + '</p>' : '') +
+      (m.roles ? '<p class="small">' + escapeHtml(m.roles) + '</p>' : '') +
       '<p class="club"><a href="' + escapeHtml(siteUrl(m.clubUrl)) + '">' + escapeHtml(m.club) + '</a></p>' +
       (m.text ? '<p>' + escapeHtml(m.text) + '</p>' : '') +
       (buttons ? '<p class="dir-actions">' + buttons + '</p>' : '') + '</div></li>';
@@ -32,7 +33,7 @@
     var found = members.filter(function (m) {
       if (prof && m.profession !== prof) return false;
       if (area && m.area !== area) return false;
-      var h = m._h || (m._h = norm([m.name, m.profession, m.area, m.club, m.text].join(' ')));
+      var h = m._h || (m._h = norm([m.name, m.profession, m.area, m.club, m.roles, m.text].join(' ')));
       return words.every(function (w) { return h.indexOf(w) >= 0; });
     });
     countEl.textContent = found.length ? found.length + (found.length === 1 ? ' member found' : ' members found') : 'No members match. Try a wider search.';

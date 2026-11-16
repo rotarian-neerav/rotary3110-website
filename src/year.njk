@@ -21,7 +21,7 @@ eleventyComputed:
     {%- if y.amountSpent %}<li><strong>₹{{ y.amountSpent | number }}</strong> spent</li>{% endif %}
     {%- if y.events.length %}<li><strong>{{ y.events.length }}</strong> events</li>{% endif %}
   </ul>
-  <p class="small"><a href="/activities/?year={{ y.year }}">See every activity of {{ y.year }} →</a></p>
+  <p class="more-links"><a class="more" href="/activities/?year={{ y.year }}">See every activity of {{ y.year }} →</a></p>
 
   <div class="two-col">
     <section id="areas-of-focus">
@@ -69,5 +69,5 @@ eleventyComputed:
       <tbody>{% for x in y.clubs %}<tr><th scope="row"><a href="{{ x.club.url }}">{{ x.club.name }}</a></th><td>{{ x.count }}</td></tr>{% endfor %}</tbody>
     </table>
   </section>
-  {%- if y.press %}<p class="small"><a href="/news/">{{ y.press }} {{ 'activity' if y.press == 1 else 'activities' }} in the news →</a></p>{% endif %}
+  {%- if y.press %}<p class="more-links"><a class="more" href="/news/">{{ y.press }} {{ 'activity' if y.press == 1 else 'activities' }} in the news →</a></p>{% endif %}
 </div>

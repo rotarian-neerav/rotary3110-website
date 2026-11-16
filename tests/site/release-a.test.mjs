@@ -356,7 +356,9 @@ test("the directory lists this year's office bearers and team by role, with no c
   const holders = new Set([...data.officers, ...data.functionaries].filter((r) => r.rotary_year === year && r.person_ref).map((r) => r.name));
   const byRole = dir.filter((d) => d.roles);
   assert.ok(byRole.length > 0 && holders.size > 0);
-  for (const name of holders) assert.ok(dir.some((d) => d.name === name), `${name} holds a role this year but is not in the directory`);
+  // a role row may carry a title ("DG …") that the card's name does not, so names are compared without titles
+  const inDir = new Set(dir.map((d) => core.Core_plainName(d.name)));
+  for (const name of holders) assert.ok(inDir.has(core.Core_plainName(name)), `${name} holds a role this year but is not in the directory`);
   const listedKeys = new Set(data.members.filter((m) => m.directory_ok && m.contact_ok).map((m) => m.public_key));
   for (const d of dir) if (d.wa || d.sampleContact) assert.ok(listedKeys.has(d.k), `${d.name} has a contact button without asking`);
   assert.equal(new Set(dir.map((d) => d.u).filter(Boolean)).size, dir.filter((d) => d.u).length, 'each person once');

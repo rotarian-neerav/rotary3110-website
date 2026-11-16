@@ -138,6 +138,7 @@ var DEFAULT_SETTINGS = [
   ['form_contact_url', '', 'Filled in by setup; shown inside the website\'s Contact page'],
   ['contact_email', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
+  ['summary_emails', '', 'The weekly summary (Monday 8 am) goes here. Blank: the district account that owns the Sheet'],
   ['not_posting_emails', 'not-posting@example.com', 'Older setting (a dummy address): used only while the moderators tab names no Club engagement moderator'],
 ];
 
@@ -277,6 +278,10 @@ function installTriggers_(report) {
   if (!existing.some(function (e) { return e.indexOf('notPostingReport|') === 0; })) {
     ScriptApp.newTrigger('notPostingReport').timeBased().onMonthDay(1).atHour(9).inTimezone('Asia/Kolkata').create();
     report.push('Scheduled the monthly clubs-not-posting email (1st of the month, 9 am)');
+  }
+  if (!existing.some(function (e) { return e.indexOf('weeklySummary|') === 0; })) {
+    ScriptApp.newTrigger('weeklySummary').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).inTimezone('Asia/Kolkata').create();
+    report.push('Scheduled the weekly summary email (Monday 8 am)');
   }
 }
 

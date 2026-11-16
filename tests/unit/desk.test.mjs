@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { before, test } from 'node:test';
+import { before, beforeEach, test } from 'node:test';
 import { createGoogleEnv } from '../helpers/google-mock.mjs';
 import { core } from '../../lib/core.mjs';
 
@@ -14,6 +14,9 @@ let env;
 let token;
 const Q = {};
 const OWNER = 'rotarian.neerav@gmail.com';
+
+// Google's email allowance is per day; each test counts as a new day (the test on the July check sets its own)
+beforeEach(() => { if (env) env.quota.left = 100; });
 
 before(() => {
   execFileSync(process.execPath, [resolve(ROOT, 'tools/bundle-apps-script.mjs')]);

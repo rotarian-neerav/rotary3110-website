@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { before, test } from 'node:test';
+import { before, beforeEach, test } from 'node:test';
 import { createGoogleEnv } from '../helpers/google-mock.mjs';
 import { core, plain } from '../../lib/core.mjs';
 
@@ -12,6 +12,9 @@ const ROOT = resolve(import.meta.dirname, '../..');
 let env;
 let token;
 const Q = {}; // question titles, read from the script itself
+
+// Google's email allowance is per day; each test counts as a new day (the test on the July check sets its own)
+beforeEach(() => { if (env) env.quota.left = 100; });
 
 before(() => {
   execFileSync(process.execPath, [resolve(ROOT, 'tools/bundle-apps-script.mjs')]);
@@ -996,6 +999,72 @@ test('Google briefly slow: steps safe to repeat are tried again, others are not;
   const again = env.run('applyModerators');
   assert.deepEqual([[...again.addMain], again.failed.length], [['slow.one@example.com'], 0]);
   assert.ok(env.main.editors.includes('slow.one@example.com'));
+});
+
+/* ---------- the yearly July member check (A1) and the weekly summary (A2), 16 Nov ---------- */
+
+test('July member check: listed members with an email, July and August only, within the day\'s allowance, once a year', () => {
+  const club = env.main.rows('clubs')[0];
+  const base = { club_id: club.club_id, is_rotarian: true, status: 'active', listing_approved: true, directory_ok: true, profession: 'Doctor', area: 'Civil Lines', mobile: '9811122233' };
+  const add = (id, extra) => env.run('appendRow_', env.priv, 'members_master', { ...base, member_id: id, name: 'Rtn Check ' + id, email: id + '@example.com', ...extra });
+  add('9990001', {});
+  add('9990002', { contact_ok: true });
+  add('9990003', { directory_ok: false, birthday_ok: true, dob: '1970-03-12' });
+  add('9990004', { email: '' }); // no email: nobody to ask
+  add('9990005', { consent_updated_at: '2027-07-03' }); // just gave consent: no need to ask
+  add('9990006', { listing_approved: false }); // not on the website
+  const mine = () => env.mails.filter((m) => /still right\?$/.test(m.subject) && /^999000\d@/.test(m.to));
+  assert.equal(env.run('memberCheckEmails_', '2027-06-30'), 0, 'not before July');
+  assert.equal(env.run('memberCheckEmails_', '2027-11-16'), 0, 'not after August');
+  // members from earlier tests are due too; mark them done so the counts are about these six
+  const mm = env.priv.getSheetByName('members_master');
+  const col = mm.data[0].indexOf('member_check_sent_at') + 1;
+  mm.data.forEach((r, i) => { if (i > 0 && r[0] !== '' && !/^99900\d\d$/.test(String(r[0]))) mm.set(i + 1, col, '2027-07-01T00:00:00Z'); });
+  env.quota.left = 22; // a busy day: only 2 fit while keeping 20 for moderators and replies
+  assert.equal(env.run('memberCheckEmails_', '2027-07-05'), 2);
+  env.quota.left = 100; // the next day
+  assert.equal(env.run('memberCheckEmails_', '2027-07-06'), 1);
+  assert.equal(env.run('memberCheckEmails_', '2027-07-07'), 0, 'each member once a year');
+  assert.deepEqual(mine().map((m) => m.to).sort(), ['9990001@example.com', '9990002@example.com', '9990003@example.com']);
+  const one = mine().find((m) => m.to === '9990002@example.com').body;
+  assert.match(one, /Profession: Doctor/);
+  assert.match(one, /WhatsApp button, so people can message you: yes/);
+  assert.ok(one.includes(settingsMap().form_removal_url) && one.includes(settingsMap().form_consent_url), 'links to change or remove');
+  assert.ok(!one.includes('9811122233'), 'never the mobile number');
+  assert.match(mine().find((m) => m.to === '9990003@example.com').body, /In the member directory: no[\s\S]*birthday greeting on the Celebrations page: yes \(12 March,/);
+  assert.ok(env.priv.rows('members_master').find((m) => m.member_id === '9990001').member_check_sent_at, 'when it was sent is kept');
+  const next = mine().length;
+  env.run('memberCheckEmails_', '2028-07-01');
+  assert.equal(mine().length - next, 4, 'next July everyone again, including the one who gave consent in 2027');
+  // the owner's sample: one member's email, sent only to the person who asks
+  env.setUser('rotarian.neerav@gmail.com');
+  const before = env.mails.length;
+  assert.match(env.run('sendMemberCheckSample'), /sent to rotarian\.neerav@gmail\.com/);
+  assert.equal(env.mails.length - before, 1);
+  assert.match(env.mails.at(-1).subject, /^SAMPLE/);
+  assert.equal(env.mails.at(-1).to, 'rotarian.neerav@gmail.com');
+  const sh = env.priv.getSheetByName('members_master');
+  sh.data = sh.data.filter((r) => !/^99900\d\d$/.test(String(r[0])));
+});
+
+test('weekly summary: Monday 8 am to the owner: last build, a rebuild not yet run, waiting items, late removals, quiet clubs', () => {
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'weeklySummary').length, 1, 'scheduled by setup');
+  env.pages.buildInfo = { generated_at: '2026-11-15T01:42:09Z' };
+  env.run('setSetting_', 'rebuild_requested_at', '2026-11-16T09:00:00Z');
+  env.submit('removal', { [Q.rClub]: 'RC Kanpur', [Q.rName]: 'Rtn Slow Removal', [Q.rMobile]: '9876501111', [Q.rItems]: ['Birthday'] });
+  const rr = env.priv.getSheetByName('removal_requests');
+  rr.set(rr.getLastRow(), rr.data[0].indexOf('submitted_at') + 1, '2026-01-01T00:00:00Z');
+  env.run('weeklySummary');
+  let mail = env.mails.at(-1);
+  assert.equal(mail.to, 'rotarian.neerav@gmail.com', 'the district account until summary_emails is set');
+  assert.match(mail.subject, /weekly summary/);
+  for (const part of ['THE WEBSITE', 'Last built: 15', 'has not run yet', 'WENT LIVE IN THE LAST 7 DAYS', 'WAITING FOR MODERATORS', 'PAST THEIR 2-DAY LIMIT', 'QUIET CLUBS']) assert.ok(mail.body.includes(part), part);
+  assert.ok(!mail.body.includes('Rtn Slow Removal') && !mail.body.includes('9876501111'), 'request IDs only, no names or numbers');
+  env.run('setSetting_', 'summary_emails', 'owner.one@example.com, owner.two@example.com');
+  env.run('sendWeeklySummaryNow');
+  mail = env.mails.at(-1);
+  assert.equal(mail.to, 'owner.one@example.com,owner.two@example.com');
+  env.run('rejectRequest', 'removal', env.priv.rows('removal_requests').at(-1).id, 'test');
 });
 
 /* ---------- real data (29 Oct): gender column; Reset for production, once ---------- */

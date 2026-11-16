@@ -694,6 +694,79 @@ function Core_bulletinMessage(b, siteUrl) {
 /* ------------------------------------------------------------------ */
 
 /**
+ * What the website shows about one members_master row once its listing is approved: the directory card, the
+ * WhatsApp button, the photo, the birthday greeting. Sample members never get a real WhatsApp link (the site shows
+ * their buttons as switched off), so a sample row needs no mobile.
+ */
+function Core_memberShows(m) {
+  var directory = Core_isTrue(m.directory_ok);
+  return {
+    directory: directory,
+    contact: directory && Core_isTrue(m.contact_ok) && (Core_isTrue(m.is_sample) || !!Core_mobile(m.mobile)),
+    photo: Core_isTrue(m.photo_ok) && Core_isTrue(m.photo_approved) && !!Core_str(m.photo_file),
+    birthday: Core_isTrue(m.birthday_ok) && !!Core_dayMonth(m.dob),
+  };
+}
+
+/* The yearly check with listed members (July and August): "this is what the website shows about you". */
+var CORE_MEMBER_CHECK_PER_DAY = 80; // Google allows about 100 emails a day; the rest is kept for moderators and replies
+
+/**
+ * Listed members who should get this year's check email, by member ID. Only in July and August (a late start
+ * catches up in August), only active Rotarians whose listing shows something and who have an email, and not those
+ * who already had it this year or gave or renewed their consent since 1 July. anyTime: ignore the season and what
+ * was sent (for the owner's sample email).
+ */
+function Core_memberCheckDue(master, today, anyTime) {
+  var month = Core_str(today).slice(5, 7);
+  if (!anyTime && month !== '07' && month !== '08') return [];
+  var july = Core_str(today).slice(0, 4) + '-07-01';
+  return (master || []).filter(function (m) {
+    if (!Core_isTrue(m.is_rotarian) || Core_str(m.status || 'active').toLowerCase() !== 'active') return false;
+    if (!Core_isTrue(m.listing_approved) || Core_isTrue(m.is_sample)) return false;
+    if (!CORE_EMAIL_RE.test(Core_str(m.email))) return false;
+    var s = Core_memberShows(m);
+    if (!s.directory && !s.photo && !s.birthday) return false;
+    if (anyTime) return true;
+    return [m.member_check_sent_at, m.consent_updated_at, m.listing_approved_at].every(function (v) {
+      var d = Core_isoDate(v);
+      return !d || d < july;
+    });
+  }).sort(function (a, b) { return Core_str(a.member_id).localeCompare(Core_str(b.member_id)); });
+}
+
+/** The check email for one member: { subject, body }. forms: { consent, removal } form addresses. */
+function Core_memberCheckEmail(m, clubName, siteUrl, forms) {
+  var s = Core_memberShows(m);
+  var yes = function (v) { return v ? 'yes' : 'no'; };
+  var birthday = function (mmdd) { // "03-12" -> "12 March"
+    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return Number(mmdd.slice(3, 5)) + ' ' + months[Number(mmdd.slice(0, 2)) - 1];
+  };
+  var lines = ['• Club: ' + (Core_str(clubName) || Core_str(m.club_id))];
+  if (s.directory) {
+    lines.push('• In the member directory: yes');
+    [['Profession', m.profession], ['Area', m.area], ['About you', m.description], ['Website', m.website]].forEach(function (f) {
+      if (Core_str(f[1])) lines.push('    ' + f[0] + ': ' + Core_str(f[1]));
+    });
+  } else {
+    lines.push('• In the member directory: no');
+  }
+  lines.push('• Your photo: ' + yes(s.photo));
+  lines.push('• A WhatsApp button, so people can message you: ' + yes(s.contact));
+  lines.push('• A birthday greeting on the Celebrations page: ' + (s.birthday ? 'yes (' + birthday(Core_dayMonth(m.dob)) + ', without the year)' : 'no'));
+  var site = Core_str(siteUrl).replace(/\/?$/, '/');
+  var body = 'Dear ' + Core_str(m.name) + ',\n\n' +
+    'Once a year, in July, we check with every member listed on the Rotary District 3110 website (' + site + ') ' +
+    'that it still shows what you want. This is what it shows about you:\n\n' + lines.join('\n') + '\n\n' +
+    'Nothing to do if this is right.\n\n' +
+    'To change any of it, fill in the member consent form again' + (forms && forms.consent ? ':\n' + forms.consent : ' (linked from the website\'s Privacy page).') + '\n\n' +
+    'To remove any of it, or your whole listing' + (forms && forms.removal ? ':\n' + forms.removal : ', use the removal form (linked from the website\'s Privacy page).') + '\n\n' +
+    'Your mobile number and email address are never shown on the website.\n\nRotary District 3110';
+  return { subject: 'Your listing on the Rotary District 3110 website: still right?', body: body };
+}
+
+/**
  * Builds the rows of the public members and couples tabs from the private sheet.
  * Only active Rotarians whose listing a moderator approved, only the fields they ticked,
  * birthdays and anniversaries as day and month only.
@@ -729,12 +802,12 @@ function Core_buildMembersPublic(master, couples, makeKey) {
   master.forEach(function (m) {
     if (!isActiveRotarian(m)) return;
     if (!Core_isTrue(m.listing_approved)) return;
-    var directory = Core_isTrue(m.directory_ok);
+    var shows = Core_memberShows(m);
+    var directory = shows.directory;
     var sample = Core_isTrue(m.is_sample);
-    // sample members never get a real WhatsApp link; the site shows their buttons as switched off
-    var contact = directory && Core_isTrue(m.contact_ok) && (sample || !!Core_mobile(m.mobile));
-    var photo = Core_isTrue(m.photo_ok) && Core_isTrue(m.photo_approved) && !!Core_str(m.photo_file);
-    var birthday = Core_isTrue(m.birthday_ok) && !!Core_dayMonth(m.dob);
+    var contact = shows.contact;
+    var photo = shows.photo;
+    var birthday = shows.birthday;
     if (!directory && !photo && !birthday) return;
 
     members.push({
@@ -1494,6 +1567,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     Core_isTrue: Core_isTrue, Core_isoDate: Core_isoDate, Core_dayMonth: Core_dayMonth, Core_rows: Core_rows,
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
+    Core_memberShows: Core_memberShows, Core_memberCheckDue: Core_memberCheckDue, Core_memberCheckEmail: Core_memberCheckEmail,
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
     Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,

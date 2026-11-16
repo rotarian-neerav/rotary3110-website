@@ -296,11 +296,20 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
       Charset: { UTF_8: 'UTF_8' },
     },
     Logger: { log: () => {} },
-    MailApp: { sendEmail: (to, subject, body, options = {}) => mails.push({ to, subject, body, options }), getRemainingDailyQuota: () => quota.left },
+    // like Google: each email uses one of the day's allowance, and sending stops with an error when it runs out
+    MailApp: {
+      sendEmail: (to, subject, body, options = {}) => {
+        if (quota.left <= 0) throw new Error('Service invoked too many times for one day: email.');
+        quota.left -= 1;
+        mails.push({ to, subject, body, options });
+      },
+      getRemainingDailyQuota: () => quota.left,
+    },
     UrlFetchApp: {
       fetch: (url) => {
         fetched.push(url);
         if (/\/bulletin\//.test(url)) return { getResponseCode: () => pages.status, getContentText: () => '' };
+        if (/build-info\.json$/.test(url)) return { getResponseCode: () => 200, getContentText: () => JSON.stringify(pages.buildInfo || {}) };
         return { getResponseCode: () => 200, getContentText: () => sampleJson };
       },
     },
@@ -309,7 +318,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
     ScriptApp: {
       getProjectTriggers: () => [...triggers],
       deleteTrigger: (t) => { const i = triggers.indexOf(t); if (i >= 0) triggers.splice(i, 1); },
-      WeekDay: { SATURDAY: 'SATURDAY', SUNDAY: 'SUNDAY' },
+      WeekDay: { MONDAY: 'MONDAY', SATURDAY: 'SATURDAY', SUNDAY: 'SUNDAY' },
       newTrigger: (fn) => chain({ forForm: (id) => chain({ onFormSubmit: () => chain({ create: () => triggers.push({ getHandlerFunction: () => fn, getTriggerSourceId: () => id }) }) }), timeBased: () => chain({ create: () => triggers.push({ getHandlerFunction: () => fn, getTriggerSourceId: () => '' }) }) }),
       getService: () => ({ getUrl: () => 'https://script.google.com/macros/s/TEST/exec' }),
     },

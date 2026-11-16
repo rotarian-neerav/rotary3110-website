@@ -27,6 +27,8 @@ function onOpen() {
       .addItem('Send bulletin preview now', 'bulletinPreview')
       .addItem('Send bulletin message now', 'sendBulletinMessageNow')
       .addItem('Send clubs-not-posting email now', 'sendNotPostingNow')
+      .addItem('Send weekly summary now', 'sendWeeklySummaryNow')
+      .addItem('Send me a sample July member email', 'sendMemberCheckSample')
       .addItem('Practice round: start…', 'startPractice')
       .addItem('Practice round: report', 'practiceReport')
       .addItem('Practice round: remove practice items…', 'removePractice')

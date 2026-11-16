@@ -257,7 +257,9 @@ var SCHEMA_PRIVATE = {
     'description', 'website', 'spotlight_ok', 'photo_file', 'photo_approved', 'listing_approved', 'listing_approved_by',
     'listing_approved_at', 'public_key', 'consent_source', 'consent_updated_at', 'notes', 'is_sample',
     // added 29 October 2026 with the real member list; private, never sent to the website
-    'gender'],
+    'gender',
+    // added 16 November 2026: when this year's July check email went to the member
+    'member_check_sent_at'],
   club_history: ['member_id', 'club_id', 'from_date', 'to_date', 'reason', 'is_sample'],
   couples: ['couple_id', 'person_a_id', 'person_b_id', 'anniversary', 'a_consent', 'b_consent', 'couple_photo_ok_a',
     'couple_photo_ok_b', 'couple_photo_file', 'couple_photo_approved', 'status', 'notes', 'is_sample'],
@@ -976,6 +978,79 @@ function Core_bulletinMessage(b, siteUrl) {
 /* ------------------------------------------------------------------ */
 
 /**
+ * What the website shows about one members_master row once its listing is approved: the directory card, the
+ * WhatsApp button, the photo, the birthday greeting. Sample members never get a real WhatsApp link (the site shows
+ * their buttons as switched off), so a sample row needs no mobile.
+ */
+function Core_memberShows(m) {
+  var directory = Core_isTrue(m.directory_ok);
+  return {
+    directory: directory,
+    contact: directory && Core_isTrue(m.contact_ok) && (Core_isTrue(m.is_sample) || !!Core_mobile(m.mobile)),
+    photo: Core_isTrue(m.photo_ok) && Core_isTrue(m.photo_approved) && !!Core_str(m.photo_file),
+    birthday: Core_isTrue(m.birthday_ok) && !!Core_dayMonth(m.dob),
+  };
+}
+
+/* The yearly check with listed members (July and August): "this is what the website shows about you". */
+var CORE_MEMBER_CHECK_PER_DAY = 80; // Google allows about 100 emails a day; the rest is kept for moderators and replies
+
+/**
+ * Listed members who should get this year's check email, by member ID. Only in July and August (a late start
+ * catches up in August), only active Rotarians whose listing shows something and who have an email, and not those
+ * who already had it this year or gave or renewed their consent since 1 July. anyTime: ignore the season and what
+ * was sent (for the owner's sample email).
+ */
+function Core_memberCheckDue(master, today, anyTime) {
+  var month = Core_str(today).slice(5, 7);
+  if (!anyTime && month !== '07' && month !== '08') return [];
+  var july = Core_str(today).slice(0, 4) + '-07-01';
+  return (master || []).filter(function (m) {
+    if (!Core_isTrue(m.is_rotarian) || Core_str(m.status || 'active').toLowerCase() !== 'active') return false;
+    if (!Core_isTrue(m.listing_approved) || Core_isTrue(m.is_sample)) return false;
+    if (!CORE_EMAIL_RE.test(Core_str(m.email))) return false;
+    var s = Core_memberShows(m);
+    if (!s.directory && !s.photo && !s.birthday) return false;
+    if (anyTime) return true;
+    return [m.member_check_sent_at, m.consent_updated_at, m.listing_approved_at].every(function (v) {
+      var d = Core_isoDate(v);
+      return !d || d < july;
+    });
+  }).sort(function (a, b) { return Core_str(a.member_id).localeCompare(Core_str(b.member_id)); });
+}
+
+/** The check email for one member: { subject, body }. forms: { consent, removal } form addresses. */
+function Core_memberCheckEmail(m, clubName, siteUrl, forms) {
+  var s = Core_memberShows(m);
+  var yes = function (v) { return v ? 'yes' : 'no'; };
+  var birthday = function (mmdd) { // "03-12" -> "12 March"
+    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return Number(mmdd.slice(3, 5)) + ' ' + months[Number(mmdd.slice(0, 2)) - 1];
+  };
+  var lines = ['• Club: ' + (Core_str(clubName) || Core_str(m.club_id))];
+  if (s.directory) {
+    lines.push('• In the member directory: yes');
+    [['Profession', m.profession], ['Area', m.area], ['About you', m.description], ['Website', m.website]].forEach(function (f) {
+      if (Core_str(f[1])) lines.push('    ' + f[0] + ': ' + Core_str(f[1]));
+    });
+  } else {
+    lines.push('• In the member directory: no');
+  }
+  lines.push('• Your photo: ' + yes(s.photo));
+  lines.push('• A WhatsApp button, so people can message you: ' + yes(s.contact));
+  lines.push('• A birthday greeting on the Celebrations page: ' + (s.birthday ? 'yes (' + birthday(Core_dayMonth(m.dob)) + ', without the year)' : 'no'));
+  var site = Core_str(siteUrl).replace(/\/?$/, '/');
+  var body = 'Dear ' + Core_str(m.name) + ',\n\n' +
+    'Once a year, in July, we check with every member listed on the Rotary District 3110 website (' + site + ') ' +
+    'that it still shows what you want. This is what it shows about you:\n\n' + lines.join('\n') + '\n\n' +
+    'Nothing to do if this is right.\n\n' +
+    'To change any of it, fill in the member consent form again' + (forms && forms.consent ? ':\n' + forms.consent : ' (linked from the website\'s Privacy page).') + '\n\n' +
+    'To remove any of it, or your whole listing' + (forms && forms.removal ? ':\n' + forms.removal : ', use the removal form (linked from the website\'s Privacy page).') + '\n\n' +
+    'Your mobile number and email address are never shown on the website.\n\nRotary District 3110';
+  return { subject: 'Your listing on the Rotary District 3110 website: still right?', body: body };
+}
+
+/**
  * Builds the rows of the public members and couples tabs from the private sheet.
  * Only active Rotarians whose listing a moderator approved, only the fields they ticked,
  * birthdays and anniversaries as day and month only.
@@ -1011,12 +1086,12 @@ function Core_buildMembersPublic(master, couples, makeKey) {
   master.forEach(function (m) {
     if (!isActiveRotarian(m)) return;
     if (!Core_isTrue(m.listing_approved)) return;
-    var directory = Core_isTrue(m.directory_ok);
+    var shows = Core_memberShows(m);
+    var directory = shows.directory;
     var sample = Core_isTrue(m.is_sample);
-    // sample members never get a real WhatsApp link; the site shows their buttons as switched off
-    var contact = directory && Core_isTrue(m.contact_ok) && (sample || !!Core_mobile(m.mobile));
-    var photo = Core_isTrue(m.photo_ok) && Core_isTrue(m.photo_approved) && !!Core_str(m.photo_file);
-    var birthday = Core_isTrue(m.birthday_ok) && !!Core_dayMonth(m.dob);
+    var contact = shows.contact;
+    var photo = shows.photo;
+    var birthday = shows.birthday;
     if (!directory && !photo && !birthday) return;
 
     members.push({
@@ -1776,6 +1851,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     Core_isTrue: Core_isTrue, Core_isoDate: Core_isoDate, Core_dayMonth: Core_dayMonth, Core_rows: Core_rows,
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
+    Core_memberShows: Core_memberShows, Core_memberCheckDue: Core_memberCheckDue, Core_memberCheckEmail: Core_memberCheckEmail,
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
     Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
@@ -1936,6 +2012,7 @@ var DEFAULT_SETTINGS = [
   ['form_contact_url', '', 'Filled in by setup; shown inside the website\'s Contact page'],
   ['contact_email', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
+  ['summary_emails', '', 'The weekly summary (Monday 8 am) goes here. Blank: the district account that owns the Sheet'],
   ['not_posting_emails', 'not-posting@example.com', 'Older setting (a dummy address): used only while the moderators tab names no Club engagement moderator'],
 ];
 
@@ -2075,6 +2152,10 @@ function installTriggers_(report) {
   if (!existing.some(function (e) { return e.indexOf('notPostingReport|') === 0; })) {
     ScriptApp.newTrigger('notPostingReport').timeBased().onMonthDay(1).atHour(9).inTimezone('Asia/Kolkata').create();
     report.push('Scheduled the monthly clubs-not-posting email (1st of the month, 9 am)');
+  }
+  if (!existing.some(function (e) { return e.indexOf('weeklySummary|') === 0; })) {
+    ScriptApp.newTrigger('weeklySummary').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).inTimezone('Asia/Kolkata').create();
+    report.push('Scheduled the weekly summary email (Monday 8 am)');
   }
 }
 
@@ -3004,6 +3085,8 @@ function onOpen() {
       .addItem('Send bulletin preview now', 'bulletinPreview')
       .addItem('Send bulletin message now', 'sendBulletinMessageNow')
       .addItem('Send clubs-not-posting email now', 'sendNotPostingNow')
+      .addItem('Send weekly summary now', 'sendWeeklySummaryNow')
+      .addItem('Send me a sample July member email', 'sendMemberCheckSample')
       .addItem('Practice round: start…', 'startPractice')
       .addItem('Practice round: report', 'practiceReport')
       .addItem('Practice round: remove practice items…', 'removePractice')
@@ -4548,7 +4631,8 @@ function deskSignOutAll() {
 // ===== Jobs.js =====
 /**
  * Daily at 7 am (India): 48-hour reminders to moderators, the monthly-nudge dashboard, the role check, new magazines,
- * and the forms' lists (so a campaign drops off the activity form 30 days after it ends).
+ * the forms' lists (so a campaign drops off the activity form 30 days after it ends), and in July and August the
+ * yearly check email to listed members.
  */
 
 function dailyJobs() {
@@ -4557,6 +4641,7 @@ function dailyJobs() {
   checkRoles(true);
   try { updateFormLists(true); } catch (e) { Logger.log('Form lists not updated: ' + e.message); }
   sendReminders_();
+  try { memberCheckEmails_(); } catch (e) { Logger.log('July member check not sent: ' + e.message); } // last: it uses what email allowance is left
 }
 
 /* ---------- Weekly bulletin emails ---------- */
@@ -4767,6 +4852,123 @@ function checkRoles(silent) {
       : 'All roles have a member ID that matches the members list.');
   } catch (e) { /* called from code */ }
   return problems.length;
+}
+
+/* ---------- The yearly July check with listed members ---------- */
+
+/**
+ * July and August, from the daily jobs: each listed member is emailed once a year what the website shows about
+ * them, with the forms to change or remove it. Up to 80 a day, so about 500 members take a week and the day's
+ * allowance still has room for moderators and replies. today: for tests.
+ */
+function memberCheckEmails_(today) {
+  var ps = privateSs_();
+  var due = Core_memberCheckDue(readTab_(ps, 'members_master'), today || today_());
+  var stamp = today ? today + 'T07:00:00Z' : nowIso_(); // a test's day also dates the record
+  if (!due.length) return 0;
+  var room = Math.min(CORE_MEMBER_CHECK_PER_DAY, MailApp.getRemainingDailyQuota() - 20);
+  var s = settings_();
+  var forms = { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url) };
+  var sent = 0;
+  due.slice(0, Math.max(0, room)).forEach(function (m) {
+    var mail = Core_memberCheckEmail(m, clubNameById_(m.club_id), s.site_url, forms);
+    try {
+      MailApp.sendEmail(Core_str(m.email), mail.subject, mail.body, { name: 'Rotary District 3110' });
+    } catch (e) {
+      Logger.log('Member check to ' + m.member_id + ' failed: ' + e.message);
+      return;
+    }
+    updateRow_(ps, 'members_master', m._row, { member_check_sent_at: stamp });
+    sent++;
+  });
+  return sent;
+}
+
+/** Menu: the July email for one listed member, sent to whoever asks, so the owner can read it before July. */
+function sendMemberCheckSample() {
+  var m = Core_memberCheckDue(readTab_(privateSs_(), 'members_master'), today_(), true)[0];
+  var me = Session.getActiveUser().getEmail() || Session.getEffectiveUser().getEmail();
+  var msg;
+  if (!m) {
+    msg = 'No listed member with an email to make a sample from.';
+  } else {
+    var s = settings_();
+    var mail = Core_memberCheckEmail(m, clubNameById_(m.club_id), s.site_url, { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url) });
+    MailApp.sendEmail(me, 'SAMPLE – ' + mail.subject, 'This is a sample of the July email, made from member ' + m.member_id +
+      '. It was sent only to you.\n\n----------\n\n' + mail.body, { name: 'Rotary District 3110' });
+    msg = 'A sample of the July member email was sent to ' + me + '.';
+  }
+  try { SpreadsheetApp.getUi().alert(msg); } catch (e) { /* editor */ }
+  return msg;
+}
+
+/* ---------- The weekly summary for the owner ---------- */
+
+/**
+ * Monday 8 am: one private email to the owner on how the website is doing: the last build, what went live in the
+ * last 7 days, what is waiting for moderators, removals past their 2-day limit, contact messages not yet answered,
+ * the quiet clubs and, in July and August, the member check. Goes to summary_emails, or the district account.
+ */
+function weeklySummary() {
+  var now = Date.now();
+  var today = today_();
+  var weekAgo = now - 7 * 86400000;
+  var main = mainSs_();
+  var ps = privateSs_();
+  var s = settings_();
+  var site = Core_str(s.site_url).replace(/\/?$/, '/');
+  var real = function (r) { return !Core_isPractice(r) && !Core_isTrue(r.is_sample); };
+  var out = [];
+
+  var built = '';
+  try { built = Core_str(JSON.parse(UrlFetchApp.fetch(site + 'build-info.json', { muteHttpExceptions: true }).getContentText()).generated_at); } catch (e) { built = ''; }
+  var asked = Core_str(s.rebuild_requested_at);
+  out.push('THE WEBSITE\n' + (built ? 'Last built: ' + Core_dateLabel(Core_isoDate(new Date(built))) + ' (' + built.slice(11, 16) + ' UTC).' : 'Could not read when the website was last built.') +
+    (asked && built && asked > built ? '\nA rebuild was asked for on ' + Core_dateLabel(Core_isoDate(new Date(asked))) + ' and has not run yet: check the Actions tab on GitHub.' : ''));
+
+  var labels = { activities: 'activities', events: 'events', public_services: 'public services', club_profile_requests: 'club profile updates' };
+  var live = [];
+  var waiting = [];
+  var titles = [];
+  Object.keys(labels).forEach(function (t) {
+    var rows = readTab_(main, t).filter(real);
+    var went = rows.filter(function (r) { return Core_str(r.status) === 'approved' && new Date(r.approved_at).getTime() >= weekAgo; });
+    var wait = rows.filter(function (r) { return Core_str(r.status) === 'pending'; }).length;
+    if (went.length) live.push(went.length + ' ' + labels[t]);
+    if (wait) waiting.push(wait + ' ' + labels[t]);
+    if (t === 'activities') went.forEach(function (r) { titles.push(Core_str(r.title) + ' (' + (Core_str(r.club_name) || clubNameById_(r.club_id)) + ')'); });
+  });
+  out.push('WENT LIVE IN THE LAST 7 DAYS\n' + (live.length ? live.join(', ') + '.' + (titles.length ? '\n' + titles.slice(0, 10).map(function (x) { return '• ' + x; }).join('\n') +
+    (titles.length > 10 ? '\n…and ' + (titles.length - 10) + ' more.' : '') : '') : 'Nothing new was approved.'));
+
+  var consent = readTab_(ps, 'consent_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; }).length;
+  var removals = readTab_(ps, 'removal_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; });
+  if (consent) waiting.push(consent + ' member consent forms');
+  if (removals.length) waiting.push(removals.length + ' removal requests');
+  var late = Core_overdue(removals, now, 48);
+  out.push('WAITING FOR MODERATORS\n' + (waiting.length ? waiting.join(', ') + '.' : 'Nothing is waiting.') +
+    (late.length ? '\nREMOVALS PAST THEIR 2-DAY LIMIT: ' + late.length + ' (' + late.map(function (r) { return r.id; }).join(', ') + '). Please see they are handled today.' : ''));
+
+  var unanswered = readTab_(ps, 'contact_messages').filter(real).filter(function (r) { return Core_str(r.status) === 'new'; }).length;
+  if (unanswered) out.push('CONTACT MESSAGES NOT YET ANSWERED\n' + unanswered + '. Use "Mark answered" or "Reply" on the moderation desk.');
+
+  var quiet = Core_quietClubs(clubs_(), readTab_(main, 'activities'), today, CORE_QUIET_DAYS);
+  out.push('QUIET CLUBS\n' + (quiet.length ? quiet.length + ' club(s) with no activity dated in the last ' + CORE_QUIET_DAYS + ' days, for example: ' +
+    quiet.slice(0, 8).map(function (c) { return c.club_name; }).join(', ') + (quiet.length > 8 ? '…' : '') + '.' : 'Every active club posted in the last ' + CORE_QUIET_DAYS + ' days.'));
+
+  var due = Core_memberCheckDue(readTab_(ps, 'members_master'), today);
+  if (due.length) out.push('JULY MEMBER CHECK\n' + due.length + ' listed member(s) still to be emailed; up to ' + CORE_MEMBER_CHECK_PER_DAY + ' go each morning.');
+
+  var desk = deskLink_({});
+  var to = Core_list(s.summary_emails).join(',') || Session.getEffectiveUser().getEmail();
+  MailApp.sendEmail(to, 'Rotary 3110 website: weekly summary, ' + Core_dateLabel(today), out.join('\n\n') +
+    (desk ? '\n\nModeration desk: ' + desk : '') + '\nThe Sheet: ' + main.getUrl() + '\n\nThis summary is private and is not shown on the website.', { name: 'Rotary 3110 website' });
+  return to;
+}
+
+function sendWeeklySummaryNow() {
+  var to = weeklySummary();
+  try { SpreadsheetApp.getUi().alert('The weekly summary was sent to ' + to + '.'); } catch (e) { /* editor */ }
 }
 
 

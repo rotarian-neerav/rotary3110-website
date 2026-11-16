@@ -123,6 +123,16 @@ keeps the data link's error answers short (the full message stays in **Execution
 is unchanged), **Deploy → Manage deployments → edit → New version**, then **Upgrade Sheet (new tabs, columns,
 questions)** once, which updates the consent form's wording.
 
+The **16 November** version adds two private emails. **The July member check:** every July (catching up in August),
+each listed member with an email is told what the website shows about them, with the consent and removal forms to
+change or remove it; up to 80 a day from the 7 am daily jobs, each member once a year, not those who gave their
+consent since 1 July. **The weekly summary:** every Monday at 8 am, to `summary_emails` (blank: the district
+account): the last build, what went live in the last 7 days, what is waiting, removals past their 2-day limit,
+unanswered contact messages and the quiet clubs. New: **Administrator → Send weekly summary now** and **Send me a
+sample July member email**. Paste `Code.gs` (`Sidebar.html` is unchanged), **Deploy → Manage deployments → edit → New
+version**, then **Upgrade Sheet (new tabs, columns, questions)** once: it adds the private `member_check_sent_at`
+column to **members_master**, the `summary_emails` setting and the Monday trigger.
+
 ## 6. Name the moderators
 
 1. Open the **moderators** tab (main Sheet). Each row is one person in one type: **Content**, **Members**, **Club engagement**, **District office** or **Administrator**. Put the real name and Google email over a placeholder, and keep `active` = **TRUE**. Add rows for more people (one person can have several rows).

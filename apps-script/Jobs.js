@@ -1,6 +1,7 @@
 /**
  * Daily at 7 am (India): 48-hour reminders to moderators, the monthly-nudge dashboard, the role check, new magazines,
- * and the forms' lists (so a campaign drops off the activity form 30 days after it ends).
+ * the forms' lists (so a campaign drops off the activity form 30 days after it ends), and in July and August the
+ * yearly check email to listed members.
  */
 
 function dailyJobs() {
@@ -9,6 +10,7 @@ function dailyJobs() {
   checkRoles(true);
   try { updateFormLists(true); } catch (e) { Logger.log('Form lists not updated: ' + e.message); }
   sendReminders_();
+  try { memberCheckEmails_(); } catch (e) { Logger.log('July member check not sent: ' + e.message); } // last: it uses what email allowance is left
 }
 
 /* ---------- Weekly bulletin emails ---------- */
@@ -219,4 +221,121 @@ function checkRoles(silent) {
       : 'All roles have a member ID that matches the members list.');
   } catch (e) { /* called from code */ }
   return problems.length;
+}
+
+/* ---------- The yearly July check with listed members ---------- */
+
+/**
+ * July and August, from the daily jobs: each listed member is emailed once a year what the website shows about
+ * them, with the forms to change or remove it. Up to 80 a day, so about 500 members take a week and the day's
+ * allowance still has room for moderators and replies. today: for tests.
+ */
+function memberCheckEmails_(today) {
+  var ps = privateSs_();
+  var due = Core_memberCheckDue(readTab_(ps, 'members_master'), today || today_());
+  var stamp = today ? today + 'T07:00:00Z' : nowIso_(); // a test's day also dates the record
+  if (!due.length) return 0;
+  var room = Math.min(CORE_MEMBER_CHECK_PER_DAY, MailApp.getRemainingDailyQuota() - 20);
+  var s = settings_();
+  var forms = { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url) };
+  var sent = 0;
+  due.slice(0, Math.max(0, room)).forEach(function (m) {
+    var mail = Core_memberCheckEmail(m, clubNameById_(m.club_id), s.site_url, forms);
+    try {
+      MailApp.sendEmail(Core_str(m.email), mail.subject, mail.body, { name: 'Rotary District 3110' });
+    } catch (e) {
+      Logger.log('Member check to ' + m.member_id + ' failed: ' + e.message);
+      return;
+    }
+    updateRow_(ps, 'members_master', m._row, { member_check_sent_at: stamp });
+    sent++;
+  });
+  return sent;
+}
+
+/** Menu: the July email for one listed member, sent to whoever asks, so the owner can read it before July. */
+function sendMemberCheckSample() {
+  var m = Core_memberCheckDue(readTab_(privateSs_(), 'members_master'), today_(), true)[0];
+  var me = Session.getActiveUser().getEmail() || Session.getEffectiveUser().getEmail();
+  var msg;
+  if (!m) {
+    msg = 'No listed member with an email to make a sample from.';
+  } else {
+    var s = settings_();
+    var mail = Core_memberCheckEmail(m, clubNameById_(m.club_id), s.site_url, { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url) });
+    MailApp.sendEmail(me, 'SAMPLE – ' + mail.subject, 'This is a sample of the July email, made from member ' + m.member_id +
+      '. It was sent only to you.\n\n----------\n\n' + mail.body, { name: 'Rotary District 3110' });
+    msg = 'A sample of the July member email was sent to ' + me + '.';
+  }
+  try { SpreadsheetApp.getUi().alert(msg); } catch (e) { /* editor */ }
+  return msg;
+}
+
+/* ---------- The weekly summary for the owner ---------- */
+
+/**
+ * Monday 8 am: one private email to the owner on how the website is doing: the last build, what went live in the
+ * last 7 days, what is waiting for moderators, removals past their 2-day limit, contact messages not yet answered,
+ * the quiet clubs and, in July and August, the member check. Goes to summary_emails, or the district account.
+ */
+function weeklySummary() {
+  var now = Date.now();
+  var today = today_();
+  var weekAgo = now - 7 * 86400000;
+  var main = mainSs_();
+  var ps = privateSs_();
+  var s = settings_();
+  var site = Core_str(s.site_url).replace(/\/?$/, '/');
+  var real = function (r) { return !Core_isPractice(r) && !Core_isTrue(r.is_sample); };
+  var out = [];
+
+  var built = '';
+  try { built = Core_str(JSON.parse(UrlFetchApp.fetch(site + 'build-info.json', { muteHttpExceptions: true }).getContentText()).generated_at); } catch (e) { built = ''; }
+  var asked = Core_str(s.rebuild_requested_at);
+  out.push('THE WEBSITE\n' + (built ? 'Last built: ' + Core_dateLabel(Core_isoDate(new Date(built))) + ' (' + built.slice(11, 16) + ' UTC).' : 'Could not read when the website was last built.') +
+    (asked && built && asked > built ? '\nA rebuild was asked for on ' + Core_dateLabel(Core_isoDate(new Date(asked))) + ' and has not run yet: check the Actions tab on GitHub.' : ''));
+
+  var labels = { activities: 'activities', events: 'events', public_services: 'public services', club_profile_requests: 'club profile updates' };
+  var live = [];
+  var waiting = [];
+  var titles = [];
+  Object.keys(labels).forEach(function (t) {
+    var rows = readTab_(main, t).filter(real);
+    var went = rows.filter(function (r) { return Core_str(r.status) === 'approved' && new Date(r.approved_at).getTime() >= weekAgo; });
+    var wait = rows.filter(function (r) { return Core_str(r.status) === 'pending'; }).length;
+    if (went.length) live.push(went.length + ' ' + labels[t]);
+    if (wait) waiting.push(wait + ' ' + labels[t]);
+    if (t === 'activities') went.forEach(function (r) { titles.push(Core_str(r.title) + ' (' + (Core_str(r.club_name) || clubNameById_(r.club_id)) + ')'); });
+  });
+  out.push('WENT LIVE IN THE LAST 7 DAYS\n' + (live.length ? live.join(', ') + '.' + (titles.length ? '\n' + titles.slice(0, 10).map(function (x) { return '• ' + x; }).join('\n') +
+    (titles.length > 10 ? '\n…and ' + (titles.length - 10) + ' more.' : '') : '') : 'Nothing new was approved.'));
+
+  var consent = readTab_(ps, 'consent_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; }).length;
+  var removals = readTab_(ps, 'removal_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; });
+  if (consent) waiting.push(consent + ' member consent forms');
+  if (removals.length) waiting.push(removals.length + ' removal requests');
+  var late = Core_overdue(removals, now, 48);
+  out.push('WAITING FOR MODERATORS\n' + (waiting.length ? waiting.join(', ') + '.' : 'Nothing is waiting.') +
+    (late.length ? '\nREMOVALS PAST THEIR 2-DAY LIMIT: ' + late.length + ' (' + late.map(function (r) { return r.id; }).join(', ') + '). Please see they are handled today.' : ''));
+
+  var unanswered = readTab_(ps, 'contact_messages').filter(real).filter(function (r) { return Core_str(r.status) === 'new'; }).length;
+  if (unanswered) out.push('CONTACT MESSAGES NOT YET ANSWERED\n' + unanswered + '. Use "Mark answered" or "Reply" on the moderation desk.');
+
+  var quiet = Core_quietClubs(clubs_(), readTab_(main, 'activities'), today, CORE_QUIET_DAYS);
+  out.push('QUIET CLUBS\n' + (quiet.length ? quiet.length + ' club(s) with no activity dated in the last ' + CORE_QUIET_DAYS + ' days, for example: ' +
+    quiet.slice(0, 8).map(function (c) { return c.club_name; }).join(', ') + (quiet.length > 8 ? '…' : '') + '.' : 'Every active club posted in the last ' + CORE_QUIET_DAYS + ' days.'));
+
+  var due = Core_memberCheckDue(readTab_(ps, 'members_master'), today);
+  if (due.length) out.push('JULY MEMBER CHECK\n' + due.length + ' listed member(s) still to be emailed; up to ' + CORE_MEMBER_CHECK_PER_DAY + ' go each morning.');
+
+  var desk = deskLink_({});
+  var to = Core_list(s.summary_emails).join(',') || Session.getEffectiveUser().getEmail();
+  MailApp.sendEmail(to, 'Rotary 3110 website: weekly summary, ' + Core_dateLabel(today), out.join('\n\n') +
+    (desk ? '\n\nModeration desk: ' + desk : '') + '\nThe Sheet: ' + main.getUrl() + '\n\nThis summary is private and is not shown on the website.', { name: 'Rotary 3110 website' });
+  return to;
+}
+
+function sendWeeklySummaryNow() {
+  var to = weeklySummary();
+  try { SpreadsheetApp.getUi().alert('The weekly summary was sent to ' + to + '.'); } catch (e) { /* editor */ }
 }

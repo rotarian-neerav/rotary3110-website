@@ -25,12 +25,12 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 
 1. **officers**: add the new year's office bearers with the new `rotary_year`. Leave last year's rows.
 2. **functionaries**: add the new year's teams and committees with the new `rotary_year`. Last year's teams stay visible under "Past years".
-3. **settings → current_rotary_year**: set the new year (e.g. `2027-28`).
+3. **Rotary → Administrator → Start new Rotary year…** (after steps 1 and 2): it moves **settings → current_rotary_year** on by one year, adds the governor who has just finished to **past_governors**, runs the role check and the form lists, asks for a rebuild, and lists what is left (steps 4, 7 and 8). It refuses while the new year has no office bearers or team rows.
 4. **clubs**: update member counts; mark closed clubs `inactive` (never delete them); add new clubs.
 5. **Members who moved clubs** (private Sheet): in **club_history**, put an end date on the old club row and add a new row for the new club. Change `club_id` in **members_master**.
 6. **Rotary → Check roles and member IDs**: fix anything in the **role_checks** tab, so each person's new roles join their member card. Last year's roles stay on the cards under last year.
 7. **campaigns**: add the new year's district campaigns (see the moderator guide). Last year's campaign pages stay, under last year.
-8. **past_governors**: add the governor who has just finished. **profiles**: add the new District Governor (the newest row is shown). **functionaries**: fill in `ag_clubs` for the new Assistant Governors.
+8. **past_governors**: check the governor who has just finished was added (step 3 does it). **profiles**: add the new District Governor (the newest row is shown). **functionaries**: fill in `ag_clubs` for the new Assistant Governors.
 9. **Rotary → Update form lists** (this also renews each club's own form link), then **Rotary → Rebuild site now**.
 
 ## Launch checklist (from the brief, section 12)
@@ -38,7 +38,7 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 | Item | Who | Status |
 |---|---|---|
 | Named owner for the yearly update, with a backup | District | Open |
-| Moderators: fill in the **moderators** tab (types Content, Members, Club engagement, District office, Administrator), set `sheet_access` TRUE only for those who want the Sheet (the moderation desk needs none), then **Administrator → Apply moderators**; repeat whenever a moderator changes | District | Placeholders in the Sheet (18 Oct) |
+| Moderators: fill in the **moderators** tab (types Content, Members, Club engagement, District office, Administrator), set `sheet_access` TRUE only for those who want the Sheet (the moderation desk needs none), then **Administrator → Apply moderators**; repeat whenever a moderator changes | District | Done (filled and applied by 16 Nov 2026) |
 | Practice round: **Administrator → Practice round: start…**; each moderator works through their practice items (guide at `…/desk/guide/`); check **Practice round: report**, then **remove practice items** | Administrator + moderators | Installed (19 Oct): the Administrator tries it first, then the moderators once the tab has their real emails |
 | Real Rotary club IDs | District | Done (Rotary International export, 30 Oct 2026) |
 | Rotary member IDs for office bearers and district team members | District | Done for 2024-25 (30 Oct 2026) |

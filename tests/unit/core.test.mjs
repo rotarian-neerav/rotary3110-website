@@ -172,3 +172,10 @@ test('errors from the web app: first line only, long IDs hidden', () => {
   assert.equal(core.Core_safeError('Argument too large: value'), 'Argument too large: value');
   assert.match(core.Core_safeError(new Error('add the script property PRIVATE_SHEET_ID (Apps Script → Project Settings → Script properties)')), /PRIVATE_SHEET_ID/, 'our own messages stay readable');
 });
+
+test('the next Rotary year, and counting sample rows', () => {
+  assert.equal(core.Core_nextRotaryYear('2024-25'), '2025-26');
+  assert.equal(core.Core_nextRotaryYear('2099-00'), '2100-01');
+  assert.equal(core.Core_nextRotaryYear('2024'), '');
+  assert.equal(core.Core_sampleRows({ settings: [{ key: 'a' }], clubs: [{ is_sample: true }, { is_sample: 'TRUE' }, {}], members: [{ is_sample: false }] }), 2);
+});

@@ -14,6 +14,10 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const file = process.argv[2] ? resolve(process.argv[2]) : resolve(ROOT, '.cache/public-data.json');
 const data = JSON.parse(readFileSync(file, 'utf8'));
 const errors = [...core.Core_validatePublic(data)];
+// the public site never shows sample rows: someone pressed "Load sample data" in the real Sheet
+if (process.env.SAMPLE_DATA === 'false' && data.sample_rows > 0) {
+  errors.push(`${data.sample_rows} sample row(s) came from the Sheet. Remove them with Rotary → Sample data → Clear all sample data…, then Rebuild site now.`);
+}
 
 if (errors.length) {
   console.error(`PRIVACY CHECK FAILED – the website was not built. ${errors.length} problem(s):`);

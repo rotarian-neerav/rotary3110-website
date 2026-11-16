@@ -219,6 +219,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
   let activeSheet = null;
   let activeUser = 'moderator.a@example.com';
   let formSeq = 0;
+  let copySeq = 0;
   const files = new Map(); // drive id -> { name, bytes }
   const sharing = new Map();
   const fetched = [];
@@ -241,14 +242,17 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
     getId: () => id,
     getName: () => name,
     getFiles: () => {
-      const list = [...files.entries()].filter(([, f]) => f.folder === id).map(([fid, f]) => ({ getId: () => fid, getName: () => f.name }));
+      const list = [...files.entries()].filter(([, f]) => f.folder === id).map(([fid, f]) => ({ getId: () => fid, getName: () => f.name,
+        setTrashed: () => { trashed.push(fid); files.delete(fid); } }));
       return { hasNext: () => list.length > 0, next: () => list.shift() };
     },
     getFoldersByName: (n) => {
-      const found = n === 'MemberPhotos' && sharing.has('folder:MemberPhotos') ? [folder('PHOTOS', 'MemberPhotos')] : [];
+      const found = n === 'MemberPhotos' ? (sharing.has('folder:MemberPhotos') ? [folder('PHOTOS', 'MemberPhotos')] : [])
+        : sharing.has('folder:' + n) ? [folder('FOLDER-' + n, n)] : [];
       return { hasNext: () => found.length > 0, next: () => found.shift() };
     },
-    createFolder: (n) => { sharing.set('folder:' + n, 'PRIVATE'); return folder('PHOTOS', n); },
+    // a new folder inherits the parent folder's sharing (here: viewable by link, so the script must restrict it)
+    createFolder: (n) => { sharing.set('folder:' + n, 'PRIVATE'); if (n !== 'MemberPhotos') sharing.set('FOLDER-' + n, 'ANYONE_WITH_LINK'); return folder(n === 'MemberPhotos' ? 'PHOTOS' : 'FOLDER-' + n, n); },
     getSharingAccess: () => sharing.get(id) || 'PRIVATE',
     setSharing: (a) => sharing.set(id, a),
   });
@@ -333,6 +337,8 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
           return { hasNext: () => !done, next: () => { done = true; return where === 'ROOT' ? folder('ROOT', 'My Drive') : folder(where, '3110Website'); } };
         },
         moveTo: (f) => moved.set(id, f.getId()),
+        // like Drive: the copy belongs to whoever runs the script and does not take the original's sharing
+        makeCopy: (name, f) => { const cid = 'COPY' + (++copySeq); files.set(cid, { name, folder: f.getId() }); return { getId: () => cid, getName: () => name }; },
         getOwner: () => ({ getEmail: () => 'rotarian.neerav@gmail.com' }),
         getName: () => (files.get(id)?.name || id),
         getSharingAccess: () => sharing.get(id) || 'ANYONE_WITH_LINK',

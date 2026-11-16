@@ -693,6 +693,23 @@ function Core_bulletinMessage(b, siteUrl) {
 /* Members and couples: private master -> public tabs                  */
 /* ------------------------------------------------------------------ */
 
+/** How many rows of the given tabs are marked is_sample (settings and lists have no such rows). */
+function Core_sampleRows(tabs) {
+  var n = 0;
+  Object.keys(tabs || {}).forEach(function (k) {
+    if (Array.isArray(tabs[k])) tabs[k].forEach(function (r) { if (r && Core_isTrue(r.is_sample)) n++; });
+  });
+  return n;
+}
+
+/** The Rotary year after the given one: "2024-25" -> "2025-26", "2099-00" -> "2100-01". Empty if not a Rotary year. */
+function Core_nextRotaryYear(year) {
+  var m = /^(\d{4})-(\d{2})$/.exec(Core_str(year));
+  if (!m) return '';
+  var start = Number(m[1]) + 1;
+  return start + '-' + String(start + 1).slice(-2);
+}
+
 /**
  * What the website shows about one members_master row once its listing is approved: the directory card, the
  * WhatsApp button, the photo, the birthday greeting. Sample members never get a real WhatsApp link (the site shows
@@ -1267,6 +1284,8 @@ function Core_buildPublicData(tabs, nowIso, options) {
     skipped_activities: skipped,
     skipped_items: skippedItems,
     duplicate_ids: duplicates,
+    // rows marked is_sample that reached the data link: a public build stops if there are any (Release B, 16 Nov)
+    sample_rows: Core_sampleRows(tabs),
   };
 }
 
@@ -1567,7 +1586,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     Core_isTrue: Core_isTrue, Core_isoDate: Core_isoDate, Core_dayMonth: Core_dayMonth, Core_rows: Core_rows,
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
-    Core_memberShows: Core_memberShows, Core_memberCheckDue: Core_memberCheckDue, Core_memberCheckEmail: Core_memberCheckEmail,
+    Core_memberShows: Core_memberShows, Core_sampleRows: Core_sampleRows, Core_nextRotaryYear: Core_nextRotaryYear, Core_memberCheckDue: Core_memberCheckDue, Core_memberCheckEmail: Core_memberCheckEmail,
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
     Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,

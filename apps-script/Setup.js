@@ -138,6 +138,7 @@ var DEFAULT_SETTINGS = [
   ['form_contact_url', '', 'Filled in by setup; shown inside the website\'s Contact page'],
   ['contact_email', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
+  ['last_backup_at', '', 'Filled in by the weekly backup (Sunday 3 am); copies are in the private Backups folder next to the Sheets'],
   ['summary_emails', '', 'The weekly summary (Monday 8 am) goes here. Blank: the district account that owns the Sheet'],
   ['not_posting_emails', 'not-posting@example.com', 'Older setting (a dummy address): used only while the moderators tab names no Club engagement moderator'],
 ];
@@ -278,6 +279,14 @@ function installTriggers_(report) {
   if (!existing.some(function (e) { return e.indexOf('notPostingReport|') === 0; })) {
     ScriptApp.newTrigger('notPostingReport').timeBased().onMonthDay(1).atHour(9).inTimezone('Asia/Kolkata').create();
     report.push('Scheduled the monthly clubs-not-posting email (1st of the month, 9 am)');
+  }
+  if (!existing.some(function (e) { return e.indexOf('weeklyBackup|') === 0; })) {
+    ScriptApp.newTrigger('weeklyBackup').timeBased().onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(3).inTimezone('Asia/Kolkata').create();
+    report.push('Scheduled the weekly backup of both Sheets (Sunday 3 am)');
+  }
+  if (!existing.some(function (e) { return e.indexOf('checkRebuild|') === 0; })) {
+    ScriptApp.newTrigger('checkRebuild').timeBased().everyHours(2).create();
+    report.push('Scheduled the check for a rebuild that did not happen (every 2 hours)');
   }
   if (!existing.some(function (e) { return e.indexOf('weeklySummary|') === 0; })) {
     ScriptApp.newTrigger('weeklySummary').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).inTimezone('Asia/Kolkata').create();

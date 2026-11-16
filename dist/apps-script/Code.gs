@@ -977,6 +977,23 @@ function Core_bulletinMessage(b, siteUrl) {
 /* Members and couples: private master -> public tabs                  */
 /* ------------------------------------------------------------------ */
 
+/** How many rows of the given tabs are marked is_sample (settings and lists have no such rows). */
+function Core_sampleRows(tabs) {
+  var n = 0;
+  Object.keys(tabs || {}).forEach(function (k) {
+    if (Array.isArray(tabs[k])) tabs[k].forEach(function (r) { if (r && Core_isTrue(r.is_sample)) n++; });
+  });
+  return n;
+}
+
+/** The Rotary year after the given one: "2024-25" -> "2025-26", "2099-00" -> "2100-01". Empty if not a Rotary year. */
+function Core_nextRotaryYear(year) {
+  var m = /^(\d{4})-(\d{2})$/.exec(Core_str(year));
+  if (!m) return '';
+  var start = Number(m[1]) + 1;
+  return start + '-' + String(start + 1).slice(-2);
+}
+
 /**
  * What the website shows about one members_master row once its listing is approved: the directory card, the
  * WhatsApp button, the photo, the birthday greeting. Sample members never get a real WhatsApp link (the site shows
@@ -1551,6 +1568,8 @@ function Core_buildPublicData(tabs, nowIso, options) {
     skipped_activities: skipped,
     skipped_items: skippedItems,
     duplicate_ids: duplicates,
+    // rows marked is_sample that reached the data link: a public build stops if there are any (Release B, 16 Nov)
+    sample_rows: Core_sampleRows(tabs),
   };
 }
 
@@ -1851,7 +1870,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     Core_isTrue: Core_isTrue, Core_isoDate: Core_isoDate, Core_dayMonth: Core_dayMonth, Core_rows: Core_rows,
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
-    Core_memberShows: Core_memberShows, Core_memberCheckDue: Core_memberCheckDue, Core_memberCheckEmail: Core_memberCheckEmail,
+    Core_memberShows: Core_memberShows, Core_sampleRows: Core_sampleRows, Core_nextRotaryYear: Core_nextRotaryYear, Core_memberCheckDue: Core_memberCheckDue, Core_memberCheckEmail: Core_memberCheckEmail,
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
     Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
@@ -2012,6 +2031,7 @@ var DEFAULT_SETTINGS = [
   ['form_contact_url', '', 'Filled in by setup; shown inside the website\'s Contact page'],
   ['contact_email', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
+  ['last_backup_at', '', 'Filled in by the weekly backup (Sunday 3 am); copies are in the private Backups folder next to the Sheets'],
   ['summary_emails', '', 'The weekly summary (Monday 8 am) goes here. Blank: the district account that owns the Sheet'],
   ['not_posting_emails', 'not-posting@example.com', 'Older setting (a dummy address): used only while the moderators tab names no Club engagement moderator'],
 ];
@@ -2152,6 +2172,14 @@ function installTriggers_(report) {
   if (!existing.some(function (e) { return e.indexOf('notPostingReport|') === 0; })) {
     ScriptApp.newTrigger('notPostingReport').timeBased().onMonthDay(1).atHour(9).inTimezone('Asia/Kolkata').create();
     report.push('Scheduled the monthly clubs-not-posting email (1st of the month, 9 am)');
+  }
+  if (!existing.some(function (e) { return e.indexOf('weeklyBackup|') === 0; })) {
+    ScriptApp.newTrigger('weeklyBackup').timeBased().onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(3).inTimezone('Asia/Kolkata').create();
+    report.push('Scheduled the weekly backup of both Sheets (Sunday 3 am)');
+  }
+  if (!existing.some(function (e) { return e.indexOf('checkRebuild|') === 0; })) {
+    ScriptApp.newTrigger('checkRebuild').timeBased().everyHours(2).create();
+    report.push('Scheduled the check for a rebuild that did not happen (every 2 hours)');
   }
   if (!existing.some(function (e) { return e.indexOf('weeklySummary|') === 0; })) {
     ScriptApp.newTrigger('weeklySummary').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).inTimezone('Asia/Kolkata').create();
@@ -3087,6 +3115,8 @@ function onOpen() {
       .addItem('Send clubs-not-posting email now', 'sendNotPostingNow')
       .addItem('Send weekly summary now', 'sendWeeklySummaryNow')
       .addItem('Send me a sample July member email', 'sendMemberCheckSample')
+      .addItem('Back up both Sheets now', 'backupNow')
+      .addItem('Start new Rotary year…', 'startNewRotaryYear')
       .addItem('Practice round: start…', 'startPractice')
       .addItem('Practice round: report', 'practiceReport')
       .addItem('Practice round: remove practice items…', 'removePractice')
@@ -4971,6 +5001,116 @@ function sendWeeklySummaryNow() {
   try { SpreadsheetApp.getUi().alert('The weekly summary was sent to ' + to + '.'); } catch (e) { /* editor */ }
 }
 
+/* ---------- Weekly backup of both Sheets (Release B) ---------- */
+
+var BACKUP_FOLDER_NAME = 'Backups';
+var BACKUP_WEEKS = 8;
+
+/**
+ * Sunday 3 am: a copy of the main Sheet and of the private members Sheet, in a private "Backups" folder next to the
+ * Sheets; the last 8 weeks are kept. A copy of a Sheet does not take its sharing, so only the district account can
+ * open the copies. To restore: open a copy and copy the rows back, or File → Make a copy of it.
+ */
+function weeklyBackup(today) {
+  var day = today || today_();
+  var parents = DriveApp.getFileById(mainSs_().getId()).getParents();
+  if (!parents.hasNext()) throw new Error('The main Sheet is not in a folder');
+  var parent = parents.next();
+  var it = parent.getFoldersByName(BACKUP_FOLDER_NAME);
+  var folder = it.hasNext() ? it.next() : parent.createFolder(BACKUP_FOLDER_NAME);
+  folder.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
+  var made = [];
+  [mainSs_(), privateSs_()].forEach(function (ss) {
+    var name = day + ' – ' + ss.getName();
+    retry_(function () { DriveApp.getFileById(ss.getId()).makeCopy(name, folder); });
+    made.push(name);
+  });
+  // keep the newest 8 weeks: names start with the date, so they sort oldest first
+  var files = [];
+  var list = folder.getFiles();
+  while (list.hasNext()) files.push(list.next());
+  files.sort(function (a, b) { return b.getName().localeCompare(a.getName()); });
+  var removed = 0;
+  files.slice(BACKUP_WEEKS * 2).forEach(function (f) { f.setTrashed(true); removed++; });
+  setSetting_('last_backup_at', nowIso_());
+  return { made: made, removed: removed };
+}
+
+function backupNow() {
+  var r = weeklyBackup();
+  try {
+    SpreadsheetApp.getUi().alert('Backed up to the private "' + BACKUP_FOLDER_NAME + '" folder next to the Sheets:\n' + r.made.join('\n') +
+      (r.removed ? '\n\nRemoved ' + r.removed + ' copies older than ' + BACKUP_WEEKS + ' weeks.' : ''));
+  } catch (e) { /* editor */ }
+}
+
+/* ---------- A rebuild that did not happen (Release B) ---------- */
+
+/**
+ * Every 2 hours: if "Rebuild site now" was pressed more than 3 hours ago and the website has not been built since,
+ * one email to the owner (summary_emails, or the district account), so a stuck build is noticed the same day.
+ */
+function checkRebuild() {
+  var s = settings_();
+  var asked = Core_isoTimestamp(s.rebuild_requested_at);
+  if (!asked || Date.now() - new Date(asked).getTime() < 3 * 3600000) return 'nothing to check';
+  var props = props_();
+  if (props.getProperty('REBUILD_ALERTED') === asked) return 'already told';
+  var built = '';
+  try {
+    built = Core_isoTimestamp(JSON.parse(UrlFetchApp.fetch(Core_str(s.site_url).replace(/\/?$/, '/') + 'build-info.json', { muteHttpExceptions: true }).getContentText()).generated_at);
+  } catch (e) { built = ''; }
+  if (built && built >= asked) return 'built';
+  var to = Core_list(s.summary_emails).join(',') || Session.getEffectiveUser().getEmail();
+  MailApp.sendEmail(to, 'Rotary 3110 website: a rebuild has not happened', '"Rebuild site now" was pressed on ' + asked.slice(0, 16).replace('T', ' at ') +
+    ' UTC, more than 3 hours ago, but the website ' + (built ? 'was last built on ' + built.slice(0, 16).replace('T', ' at ') + ' UTC' : 'could not be checked') + '.\n\n' +
+    'What to do: open the GitHub repository → Actions. If the latest run failed, its log says why. If nothing ran, press "Run workflow" there.\n\n' +
+    'You get this email once for each rebuild request.', { name: 'Rotary 3110 website' });
+  props.setProperty('REBUILD_ALERTED', asked);
+  return 'told ' + to;
+}
+
+/* ---------- Start a new Rotary year (Release B) ---------- */
+
+/**
+ * Administrator → Start new Rotary year…: moves current_rotary_year on by one year once the new office bearers and
+ * district team are in the officers and functionaries tabs. Last year's rows stay, so the website shows them under
+ * past years. The outgoing District Governor is added to past_governors. Then the role check, the form lists and a
+ * rebuild run, and the owner is told what is still to do by hand.
+ */
+function startNewRotaryYear() {
+  var ui = SpreadsheetApp.getUi();
+  var main = mainSs_();
+  var cur = Core_str(settings_().current_rotary_year);
+  var next = Core_nextRotaryYear(cur);
+  if (!next) { ui.alert('The setting current_rotary_year ("' + cur + '") is not a Rotary year such as 2024-25. Correct it first.'); return ''; }
+  var officers = readTab_(main, 'officers').filter(function (r) { return Core_str(r.rotary_year) === next; }).length;
+  var team = readTab_(main, 'functionaries').filter(function (r) { return Core_str(r.rotary_year) === next; });
+  if (!officers && !team.length) {
+    ui.alert('Nothing for ' + next + ' yet', 'The officers and functionaries tabs have no rows for ' + next + '. Add the new office bearers and district team first ' +
+      '(see "Every July" in the yearly update guide), then use this again.', ui.ButtonSet.OK);
+    return '';
+  }
+  if (ui.alert('Start Rotary year ' + next + '?', 'Found for ' + next + ': ' + officers + ' club office bearer row(s) and ' + team.length + ' district team row(s).\n\n' +
+    'The website will show ' + next + ' as the current year after the next build; ' + cur + ' stays on the site under past years.', ui.ButtonSet.YES_NO) !== ui.Button.YES) return '';
+  setSetting_('current_rotary_year', next);
+  var done = ['current_rotary_year set to ' + next];
+  var dg = readTab_(main, 'functionaries').filter(function (r) { return Core_str(r.rotary_year) === cur && Core_str(r.role) === 'District Governor'; })[0];
+  var past = readTab_(main, 'past_governors');
+  if (dg && !past.some(function (p) { return Core_str(p.rotary_year) === cur; })) {
+    appendRow_(main, 'past_governors', { rotary_year: cur, name: Core_str(dg.name), club: clubNameById_(dg.club_id), member_id: Core_str(dg.member_id) });
+    done.push(Core_str(dg.name) + ' added to past_governors for ' + cur);
+  }
+  var problems = checkRoles(true);
+  try { updateFormLists(true); } catch (e) { done.push('Form lists not updated: ' + e.message); }
+  requestRebuild();
+  ui.alert('Rotary year ' + next + ' started', done.join('\n') + '\n\nStill to do by hand:\n' +
+    '• profiles: the new District Governor (and photo)\n• campaigns for ' + next + '\n• clubs: member counts; closed clubs set to inactive\n' +
+    '• the new Assistant Governors\' clubs (ag_clubs)\n' + (problems ? '• ' + problems + ' role(s) to check in the role_checks tab\n' : '') +
+    '\nThe website updates within about 30 minutes.', ui.ButtonSet.OK);
+  return next;
+}
+
 
 // ===== Sample.js =====
 /**
@@ -4978,7 +5118,24 @@ function sendWeeklySummaryNow() {
  * "Clear all sample data" is the single clean-up command before real data is loaded.
  */
 
+/**
+ * The Sheet feeds the public website once it was reset for production or holds the real member list (a test Sheet
+ * has only a handful of real rows). Sample rows loaded then would go public, so loading is refused.
+ */
+function holdsRealData_() {
+  if (Core_str(props_().getProperty('PRODUCTION_RESET_AT'))) return 'it was reset for production';
+  var real = readTab_(privateSs_(), 'members_master').filter(function (m) { return !Core_isTrue(m.is_sample); }).length;
+  return real >= 50 ? 'it holds ' + real + ' real members' : '';
+}
+
 function loadSampleData(silent) {
+  var real = holdsRealData_();
+  if (real) {
+    var msg = 'Sample data was not loaded: this Sheet feeds the public website (' + real + '), so dummy rows would appear there.';
+    Logger.log(msg);
+    if (silent !== true) { try { SpreadsheetApp.getUi().alert(msg); } catch (e) { /* editor */ } }
+    return [];
+  }
   var res = UrlFetchApp.fetch(CONFIG.SAMPLE_URL, { muteHttpExceptions: true });
   if (res.getResponseCode() !== 200) throw new Error('Could not download the sample data (' + res.getResponseCode() + ') from ' + CONFIG.SAMPLE_URL);
   var sample = JSON.parse(res.getContentText());

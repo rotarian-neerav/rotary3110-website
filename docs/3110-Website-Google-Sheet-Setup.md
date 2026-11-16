@@ -133,6 +133,21 @@ sample July member email**. Paste `Code.gs` (`Sidebar.html` is unchanged), **Dep
 version**, then **Upgrade Sheet (new tabs, columns, questions)** once: it adds the private `member_check_sent_at`
 column to **members_master**, the `summary_emails` setting and the Monday trigger.
 
+The **16 November (Release B)** version adds the safety pieces for the public site:
+- **Load sample data** refuses once the Sheet feeds the public website (reset for production, or 50 or more real
+  members), and the data link now counts sample rows: a public build stops if any arrive, saying to use
+  **Rotary → Sample data → Clear all sample data…**;
+- **a weekly backup** (Sunday 3 am) of both Sheets into a private **Backups** folder next to them, keeping 8 weeks;
+  **Administrator → Back up both Sheets now**; the setting `last_backup_at` shows when it last ran;
+- **a missed-rebuild email**: every 2 hours the script checks whether **Rebuild site now** was pressed more than 3
+  hours ago without the website being built since, and if so emails the owner once;
+- **Administrator → Start new Rotary year…** for July: once the new office bearers and district team are in the
+  officers and functionaries tabs, it moves `current_rotary_year` on, adds the outgoing District Governor to
+  past_governors, runs the role check and the form lists, asks for a rebuild and lists what is left to do by hand.
+
+Paste `Code.gs`, **Deploy → Manage deployments → edit → New version**, then **Upgrade Sheet** once (it adds the
+`last_backup_at` setting and the Sunday and 2-hourly triggers).
+
 ## 6. Name the moderators
 
 1. Open the **moderators** tab (main Sheet). Each row is one person in one type: **Content**, **Members**, **Club engagement**, **District office** or **Administrator**. Put the real name and Google email over a placeholder, and keep `active` = **TRUE**. Add rows for more people (one person can have several rows).

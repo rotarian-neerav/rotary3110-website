@@ -3,7 +3,24 @@
  * "Clear all sample data" is the single clean-up command before real data is loaded.
  */
 
+/**
+ * The Sheet feeds the public website once it was reset for production or holds the real member list (a test Sheet
+ * has only a handful of real rows). Sample rows loaded then would go public, so loading is refused.
+ */
+function holdsRealData_() {
+  if (Core_str(props_().getProperty('PRODUCTION_RESET_AT'))) return 'it was reset for production';
+  var real = readTab_(privateSs_(), 'members_master').filter(function (m) { return !Core_isTrue(m.is_sample); }).length;
+  return real >= 50 ? 'it holds ' + real + ' real members' : '';
+}
+
 function loadSampleData(silent) {
+  var real = holdsRealData_();
+  if (real) {
+    var msg = 'Sample data was not loaded: this Sheet feeds the public website (' + real + '), so dummy rows would appear there.';
+    Logger.log(msg);
+    if (silent !== true) { try { SpreadsheetApp.getUi().alert(msg); } catch (e) { /* editor */ } }
+    return [];
+  }
   var res = UrlFetchApp.fetch(CONFIG.SAMPLE_URL, { muteHttpExceptions: true });
   if (res.getResponseCode() !== 200) throw new Error('Could not download the sample data (' + res.getResponseCode() + ') from ' + CONFIG.SAMPLE_URL);
   var sample = JSON.parse(res.getContentText());

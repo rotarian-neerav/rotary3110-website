@@ -14,7 +14,8 @@ const dir = mkdtempSync(join(tmpdir(), 'rotary-guard-'));
 function runGuard(data) {
   const file = join(dir, `data-${Math.random().toString(36).slice(2)}.json`);
   writeFileSync(file, JSON.stringify(data));
-  return spawnSync(process.execPath, [script, file], { encoding: 'utf8' });
+  // the build runs every step with SAMPLE_DATA=false; these checks are about the privacy rules, on the sample
+  return spawnSync(process.execPath, [script, file], { encoding: 'utf8', env: { ...process.env, SAMPLE_DATA: 'true' } });
 }
 const fresh = () => plain(core.Core_buildPublicData(sample.main, '2026-10-13T00:00:00Z'));
 
@@ -45,4 +46,16 @@ test('guard stops the build on a phone number anywhere', () => {
   const r = runGuard(d);
   assert.equal(r.status, 1);
   assert.match(r.stderr, /phone number/);
+});
+
+test('a public build (SAMPLE_DATA=false) stops when sample rows came from the Sheet; a test build does not', () => {
+  const file = join(dir, 'with-sample.json');
+  writeFileSync(file, JSON.stringify({ ...fresh(), sample_rows: 3 }));
+  const run = (env) => spawnSync(process.execPath, [script, file], { encoding: 'utf8', env: { ...process.env, ...env } });
+  const pub = run({ SAMPLE_DATA: 'false' });
+  assert.equal(pub.status, 1);
+  assert.match(pub.stderr, /3 sample row\(s\) came from the Sheet/);
+  assert.equal(run({ SAMPLE_DATA: 'true' }).status, 0);
+  writeFileSync(file, JSON.stringify({ ...fresh(), sample_rows: 0 }));
+  assert.equal(run({ SAMPLE_DATA: 'false' }).status, 0);
 });

@@ -1067,6 +1067,72 @@ test('weekly summary: Monday 8 am to the owner: last build, a rebuild not yet ru
   env.run('rejectRequest', 'removal', env.priv.rows('removal_requests').at(-1).id, 'test');
 });
 
+/* ---------- Release B (16 Nov): sample-data lock, weekly backup, missed rebuild, new Rotary year ---------- */
+
+test('a Sheet with the real member list refuses to load sample data, which would go public', () => {
+  for (let i = 0; i < 50; i++) env.run('appendRow_', env.priv, 'members_master', { member_id: String(8880000 + i), name: 'Real ' + i, is_rotarian: true, status: 'active' });
+  const before = env.main.rows('activities').length;
+  assert.deepEqual(plain(env.run('loadSampleData')), []);
+  assert.match(env.alerts.at(-1), /not loaded: this Sheet feeds the public website \(it holds \d+ real members\)/);
+  assert.equal(env.main.rows('activities').length, before);
+  const sh = env.priv.getSheetByName('members_master');
+  sh.data = sh.data.filter((r) => !/^888\d{4}$/.test(String(r[0])));
+  assert.equal(data().sample_rows > 0, true, 'the data link counts sample rows, for the build to refuse them');
+});
+
+test('weekly backup: both Sheets copied into a private Backups folder next to them; the newest 8 weeks kept', () => {
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'weeklyBackup').length, 1, 'scheduled by setup');
+  const r = env.run('weeklyBackup', '2026-11-22');
+  assert.deepEqual(plain(r.made), ['2026-11-22 – 3110Website', '2026-11-22 – Private sheet for Full Members List']);
+  assert.equal(env.sharing.get('FOLDER-Backups'), 'PRIVATE', 'the folder is made private even if the parent is shared');
+  for (let w = 1; w <= 9; w++) env.run('weeklyBackup', core.Core_addDays('2026-11-22', 7 * w));
+  const left = [...env.files.values()].filter((f) => f.folder === 'FOLDER-Backups').map((f) => f.name).sort();
+  assert.equal(left.length, 16);
+  assert.ok(left[0].startsWith('2026-12-06'), 'the two oldest weeks were removed: ' + left[0]);
+  assert.ok(settingsMap().last_backup_at, 'when the last backup ran is shown in settings');
+});
+
+test('a rebuild that has not happened after 3 hours: one email to the owner; none once the site is built', () => {
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'checkRebuild').length, 1, 'scheduled by setup');
+  const asked = new Date(Date.now() - 4 * 3600000).toISOString();
+  env.run('setSetting_', 'rebuild_requested_at', asked);
+  env.pages.buildInfo = { generated_at: new Date(Date.now() - 5 * 3600000).toISOString() };
+  const before = env.mails.length;
+  assert.match(env.run('checkRebuild'), /^told /);
+  assert.match(env.mails.at(-1).subject, /a rebuild has not happened/);
+  assert.match(env.mails.at(-1).body, /Actions/);
+  assert.equal(env.run('checkRebuild'), 'already told');
+  env.run('setSetting_', 'rebuild_requested_at', new Date(Date.now() - 3.5 * 3600000).toISOString());
+  env.pages.buildInfo = { generated_at: new Date().toISOString() };
+  assert.equal(env.run('checkRebuild'), 'built');
+  env.run('setSetting_', 'rebuild_requested_at', new Date().toISOString());
+  assert.equal(env.run('checkRebuild'), 'nothing to check', 'a fresh request is given time');
+  assert.equal(env.mails.length - before, 1);
+});
+
+test('Start new Rotary year: only once the new team is in; moves the year on, adds the outgoing Governor to past governors', () => {
+  const year = settingsMap().current_rotary_year;
+  const next = core.Core_nextRotaryYear(year);
+  assert.equal(env.run('startNewRotaryYear'), '', 'nothing for the new year yet');
+  assert.match(env.alerts.at(-1), new RegExp('Nothing for ' + next));
+  assert.equal(settingsMap().current_rotary_year, year);
+  const club = env.main.rows('clubs')[0];
+  env.run('appendRow_', env.main, 'officers', { rotary_year: next, club_id: club.club_id, name: 'Rtn New President', role: 'President' });
+  const dg = env.main.rows('functionaries').find((r) => r.rotary_year === year && r.role === 'District Governor');
+  const pastBefore = env.main.rows('past_governors').length;
+  const hadPast = env.main.rows('past_governors').some((p) => p.rotary_year === year);
+  assert.equal(env.run('startNewRotaryYear'), next);
+  assert.equal(settingsMap().current_rotary_year, next);
+  if (dg && !hadPast) assert.equal(env.main.rows('past_governors').at(-1).name, dg.name);
+  assert.match(env.alerts.at(-1), /Still to do by hand/);
+  // put the sample back as it was for the tests that follow
+  env.run('setSetting_', 'current_rotary_year', year);
+  const off = env.main.getSheetByName('officers');
+  off.data = off.data.filter((r) => !r.includes('Rtn New President'));
+  const pg = env.main.getSheetByName('past_governors');
+  pg.data = pg.data.slice(0, pastBefore + 1);
+});
+
 /* ---------- real data (29 Oct): gender column; Reset for production, once ---------- */
 
 test('Reset for production: every data row goes from both Sheets, form tabs included; settings, lists, moderators and clubs stay; only once', () => {

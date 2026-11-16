@@ -333,3 +333,13 @@ test('until production every page says the data is sample data', () => {
   if (!sample && process.env.SAMPLE_DATA !== 'true') return assert.equal(banner, null);
   assert.match(banner.text, /everything on this site is sample data/);
 });
+
+test('"See all" links and the month box link are outlined buttons, easy to spot and to tap (16 Nov)', () => {
+  const home = dom('/');
+  const links = home.querySelectorAll('.section-head > a');
+  assert.ok(links.length >= 1, 'the home page has "See all" links');
+  const month = home.querySelectorAll('.month-card a');
+  assert.ok(month.length >= 12 && month.every((a) => a.classList.contains('more')), 'each month card links with a button');
+  const css = read(join(SITE, 'assets/css/site.css'));
+  assert.match(css, /\.section-head > a, a\.more \{[^}]*border: 2px solid var\(--royal\)[^}]*border-radius: 999px/);
+});

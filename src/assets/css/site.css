@@ -101,6 +101,10 @@ a.dg-card:hover .dg-name, a.dg-card:focus-visible .dg-name { text-decoration: un
 
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .section-head h2 { margin-top: .6em; }
+/* "See all …" and "go to more" links: outlined buttons, so they are easy to spot and to tap on a phone */
+.section-head > a, a.more { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; min-height: 36px; border: 2px solid var(--royal);
+  border-radius: 999px; color: var(--royal); background: #fff; font-weight: 600; font-size: .9rem; text-decoration: none; white-space: nowrap; }
+.section-head > a:hover, .section-head > a:focus-visible, a.more:hover, a.more:focus-visible { background: var(--royal); color: #fff; }
 
 /* Cards */
 .grid { display: grid; gap: 16px; }

@@ -46,7 +46,8 @@ eleventyComputed:
   <div class="month-card" data-month="{{ m.month }}"{% if m.month != buildMonth %} hidden{% endif %}>
     <p class="meta">{{ t.home.month_prefix }}</p>
     <p class="month-name">{{ m.name }}</p>
-    <p class="small">{{ m.text }} <a href="{{ m.link }}">{{ m.linkText }} →</a></p>
+    <p class="small">{{ m.text }}</p>
+    <p><a class="more" href="{{ m.link }}">{{ m.linkText }} →</a></p>
   </div>
   {%- endfor %}
 </section>

@@ -20,7 +20,7 @@ Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (
 | 7 | §3.7 | District Leadership page: District Governor, College of Governors (PDGs oldest first, DGE and DGN last), District Counsellors, Assistant Governors with their clubs, Governor's Aides, Governor's Office (order since 18 Oct) | `leadership.njk`, `lib/derive.mjs` | S: every Excel person listed, section order; U: order | ✅ |
 | 8 | §3.7 | Teams & Committees page: team leader, committees with chairmen and co-chairmen; "Past years" | `teams.njk`, year switch | S: every Excel person listed; browser | ✅ |
 | 9 | §3.7 | One search over name, team, committee, role, club; a person appears once with all roles | `people-search.js` | browser: PDG Sharat Chandra → 1 person, 4 roles | ✅ |
-| 10 | §3.8 | Professional directory: profession + place search, ~20-word line, optional website, contact only if agreed | `directory.njk`, `directory.js` | S: WhatsApp links only where agreed; browser | ✅ |
+| 10 | §3.8 | Professional directory: profession + place search, ~20-word line, optional website, contact only if agreed; this year's office bearers and district team listed by role (16 Nov 2026) | `directory.njk`, `directory.js`, `lib/derive.mjs` | S: WhatsApp links only where agreed; every role holder listed; no years; browser | ✅ |
 | 11 | §3.8 | Directory listing follows a member who moves club | Listings keyed by member, club looked up at build | U: public members | ✅ |
 | 12 | §3.8 | Member spotlight, chosen by moderators | `spotlights` tab, `spotlight.njk` | browser | ✅ |
 | 13 | §3.8 | Member photos with their own consent, everywhere the person appears; initials otherwise | Core rules + avatars | U: photo only with consent; S: member photos < 40 KB | ✅ |
@@ -56,7 +56,7 @@ Test names refer to `tests/unit/*.test.mjs` (U) and `tests/site/site.test.mjs` (
 | 43 | §12 | Free hosting, accounts under the district | GitHub Pages on rotarian-neerav | Live | ✅ |
 | 44 | §12 | One command clears all sample data | Rotary → Sample data → Clear all sample data | U(sim): clear keeps real rows, site data still valid | 🟡 |
 | 45 | §7 | Weekly public-data backup | Each build keeps a copy of the public data as a download for 90 days (Actions → the run → Artifacts); the Sheet keeps its own version history | Committed to the repository 13 Oct – 1 Nov 2026; since 1 Nov an artifact, so people who withdraw or die do not stay in the public history | ✅ |
-| 46 | §16 | Launch items (moderators, IDs, professions, lawyer, domain, etc.) | `docs/3110-Website-Yearly-Update-and-Launch.md` | – | ⏳ (IDs, lawyer, domain done 11 Nov 2026; moderators and the launch switches left) |
+| 46 | §16 | Launch items (moderators, IDs, professions, lawyer, domain, etc.) | `docs/3110-Website-Yearly-Update-and-Launch.md` | Live site | ✅ Launched 16 Nov 2026 (moderators applied, search engines let in, sample banner off); Search Console deferred |
 
 ### Added in October 2026
 
@@ -165,3 +165,15 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 | L26 | Member photos: members' own uploads on the President Basic Information form, used as consented (decision 109; the old website's photos, decision 108, were dropped), named by member ID in MemberPhotos | `attachFolderPhotos_` | 503 members checked against the private Sheet; live 30 Oct: 503 processed, none skipped, 445 on club pages (58 have no card, decision deferred) | ✅ |
 | L27 | A photo the build cannot read (iPhone HEIC, BMP, damaged file) uses Google Drive's own picture of it; the data link gives that picture only for a photo already public | `scripts/fetch-media.mjs`, `fileFor_` | Live 30 Oct: 7 photos | ✅ |
 | L28 | Security follow-ups (11 Nov): every page says what it may load (content security policy) and sends no page address to other sites (referrer); the desk refuses to work inside another site's frame; club pages describe the club for search engines; desk sessions can all be ended at once; the consent form says the member is emailed; the data link's errors are short, without long IDs; asking for a desk code takes the same time for anyone; phone numbers are caught however they are written (groups, dots, +91 or a leading 0, landlines with an area code) | `base.njk`, `desk.js`, `club.njk`, `deskSignOutAll`, `CONSENT_DESCRIPTION`, `Core_safeError`, `CORE_PHONE_RE` | S: policy and hash on every page, no inline handlers, club data, phone formats in built pages; U: phone formats and figures that are not phones; U(sim): sign-out, consent wording, steady timing; browser: nothing blocked | ✅ |
+
+**16 November: launch and after**
+
+| # | Requirement | Where | Proof | Status |
+|---|---|---|---|---|
+| L29 | Each July every listed member with an email is told what the site shows about them, with the forms to change or remove it; within Google's daily email allowance, once a year | `apps-script/Jobs.js`, `Core.js` | U: July check (season, allowance, once a year, no mobile number) | 🟡 deployed; first run July 2027 |
+| L30 | A weekly summary for the owner every Monday: last build, what went live, waiting items, late removals, unanswered messages, quiet clubs | `apps-script/Jobs.js` | U: summary | 🟡 deployed |
+| L31 | Sample data can never reach the public site: refused in the real Sheet, and a public build stops if sample rows arrive | `apps-script/Sample.js`, `scripts/validate-public.mjs` | U: lock, build guard | ✅ |
+| L32 | Both Sheets backed up every Sunday into a private folder, 8 weeks kept | `apps-script/Jobs.js` | U: backup; live: first backup 16 Nov 2026, both copies private | ✅ |
+| L33 | The owner is emailed when a requested rebuild has not happened within 3 hours | `apps-script/Jobs.js` | U: missed rebuild | 🟡 deployed |
+| L34 | July changeover from the menu: Start new Rotary year (only once the new team is in), outgoing Governor added to Past Governors | `apps-script/Jobs.js` | U: new year | 🟡 deployed; first use July 2027 |
+| L35 | "See all" and other "go to more" links are outlined buttons, easy to spot and tap | `site.css`, templates | S: buttons | ✅ |

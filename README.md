@@ -2,7 +2,7 @@
 
 The district's website: what our clubs achieve. Built from the district Google Sheet, published free on GitHub Pages.
 
-- **Live address:** https://rotary3110.org (since 11 Nov 2026; marked as a test version and hidden from search engines until launch)
+- **Live address:** https://rotary3110.org (connected 11 Nov 2026; public and open to search engines since 16 Nov 2026)
 - **Project brief:** `../3110-Website-Project-Brief.md` (version 4.3)
 - **Guides:** [Google setup](docs/3110-Website-Google-Sheet-Setup.md) · [Moderator guide](docs/3110-Website-Moderator-Guide.md) · [Yearly update and launch](docs/3110-Website-Yearly-Update-and-Launch.md)
 
@@ -59,8 +59,8 @@ Without `DATA_URL` and `DATA_TOKEN` the build uses `sample/sample-data.json`. Wi
 | `SITE_URL` | variable (optional) | e.g. `https://rotary3110.org` once the domain is bought |
 | `PATH_PREFIX` | variable (optional) | `/` once on the domain (default `/rotary3110-website/`) |
 | `CF_BEACON_TOKEN` | variable (optional) | Cloudflare Web Analytics token |
-| `HIDE_FROM_SEARCH` | variable | `true` until launch (default): every page asks search engines to stay away. Set to `false` at launch |
-| `SAMPLE_DATA` | variable | `true` until production (default): the sample-data banner on every page. Set to `false` once the Sheet holds real data |
+| `HIDE_FROM_SEARCH` | variable | `true` by default: every page asks search engines to stay away. Set to `false` at launch (done 16 Nov 2026) |
+| `SAMPLE_DATA` | variable | `true` by default: the sample-data banner on every page. Set to `false` at launch (done 16 Nov 2026); a build with `false` stops if sample rows arrive from the Sheet |
 
 ## Moving to the district domain
 

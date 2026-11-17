@@ -363,3 +363,26 @@ test("the directory lists this year's office bearers and team by role, with no c
   for (const d of dir) if (d.wa || d.sampleContact) assert.ok(listedKeys.has(d.k), `${d.name} has a contact button without asking`);
   assert.equal(new Set(dir.map((d) => d.u).filter(Boolean)).size, dir.filter((d) => d.u).length, 'each person once');
 });
+
+test('links back to the page above are outlined buttons, with no arrow (17 Nov)', () => {
+  const parents = { cities: '/cities/', years: '/years/', activities: '/activities/', events: '/events/', campaigns: '/campaigns/' };
+  let checked = 0;
+  for (const f of htmlFiles) {
+    const parts = relative(SITE, f).split(/[\\/]/);
+    if (parts.length !== 3 || parts[2] !== 'index.html') continue;
+    const up = parents[parts[0]];
+    if (!up || (parts[0] === 'years' && !/^\d{4}-\d{2}$/.test(parts[1]))) continue;
+    const main = parse(read(f)).querySelector('main');
+    if (!main) continue;
+    const back = main.querySelectorAll('a').filter((a) => a.getAttribute('href') === PREFIX + up);
+    assert.ok(back.length >= 1, `${relative(SITE, f)} links back to ${up}`);
+    assert.ok(back.some((a) => a.classList.contains('more')), `${relative(SITE, f)}: the link back to ${up} is a button`);
+    checked++;
+  }
+  for (const f of htmlFiles.filter((x) => /clubs[\\/][^\\/]+[\\/]members[\\/]index\.html$/.test(x))) {
+    assert.ok(parse(read(f)).querySelector('main .more-links.up a.more'), `${relative(SITE, f)}: the link back to the club is a button`);
+    checked++;
+  }
+  assert.ok(checked > 10, `checked ${checked} pages`);
+  for (const f of htmlFiles) assert.ok(!/>←\s/.test(read(f)), `${relative(SITE, f)} still has a ← link`);
+});

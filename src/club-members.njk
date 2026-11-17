@@ -13,7 +13,7 @@ eleventyComputed:
 ---
 {% from "macros.njk" import avatar %}
 <div class="wrap section">
-  <p class="meta"><a href="{{ c.url }}">← {{ c.display_name }}</a></p>
+  <p class="more-links up"><a class="more" href="{{ c.url }}">{{ c.display_name }}</a></p>
   <h1>Members of {{ c.display_name }}</h1>
   <p class="lead">
     {%- if c.member_count and c.member_count >= c.members.length %}{{ c.members.length }} of {{ c.member_count }} members are listed.

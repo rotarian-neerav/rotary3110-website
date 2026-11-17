@@ -12,7 +12,7 @@ eleventyComputed:
 ---
 {% from "macros.njk" import activityCard, campaignCard %}
 <div class="wrap section">
-  <p class="meta"><a href="/years/">{{ t.years.title }}</a></p>
+  <p class="more-links up"><a class="more" href="/years/">{{ t.years.title }}</a></p>
   <h1>Rotary year {{ y.year }}{% if y.current %} <span class="muted">{{ t.years.so_far }}</span>{% endif %}</h1>
   <ul class="stats stats-dark">
     <li><strong>{{ y.activities | number }}</strong> activities</li>

@@ -106,6 +106,8 @@ a.dg-card:hover .dg-name, a.dg-card:focus-visible .dg-name { text-decoration: un
   border-radius: 999px; color: var(--royal); background: #fff; font-weight: 600; font-size: .9rem; text-decoration: none; }
 .section-head > a { white-space: nowrap; }
 .more-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.more-links.up { margin-bottom: 8px; }
+.more-links.up a.more { min-height: 30px; padding: 3px 12px; font-size: .82rem; }
 .section-head > a:hover, .section-head > a:focus-visible, a.more:hover, a.more:focus-visible { background: var(--royal); color: #fff; }
 
 /* Cards */

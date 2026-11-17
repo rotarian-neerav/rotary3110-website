@@ -82,8 +82,8 @@ eleventyComputed:
   <h2>{{ t.activity.similar }}</h2>
   <div class="grid cards">{% for x in m.similar %}{{ activityCard(x, t) }}{% endfor %}</div>
   {%- endif %}
-  <p><a href="/activities/">← All activities</a> · <a href="{{ a.club.url }}">{{ a.club.name }}</a></p>
+  <p class="more-links"><a class="more" href="/activities/">All activities</a><a class="more" href="{{ a.club.url }}">{{ a.club.name }}</a></p>
 </aside>
 {%- else %}
-<p class="wrap"><a href="/activities/">← All activities</a></p>
+<p class="wrap more-links"><a class="more" href="/activities/">All activities</a></p>
 {%- endif %}

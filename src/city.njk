@@ -12,7 +12,7 @@ eleventyComputed:
 ---
 {% from "macros.njk" import activityCard, eventItem, serviceCard %}
 <div class="wrap section">
-  <p class="meta"><a href="/cities/">{{ t.cities.title }}</a></p>
+  <p class="more-links up"><a class="more" href="/cities/">{{ t.cities.title }}</a></p>
   <h1>Rotary in {{ city.name }}</h1>
   <p class="lead">{{ city.clubs.length }} Rotary {{ 'club' if city.clubs.length == 1 else 'clubs' }}{% if city.activityCount %} · {{ city.activityCount }} {{ 'activity' if city.activityCount == 1 else 'activities' }} shared{% endif %}</p>
 

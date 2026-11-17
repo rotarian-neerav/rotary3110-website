@@ -3,6 +3,9 @@ layout: layouts/base.njk
 title: Member spotlight
 description: Each month the moderators tell the story of a Rotary District 3110 member's profession and how they serve through it.
 permalink: /spotlight/
+# kept out of search engines and the sitemap while there is nothing on it
+eleventyComputed:
+  noindex: "{% if not site.has.spotlight %}yes{% endif %}"
 ---
 {% from "macros.njk" import avatar %}
 <div class="wrap section narrow">

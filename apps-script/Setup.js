@@ -124,7 +124,7 @@ var DEFAULT_SETTINGS = [
   ['zones', 'Agra, Bareilly, Kanpur', 'District zones: for the district\'s own use only, never shown on the website'],
   ['professions', '', 'Comma-separated list for the directory; placeholder until the real list is agreed'],
   ['moderator_emails', '', 'Older setting: used only while the moderators tab names no Content moderator'],
-  ['site_url', 'https://rotarian-neerav.github.io/rotary3110-website/', 'Used in emails to people who send activities'],
+  ['site_url', 'https://rotary3110.org/', 'Used in emails to people who send activities'],
   ['form_activity_url', '', 'Filled in by setup'],
   ['form_club_profile_url', '', 'Filled in by setup'],
   ['form_consent_url', '', 'Filled in by setup'],

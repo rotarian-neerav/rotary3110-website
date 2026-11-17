@@ -98,7 +98,6 @@
     "birthday": "Birthday",
     "anniversary": "Wedding anniversary",
     "today": "Today",
-    "empty": "No celebrations this week.",
     "note": "Shown only for members who agreed, with day and month only."
   },
   "directory": {
@@ -111,15 +110,10 @@
     "any_area": "Any area",
     "whatsapp": "WhatsApp",
     "call": "Call",
-    "website": "Website",
-    "results": "members found",
-    "empty": "No members match. Try a wider search.",
-    "sample_contact": "Sample entry – contact buttons are switched off"
+    "website": "Website"
   },
   "people": {
     "search": "Search by name, team, committee, role or club",
-    "results": "people found",
-    "empty": "Nobody matches that search.",
     "past_years": "Past years"
   },
   "footer": {
@@ -206,10 +200,8 @@
     "day": "Meets on",
     "any_day": "Any day",
     "not_given": "Day not given yet",
-    "results": "clubs found",
     "empty": "No club matches. Try another name, city or day.",
     "meets": "Meets",
-    "city_page": "Rotary in",
     "by_day": "Club meetings by day"
   },
   "meetings": {
@@ -260,7 +252,6 @@
     "networking": "Business networking evenings",
     "city_heading": "Rotarian businesses in",
     "on_card": "Business",
-    "more_in_trade": "More in this trade",
     "sample_contact": "Sample entry: the WhatsApp button is switched off"
   },
   "cities": {
@@ -274,7 +265,6 @@
   },
   "about": {
     "title": "About Rotary District 3110",
-    "ri_title": "Rotary International",
     "leaders": "This year's leaders",
     "past_dgs": "Past District Governors",
     "glossary": "Rotary words and abbreviations",

@@ -16,8 +16,9 @@ function onOpen() {
     .addItem('Check roles and member IDs', 'checkRoles')
     .addItem('Update form lists (clubs, areas, professions)', 'updateFormLists')
     .addSeparator()
+    // Load sample data and Reset for production left the menu after launch (17 Nov 2026); both stay in the script
+    // for a test Sheet, run from the script editor
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Sample data')
-      .addItem('Load sample data', 'loadSampleData')
       .addItem('Clear all sample data…', 'clearSampleData'))
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Administrator')
       .addItem('Show data link details', 'showDataLink')
@@ -34,7 +35,6 @@ function onOpen() {
       .addItem('Practice round: start…', 'startPractice')
       .addItem('Practice round: report', 'practiceReport')
       .addItem('Practice round: remove practice items…', 'removePractice')
-      .addItem('Reset for production (once)…', 'resetForProduction')
       .addItem('Run setup again', 'setup'))
     .addToUi();
 }

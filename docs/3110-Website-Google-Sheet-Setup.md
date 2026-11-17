@@ -71,109 +71,19 @@ Paste the new `Code.gs`, save, then **Deploy → Manage deployments → ✏ (edi
 
 Then reload the Sheet and run **Rotary → Administrator → Upgrade Sheet (new tabs, columns, questions)**. It adds anything the new script needs and is safe to run more than once: new tabs and columns (at the end, never moving existing ones), settings, dropdowns, new form questions (added to the existing forms in their place, so the form links stay the same), and timed emails. It shows a list of what it changed.
 
-The October 2026 upgrade adds:
-- the **campaigns** tab; new columns in **clubs**, **club_profile_requests**, **activities** and **events**;
-- settings `campaign_check_above`, `bulletin_start_date` and `bulletin_emails`;
-- questions *Permanent projects*, *Regular services* (club profile form), *District campaign*, *Campaign count*, *Registration closes on* and *Fee* (activity and event form);
-- the bulletin emails on Saturday 6 pm and Sunday 8 am.
+A new version may also need:
+- **`Sidebar.html`** pasted as well, when it changed (the change says so);
+- a **file-upload question added by hand** (section 3): Google does not let a script add one;
+- a **script property** (Project Settings → Script properties) before pasting, when the change says so.
 
-The **Release A** upgrade (17 October 2026) adds:
-- two new forms: **Public service run by a club** (answers in the main Sheet's `public_services` tab) and **Contact Rotary District 3110** (shown inside the website's Contact page; answers in the private Sheet's `contact_messages` tab). Neither needs a photo question. The contact form asks for no Google sign-in, so anyone can write;
-- the tabs **public_services**, **profiles** and **past_governors** (main Sheet) and **contact_messages** (private Sheet); new columns at the end of **clubs** (`meeting_day`, `activity_form_link`), **functionaries** (`ag_clubs`), **activities** (`avenue`, `video_link`, `press_paper`, `press_date`, `press_link`), **events** (`open_to_all`) and **club_profile_requests** (`meeting_day`);
-- settings `form_public_service_url`, `form_contact_url`, `contact_email` (where contact messages are emailed; blank = the moderators), `contact_daily_limit` (20) and `not_posting_emails` (a dummy address until the district names someone);
-- questions *Avenue of Service* (required), *Video link*, three *Covered in the press* questions and *Open to everyone?* (activity and event form), and *Meeting day* (club profile form). The activity form's description now links to the posting guide;
-- each club's own activity-form link with the club already chosen, in the clubs tab's `activity_form_link` column (refreshed with the form lists; never published);
-- the monthly clubs-not-posting email on the 1st at 9 am.
+Each change is described in the commit that made it. The notes for every version installed from October to
+17 November 2026 were here until 17 November; they are in this file's history on GitHub.
 
-The **18 October** upgrade adds:
-- the **moderators** tab (main Sheet, never sent to the website) with placeholder rows, one per type of moderator (see the moderator guide);
-- **Rotary → Administrator → Apply moderators (Sheet access)…**;
-- confirmation emails to whoever sent a consent or removal form;
-- clearer photo consent wording on the activity form (children: a parent or guardian agreed);
-- new notes on the older settings `moderator_emails`, `contact_email`, `bulletin_emails` and `not_posting_emails`: they are used only while the moderators tab names no one of that type.
-
-The **18 October (desk)** upgrade adds the moderation desk (section 7):
-- the **moderator_log** tab (main Sheet, filled in by the script, never sent to the website);
-- an email to the Content moderators for each new activity, event, club profile update and public service, with personal **Approve** and **Reject** buttons; an email to the Members moderators for each new consent or removal form;
-- **Leave this out** buttons in the Saturday bulletin preview; desk links in the 48-hour reminders and the monthly clubs-not-posting email;
-- contact messages are answered from the desk (**Messages → Reply**): the answer goes from the district account, signed "Rotary District 3110", so the moderator's name and email stay private; the replies are kept in a new **replies** column of **contact_messages**;
-- a **sheet_access** column (TRUE/FALSE) in the **moderators** tab: Sheet access is now chosen per person;
-- a newspaper name that is really a web address is moved to the newspaper link, with a note.
-
-The **19 October** version (installed in the test Sheet on 19 Oct) needs only paste `Code.gs` and **Deploy → Manage deployments → edit → New version** (no Upgrade Sheet, no new columns). It adds:
-- **Rotary → Administrator → Practice round: start… / report / remove practice items…** (see the moderator guide);
-- automatic retries when Google is briefly slow ("Service … timed out"), and **Apply moderators** lists anyone it could not finish.
-
-The **19 October (evening)** version (installed in the test Sheet on 19 Oct) also needs only paste `Code.gs` and **Deploy → Manage deployments → edit → New version**. It puts quiet clubs on one rule: no activity in the last 30 days, for the desk's Quiet clubs, the dashboard's `needs_nudge` and the monthly email (which listed the clubs with nothing in the month just ended). The email's subject is now "Clubs with no activity in the last 30 days".
-
-The **29 October** version: paste `Code.gs`, **Deploy → Manage deployments → edit → New version**, then **Administrator → Upgrade Sheet** (it adds the private `gender` column to members_master). It also adds **Administrator → Reset for production (once)…**, used a single time before the real data is imported (see the yearly update and launch guide).
-
-The **1 November** version keeps form answers as plain text (an answer starting with `=` could otherwise become
-a formula), gives the moderation desk the fingerprint it checks links against, and reads the private Sheet's and the
-magazine folder's IDs from the script properties. **Before** pasting it: in the editor, find `PRIVATE_SHEET_ID:` and
-`MAGAZINE_FOLDER_ID:` near the top of the old `Code.gs` and add both, with the same values (without the quotes), under
-**Project Settings → Script properties** (see step 5 of part 1). Then paste `Code.gs`, **Deploy → Manage
-deployments → edit → New version**, and **Rotary → Rebuild site now**. Without the two properties the data link
-answers "add the script property …" and the build stops, leaving the website as it was.
-
-The **consent safeguards** version (1 November, later the same day) adds safeguards to the member consent form: when a form does not come from the member's
-own email, the member is emailed at the address on file and has 3 days to object, and a form from someone who is
-neither the member nor an office bearer of the club needs the moderator to confirm it with the member. Paste `Code.gs`
-and `Sidebar.html`, **Deploy → Manage deployments → edit → New version**, then **Rotary → Administrator → Upgrade
-Sheet (new tabs, columns, questions)** once (it adds the `member_notice` column to the private **consent_requests** tab).
-
-The **11 November** version adds **Rotary → Administrator → Sign everyone out of the desk…** (for a lost phone or a
-session in the wrong hands), says on the consent form that the member is emailed when someone else fills it in, and
-keeps the data link's error answers short (the full message stays in **Executions**). Paste `Code.gs` (`Sidebar.html`
-is unchanged), **Deploy → Manage deployments → edit → New version**, then **Upgrade Sheet (new tabs, columns,
-questions)** once, which updates the consent form's wording.
-
-The **16 November** version adds two private emails. **The July member check:** every July (catching up in August),
-each listed member with an email is told what the website shows about them, with the consent and removal forms to
-change or remove it; up to 80 a day from the 7 am daily jobs, each member once a year, not those who gave their
-consent since 1 July. **The weekly summary:** every Monday at 8 am, to `summary_emails` (blank: the district
-account): the last build, what went live in the last 7 days, what is waiting, removals past their 2-day limit,
-unanswered contact messages and the quiet clubs. New: **Administrator → Send weekly summary now** and **Send me a
-sample July member email**. Paste `Code.gs` (`Sidebar.html` is unchanged), **Deploy → Manage deployments → edit → New
-version**, then **Upgrade Sheet (new tabs, columns, questions)** once: it adds the private `member_check_sent_at`
-column to **members_master**, the `summary_emails` setting and the Monday trigger.
-
-The **16 November (Release B)** version adds the safety pieces for the public site:
-- **Load sample data** refuses once the Sheet feeds the public website (reset for production, or 50 or more real
-  members), and the data link now counts sample rows: a public build stops if any arrive, saying to use
-  **Rotary → Sample data → Clear all sample data…**;
-- **a weekly backup** (Sunday 3 am) of both Sheets into a private **Backups** folder next to them, keeping 8 weeks;
-  **Administrator → Back up both Sheets now**; the setting `last_backup_at` shows when it last ran;
-- **a missed-rebuild email**: every 2 hours the script checks whether **Rebuild site now** was pressed more than 3
-  hours ago without the website being built since, and if so emails the owner once;
-- **Administrator → Start new Rotary year…** for July: once the new office bearers and district team are in the
-  officers and functionaries tabs, it moves `current_rotary_year` on, adds the outgoing District Governor to
-  past_governors, runs the role check and the form lists, asks for a rebuild and lists what is left to do by hand.
-
-Paste `Code.gs`, **Deploy → Manage deployments → edit → New version**, then **Upgrade Sheet** once (it adds the
-`last_backup_at` setting and the Sunday and 2-hourly triggers).
-
-The **17 November (Rotary Means Business)** version adds:
-- **the Rotary Means Business form**: a member lists their own business (trade, city, a few lines, an offer for
-  Rotarians, website, a WhatsApp number shown only as a button) and the topics they can speak on at club meetings.
-  Answers go to the new **businesses** tab of the main Sheet as pending; the script finds the sender in the private
-  members list. **Members only:** a listing can be approved only for an active member, and it leaves the website by
-  itself when the member is marked deceased or left. A newer listing of the same business replaces the older one;
-  the removal form gets a **Business listing** choice. The website shows the listings at `/rmb/`, by trade, on each
-  city page and on the member's card; the form's short address is `/list-business/`;
-- **"District level?"** on the activity form (after Avenue of Service): a Yes marks the activity "District" on the
-  website. Moderators get a note to check it, and on every "District event" too (the Governor need not be there).
-
-Paste `Code.gs`, **Deploy → Manage deployments → edit → New version**, then **Upgrade Sheet** once: it creates the
-business form (next to the Sheet), the **businesses** tab, the `district_level` column, the question on the activity
-form and the new removal choice. Then add the form's **logo** upload question by hand (section 3), and run
-**Update form lists** so the business form has the clubs and cities.
-
-The **17 November (before and after photos)** version adds two columns to the **activities** tab, `before_photo` and
-`after_photo`, filled from two optional upload questions on the activity form, **Before photo (optional)** and
-**After photo (optional)**, added by hand (section 3). When both are approved, the activity page shows them side by
-side under "Before and after"; one alone is not shown. Paste `Code.gs`, **New version**, then **Upgrade Sheet** once
-(it adds the two columns), and add the two questions.
+**What the script does by itself** (India time): the daily jobs at 7 am (48-hour reminders, the July member check);
+the bulletin preview on Saturday at 6 pm and the message on Sunday at 8 am; the backup of both Sheets on Sunday at
+3 am (8 weeks kept, in the private **Backups** folder; the form copies Google makes with it go to the Bin); the weekly
+summary on Monday at 8 am; the clubs-not-posting email on the 1st at 9 am; and every 2 hours, a check that a
+**Rebuild site now** was not missed.
 
 ## 6. Name the moderators
 

@@ -4,6 +4,9 @@ title: Events calendar
 description: Upcoming district events, vocational visits and networking evenings in Rotary District 3110, with past events linked to their reports.
 permalink: /events/
 scripts: ["events.js"]
+# kept out of search engines and the sitemap while there is nothing on it
+eleventyComputed:
+  noindex: "{% if not site.has.events %}yes{% endif %}"
 ---
 {% from "macros.njk" import eventItem %}
 <div class="wrap section narrow">

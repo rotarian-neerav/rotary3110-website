@@ -3,6 +3,9 @@ layout: layouts/base.njk
 title: Messages from dignitaries
 description: Messages from the District Governor and other dignitaries of Rotary District 3110.
 permalink: /messages/
+# kept out of search engines and the sitemap while there is nothing on it
+eleventyComputed:
+  noindex: "{% if not site.has.messages %}yes{% endif %}"
 ---
 {% from "macros.njk" import avatar %}
 <div class="wrap section narrow">

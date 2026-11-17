@@ -3,6 +3,9 @@ layout: layouts/base.njk
 title: In the news
 description: Service activities of the Rotary clubs of District 3110 reported by newspapers and news websites, with links to each news item.
 permalink: /news/
+# kept out of search engines and the sitemap while there is nothing on it
+eleventyComputed:
+  noindex: "{% if not site.has.news %}yes{% endif %}"
 ---
 <div class="wrap section narrow">
   <h1>{{ t.news.title }}</h1>

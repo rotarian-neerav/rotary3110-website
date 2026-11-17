@@ -1,23 +1,4 @@
-# Yearly update (July) and launch checklist
-
-## Before launch: replacing the sample data
-
-1. Name a version of both Sheets (**File → Version history → Name current version**). Then **Rotary → Administrator → Reset for production (once)…** removes every data row from both Sheets, sample and test rows and form responses alike, and keeps settings (with the form links), lists, moderators and clubs. It works only once.
-   (**Clear all sample data…** removes only rows marked `is_sample`, so rows typed in during live tests would stay; it remains for test Sheets.)
-   Import the real clubs, members_master and club_history with **File → Import → Upload → Replace current sheet**, with "Convert text to numbers, dates, and formulas" **unticked**; then **Administrator → Upgrade Sheet**.
-2. Load the real data (paste into each tab, keeping the column order; leave `is_sample` empty):
-   - **clubs**: real Rotary club IDs, names, city, zone (for the district's own use; never shown on the website), member count, and meeting day if known.
-   - **officers**: one row per office bearer: Rotary year, club ID, member ID, name, role.
-   - **functionaries**: teams and committees, one row per person per role (see the `page`, `section`, `committee`, `role`, `zone`, `term` columns). For each Assistant Governor, list the clubs they look after in `ag_clubs` (club names or IDs, separated by commas).
-   - **past_governors**: every Past District Governor, including those no longer with us: Rotary year, name, club, and member ID if they are living (the member ID only links their card; it is never shown).
-   - **profiles**: the District Governor for the About page (an RI President row is not shown, decided 11 Nov 2026): role, Rotary year, name, theme, a short profile, a photo the district may use (Drive file), and a link.
-   - **public_services**: facilities the clubs run (or ask clubs to send the public service form).
-   - **members_master** (private Sheet): the full member list, with Rotary member IDs, club, mobile, date of birth, marriage date.
-   - **club_history** (private Sheet): one row per member per club, with from and to dates.
-3. Update **settings → current_rotary_year**.
-4. **Rotary → Update form lists** (so the forms show the real clubs).
-5. **settings → bulletin_start_date**: the Sunday of the public launch (e.g. `2026-11-01`). The bulletin archive starts there. The Sunday message goes to the **District office** moderators (moderators tab).
-6. **Rotary → Rebuild site now.**
+# Yearly update (July) and what is left from the launch
 
 ## Every July (new Rotary year)
 
@@ -33,33 +14,19 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 8. **past_governors**: check the governor who has just finished was added (step 3 does it). **profiles**: add the new District Governor (the newest row is shown). **functionaries**: fill in `ag_clubs` for the new Assistant Governors.
 9. **Rotary → Update form lists** (this also renews each club's own form link), then **Rotary → Rebuild site now**.
 
-## Launch checklist (from the brief, section 12)
+## Left from the launch checklist
+
+The website went public on 16 November 2026. Everything else on the launch checklist (brief, section 12) was done by
+then; the full list is in this file's history on GitHub.
 
 | Item | Who | Status |
 |---|---|---|
 | Named owner for the yearly update, with a backup | District | Open |
-| Moderators: fill in the **moderators** tab (types Content, Members, Club engagement, District office, Administrator), set `sheet_access` TRUE only for those who want the Sheet (the moderation desk needs none), then **Administrator → Apply moderators**; repeat whenever a moderator changes | District | Done (filled and applied by 16 Nov 2026) |
-| Practice round: **Administrator → Practice round: start…**; each moderator works through their practice items (guide at `…/desk/guide/`); check **Practice round: report**, then **remove practice items** | Administrator + moderators | Installed (19 Oct): the Administrator tries it first, then the moderators once the tab has their real emails |
-| Real Rotary club IDs | District | Done (Rotary International export, 30 Oct 2026) |
-| Rotary member IDs for office bearers and district team members | District | Done for 2024-25 (30 Oct 2026) |
-| List the clubs each Assistant Governor looks after (`functionaries → ag_clubs`) | District | Ask at production (sample until then) |
-| Every Past District Governor (`past_governors`), and the DG's profile and photo with permission to use them (`profiles`) | District | Ask at production (sample rows) |
-| Contact form messages and the Sunday message go to the **District office** moderators; the monthly quiet-clubs list to **Club engagement** | District | With the moderators row above |
+| Practice round: **Administrator → Practice round: start…**; each moderator works through their practice items (guide at `…/desk/guide/`); check **Practice round: report**, then **remove practice items** | Administrator + moderators | Installed; to try |
 | Clubs send their public services (blood banks, eye care…) through the public service form | Clubs | Open |
-| Two role titles from the team Excel contain zone names ("CDS Bareilly Zone", "CDS Kanpur Zone") | District | Kept as they are (decided 18 Oct) |
-| Real data instead of sample data | District | Done 29-30 Oct 2026 (2024-25); the site launches as a 2024-25 showcase (decided 11 Nov 2026) |
-| Google files (Sheet, private Sheet, forms, MemberPhotos, 3110Magazines) | Owner of the files | The test files became the live ones; folder and main Sheet renamed **3110Website** (11 Nov 2026) |
-| Release B: lock on sample data, Sheet backup, build-failure (missed-rebuild) email, "Start new Rotary year" | Developer + district | Done 16 Nov 2026. Not yet decided: visitor counts, outside-link check, a test Sheet |
-| Let search engines in: set the repository variable `HIDE_FROM_SEARCH` to `false` | District | Done 16 Nov 2026 |
-| Take down the sample banner: set the repository variable `SAMPLE_DATA` to `false` | District | Done 16 Nov 2026 |
-| Profession list (`lists` tab): an evolving list; moderators add professions as members ask | Moderators | Ongoing (decided 18 Oct) |
-| Lawyer checks the consent form wording and privacy notice, including spouse consent | District | Approved 11 Nov 2026; draft notes removed |
-| Photo policy for identifiable children | DG's office | Decided 18 Oct: photos arrive with consent (form tick: a parent or guardian agreed for children) |
-| Collect clubs' website and social links through the club profile form | Clubs | Open |
-| DG's office collects leaders' photo consent and photos | DG's office | Done for the 2024-25 leaders on the site (11 Nov 2026); more photos welcome |
-| Cloudflare account under the district email for visitor statistics | District | Open |
-| Connect the domain and register the site with Google Search Console | District | rotary3110.org connected with HTTPS (11 Nov 2026); Search Console deferred |
-| 2-step verification and recovery details on the district Google and GitHub accounts | District | After go-live (decided 18 Oct) |
-| Replace the sample data with the real data (above), including the fuller team Excel | District + moderators | Real data exists; to be supplied at production |
-| Name the person who forwards the Sunday bulletin message (a **District office** moderator) | District | With the moderators row above |
-| Consider a district WhatsApp Channel for the weekly bulletin (one post instead of forwarding to every group) | District | Later |
+| Clubs send their website and social links, and their meeting day, through the club profile form | Clubs | Open |
+| Profession list (`lists` tab): an evolving list; moderators add professions as members ask | Moderators | Ongoing |
+| Release B, the rest: visitor counts (a Cloudflare account under the district email), an outside-link check, a test Sheet | District + developer | Not yet decided |
+| Register the site with Google Search Console | District | Deferred |
+| 2-step verification and recovery details on the district Google and GitHub accounts | District | Open |
+| A district WhatsApp Channel for the weekly bulletin (one post instead of forwarding to every group) | District | Later |

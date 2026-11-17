@@ -3,6 +3,9 @@ layout: layouts/base.njk
 title: Monthly magazine
 description: Every issue of the Rotary District 3110 monthly magazine, by year and month. Each issue opens as a PDF.
 permalink: /magazine/
+# kept out of search engines and the sitemap while there is nothing on it
+eleventyComputed:
+  noindex: "{% if not site.has.magazine %}yes{% endif %}"
 ---
 <div class="wrap section">
   <h1>Monthly magazine</h1>

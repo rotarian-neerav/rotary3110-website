@@ -3,6 +3,9 @@ layout: layouts/base.njk
 title: District campaigns
 description: District-wide drives in Rotary District 3110 and the running total our clubs have reported for each.
 permalink: /campaigns/
+# kept out of search engines and the sitemap while there is nothing on it
+eleventyComputed:
+  noindex: "{% if not site.campaigns.length %}yes{% endif %}"
 ---
 <div class="wrap section">
   <h1>{{ t.campaigns.title }}</h1>

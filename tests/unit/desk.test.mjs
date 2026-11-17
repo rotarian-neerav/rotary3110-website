@@ -77,7 +77,7 @@ test('the build remembers the web app address; emails link to the desk page with
   assert.equal(env.props.get('WEB_APP_URL'), undefined);
   data();
   assert.equal(env.props.get('WEB_APP_URL'), 'https://script.google.com/macros/s/TEST/exec');
-  assert.match(env.run('deskLink_', {}), /^https:\/\/rotarian-neerav\.github\.io\/rotary3110-website\/desk\/#k=TEST$/);
+  assert.match(env.run('deskLink_', {}), /^https:\/\/rotary3110\.org\/desk\/#k=TEST$/);
 });
 
 test('the data link carries a one-way fingerprint of the script id in the desk links, for the desk page to check links against', () => {

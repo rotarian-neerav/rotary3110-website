@@ -2090,7 +2090,7 @@ var DEFAULT_SETTINGS = [
   ['zones', 'Agra, Bareilly, Kanpur', 'District zones: for the district\'s own use only, never shown on the website'],
   ['professions', '', 'Comma-separated list for the directory; placeholder until the real list is agreed'],
   ['moderator_emails', '', 'Older setting: used only while the moderators tab names no Content moderator'],
-  ['site_url', 'https://rotarian-neerav.github.io/rotary3110-website/', 'Used in emails to people who send activities'],
+  ['site_url', 'https://rotary3110.org/', 'Used in emails to people who send activities'],
   ['form_activity_url', '', 'Filled in by setup'],
   ['form_club_profile_url', '', 'Filled in by setup'],
   ['form_consent_url', '', 'Filled in by setup'],
@@ -3328,8 +3328,9 @@ function onOpen() {
     .addItem('Check roles and member IDs', 'checkRoles')
     .addItem('Update form lists (clubs, areas, professions)', 'updateFormLists')
     .addSeparator()
+    // Load sample data and Reset for production left the menu after launch (17 Nov 2026); both stay in the script
+    // for a test Sheet, run from the script editor
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Sample data')
-      .addItem('Load sample data', 'loadSampleData')
       .addItem('Clear all sample data…', 'clearSampleData'))
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Administrator')
       .addItem('Show data link details', 'showDataLink')
@@ -3346,7 +3347,6 @@ function onOpen() {
       .addItem('Practice round: start…', 'startPractice')
       .addItem('Practice round: report', 'practiceReport')
       .addItem('Practice round: remove practice items…', 'removePractice')
-      .addItem('Reset for production (once)…', 'resetForProduction')
       .addItem('Run setup again', 'setup'))
     .addToUi();
 }

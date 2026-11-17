@@ -6,7 +6,7 @@ The district's website: what our clubs achieve. Built from the district Google S
 - **Rotary Means Business** (17 Nov 2026): members list their own businesses at `/list-business/`; shown at `/rmb/`
   (members only, WhatsApp button and website only). It joins the top menu once 25 listings are in
 - **Project brief:** `../3110-Website-Project-Brief.md` (version 4.3)
-- **Guides:** [Google setup](docs/3110-Website-Google-Sheet-Setup.md) · [Moderator guide](docs/3110-Website-Moderator-Guide.md) · [Yearly update and launch](docs/3110-Website-Yearly-Update-and-Launch.md)
+- **Guides:** [Google setup](docs/3110-Website-Google-Sheet-Setup.md) · [Moderator guide](docs/3110-Website-Moderator-Guide.md) · [Yearly update](docs/3110-Website-Yearly-Update-and-Launch.md)
 
 ## How it works
 
@@ -34,7 +34,7 @@ The rules for what may become public live in one file, [apps-script/Core.js](app
 | `lib/` | Shapes the data for pages; recognition maths. |
 | `scripts/` | Build steps: fetch data, privacy check, photos, emptying `_site/` before each build. |
 | `sample/` | Sample (dummy) data and placeholder images. Every row is marked `is_sample`. |
-| `tools/` | One-off tools: Excel conversion, sample generator, brand assets, script bundler. |
+| `tools/` | The sample generator, brand assets (icons from the logo) and the script bundler. |
 | `tests/` | Unit tests (rules, recognition, Sheet script in a simulated Google environment) and checks on the built site. |
 | `docs/` | Guides and reports. |
 
@@ -58,18 +58,15 @@ Without `DATA_URL` and `DATA_TOKEN` the build uses `sample/sample-data.json`. Wi
 |---|---|---|
 | `DATA_URL` | secret | The Apps Script web app address (`…/exec`) |
 | `DATA_TOKEN` | secret | Token shown by Rotary → Administrator → Show data link details |
-| `SITE_URL` | variable (optional) | e.g. `https://rotary3110.org` once the domain is bought |
-| `PATH_PREFIX` | variable (optional) | `/` once on the domain (default `/rotary3110-website/`) |
+| `SITE_URL` | variable | `https://rotary3110.org` |
+| `PATH_PREFIX` | variable | `/` (without it: `/rotary3110-website/`, for the github.io address) |
 | `CF_BEACON_TOKEN` | variable (optional) | Cloudflare Web Analytics token |
 | `HIDE_FROM_SEARCH` | variable | `true` by default: every page asks search engines to stay away. Set to `false` at launch (done 16 Nov 2026) |
 | `SAMPLE_DATA` | variable | `true` by default: the sample-data banner on every page. Set to `false` at launch (done 16 Nov 2026); a build with `false` stops if sample rows arrive from the Sheet |
 
-## Moving to the district domain
+## The domain
 
-Done on 11 Nov 2026 for rotary3110.org (DNS at GoDaddy: 4 A and 4 AAAA records for GitHub Pages, `www` as a CNAME to the github.io address; HTTPS enforced). The steps, for reference:
-
-1. Buy the domain under rotarian.neerav@gmail.com.
-2. GitHub → repository Settings → Pages → Custom domain → enter it; add the DNS records GitHub shows at the domain seller.
-3. Set the variables `SITE_URL=https://<domain>` and `PATH_PREFIX=/`, then run the workflow.
-4. Update `site_url` in the Sheet's settings tab.
-5. Note: `robots.txt` (AI-crawler blocking, image-search rules) only takes effect at a domain's root, so it starts working once the site is on its own domain.
+rotary3110.org has pointed to GitHub Pages since 11 Nov 2026 (DNS at GoDaddy; HTTPS enforced); the old github.io
+address forwards to it. If the domain ever changes: GitHub → Settings → Pages → Custom domain, the DNS records GitHub
+shows, the variables `SITE_URL` and `PATH_PREFIX`, and `site_url` in the Sheet's settings tab. `robots.txt` works
+only at a domain's root.

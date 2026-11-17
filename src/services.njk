@@ -4,6 +4,9 @@ title: Services you can use
 description: Blood banks, eye care, dialysis units, clinics, libraries, skill centres and ambulances run or supported by the Rotary clubs of District 3110, with timings, phone numbers and maps.
 permalink: /services/
 scripts: ["services.js"]
+# kept out of search engines and the sitemap while there is nothing on it
+eleventyComputed:
+  noindex: "{% if not site.has.services %}yes{% endif %}"
 ---
 {% from "macros.njk" import serviceCard %}
 <div class="wrap section">

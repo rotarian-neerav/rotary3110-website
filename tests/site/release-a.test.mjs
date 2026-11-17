@@ -474,3 +474,20 @@ test('district work is marked: activities, past district events first, recent di
     assert.ok(dom('/').querySelector('#recent-district-events'), 'home: recent district events');
   }
 });
+
+test('a page with nothing on it yet stays out of search engines, the sitemap and site search; with content it is in all three', () => {
+  const sitemap = read(join(SITE, 'sitemap.xml'));
+  const empty = {
+    events: !has.events, services: !has.services, news: !has.news, magazine: !has.magazine, messages: !has.messages,
+    campaigns: !(data.campaigns || []).length,
+    spotlight: !(data.spotlights || []).some((s) => s.month <= new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 7)),
+    meetings: !(data.clubs || []).some((c) => c.status === 'active' && c.meeting_day),
+  };
+  for (const [p, isEmpty] of Object.entries(empty)) {
+    const html = page(p);
+    assert.equal(/name="robots" content="noindex/.test(html), isEmpty || /name="robots" content="noindex/.test(page('')), `${p}: robots`);
+    assert.equal(sitemap.includes(`/${p}/<`), !isEmpty, `${p}: sitemap`);
+    assert.equal(html.includes('data-pagefind-body'), !isEmpty, `${p}: site search`);
+  }
+  if (sample) assert.ok(Object.values(empty).every((e) => !e), 'the sample fills every page');
+});

@@ -4,6 +4,9 @@ title: Club meetings by day
 description: Which Rotary clubs of District 3110 meet on each day of the week, town by town, for visiting Rotarians, members making up a missed meeting and guests.
 permalink: /meetings/
 scripts: ["meetings.js"]
+# kept out of search engines and the sitemap while there is nothing on it
+eleventyComputed:
+  noindex: "{% if not site.has.meetings %}yes{% endif %}"
 ---
 <div class="wrap section">
   <h1>{{ t.meetings.title }}</h1>

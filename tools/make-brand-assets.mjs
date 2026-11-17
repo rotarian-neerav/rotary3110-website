@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const LOGO = process.argv[2] || resolve(ROOT, '..', '2Claude', 'Rotary Logo_EN21_DynamicSize_FontUpdate.png');
+const LOGO = process.argv[2] || resolve(ROOT, '..', 'Rotary Logo_EN21_DynamicSize_FontUpdate.png');
 const OUT = resolve(ROOT, 'src/assets/img');
 mkdirSync(OUT, { recursive: true });
 

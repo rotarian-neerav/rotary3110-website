@@ -1,0 +1,26 @@
+---
+layout: layouts/base.njk
+title: Speakers for club meetings
+description: Members of the Rotary clubs of District 3110 who are happy to speak at a club meeting, and their topics.
+permalink: /rmb/speakers/
+---
+<div class="wrap section">
+  <p class="more-links up"><a class="more" href="/rmb/">{{ t.rmb.title }}</a></p>
+  <h1>{{ t.rmb.speakers }}</h1>
+  <p class="lead">{{ t.rmb.speakers_intro }}</p>
+  {%- if site.rmb.speakers.length %}
+  <ul class="speaker-list">
+    {%- for sp in site.rmb.speakers %}
+    <li>
+      <p><strong>{% if sp.card %}<a href="{{ sp.card }}">{{ sp.name }}</a>{% else %}{{ sp.name }}{% endif %}</strong>{% if sp.club %} <span class="muted">· <a href="{{ sp.club.url }}">{{ sp.club.name }}</a></span>{% endif %}</p>
+      <p class="small">{{ t.rmb.speaker_topics }}: {{ sp.topics | join('; ') }}</p>
+    </li>
+    {%- endfor %}
+  </ul>
+  {%- else %}
+  <p>{{ t.rmb.empty }}</p>
+  {%- endif %}
+  {%- if site.rmb.form %}
+  <p class="more-links"><a class="more" href="/list-business/">{{ t.rmb.list }}</a></p>
+  {%- endif %}
+</div>

@@ -1,6 +1,6 @@
 /**
- * The six Google Forms. Questions are found again by their titles, so keep titles in Q unchanged.
- * The activity, club profile and public service forms send answers to the main Sheet; the consent and removal
+ * The seven Google Forms. Questions are found again by their titles, so keep titles in Q unchanged.
+ * The activity, club profile, public service and business forms send answers to the main Sheet; the consent and removal
  * forms (members' personal details) and the website's contact form (visitors' reply details) to the private Sheet.
  * Each form's raw answers stay untouched in a "raw_…" tab; the script copies them into the working tabs.
  */
@@ -100,7 +100,28 @@ var Q = {
   kTopic: 'What is it about?',
   kCity: 'Your city or town (optional)',
   kMessage: 'Your message',
+  // added 17 November 2026: district work on the activity form; the Rotary Means Business form
+  aDistrict: 'District level?',
+  bMemberId: 'Your Rotary member ID (optional)',
+  bMobile: 'Your mobile number',
+  bName: 'Business name',
+  bTrade: 'Trade',
+  bCity: 'City or town of the business',
+  bAbout: 'What your business offers',
+  bOffer: 'Offer for Rotarians (optional)',
+  bWebsite: 'Business website (optional)',
+  bWhatsapp: 'Business WhatsApp number (optional)',
+  bTopics: 'Topics I can speak on at club meetings (optional)',
+  bConfirm: 'Confirmation',
 };
+
+var REMOVAL_ITEMS = ['Everything', 'Directory listing', 'WhatsApp / call button', 'My photo', 'Birthday', 'Anniversary', 'Couple photo',
+  'Business listing (Rotary Means Business)'];
+var BUSINESS_DESCRIPTION = 'Rotary Means Business: list your own business on the district website, so Rotarians and the public can find it. ' +
+  'For members of Rotary District 3110 only. Fill in your business, or only the speaker question, or both. Send one form per business; ' +
+  'send it again any time to update it. A moderator checks every listing before it appears.\n\n' +
+  'Shown on the website: your name and club, and the business details below. Your mobile number and email are never shown. ' +
+  'No phone numbers in the text, please: the business WhatsApp number, if you give one, is shown only as a WhatsApp button.';
 
 var CONTACT_TOPICS = ['I need help from Rotary', 'I want to volunteer', 'Partnership or CSR', 'Media', 'Something else'];
 
@@ -144,6 +165,10 @@ var LATER_QUESTIONS = [
   { form: 'activity', title: Q.eOpen, type: 'yesno', after: Q.eType, help: 'Yes if anyone, not only Rotarians, may come. The website marks it "Open to everyone".' },
   { form: 'club_profile', title: Q.pMeetingDay, type: 'weekday', after: Q.pMeeting + ' (optional)',
     help: 'The weekday your club usually meets, so visitors can find a club meeting on a day that suits them.' },
+  // 17 November 2026
+  { form: 'activity', title: Q.aDistrict, type: 'yesno', after: Q.aAvenue,
+    help: 'Yes only if the district organised it or it was a district occasion, for example a grant inauguration or a district seminar. ' +
+      'The Governor need not have been there. The website marks it "District". A moderator checks this.' },
 ];
 
 function laterQuestion_(title) {
@@ -184,6 +209,18 @@ function addLaterQuestions_(report) {
     report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
   });
   if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
+  if (ids.removal) {
+    // the removal form offers each thing that can be shown, the business listing included (17 Nov 2026)
+    FormApp.openById(ids.removal).getItems().forEach(function (it) {
+      if (it.getTitle() !== Q.rItems) return;
+      var box = it.asCheckboxItem();
+      var now = box.getChoices().map(function (c) { return c.getValue(); });
+      if (now.join('|') !== REMOVAL_ITEMS.join('|')) {
+        box.setChoiceValues(REMOVAL_ITEMS);
+        report.push('Updated the choices on the removal form (business listing added)');
+      }
+    });
+  }
   if (ids.consent) {
     var consentForm = FormApp.openById(ids.consent);
     if (consentForm.getDescription() !== CONSENT_DESCRIPTION) {
@@ -245,6 +282,7 @@ function formLists_() {
     organisers: activeClubs.concat(teams.length ? teams : ["Governor's Office Team"]),
     roles: ['President', 'Secretary', 'Public Image Chair', 'Other office bearer', 'Member'],
     serviceTypes: CORE_SERVICE_TYPES.slice(),
+    trades: CORE_TRADES.slice(),
     campaigns: [CORE_NO_CAMPAIGN].concat(Core_openCampaigns(readTab_(mainSs_(), 'campaigns'), today_()).map(Core_campaignLabel)),
   };
 }
@@ -253,11 +291,11 @@ function createForms_(report) {
   var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
   var L = formLists_();
   var makers = { activity: makeActivityForm_, club_profile: makeClubProfileForm_, consent: makeConsentForm_, removal: makeRemovalForm_,
-    public_service: makePublicServiceForm_, contact: makeContactForm_ };
+    public_service: makePublicServiceForm_, contact: makeContactForm_, business: makeBusinessForm_ };
   var destinations = { activity: mainSs_().getId(), club_profile: mainSs_().getId(), consent: privateSheetId_(), removal: privateSheetId_(),
-    public_service: mainSs_().getId(), contact: privateSheetId_() };
+    public_service: mainSs_().getId(), contact: privateSheetId_(), business: mainSs_().getId() };
   var rawNames = { activity: 'raw_activity_form', club_profile: 'raw_club_profile_form', consent: 'raw_consent_form', removal: 'raw_removal_form',
-    public_service: 'raw_public_service_form', contact: 'raw_contact_form' };
+    public_service: 'raw_public_service_form', contact: 'raw_contact_form', business: 'raw_business_form' };
 
   Object.keys(makers).forEach(function (key) {
     var form = null;
@@ -336,6 +374,7 @@ function makeActivityForm_(L) {
   form.addListItem().setTitle(Q.aTheme).setChoiceValues(CORE_THEMES).setRequired(true)
     .setHelpText("Rotary's seven Areas of Focus, or Club service / Other for installations, fellowship, training and similar.");
   addLaterQuestion_(form, Q.aAvenue, L);
+  addLaterQuestion_(form, Q.aDistrict, L);
   form.addParagraphTextItem().setTitle(Q.aDesc).setRequired(true)
     .setHelpText('Two to five lines. Please do not write the names of children.')
     .setValidation(FormApp.createParagraphTextValidation().requireTextMatchesPattern('^[\\s\\S]{100,600}$')
@@ -448,7 +487,7 @@ function makeRemovalForm_(L) {
   form.addTextItem().setTitle(Q.rMemberId).setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
   form.addTextItem().setTitle(Q.rMobile).setRequired(true).setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
   form.addCheckboxItem().setTitle(Q.rItems).setRequired(true)
-    .setChoiceValues(['Everything', 'Directory listing', 'WhatsApp / call button', 'My photo', 'Birthday', 'Anniversary', 'Couple photo']);
+    .setChoiceValues(REMOVAL_ITEMS);
   form.addParagraphTextItem().setTitle(Q.rReason);
   return form;
 }
@@ -479,6 +518,45 @@ function makePublicServiceForm_(L) {
     .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(200).setHelpText('Up to 200 characters').build());
   form.addCheckboxItem().setTitle(Q.sConfirm).setRequired(true)
     .setChoiceValues(["I am an office bearer of this club, the club runs or supports this facility, and the phone number is the facility's own public number."]);
+  return form;
+}
+
+/**
+ * Rotary Means Business (17 Nov 2026): a member lists their own business, the topics they can speak on, or both.
+ * Members only: the moderator can approve only once the sender is found in the members list. The logo or shop
+ * photo question is added by hand (Google does not allow scripts to add file uploads).
+ */
+function makeBusinessForm_(L) {
+  var form = baseForm_('Rotary Means Business – Rotary District 3110', BUSINESS_DESCRIPTION);
+  form.addListItem().setTitle(Q.club).setChoiceValues(L.clubs).setRequired(true);
+  form.addTextItem().setTitle(Q.name).setRequired(true);
+  form.addTextItem().setTitle(Q.bMemberId).setHelpText('Helps us find you in the members list. Never published.')
+    .setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
+  form.addTextItem().setTitle(Q.bMobile).setRequired(true).setHelpText('Used to find you in the members list. Never published.')
+    .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
+
+  form.addPageBreakItem().setTitle('Your business').setHelpText('Leave this page blank if you only want to be listed as a speaker.');
+  form.addTextItem().setTitle(Q.bName).setHelpText('For example: Gupta Opticals')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
+  form.addListItem().setTitle(Q.bTrade).setChoiceValues(L.trades);
+  form.addListItem().setTitle(Q.bCity).setChoiceValues(L.areas);
+  form.addParagraphTextItem().setTitle(Q.bAbout).setHelpText('One or two lines. No phone numbers or email addresses.')
+    .setValidation(FormApp.createParagraphTextValidation().requireTextLengthLessThanOrEqualTo(300).setHelpText('Up to 300 characters').build());
+  form.addTextItem().setTitle(Q.bOffer).setHelpText('For example: 10% off for Rotarians and their families')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(100).setHelpText('Up to 100 characters').build());
+  form.addTextItem().setTitle(Q.bWebsite).setValidation(urlRule_());
+  form.addTextItem().setTitle(Q.bWhatsapp).setHelpText('Shown only as a WhatsApp button on your listing, never as a number.')
+    .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
+  // "Logo or shop photo (optional)" upload question is added here by hand
+
+  form.addPageBreakItem().setTitle('Speaking at clubs');
+  form.addParagraphTextItem().setTitle(Q.bTopics)
+    .setHelpText('Clubs look for speakers for their meetings. For example: Income tax for families; First aid at home. Leave blank if not.')
+    .setValidation(FormApp.createParagraphTextValidation().requireTextLengthLessThanOrEqualTo(300).setHelpText('Up to 300 characters').build());
+
+  form.addPageBreakItem().setTitle('Confirmation');
+  form.addCheckboxItem().setTitle(Q.bConfirm).setRequired(true)
+    .setChoiceValues(['I am a member of this club, this is my own business (or one I am a partner in), and I agree to my name, club and these details being shown on the district website.']);
   return form;
 }
 
@@ -546,7 +624,7 @@ function updateFormLists(silent) {
   var lists = {};
   lists[Q.club] = L.clubs; lists[Q.cClub] = L.clubs; lists[Q.aPartners] = L.clubs; lists[Q.cSpouseClub] = L.clubs;
   lists[Q.eCity] = L.areas; lists[Q.cArea] = L.areas; lists[Q.cProfession] = L.professions; lists[Q.eOrganiser] = L.organisers;
-  lists[Q.aCampaign] = L.campaigns; lists[Q.sCity] = L.areas;
+  lists[Q.aCampaign] = L.campaigns; lists[Q.sCity] = L.areas; lists[Q.bCity] = L.areas; lists[Q.bTrade] = L.trades;
   Object.keys(ids).forEach(function (k) {
     var form = FormApp.openById(ids[k]);
     form.getItems().forEach(function (item) {

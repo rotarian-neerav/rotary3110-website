@@ -1,0 +1,36 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.rmb.trades
+  size: 1
+  addAllPagesToCollections: true
+  alias: tr
+permalink: "{{ tr.url }}"
+scripts: ["rmb.js"]
+eleventyComputed:
+  title: "{{ tr.trade }}: Rotarian businesses"
+  description: "{{ tr.count }} {{ 'business' if tr.count == 1 else 'businesses' }} in {{ tr.trade }} run by members of the Rotary clubs of District 3110, in {% for g in tr.cities %}{{ g.city }}{% if not loop.last %}, {% endif %}{% endfor %}."
+---
+{% from "macros.njk" import businessCard %}
+<div class="wrap section">
+  <p class="more-links up"><a class="more" href="/rmb/">{{ t.rmb.title }}</a></p>
+  <h1>{{ tr.trade }}</h1>
+  <p class="lead">{{ tr.count }} {{ 'business' if tr.count == 1 else 'businesses' }} run by Rotarians of District 3110</p>
+  {%- if tr.cities.length > 1 %}
+  <form class="filters" data-no-submit data-rmb-filter hidden>
+    <label>{{ t.rmb.city }}
+      <select name="city"><option value="">{{ t.rmb.all_cities }}</option>{% for g in tr.cities %}<option value="{{ g.city }}">{{ g.city }}</option>{% endfor %}</select>
+    </label>
+  </form>
+  {%- endif %}
+  {%- for g in tr.cities %}
+  <section id="{{ g.slug }}" data-rmb-group>
+    <h2>{{ g.city }}</h2>
+    <div class="service-grid">{% for b in g.businesses %}{{ businessCard(b, t, false) }}{% endfor %}</div>
+  </section>
+  {%- endfor %}
+  {%- if site.rmb.form %}
+  <p class="more-links"><a class="more" href="/list-business/">{{ t.rmb.list }}</a></p>
+  {%- endif %}
+  <p class="small muted">{{ t.rmb.members_only }}</p>
+</div>

@@ -396,6 +396,15 @@ abbr.gloss { text-decoration: underline dotted; text-underline-offset: 3px; curs
 .service-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
 .service-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; background: #fff; }
 .service-card h3 { margin: 4px 0 6px; }
+/* Rotary Means Business */
+.business-head { display: flex; gap: 12px; align-items: flex-start; }
+.business-logo { width: 64px; height: 64px; object-fit: contain; border: 1px solid var(--line); border-radius: 8px; background: #fff; flex: none; }
+.business-logo.large { width: 120px; height: 120px; }
+.business-card .offer, .business-page .offer { background: #fff8e6; border-radius: 6px; padding: 6px 10px; }
+.rmb-cta { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.speaker-list { list-style: none; padding: 0; }
+.speaker-list li { border-bottom: 1px solid var(--line); padding: 10px 0; }
+.speaker-list p { margin: 2px 0; }
 .details.compact { margin: 8px 0; }
 .service-phone { font-weight: 700; white-space: nowrap; }
 .filter-toggle { margin: 4px 0 12px; }

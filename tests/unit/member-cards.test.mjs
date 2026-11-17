@@ -166,10 +166,12 @@ test('a past year shown as a showcase: recognition starts from its newest month 
 
 test('pages with nothing on them yet are flagged so the menu can leave them out; only the Governor\'s profile is shown', () => {
   const full = site();
-  assert.deepEqual(full.has, { events: true, services: true, news: true, magazine: true, spotlight: true, messages: true });
+  assert.deepEqual(full.has, { events: true, services: true, news: true, magazine: true, spotlight: true, messages: true, rmb: true });
   const d = build();
-  const empty = derive({ ...d, events: [], public_services: [], magazines: [], spotlights: [], messages: [], activities: d.activities.map((a) => ({ ...a, press: null })) }, media, '2026-10-13');
-  assert.deepEqual(empty.has, { events: false, services: false, news: false, magazine: false, spotlight: false, messages: false });
+  const empty = derive({ ...d, events: [], public_services: [], magazines: [], spotlights: [], messages: [], businesses: [], activities: d.activities.map((a) => ({ ...a, press: null })) }, media, '2026-10-13');
+  assert.deepEqual(empty.has, { events: false, services: false, news: false, magazine: false, spotlight: false, messages: false, rmb: false });
+  // the Rotary Means Business page shows once its form exists, even before the first listing
+  assert.equal(derive({ ...d, businesses: [], forms: { ...d.forms, business: 'https://docs.google.com/forms/d/e/x/viewform' } }, media, '2026-10-13').has.rmb, true);
   assert.ok(d.profiles.some((p) => p.role !== 'District Governor'), 'sample still sends an RI President profile');
   assert.deepEqual(full.profiles.map((p) => p.role), ['District Governor']);
 });

@@ -79,7 +79,7 @@ function ensureLists_(report) {
 
 var TEXT_COLUMNS = ['from_date', 'member_id', 'chair_member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
   'person_b_id', 'spouse_id', 'spouse_member_id', 'matched_member_id', 'public_key', 'club_id', 'rotary_year', 'term', 'issue_month', 'month',
-  'phone', 'reply_to'];
+  'phone', 'reply_to', 'whatsapp'];
 
 function ensureTabs_(ss, schema, report) {
   Object.keys(schema).forEach(function (name) {
@@ -135,6 +135,7 @@ var DEFAULT_SETTINGS = [
   ['bulletin_start_date', '', 'A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week\'s bulletin'],
   ['bulletin_emails', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['form_public_service_url', '', 'Filled in by setup'],
+  ['form_business_url', '', 'Filled in by setup (Rotary Means Business form)'],
   ['form_contact_url', '', 'Filled in by setup; shown inside the website\'s Contact page'],
   ['contact_email', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
@@ -175,7 +176,7 @@ function listRule_(values) {
 
 function addValidation_(main, priv) {
   // Start clean, so a dropdown copied onto the wrong column (see ensureTabs_) is removed; the rules below are put back
-  [[main, ['activities', 'events', 'club_profile_requests', 'public_services', 'clubs', 'moderators']],
+  [[main, MODERATED_TABS.concat(['clubs', 'moderators'])],
     [priv, ['consent_requests', 'removal_requests', 'members_master', 'contact_messages', 'couples']]].forEach(function (pair) {
     pair[1].forEach(function (tab) {
       var sh = pair[0].getSheetByName(tab);
@@ -190,6 +191,10 @@ function addValidation_(main, priv) {
   ['activities', 'events', 'club_profile_requests', 'public_services'].forEach(function (t) {
     apply(main, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
+  // a business listing is replaced when the member sends a newer one, removed when they ask through the removal form
+  apply(main, 'businesses', 'status', listRule_(['pending', 'approved', 'rejected', 'replaced', 'removed']));
+  apply(main, 'businesses', 'trade', listRule_(CORE_TRADES));
+  apply(main, 'activities', 'district_level', listRule_(['TRUE', 'FALSE']));
   apply(main, 'activities', 'theme', listRule_(CORE_THEMES));
   apply(main, 'activities', 'avenue', listRule_(CORE_AVENUES));
   apply(main, 'public_services', 'service_type', listRule_(CORE_SERVICE_TYPES));

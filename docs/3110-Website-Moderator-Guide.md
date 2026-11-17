@@ -82,6 +82,8 @@ Until a type has a real email, its emails go where they went before: the older s
 
 **Avenue of Service, press and videos:** every new activity carries an Avenue of Service (`avenue`); correct it if it is clearly wrong. If the club says a newspaper covered it, `press_paper`, `press_date` and `press_link` hold the paper's name, the date and a link; the website shows only these, never a photo of the clipping. A note warns when there is a press link but no paper's name. `video_link` can be a YouTube, Instagram or Facebook link; YouTube videos play on the page.
 
+**District level (17 Nov 2026):** the activity form asks "District level?", and events have the type "District event". Both put the item first on the website and mark it "District". Check it: Yes is right when the district organised it or it was a district occasion, for example a grant inauguration or a district seminar. The Governor need not have been there. If not, set `district_level` to FALSE (or change the event type) before approving. The moderator note reminds you.
+
 **Open to everyone:** `open_to_all` (TRUE/FALSE) on an event marks it "Open to everyone" on the website. Club events open to all are marked anyway.
 
 **Event registration:** clubs can give a closing date and a fee on the form. The website works out the registration line by itself ("Registration open till 20 Oct", then "Registration closed"). Use the `registration_status` column only for exceptions:
@@ -111,6 +113,16 @@ Clubs send one **Public service run by a club** form per facility. New ones appe
 - The **phone number must be the facility's own** (reception or helpline), never a member's personal mobile. A moderator note warns when the number is a mobile; check it before approving. A number that is not a plain number cannot be approved until it is corrected.
 - Approve or reject with the Rotary menu, as for activities. Approved services appear on the **Services you can use** page, the club's page and the city's page, with a tap-to-call number and the map link.
 - Text with a phone number or email in the name, timings, address or description is left off the website.
+
+## Business listings (Rotary Means Business)
+
+Members send the **Rotary Means Business** form for their own business, the topics they can speak on at club meetings, or both. New ones appear in **businesses** as pending (on the desk as "Business listing").
+- **Members only.** The script looks the sender up in the members list and fills in `member_id` and `member_name`. If the note says "Not found in the members list", find the member and type their member ID in `member_id`, or reject. A listing cannot be approved for someone who is not an active member.
+- A note says when the form did **not** come from the member's own email: check with the member first.
+- The business needs a **trade** and a **city**. The WhatsApp number must be a mobile number; it is shown only as a WhatsApp button.
+- No phone numbers or emails in the text; the website leaves such text out anyway. Light fixes (spelling, length) are fine.
+- "Updates BIZ-…" means the member sent the same business again: approving replaces the older listing.
+- To take a listing off: the member uses the removal form (**Business listing**), or set its status to **removed**.
 
 ## Contact messages
 

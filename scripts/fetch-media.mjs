@@ -24,6 +24,8 @@ const VARIANTS = {
   person: { sq: { w: 300, h: 300 } },
   couple: { card: { w: 600, h: 400 } },
   cover: { card: { w: 400 }, og: { w: 1200, h: 630, jpg: true, contain: true } },
+  // a business logo or shop photo: whole, on white, never cropped
+  logo: { sq: { w: 300, h: 300, contain: true } },
 };
 
 const hash = (s) => createHash('sha1').update(s).digest('hex').slice(0, 12);
@@ -109,6 +111,7 @@ for (const m of data.messages) if (m.photo) jobs.push([m.photo, 'person']);
 for (const p of data.profiles || []) if (p.photo) jobs.push([p.photo, 'person']);
 for (const c of data.couples) if (c.couple_photo) jobs.push([c.couple_photo, 'couple']);
 for (const m of data.magazines) if (m.cover) jobs.push([m.cover, 'cover']);
+for (const b of data.businesses || []) if (b.logo) jobs.push([b.logo, 'logo']);
 
 // a few at a time, so the Sheet's data link is not overloaded
 for (let i = 0; i < jobs.length; i += 4) {

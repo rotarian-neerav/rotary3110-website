@@ -341,6 +341,7 @@ function approveRemoval_(requestId, who) {
     if (all || items.indexOf('whatsapp') >= 0) f.contact_ok = false;
     if (all || items.indexOf('my photo') >= 0) { f.photo_ok = false; if (Core_str(m.photo_file)) trashRef_(m.photo_file); f.photo_file = ''; f.photo_approved = false; }
     if (all || items.indexOf('birthday') >= 0) f.birthday_ok = false;
+    if (all || items.indexOf('business') >= 0) removeBusinesses_(m.member_id, requestId);
     if (all) { f.listing_approved = false; f.anniversary_ok = false; }
     f.consent_updated_at = nowIso_();
     f.notes = (Core_str(m.notes) + ' | Removal ' + requestId + ': ' + req.remove_items).replace(/^ \| /, '');
@@ -366,6 +367,17 @@ function approveRemoval_(requestId, who) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/** A member's Rotary Means Business listings come off the website (the rows stay, marked removed). */
+function removeBusinesses_(memberId, requestId) {
+  var ss = mainSs_();
+  readTab_(ss, 'businesses').forEach(function (b) {
+    if (Core_str(b.member_id) !== Core_str(memberId) || ['approved', 'pending'].indexOf(Core_str(b.status)) < 0) return;
+    if (Core_str(b.photo_files)) trashRef_(b.photo_files);
+    updateRow_(ss, 'businesses', b._row, { status: 'removed', photo_files: '',
+      moderator_note: (Core_str(b.moderator_note) + '; Removed at the member\'s request (' + requestId + ')').replace(/^; /, '') });
+  });
 }
 
 /** Called by the sidebar: reject a consent or removal request. */

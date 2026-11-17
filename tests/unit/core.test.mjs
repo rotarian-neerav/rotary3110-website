@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { core, plain } from '../../lib/core.mjs';
+import { core, plain, sampleOptions } from '../../lib/core.mjs';
 
 const sample = JSON.parse(readFileSync(new URL('../../sample/sample-data.json', import.meta.url), 'utf8'));
 const build = () => plain(core.Core_buildPublicData(sample.main, '2026-10-13T00:00:00Z'));
@@ -178,4 +178,42 @@ test('the next Rotary year, and counting sample rows', () => {
   assert.equal(core.Core_nextRotaryYear('2099-00'), '2100-01');
   assert.equal(core.Core_nextRotaryYear('2024'), '');
   assert.equal(core.Core_sampleRows({ settings: [{ key: 'a' }], clubs: [{ is_sample: true }, { is_sample: 'TRUE' }, {}], members: [{ is_sample: false }] }), 2);
+});
+
+test('Rotary Means Business: only approved listings of active members, no member ID, no phone numbers, sample WhatsApp off (17 Nov)', () => {
+  const d = plain(core.Core_buildPublicData(sample.main, '2026-10-13T00:00:00Z', sampleOptions(sample)));
+  const names = d.businesses.map((b) => b.name);
+  assert.ok(names.includes('Gupta Opticals') && names.includes("Sharma & Sons' Sweets"));
+  for (const gone of ['DECEASED-SAMPLE business', 'LEFT-SAMPLE business', 'PENDING-SAMPLE business', 'REJECTED-SAMPLE business', 'REPLACED-SAMPLE Verma Tax Consultants']) {
+    assert.ok(!names.includes(gone), gone);
+  }
+  assert.ok(d.businesses.every((b) => !('member_id' in b) && !('_member' in b) && /^P[0-9a-f]{12}$/.test(b.person_ref)));
+  const saxena = d.businesses.find((b) => b.name === 'Saxena Builders');
+  assert.equal(saxena.about, '', 'a phone number in the text keeps the text off the website');
+  assert.ok(d.skipped_items.includes('business BIZ-S004 about'));
+  const gupta = d.businesses.find((b) => b.name === 'Gupta Opticals');
+  assert.deepEqual([gupta.contact_ok, gupta.contact_link, gupta.sample], [true, '', true], 'sample rows never get a working WhatsApp link');
+  const speaker = d.businesses.find((b) => !b.name);
+  assert.deepEqual([speaker.trade, speaker.speaker_topics], ['', 'First aid at home; CPR for everyone'], 'a speaker-only row');
+  assert.deepEqual(plain(core.Core_validatePublic(d)), []);
+  assert.ok(d.lists.trades.includes('Accountant / CA') && d.lists.trades.at(-1) === 'Other');
+});
+
+test('a business WhatsApp number becomes a wa.me link; the privacy check refuses anything else (17 Nov)', () => {
+  const tabs = { ...sample.main, businesses: sample.main.businesses.map((b) => (b.id === 'BIZ-S001' ? { ...b, is_sample: false, whatsapp: '98765 43210' } : b)) };
+  const d = plain(core.Core_buildPublicData(tabs, '2026-10-13T00:00:00Z', sampleOptions(sample)));
+  const b = d.businesses.find((x) => x.id === 'BIZ-S001');
+  assert.equal(b.contact_link, 'https://wa.me/919876543210');
+  assert.deepEqual(plain(core.Core_validatePublic(d)), []);
+  b.contact_link = 'tel:+919876543210';
+  assert.ok(core.Core_validatePublic(d).some((e) => /not a WhatsApp link/.test(e)));
+  b.contact_link = '';
+  b.about = 'Call 98765 43210';
+  assert.ok(core.Core_validatePublic(d).some((e) => /businesses\[\d+\]\.about: looks like a phone number/.test(e)));
+});
+
+test('an activity marked district level says so on the website (17 Nov)', () => {
+  const d = build();
+  assert.equal(d.activities.filter((a) => a.district_level).length, 1);
+  assert.ok(d.activities.every((a) => typeof a.district_level === 'boolean'));
 });

@@ -20,7 +20,7 @@
     {%- endif %}
   </a>
   <div class="card-body">
-    <p class="meta"><span class="chip theme-{{ a.themeSlug }}">{{ a.theme }}</span> <time datetime="{{ a.date }}">{{ a.dateLabel }}</time></p>
+    <p class="meta">{% if a.isDistrict %}<span class="chip chip-district">District</span> {% endif %}<span class="chip theme-{{ a.themeSlug }}">{{ a.theme }}</span> <time datetime="{{ a.date }}">{{ a.dateLabel }}</time></p>
     <h3><a href="{{ a.url }}">{{ a.title }}</a></h3>
     <p class="club-line">{{ a.club.name }}{% if a.partners.length %} <span class="muted">with {% for p in a.partners %}{{ p.name }}{% if not loop.last %}, {% endif %}{% endfor %}</span>{% endif %}</p>
     {%- if a.campaign %}<p class="campaign-tag-line">{{ campaignTag(a) }}</p>{% endif %}
@@ -97,6 +97,28 @@
     {%- if showClub and x.club %}<dt>{{ t.services.run_by }}</dt><dd><a href="{{ x.club.url }}">{{ x.club.name }}</a></dd>{% endif %}
   </dl>
   {%- if x.map_link %}<p><a class="btn-small" href="{{ x.map_link }}" target="_blank" rel="noopener">{{ t.services.map }} ↗</a></p>{% endif %}
+</article>
+{% endmacro %}
+
+{# A member's business (Rotary Means Business); data-text is what the search box looks through #}
+{% macro businessCard(b, t, showCity=true) %}
+<article class="service-card business-card" data-city="{{ b.city }}" data-trade="{{ b.tradeSlug }}" data-text="{{ [b.name, b.trade, b.about, b.offer, b.owner, b.city, b.club.name if b.club else ''] | join(' ') | lower }}">
+  <div class="business-head">
+    {%- if b.image %}<img class="business-logo" src="{{ b.image.sq.src }}" alt="" width="64" height="64" loading="lazy">{% endif %}
+    <div>
+      <p class="meta"><a class="chip chip-service" href="{{ b.tradeUrl }}">{{ b.trade }}</a>{% if showCity and b.city %} <span>{{ b.city }}</span>{% endif %}</p>
+      <h3><a href="{{ b.url }}">{{ b.name }}</a></h3>
+    </div>
+  </div>
+  {%- if b.about %}<p>{{ b.about }}</p>{% endif %}
+  {%- if b.offer %}<p class="offer"><strong>{{ t.rmb.offer }}:</strong> {{ b.offer }}</p>{% endif %}
+  <p class="small">{{ t.rmb.owner }} {% if b.card %}<a href="{{ b.card }}">{{ b.owner }}</a>{% else %}{{ b.owner }}{% endif %}{% if b.club %}, <a href="{{ b.club.url }}">{{ b.club.name }}</a>{% endif %}</p>
+  {%- if b.wa or b.website or b.sampleContact %}
+  <p class="dir-actions">
+    {%- if b.wa %}<a class="btn-small wa" href="{{ b.wa | waHello }}" target="_blank" rel="noopener">WhatsApp</a>{% elif b.sampleContact %}<span class="small muted">{{ t.rmb.sample_contact }}</span>{% endif %}
+    {%- if b.website %}<a class="btn-small" href="{{ b.website }}" target="_blank" rel="noopener">Website ↗</a>{% endif %}
+  </p>
+  {%- endif %}
 </article>
 {% endmacro %}
 

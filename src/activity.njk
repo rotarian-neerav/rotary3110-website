@@ -32,7 +32,7 @@ eleventyComputed:
 ---
 {% from "macros.njk" import shareButton, campaignTag, activityCard, eventItem, videoBlock %}
 <article class="wrap section activity-page">
-  <p class="meta"><span class="chip theme-{{ a.themeSlug }}">{{ a.theme }}</span>{% if a.avenue %} <a class="chip chip-avenue" href="/activities/?avenue={{ a.avenueSlug }}">{{ a.avenue }}</a>{% endif %} <time datetime="{{ a.date }}">{{ a.dateLabel }}</time></p>
+  <p class="meta">{% if a.isDistrict %}<span class="chip chip-district">District</span> {% endif %}<span class="chip theme-{{ a.themeSlug }}">{{ a.theme }}</span>{% if a.avenue %} <a class="chip chip-avenue" href="/activities/?avenue={{ a.avenueSlug }}">{{ a.avenue }}</a>{% endif %} <time datetime="{{ a.date }}">{{ a.dateLabel }}</time></p>
   <h1>{{ a.title }}</h1>
   <p class="club-line"><a href="{{ a.club.url }}">{{ a.club.name }}</a>{% if a.partners.length %} · {{ t.activity.with }} {% for p in a.partners %}<a href="{{ p.url }}">{{ p.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</p>
   {%- if a.campaign %}<p class="campaign-tag-line">{{ campaignTag(a) }}</p>{% endif %}

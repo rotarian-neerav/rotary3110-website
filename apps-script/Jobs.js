@@ -123,8 +123,8 @@ function sendReminders_() {
   var ps = privateSs_();
   // Content moderators get the activities, events, club profiles and services; Members moderators the member requests
   var content = [];
-  ['activities', 'events', 'club_profile_requests', 'public_services'].forEach(function (t) {
-    Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { content.push(t + ': ' + r.id + ' – ' + (r.title || r.name || r.club_name || '')); });
+  MODERATED_TABS.forEach(function (t) {
+    Core_overdue(readTab_(main, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) { content.push(t + ': ' + r.id + ' – ' + (r.title || r.name || r.business_name || r.club_name || '')); });
   });
   var members = [];
   var sender = consentChecker_(ps);
@@ -295,7 +295,8 @@ function weeklySummary() {
   out.push('THE WEBSITE\n' + (built ? 'Last built: ' + Core_dateLabel(Core_isoDate(new Date(built))) + ' (' + built.slice(11, 16) + ' UTC).' : 'Could not read when the website was last built.') +
     (asked && built && asked > built ? '\nA rebuild was asked for on ' + Core_dateLabel(Core_isoDate(new Date(asked))) + ' and has not run yet: check the Actions tab on GitHub.' : ''));
 
-  var labels = { activities: 'activities', events: 'events', public_services: 'public services', club_profile_requests: 'club profile updates' };
+  var labels = { activities: 'activities', events: 'events', public_services: 'public services', club_profile_requests: 'club profile updates',
+    businesses: 'business listings' };
   var live = [];
   var waiting = [];
   var titles = [];

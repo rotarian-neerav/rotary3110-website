@@ -433,6 +433,9 @@ addActivity({ clubId: 'S-021', date: '2026-09-29', theme: 'Supporting education'
   template: ['NOPHOTO-SAMPLE entry without photo or link', 'Approved by mistake without a photo or link; the build skips it.'] });
 
 /* ---------- events ---------- */
+// marked by its club as district level (a district occasion such as a grant inauguration; the moderator checked it)
+activities.find((a) => a.club_id === 'S-006' && a.date === '2026-08-20').district_level = true;
+
 const events = [];
 let evtSeq = 1;
 function addEvent(e) {
@@ -596,6 +599,38 @@ addService('RC Jhansi', { name: 'PENDING-SAMPLE service awaiting approval', serv
 addService('RC Agra', { name: 'REJECTED-SAMPLE duplicate blood bank', service_type: 'Blood bank', timings: 'Open 24 hours', phone: '+91 60000 00001', address: 'Sanjay Place' },
   { status: 'rejected', moderator_note: 'Duplicate of SRV-S001' });
 
+// Rotary Means Business: members' own businesses and speaker topics (17 Nov 2026). Awkward cases on purpose: an
+// ampersand and apostrophe in a name, a phone number in the text, a member who died and one who left (never shown),
+// a speaker-only row, rows waiting, rejected and replaced, and two businesses with the same name in one trade.
+const businesses = [];
+let bizSeq = 1;
+function addBusiness(m, fields, extra = {}) {
+  const c = clubById[m.club_id];
+  businesses.push({
+    id: `BIZ-S${pad(bizSeq++, 3)}`, submitted_at: '2026-10-05T10:00:00+05:30', submitter_email: m.email, submitter_name: m.name,
+    submitter_mobile: m.mobile, club_id: m.club_id, club_name: c.club_name, member_id: m.member_id, member_name: m.name,
+    business_name: '', trade: '', city: c.city, about: '', offer: '', website: '', whatsapp: '', photo_files: '', speaker_topics: '',
+    status: 'approved', approved_by: 'moderator.a@example.com', approved_at: '2026-10-06T11:00:00+05:30', moderator_note: '', notified: true,
+    is_sample: true, ...fields, ...extra,
+  });
+}
+addBusiness(approved[1], { business_name: 'Gupta Opticals', trade: 'Shop / retail', about: 'Spectacles, contact lenses and free eye-power checks.',
+  offer: '10% off for Rotarians and their families', whatsapp: '6000000001', photo_files: 'sample:member-02.jpg',
+  speaker_topics: 'Eye care for children; Screen time and your eyes' });
+addBusiness(approved[2], { business_name: "Sharma & Sons' Sweets", trade: 'Food / sweets / bakery', about: 'Sweets and namkeen made fresh every morning since 1985.',
+  website: 'https://example.com/sharma-sweets' });
+addBusiness(approved[3], { business_name: 'Verma Tax Consultants', trade: 'Accountant / CA', about: 'Income tax and GST returns for families and small firms.',
+  speaker_topics: 'Income tax for families' });
+addBusiness(approved[4], { business_name: 'Saxena Builders', trade: 'Builder / real estate', about: 'Call 60000 00002 for flats in the city.' });
+addBusiness(approved[5], { business_name: 'City Tours', trade: 'Tours / travel', about: 'Day trips and pilgrimages by air-conditioned bus.' });
+addBusiness(approved[6], { business_name: 'City Tours', trade: 'Tours / travel', about: 'Hill-station holidays for families.' });
+addBusiness(approved[7], { speaker_topics: 'First aid at home; CPR for everyone' });
+addBusiness(approved[8], { business_name: 'DECEASED-SAMPLE business', trade: 'Shop / retail', about: 'Must never be shown.' });
+addBusiness(approved[50], { business_name: 'LEFT-SAMPLE business', trade: 'Shop / retail', about: 'Must never be shown.' });
+addBusiness(approved[9], { business_name: 'PENDING-SAMPLE business', trade: 'Consultant' }, { status: 'pending', approved_by: '', approved_at: '', notified: false });
+addBusiness(approved[10], { business_name: 'REJECTED-SAMPLE business', trade: 'Consultant' }, { status: 'rejected', moderator_note: 'Not the member\'s own business' });
+addBusiness(approved[3], { business_name: 'REPLACED-SAMPLE Verma Tax Consultants', trade: 'Accountant / CA' }, { status: 'replaced', moderator_note: 'Replaced by BIZ-S003' });
+
 // The About page: the RI President and the District Governor (sample profiles; the district gives the real ones)
 const profiles = [
   { role: 'President of Rotary International', rotary_year: '2026-27', name: 'Sample: RI President', theme: 'Sample theme of the year',
@@ -756,6 +791,7 @@ const data = {
     club_profile_requests: toTab(SCHEMA_MAIN.club_profile_requests, clubProfileRequests),
     campaigns: toTab(SCHEMA_MAIN.campaigns, campaigns),
     public_services: toTab(SCHEMA_MAIN.public_services, publicServices),
+    businesses: toTab(SCHEMA_MAIN.businesses, businesses),
     profiles: toTab(SCHEMA_MAIN.profiles, profiles),
     past_governors: toTab(SCHEMA_MAIN.past_governors, pastGovernors),
     magazines: toTab(SCHEMA_MAIN.magazines, magazines),

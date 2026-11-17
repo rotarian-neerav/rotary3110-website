@@ -23,5 +23,6 @@ scripts: ["directory.js"]
   <p class="small" data-directory-count aria-live="polite"></p>
   <ul class="directory-list" data-directory-results></ul>
   <noscript><p>Please turn on JavaScript to search the directory.</p></noscript>
+  {%- if site.has.rmb %}<p class="more-links"><a class="more" href="/rmb/">{{ t.rmb.title }}: members' businesses</a></p>{% endif %}
   <p class="small muted">Want to be listed, or to change or remove your listing? <a href="/consent/">Fill the consent form</a> · <a href="/remove/">Remove my details</a></p>
 </div>

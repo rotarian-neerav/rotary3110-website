@@ -1,0 +1,46 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: site.rmb.businesses
+  size: 1
+  addAllPagesToCollections: true
+  alias: b
+permalink: "{{ b.url }}"
+eleventyComputed:
+  title: "{{ b.name }}, {{ b.city }}"
+  description: "{{ b.name }}: {{ b.trade }} in {{ b.city }}, run by {{ b.owner }}{% if b.club %} of {{ b.club.name }}{% endif %}. {{ b.about }}"
+  jsonld:
+    "@context": "https://schema.org"
+    "@type": "LocalBusiness"
+    name: "{{ b.name }}"
+    description: "{{ b.about }}"
+    address:
+      "@type": "PostalAddress"
+      addressLocality: "{{ b.city }}"
+      addressCountry: "IN"
+---
+{% from "macros.njk" import avatar %}
+<div class="wrap section narrow">
+  <p class="more-links up"><a class="more" href="{{ b.tradeUrl }}">{{ b.trade }}</a></p>
+  <article class="member-card business-page">
+    <header class="member-head">
+      {%- if b.image %}<img class="business-logo large" src="{{ b.image.sq.src }}" alt="{{ b.name }}" width="120" height="120">{% endif %}
+      <div>
+        <h1>{{ b.name }}</h1>
+        <p class="role"><a href="{{ b.tradeUrl }}">{{ b.trade }}</a> · {% if b.cityUrl %}<a href="{{ b.cityUrl }}">{{ b.city }}</a>{% else %}{{ b.city }}{% endif %}</p>
+        <p class="dir-actions">
+          {%- if b.wa %}<a class="btn-small wa" href="{{ b.wa | waHello }}" target="_blank" rel="noopener">WhatsApp</a>{% elif b.sampleContact %}<span class="small muted">{{ t.rmb.sample_contact }}</span>{% endif %}
+          {%- if b.website %}<a class="btn-small" href="{{ b.website }}" target="_blank" rel="noopener">Website ↗</a>{% endif %}
+        </p>
+      </div>
+    </header>
+    {%- if b.about %}<p class="lead">{{ b.about }}</p>{% endif %}
+    {%- if b.offer %}<p class="offer"><strong>{{ t.rmb.offer }}:</strong> {{ b.offer }}</p>{% endif %}
+    <dl class="details compact">
+      <dt>{{ t.rmb.owner }}</dt><dd>{% if b.card %}<a href="{{ b.card }}">{{ b.owner }}</a>{% else %}{{ b.owner }}{% endif %}</dd>
+      {%- if b.club %}<dt>Club</dt><dd><a href="{{ b.club.url }}">{{ b.club.name }}</a></dd>{% endif %}
+      {%- if b.speaker_topics %}<dt>{{ t.rmb.speaker_topics }}</dt><dd>{{ b.speaker_topics }}</dd>{% endif %}
+    </dl>
+  </article>
+  <p class="small muted">{{ t.rmb.members_only }} To change or remove this listing, the member can send the business form again or use the <a href="/remove/">removal form</a>.</p>
+</div>

@@ -10,7 +10,7 @@ eleventyComputed:
   title: "Rotary in {{ city.name }}"
   description: "{{ city.clubs.length }} Rotary {{ 'club' if city.clubs.length == 1 else 'clubs' }} in {{ city.name }}: when they meet, upcoming events, recent service activities{% if city.services.length %} and services the public can use{% endif %}. Rotary District 3110."
 ---
-{% from "macros.njk" import activityCard, eventItem, serviceCard %}
+{% from "macros.njk" import activityCard, eventItem, serviceCard, businessCard %}
 <div class="wrap section">
   <p class="more-links up"><a class="more" href="/cities/">{{ t.cities.title }}</a></p>
   <h1>Rotary in {{ city.name }}</h1>
@@ -38,6 +38,14 @@ eleventyComputed:
   <section id="services">
     <h2>{{ t.cities.services }}</h2>
     <div class="service-grid">{% for x in city.services %}{{ serviceCard(x, t) }}{% endfor %}</div>
+  </section>
+  {%- endif %}
+
+  {%- if city.businesses.length %}
+  <section id="businesses">
+    <h2>{{ t.rmb.city_heading }} {{ city.name }}</h2>
+    <div class="service-grid">{% for b in city.businesses %}{{ businessCard(b, t, false) }}{% endfor %}</div>
+    <p class="more-links"><a class="more" href="/rmb/?city={{ city.name | urlencode }}">{{ t.rmb.title }}</a></p>
   </section>
   {%- endif %}
 

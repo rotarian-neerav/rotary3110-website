@@ -177,3 +177,13 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 | L33 | The owner is emailed when a requested rebuild has not happened within 3 hours | `apps-script/Jobs.js` | U: missed rebuild | 🟡 deployed |
 | L34 | July changeover from the menu: Start new Rotary year (only once the new team is in), outgoing Governor added to Past Governors | `apps-script/Jobs.js` | U: new year | 🟡 deployed; first use July 2027 |
 | L35 | "See all" and other "go to more" links are outlined buttons, easy to spot and tap | `site.css`, templates | S: buttons | ✅ |
+
+**17 November: Rotary Means Business and district work**
+
+| # | Requirement | Where | Proof | Status |
+|---|---|---|---|---|
+| L36 | Links back to the page above (city, year, club members, activity, event, campaign pages) are outlined buttons | templates | S: back links | ✅ |
+| L37 | Rotary Means Business, Phase 1: members list their own businesses (members only, moderated); pages by trade with businesses grouped by city, a page per business for search engines, a section on each city page, a link on the member card; WhatsApp button and website only, no phone numbers; listings leave the website when the member is marked deceased or left; a newer listing replaces the older; the removal form takes it off | `apps-script/Forms.js`, `Submissions.js`, `Moderation.js`, `Core.js`, `src/rmb*.njk` | U: rules, privacy check; U(sim): form, members only, replace, removal; S: pages, no phone numbers, no departed members | 🟡 built; needs Code.gs deployed, Upgrade Sheet and the logo question |
+| L38 | Speaker bank: members list topics they can speak on at club meetings (the same form); a speakers page | `src/rmb-speakers.njk` | U, S: speakers | 🟡 with L37 |
+| L39 | District work stays marked: "District level?" on the activity form; the report of a district event is marked too; moderators are asked to check | `Forms.js`, `Submissions.js`, `lib/derive.mjs` | U(sim): question and note; S: chip | 🟡 the form question after Upgrade Sheet |
+| L40 | Past district events first on the Events page; recent district events on the home page | `lib/derive.mjs`, `index.njk` | S: order, home section | ✅ |

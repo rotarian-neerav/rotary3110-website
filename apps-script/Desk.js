@@ -20,13 +20,15 @@ var DESK_SESSION_HOURS = 7 * 24;
 var DESK_LINK_DAYS = 7;
 var DESK_SIGNIN_MINUTES = 15;
 var DESK_CODE_ANSWER_MS = 2500;
-var DESK_KINDS = { activities: 'Activity', events: 'Event', club_profile_requests: 'Club profile update', public_services: 'Public service' };
+var DESK_KINDS = { activities: 'Activity', events: 'Event', club_profile_requests: 'Club profile update', public_services: 'Public service',
+  businesses: 'Business listing' };
 // What a moderator may correct on the desk before approving (spelling, length, a phone number in the text)
 var DESK_EDITABLE = {
   activities: ['title', 'description', 'press_paper'],
   events: ['title', 'description', 'venue', 'fee'],
   club_profile_requests: ['meeting_day_place', 'permanent_projects', 'regular_services'],
   public_services: ['name', 'timings', 'phone', 'address', 'about'],
+  businesses: ['business_name', 'about', 'offer', 'speaker_topics', 'member_id'],
 };
 
 function doPost(e) {
@@ -279,7 +281,7 @@ function deskCard_(tab, r) {
   (DESK_EDITABLE[tab] || []).forEach(function (k) { card.edit[k] = Core_str(r[k]); });
   if (tab === 'activities') {
     card.title = Core_str(r.title); card.club = Core_str(r.club_name); card.date = Core_isoDate(r.date); card.text = Core_str(r.description);
-    add('Theme', r.theme); add('Avenue', r.avenue); add('People helped', r.people_helped); add('Amount spent (₹)', r.amount_spent);
+    add('Theme', r.theme); add('Avenue', r.avenue); if (Core_isTrue(r.district_level)) add('District level', 'Yes: check the district organised it'); add('People helped', r.people_helped); add('Amount spent (₹)', r.amount_spent);
     add('Partner clubs', Core_str(r.partner_clubs).split(',').map(function (s) { return s.trim(); }).filter(String).map(deskClubName_).join(', '));
     if (Core_str(r.campaign_id)) add('Campaign', Core_str(r.campaign_id) + (Core_str(r.campaign_count) !== '' ? ': ' + r.campaign_count : ''));
     if (card.photos.length) add('Photo consent', Core_isTrue(r.photo_consent) ? 'Ticked' : 'NOT ticked: reject the photos');
@@ -302,6 +304,14 @@ function deskCard_(tab, r) {
     add('Type', r.service_type); add('Timings', r.timings); add('Phone (shown on the website)', r.phone);
     add('Address', [Core_str(r.address), Core_str(r.city)].filter(String).join(', '));
     link('Map', r.map_link);
+  } else if (tab === 'businesses') {
+    var m = businessMember_(r);
+    card.title = Core_str(r.business_name) || 'Speaker topics only'; card.club = Core_str(r.club_name); card.text = Core_str(r.about);
+    add('Member', m ? Core_str(m.name) + ' (' + Core_str(m.member_id) + ')' + (businessMemberActive_(m) ? '' : ': NOT active') : 'Not found in the members list');
+    add('Trade', r.trade); add('City', r.city); add('Offer for Rotarians', r.offer);
+    add('WhatsApp button', Core_mobile(r.whatsapp) ? 'Yes' : Core_str(r.whatsapp) ? 'Not a mobile number' : '');
+    add('Speaker topics', r.speaker_topics);
+    link('Website', r.website);
   }
   return card;
 }

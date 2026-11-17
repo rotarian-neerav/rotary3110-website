@@ -44,6 +44,13 @@ var MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep
 var CORE_AVENUES = ['Club Service', 'Vocational Service', 'Community Service', 'International Service', 'Youth Service'];
 // Kinds of lasting facility the public can use (the public service form)
 var CORE_SERVICE_TYPES = ['Blood bank', 'Eye care', 'Dialysis', 'Clinic / health centre', 'Library', 'Skill / vocational centre', 'Ambulance', 'Other'];
+// Trades for Rotary Means Business listings (the business form); Other last
+var CORE_TRADES = ['Accountant / CA', 'Advocate / legal', 'Agriculture / dairy', 'Architect / interior design', 'Automobile / dealership',
+  'Bank / finance / insurance', 'Builder / real estate', 'Chemist / pharmacy', 'Clothing / textiles', 'Coaching / tuition',
+  'Computers / IT / software', 'Construction material / hardware', 'Consultant', 'Dentist', 'Doctor / clinic', 'Electricals / electronics',
+  'Engineering / manufacturing', 'Event management', 'Food / sweets / bakery', 'Furniture', 'Hospital / nursing home', 'Hotel / restaurant',
+  'Jewellery', 'Laboratory / diagnostics', 'Media / photography', 'Printing / advertising', 'School / college', 'Shop / retail',
+  'Tours / travel', 'Transport / logistics', 'Wholesale / trading', 'Other'];
 var CORE_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 // The contact form: at most this many messages are emailed on, per day, unless the setting says otherwise
 var CORE_CONTACT_DAILY_LIMIT = 20;
@@ -1077,6 +1084,8 @@ function Core_buildPublicData(tabs, nowIso, options) {
       campaign_id: campaignIds[Core_str(a.campaign_id)] ? Core_str(a.campaign_id) : '',
       campaign_count: Math.max(0, Math.floor(Number(a.campaign_count) || 0)),
       bulletin_exclude: Core_isTrue(a.bulletin_exclude),
+      // the sender marked it as district work (a grant inauguration, a district seminar); the moderator checks it
+      district_level: Core_isTrue(a.district_level),
     };
   }).filter(function (a) {
     var ok = a.id && a.title && a.date && clubIds[a.club_id] && (a.photos.length || a.post_link);
@@ -1148,6 +1157,44 @@ function Core_buildPublicData(tabs, nowIso, options) {
       about: Core_safeText(s.about, where + ' about', skippedItems),
     };
   }).filter(function (s) { return s.id && s.name && clubIds[s.club_id]; });
+
+  // Rotary Means Business: members' own businesses and the topics they can speak on. Members only: a row shows
+  // only while its member is active (deceased or departed members drop out), with the WhatsApp number as a button.
+  var businesses = Core_uniqueRows((tabs.businesses || []).filter(function (b) {
+    return Core_str(b.status).toLowerCase() === 'approved' && !Core_isPractice(b);
+  }), duplicates).map(function (b) {
+    var where = 'business ' + Core_str(b.id);
+    var id = Core_str(b.member_id);
+    var trade = 'Other';
+    CORE_TRADES.forEach(function (t) { if (t.toLowerCase() === Core_str(b.trade).toLowerCase()) trade = t; });
+    var mobile = Core_mobile(b.whatsapp);
+    if (Core_str(b.whatsapp) && !mobile) skippedItems.push(where + ' WhatsApp number');
+    var sample = Core_isTrue(b.is_sample);
+    var name = Core_safeText(b.business_name, where + ' name', skippedItems);
+    return {
+      id: Core_str(b.id),
+      _member: id,
+      club_id: Core_str(b.club_id),
+      owner: Core_safeText(b.member_name, where + ' owner', skippedItems),
+      person_ref: id && !inactiveIds[id] ? personRef(id) : '',
+      name: name,
+      trade: name ? trade : '',
+      city: name ? Core_str(b.city) : '',
+      about: name ? Core_safeText(b.about, where + ' about', skippedItems) : '',
+      offer: name ? Core_safeText(b.offer, where + ' offer', skippedItems) : '',
+      website: name ? Core_url(b.website) : '',
+      contact_ok: !!(name && mobile),
+      // sample rows never get a working WhatsApp link
+      contact_link: name && mobile && !sample ? 'https://wa.me/' + mobile : '',
+      logo: name ? Core_photoRefs(b.photo_files)[0] || '' : '',
+      speaker_topics: Core_safeText(b.speaker_topics, where + ' speaker topics', skippedItems),
+      sample: sample,
+    };
+  }).filter(function (b) {
+    var ok = b.id && b._member && b.person_ref && b.owner && clubIds[b.club_id] && (b.name || b.speaker_topics);
+    delete b._member; // the member ID never leaves this function
+    return ok;
+  });
 
   // The About page: the RI President and the District Governor (the latest row of each)
   var profileByRole = {};
@@ -1259,11 +1306,13 @@ function Core_buildPublicData(tabs, nowIso, options) {
       removal: Core_url(settings.form_removal_url),
       public_service: Core_url(settings.form_public_service_url),
       contact: Core_url(settings.form_contact_url),
+      business: Core_url(settings.form_business_url),
     },
     lists: {
       themes: CORE_THEMES.slice(),
       avenues: CORE_AVENUES.slice(),
       service_types: CORE_SERVICE_TYPES.slice(),
+      trades: CORE_TRADES.slice(),
       event_types: CORE_EVENT_TYPES.slice(),
       professions: Core_list(settings.professions),
     },
@@ -1279,6 +1328,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
     couples: couples,
     campaigns: campaigns,
     public_services: publicServices,
+    businesses: businesses,
     profiles: profiles,
     past_governors: pastGovernors,
     skipped_activities: skipped,
@@ -1373,6 +1423,14 @@ function Core_validatePublic(data) {
     var ok = Core_servicePhone(s.phone);
     if (!ok || ok.tel !== s.tel) err(w, 'phone is not a plain phone number');
   });
+  // A business's WhatsApp button: only a WhatsApp link, and only with the member's own business details
+  (data.businesses || []).forEach(function (b, i) {
+    var w = 'businesses[' + i + '] ' + (b.name || b.owner || '');
+    if ('member_id' in b) err(w, 'member ID must never be published');
+    if (b.contact_link && !(b.contact_ok && b.name)) err(w, 'contact link without a business');
+    if (b.contact_link && !CORE_WA_LINK_RE.test(b.contact_link)) err(w, 'contact link is not a WhatsApp link');
+    if (b.person_ref && !/^P[0-9a-f]{12}$/.test(b.person_ref)) err(w, 'person reference is not a scrambled reference');
+  });
   // Zones are internal and may change: never on the website
   (data.clubs || []).concat(data.functionaries || []).forEach(function (r, i) {
     if (r && 'zone' in r) err('clubs/roles[' + i + '] ' + (r.name || ''), 'zone must not be published');
@@ -1386,6 +1444,7 @@ function Core_validatePublic(data) {
   (scan.public_services || []).forEach(function (s) {
     if (Core_servicePhone(s.phone)) { delete s.phone; delete s.tel; }
   });
+  (scan.businesses || []).forEach(function (b) { if (b.contact_ok) delete b.contact_link; });
   Core_walk(scan, '', function (path, value) {
     if (typeof value !== 'string') return;
     if (/^(drive|sample|thumb):/.test(value) || /^https?:\/\//.test(value)) {
@@ -1599,7 +1658,7 @@ if (typeof module !== 'undefined' && module.exports) {
     CORE_REG_STATUSES: CORE_REG_STATUSES, CORE_NO_CAMPAIGN: CORE_NO_CAMPAIGN,
     Core_meetingDay: Core_meetingDay, Core_servicePhone: Core_servicePhone, Core_videoLink: Core_videoLink, Core_clubRef: Core_clubRef,
     Core_contactCheck: Core_contactCheck, CORE_QUIET_DAYS: CORE_QUIET_DAYS,
-    CORE_AVENUES: CORE_AVENUES, CORE_SERVICE_TYPES: CORE_SERVICE_TYPES, CORE_WEEKDAYS: CORE_WEEKDAYS,
+    CORE_AVENUES: CORE_AVENUES, CORE_SERVICE_TYPES: CORE_SERVICE_TYPES, CORE_TRADES: CORE_TRADES, CORE_WEEKDAYS: CORE_WEEKDAYS,
     CORE_MODERATOR_TYPES: CORE_MODERATOR_TYPES, Core_moderatorEmails: Core_moderatorEmails, Core_moderatorAccess: Core_moderatorAccess,
     Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl, Core_isPractice: Core_isPractice,
   };

@@ -18,7 +18,9 @@ var SCHEMA_MAIN = {
     'club_name', 'title', 'date', 'theme', 'description', 'photo_files', 'post_link', 'people_helped', 'amount_spent', 'partner_clubs',
     'photo_consent', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'story_of_month', 'event_id',
     'notified', 'is_sample', 'campaign_id', 'campaign_count', 'bulletin_exclude',
-    'avenue', 'video_link', 'press_paper', 'press_date', 'press_link'],
+    'avenue', 'video_link', 'press_paper', 'press_date', 'press_link',
+    // added 17 November 2026: the sender marked it as district work (the moderator checks it)
+    'district_level'],
   events: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'title',
     'event_type', 'start_date', 'start_time', 'end_date', 'venue', 'city', 'organiser', 'description', 'map_link',
     'details_link', 'photo_files', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'report_activity_id', 'notified',
@@ -39,6 +41,12 @@ var SCHEMA_MAIN = {
   public_services: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'club_id',
     'club_name', 'name', 'service_type', 'timings', 'phone', 'address', 'city', 'map_link', 'about', 'status', 'approved_by',
     'approved_at', 'moderator_note', 'notified', 'is_sample'],
+  // Rotary Means Business (17 November 2026): a member's own business and the topics they can speak on, sent through
+  // the business form. member_id and member_name are filled from the private members list; only an approved row of
+  // an active member is published, and never the member ID, the sender's mobile or email
+  businesses: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_mobile', 'club_id', 'club_name', 'member_id',
+    'member_name', 'business_name', 'trade', 'city', 'about', 'offer', 'website', 'whatsapp', 'photo_files', 'speaker_topics', 'status',
+    'approved_by', 'approved_at', 'moderator_note', 'notified', 'is_sample'],
   // the About page: the RI President and the District Governor (role, year, name, theme, short profile, photo)
   profiles: ['role', 'rotary_year', 'name', 'theme', 'profile', 'photo', 'link', 'sort_order', 'is_sample'],
   // every Past District Governor, including those no longer with us (member_id only links a card; never shown)

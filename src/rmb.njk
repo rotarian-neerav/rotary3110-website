@@ -1,0 +1,66 @@
+---
+layout: layouts/base.njk
+title: Rotary Means Business
+description: Businesses run by members of the Rotary clubs of District 3110, by trade and city. Find a Rotarian chartered accountant, doctor, builder or shop near you.
+permalink: /rmb/
+scripts: ["rmb.js"]
+---
+{% from "macros.njk" import businessCard, eventItem %}
+<div class="wrap section">
+  <h1>{{ t.rmb.title }}</h1>
+  <p class="lead">{{ t.rmb.intro }}</p>
+  {%- if site.rmb.form %}
+  <p class="rmb-cta"><a class="btn btn-gold" href="/list-business/">{{ t.rmb.list }}</a> <span class="small muted">{{ t.rmb.list_text }}</span></p>
+  {%- endif %}
+
+  {%- if site.rmb.businesses.length %}
+  <form class="filters" role="search" data-no-submit data-rmb-filter hidden>
+    <label class="grow">{{ t.rmb.search }}
+      <input type="search" name="q" placeholder="{{ t.rmb.search_hint }}" autocomplete="off">
+    </label>
+    <label>{{ t.rmb.trade }}
+      <select name="trade"><option value="">{{ t.rmb.all_trades }}</option>{% for tr in site.rmb.trades %}<option value="{{ tr.slug }}">{{ tr.trade }}</option>{% endfor %}</select>
+    </label>
+    <label>{{ t.rmb.city }}
+      <select name="city"><option value="">{{ t.rmb.all_cities }}</option>{% for c in site.rmb.cities %}<option value="{{ c.name }}">{{ c.name }}</option>{% endfor %}</select>
+    </label>
+  </form>
+
+  <section>
+    <h2>{{ t.rmb.trades }}</h2>
+    <nav class="jump" aria-label="{{ t.rmb.trades }}">{% for tr in site.rmb.trades %}<a href="{{ tr.url }}">{{ tr.trade }} ({{ tr.count }})</a>{% endfor %}</nav>
+  </section>
+  <section>
+    <h2>{{ t.rmb.cities }}</h2>
+    <nav class="jump" aria-label="{{ t.rmb.cities }}">
+      {%- for c in site.rmb.cities %}
+      {%- set page_city = site.cities | selectattr("name", "equalto", c.name) | first %}
+      {%- if page_city %}<a href="{{ page_city.url }}#businesses">{{ c.name }} ({{ c.count }})</a>{% else %}<span>{{ c.name }} ({{ c.count }})</span>{% endif %}
+      {%- endfor %}
+    </nav>
+  </section>
+  {%- endif %}
+
+  {%- if site.rmb.networking.length %}
+  <section>
+    <h2>{{ t.rmb.networking }}</h2>
+    <div class="event-grid">{% for e in site.rmb.networking %}{{ eventItem(e, t) }}{% endfor %}</div>
+  </section>
+  {%- endif %}
+
+  <section>
+    <h2>{{ t.rmb.all }}</h2>
+    {%- if site.rmb.businesses.length %}
+    <p class="small" data-rmb-count aria-live="polite"></p>
+    <div class="service-grid" data-rmb-group>{% for b in site.rmb.businesses %}{{ businessCard(b, t) }}{% endfor %}</div>
+    <p class="small" data-rmb-none hidden>{{ t.rmb.none_found }}</p>
+    {%- else %}
+    <p>{{ t.rmb.empty }}</p>
+    {%- endif %}
+  </section>
+
+  {%- if site.rmb.speakers.length %}
+  <p class="more-links"><a class="more" href="/rmb/speakers/">{{ t.rmb.speakers_link }} ({{ site.rmb.speakers.length }})</a></p>
+  {%- endif %}
+  <p class="small muted">{{ t.rmb.members_only }}</p>
+</div>

@@ -87,11 +87,13 @@
         <li><a href="/how-to-post/">{{ t.footer.guide }}</a></li>
         <li><a href="/club-profile/">{{ t.footer.club_profile }}</a></li>
         <li><a href="/public-service/">{{ t.footer.public_service }}</a></li>
+        {%- if site.rmb.form %}<li><a href="/list-business/">{{ t.footer.list_business }}</a></li>{% endif %}
         <li><a href="/consent/">{{ t.footer.consent }}</a></li>
         <li><a href="/remove/">{{ t.footer.remove }}</a></li>
       </ul>
       <ul>
         {%- if site.has.services %}<li><a href="/services/">{{ t.footer.services }}</a></li>{% endif %}
+        {%- if site.has.rmb %}<li><a href="/rmb/">{{ t.footer.rmb }}</a></li>{% endif %}
         <li><a href="/cities/">{{ t.footer.cities }}</a></li>
         <li><a href="/bulletin/">{{ t.footer.bulletin }}</a></li>
         {%- if site.campaigns.length %}<li><a href="/campaigns/">{{ t.footer.campaigns }}</a></li>{% endif %}

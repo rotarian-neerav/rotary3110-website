@@ -39,13 +39,13 @@ function onOpen() {
     .addToUi();
 }
 
-var MODERATED_TABS = ['activities', 'events', 'club_profile_requests', 'public_services'];
+var MODERATED_TABS = ['activities', 'events', 'club_profile_requests', 'public_services', 'businesses'];
 
 function selectedRows_() {
   var sh = SpreadsheetApp.getActiveSheet();
   var name = sh.getName();
   if (MODERATED_TABS.indexOf(name) < 0) {
-    throw new Error('Select one or more rows in the activities, events, club_profile_requests or public_services tab first.');
+    throw new Error('Select one or more rows in the activities, events, club_profile_requests, public_services or businesses tab first.');
   }
   var rows = [];
   sh.getActiveRangeList().getRanges().forEach(function (r) {
@@ -90,19 +90,52 @@ function approveBlock_(tab, r) {
   if (tab === 'activities' && !Core_str(r.photo_files) && !Core_url(r.post_link)) return 'needs a photo or a link to the club\'s post';
   if ((tab === 'activities' || tab === 'public_services') && !Core_str(r.club_id)) return 'club not recognised: fill in club_id';
   if (tab === 'public_services' && !Core_servicePhone(r.phone)) return 'the phone number is not a plain number: correct it first';
+  if (tab === 'businesses') return businessBlock_(r);
   return '';
+}
+
+/** Members only: a business listing needs an active member from the members list, and a business or speaker topics. */
+function businessBlock_(r) {
+  if (Core_isPractice(r)) return '';
+  if (!Core_str(r.business_name) && !Core_str(r.speaker_topics)) return 'neither a business nor speaker topics';
+  if (Core_str(r.business_name) && (!Core_str(r.trade) || !Core_str(r.city))) return 'the business needs a trade and a city';
+  if (Core_str(r.whatsapp) && !Core_mobile(r.whatsapp)) return 'the WhatsApp number is not a mobile number: correct or clear it';
+  var m = businessMember_(r);
+  if (!m) return 'not found in the members list: fill in member_id (members only)';
+  if (!businessMemberActive_(m)) return 'the member is not active in the members list (members only)';
+  return '';
+}
+
+/** The members_master row a business listing belongs to (few listings wait at a time, so it is read each time). */
+function businessMember_(r) {
+  var id = Core_str(r.member_id);
+  if (!id) return null;
+  return readTab_(privateSs_(), 'members_master').filter(function (m) { return Core_str(m.member_id) === id; })[0] || null;
 }
 
 /** Approves one row (already checked with approveBlock_) and tells the sender. */
 function approveRow_(tab, r, who) {
   updateRow_(mainSs_(), tab, r._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
   if (tab === 'club_profile_requests' && !Core_isPractice(r)) applyClubProfile_(r);
+  if (tab === 'businesses' && !Core_isPractice(r)) applyBusiness_(r);
   notifySubmitter_(tab, r, true, '');
 }
 
 function rejectRow_(tab, r, who, reason) {
   updateRow_(mainSs_(), tab, r._row, { status: 'rejected', approved_by: who, approved_at: nowIso_(), moderator_note: reason });
   notifySubmitter_(tab, r, false, reason);
+}
+
+/** The name and club come from the members list; a member's newer listing of the same business replaces the older one. */
+function applyBusiness_(r) {
+  var ss = mainSs_();
+  var m = businessMember_(r);
+  if (m) updateRow_(ss, 'businesses', r._row, { member_name: Core_str(m.name), club_id: Core_str(m.club_id) || Core_str(r.club_id) });
+  var older = businessOlder_(readTab_(ss, 'businesses'), r);
+  while (older) {
+    updateRow_(ss, 'businesses', older._row, { status: 'replaced', moderator_note: (Core_str(older.moderator_note) + '; Replaced by ' + r.id).replace(/^; /, '') });
+    older = businessOlder_(readTab_(ss, 'businesses'), r);
+  }
 }
 
 function applyClubProfile_(r) {
@@ -126,9 +159,11 @@ function notifySubmitter_(tab, r, approved, reason) {
   if (!to || Core_isTrue(r.is_sample)) return;
   var site = Core_str(settings_().site_url);
   var what = tab === 'events' ? 'event "' + r.title + '"' : tab === 'activities' ? 'activity "' + r.title + '"'
-    : tab === 'public_services' ? 'public service "' + r.name + '"' : 'club profile update';
+    : tab === 'public_services' ? 'public service "' + r.name + '"'
+    : tab === 'businesses' ? 'business listing' + (Core_str(r.business_name) ? ' "' + r.business_name + '"' : ' (speaker topics)') : 'club profile update';
   var link = tab === 'activities' ? site + 'activities/' + Core_str(r.id).toLowerCase() + '/'
-    : tab === 'events' ? site + 'events/' + Core_str(r.id).toLowerCase() + '/' : tab === 'public_services' ? site + 'services/' : site + 'clubs/';
+    : tab === 'events' ? site + 'events/' + Core_str(r.id).toLowerCase() + '/' : tab === 'public_services' ? site + 'services/'
+    : tab === 'businesses' ? site + 'rmb/' : site + 'clubs/';
   var body = approved
     ? 'Thank you! Your ' + what + ' has been approved by a district moderator.\n\nIt will appear on the district website at the next update (every Sunday):\n' + link +
       '\n\nPlease share it in your club\'s WhatsApp group once it is live.\n\nRotary District 3110'

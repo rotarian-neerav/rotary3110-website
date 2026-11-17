@@ -29,6 +29,10 @@ eleventyComputed:
       </div>
     </header>
     {%- if p.description %}<p class="lead">{{ p.description }}</p>{% endif %}
+    {%- if p.businesses.length %}
+    <p class="more-links">{% for b in p.businesses %}<a class="more" href="{{ b.url }}">{{ t.rmb.on_card }}: {{ b.name }}</a>{% endfor %}</p>
+    {%- endif %}
+    {%- if p.speakerTopics.length %}<p class="small"><a href="/rmb/speakers/">{{ t.rmb.speaker_topics }}</a>: {{ p.speakerTopics | join('; ') }}</p>{% endif %}
     {%- for s in p.spotlights %}<p class="more-links"><a class="more" href="/spotlight/#{{ s.month }}">Member spotlight, {{ s.monthLabel }}: {{ s.headline }} →</a></p>{% endfor %}
 
     {%- if p.years.length %}

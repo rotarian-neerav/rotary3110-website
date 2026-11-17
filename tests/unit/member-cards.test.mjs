@@ -166,10 +166,15 @@ test('a past year shown as a showcase: recognition starts from its newest month 
 
 test('pages with nothing on them yet are flagged so the menu can leave them out; only the Governor\'s profile is shown', () => {
   const full = site();
-  assert.deepEqual(full.has, { events: true, services: true, news: true, magazine: true, spotlight: true, messages: true, rmb: true });
+  assert.deepEqual(full.has, { events: true, services: true, news: true, magazine: true, spotlight: true, messages: true, rmb: true, rmbMenu: false });
   const d = build();
   const empty = derive({ ...d, events: [], public_services: [], magazines: [], spotlights: [], messages: [], businesses: [], activities: d.activities.map((a) => ({ ...a, press: null })) }, media, '2026-10-13');
-  assert.deepEqual(empty.has, { events: false, services: false, news: false, magazine: false, spotlight: false, messages: false, rmb: false });
+  assert.deepEqual(empty.has, { events: false, services: false, news: false, magazine: false, spotlight: false, messages: false, rmb: false, rmbMenu: false });
+  // Rotary Means Business joins the top menu by itself at 25 listings (owner, 17 Nov 2026)
+  const one = d.businesses.find((b) => b.name);
+  const many = (n) => Array.from({ length: n }, (_, i) => ({ ...one, id: 'BIZ-T' + i, name: 'Business ' + i }));
+  assert.equal(derive({ ...d, businesses: many(24) }, media, '2026-10-13').has.rmbMenu, false);
+  assert.equal(derive({ ...d, businesses: many(25) }, media, '2026-10-13').has.rmbMenu, true);
   // the Rotary Means Business page shows once its form exists, even before the first listing
   assert.equal(derive({ ...d, businesses: [], forms: { ...d.forms, business: 'https://docs.google.com/forms/d/e/x/viewform' } }, media, '2026-10-13').has.rmb, true);
   assert.ok(d.profiles.some((p) => p.role !== 'District Governor'), 'sample still sends an RI President profile');

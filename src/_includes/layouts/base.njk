@@ -58,8 +58,8 @@
         <ul>
           {%- set navItems = [
             ["/", t.nav.home], ["/activities/", t.nav.activities], ["/events/", t.nav.events], ["/clubs/", t.nav.clubs],
-            ["/leadership/", t.nav.leadership], ["/directory/", t.nav.directory], ["/about/", t.nav.about] ] %}
-          {%- for item in navItems %}{% if item[0] != "/events/" or site.has.events %}
+            ["/leadership/", t.nav.leadership], ["/directory/", t.nav.directory], ["/rmb/", t.nav.rmb], ["/about/", t.nav.about] ] %}
+          {%- for item in navItems %}{% if (item[0] != "/events/" or site.has.events) and (item[0] != "/rmb/" or site.has.rmbMenu) %}
           <li><a href="{{ item[0] }}"{% if page.url == item[0] or (item[0] != '/' and page.url.startsWith(item[0])) %} aria-current="page"{% endif %}>{{ item[1] }}</a></li>
           {%- endif %}
           {%- endfor %}

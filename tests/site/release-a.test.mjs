@@ -425,6 +425,9 @@ test('Rotary Means Business: home, trade, business and speaker pages; members on
   if (withCity) assert.ok(dom(`/cities/${citySlug(withCity.city)}/`).querySelector('#businesses .business-card'), 'city page section');
   assert.ok(page('/').includes('href="/rmb/"'), 'footer link');
   assert.ok(existsSync(join(SITE, 'list-business', 'index.html')), 'the short link to the form');
+  // the top menu gets Rotary Means Business by itself at 25 listings (owner, 17 Nov)
+  const inMenu = dom('/').querySelectorAll('nav[aria-label="Main"] a').some((a) => a.getAttribute('href') === PREFIX + '/rmb/');
+  assert.equal(inMenu, list.length >= 25, `menu item with ${list.length} listings`);
 });
 
 test('district work is marked: activities, past district events first, recent district events on the home page (17 Nov)', () => {

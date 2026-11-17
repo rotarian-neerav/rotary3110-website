@@ -26,15 +26,17 @@ You will need two files from this project: `dist/apps-script/Code.gs` and `dist/
    tabs in both Sheets, sample data loaded, six forms created (activity, club profile, public service, consent, removal and the website's contact form) and moved into the folder that holds the Sheet, sharing checked, daily reminders scheduled.
 5. Go back to the Sheet and reload the page. A **Rotary** menu appears.
 
-## 3. Add the five photo questions by hand (6 minutes)
+## 3. Add the seven photo questions by hand (8 minutes)
 
-Google does not let a script add file-upload questions, so these five are added by hand. **The titles must match exactly** (copy them from here).
+Google does not let a script add file-upload questions, so these seven are added by hand. **The titles must match exactly** (copy them from here).
 
 The forms are in the same folder as the Sheet (testing: **3110Website-Testing**; production: **3110Website**), or open them from the Sheet's **settings** tab (`form_…_url`; change `viewform` to `edit` in the address).
 
 | Form | Add after the question… | Title (copy exactly) | Settings |
 |---|---|---|---|
 | Club activity or event | **Description** (activity page) | `Photos (up to 3, each under 1 MB)` | File upload · Allow only specific file types: **Image** · Maximum number of files: **3** · Maximum file size: **1 MB** · not required |
+| Club activity or event | the **Photos** question you just added (activity page) | `Before photo (optional)` | File upload · **Image** · **1** file · **1 MB** · not required |
+| Club activity or event | **Before photo (optional)** | `After photo (optional)` | File upload · **Image** · **1** file · **1 MB** · not required |
 | Club activity or event | **Short description (optional)** (event page) | `Photos (up to 3, each under 1 MB)` | File upload · **Image** · **3** files · **1 MB** · not required |
 | Member consent | **Show my photo next to my name** | `My photo (one photo of me alone, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
 | Member consent | **Our wedding anniversary** | `Couple photo (optional, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
@@ -43,6 +45,8 @@ The forms are in the same folder as the Sheet (testing: **3110Website-Testing**;
 How to add one: open the form → click the question named in the middle column → click **⊕ (Add question)** in the floating toolbar → change the type to **File upload** → Google asks to confirm that respondents will sign in and files go to your Drive → **Continue** → paste the title and set the options above.
 
 For the activity form, also put this in the photo question's description: *Photos must be under 1 MB. Easy way: send the photo to yourself on WhatsApp, save it, then upload that copy.*
+
+And in the **Before photo** question's description: *Only for work that changed a place, such as a school toilet, a classroom or a pond: one photo before the work and one after, taken from the same spot. Show the place, not people. Both are needed; the website shows them side by side.*
 
 ## 4. Publish the data link (3 minutes)
 
@@ -164,6 +168,12 @@ Paste `Code.gs`, **Deploy → Manage deployments → edit → New version**, the
 business form (next to the Sheet), the **businesses** tab, the `district_level` column, the question on the activity
 form and the new removal choice. Then add the form's **logo** upload question by hand (section 3), and run
 **Update form lists** so the business form has the clubs and cities.
+
+The **17 November (before and after photos)** version adds two columns to the **activities** tab, `before_photo` and
+`after_photo`, filled from two optional upload questions on the activity form, **Before photo (optional)** and
+**After photo (optional)**, added by hand (section 3). When both are approved, the activity page shows them side by
+side under "Before and after"; one alone is not shown. Paste `Code.gs`, **New version**, then **Upgrade Sheet** once
+(it adds the two columns), and add the two questions.
 
 ## 6. Name the moderators
 

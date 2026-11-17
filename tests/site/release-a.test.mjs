@@ -430,6 +430,33 @@ test('Rotary Means Business: home, trade, business and speaker pages; members on
   assert.equal(inMenu, list.length >= 25, `menu item with ${list.length} listings`);
 });
 
+test('before and after photos sit side by side on the activity page, only as a pair (17 Nov)', () => {
+  const pair = data.activities.find((a) => a.before_after);
+  if (sample) assert.ok(pair, 'the sample has one pair');
+  if (pair) {
+    const figs = dom(`/activities/${pair.id.toLowerCase()}/`).querySelectorAll('.before-after figure');
+    assert.deepEqual(figs.map((f) => f.querySelector('figcaption').text.trim()), ['Before', 'After']);
+  }
+  for (const a of data.activities.filter((x) => !x.before_after).slice(0, 50)) {
+    assert.ok(!dom(`/activities/${a.id.toLowerCase()}/`).querySelector('.before-after'), `${a.id} has no pair`);
+  }
+});
+
+test('club meetings by day: every club with a meeting day, under its day and town; linked only when there is one (17 Nov)', () => {
+  const clubs = data.clubs.filter((c) => c.status === 'active' && c.meeting_day);
+  const linked = page('/clubs/').includes('href="' + PREFIX + '/meetings/"') || page('/clubs/').includes('href="/meetings/"');
+  assert.equal(linked, clubs.length > 0, 'clubs page link');
+  assert.equal(page('/').includes('/meetings/"'), clubs.length > 0, 'footer link');
+  if (sample) assert.ok(clubs.length >= 5, 'the sample has meeting days');
+  const doc = dom('/meetings/');
+  for (const c of clubs) {
+    const sec = doc.querySelector('#' + c.meeting_day.toLowerCase());
+    assert.ok(sec, `${c.meeting_day} section`);
+    assert.ok(sec.querySelectorAll('a').some((a) => a.getAttribute('href') === `${PREFIX}/clubs/${c.slug}/`), `${c.name} under ${c.meeting_day}`);
+  }
+  assert.equal(doc.querySelectorAll('.meeting-day .club-list li').length, clubs.length, 'each club once');
+});
+
 test('district work is marked: activities, past district events first, recent district events on the home page (17 Nov)', () => {
   const marked = data.activities.find((a) => a.district_level);
   if (sample) assert.ok(marked, 'the sample marks one activity');

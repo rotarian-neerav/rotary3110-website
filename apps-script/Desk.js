@@ -284,6 +284,11 @@ function deskCard_(tab, r) {
     add('Theme', r.theme); add('Avenue', r.avenue); if (Core_isTrue(r.district_level)) add('District level', 'Yes: check the district organised it'); add('People helped', r.people_helped); add('Amount spent (₹)', r.amount_spent);
     add('Partner clubs', Core_str(r.partner_clubs).split(',').map(function (s) { return s.trim(); }).filter(String).map(deskClubName_).join(', '));
     if (Core_str(r.campaign_id)) add('Campaign', Core_str(r.campaign_id) + (Core_str(r.campaign_count) !== '' ? ': ' + r.campaign_count : ''));
+    var ba = [r.before_photo, r.after_photo].map(function (v) { return Core_str(v).split(',')[0].trim(); });
+    if (ba[0] || ba[1]) {
+      add('Before and after', ba[0] && ba[1] ? 'The last two photos, shown side by side' : 'Only one given: not shown (both are needed)');
+      ba.forEach(function (p) { if (/^drive:/.test(p)) card.photos.push(p); });
+    }
     if (card.photos.length) add('Photo consent', Core_isTrue(r.photo_consent) ? 'Ticked' : 'NOT ticked: reject the photos');
     add('Newspaper', [Core_str(r.press_paper), Core_isoDate(r.press_date)].filter(String).join(', '));
     link('Club\'s post', r.post_link); link('Video', r.video_link); link('Newspaper report', r.press_link);
@@ -459,11 +464,14 @@ function deskPhoto_(me, ref, full, token) {
   if (token) {
     var t = deskRead_(token, ['it', 'bx']);
     deskLinkUser_(t);
-    split(deskFind_(t.tab, t.id).photo_files);
+    var item = deskFind_(t.tab, t.id);
+    split(item.photo_files); split(item.before_photo); split(item.after_photo);
   } else {
     if (me.views.content) {
       MODERATED_TABS.forEach(function (tab) {
-        readTab_(mainSs_(), tab).forEach(function (r) { if (Core_str(r.status) === 'pending') split(r.photo_files); });
+        readTab_(mainSs_(), tab).forEach(function (r) {
+          if (Core_str(r.status) === 'pending') { split(r.photo_files); split(r.before_photo); split(r.after_photo); }
+        });
       });
     }
     if (me.views.members) {

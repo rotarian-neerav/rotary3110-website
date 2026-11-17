@@ -82,6 +82,8 @@ Until a type has a real email, its emails go where they went before: the older s
 
 **Avenue of Service, press and videos:** every new activity carries an Avenue of Service (`avenue`); correct it if it is clearly wrong. If the club says a newspaper covered it, `press_paper`, `press_date` and `press_link` hold the paper's name, the date and a link; the website shows only these, never a photo of the clipping. A note warns when there is a press link but no paper's name. `video_link` can be a YouTube, Instagram or Facebook link; YouTube videos play on the page.
 
+**Before and after photos (17 Nov 2026):** a club may add one photo before the work and one after (`before_photo`, `after_photo`); the desk shows them as the last two photos. Check they show the same place and no people (faces of children never). Both are needed: the website shows the pair side by side under "Before and after", and one alone is not shown. If either is wrong, clear both cells before approving.
+
 **District level (17 Nov 2026):** the activity form asks "District level?", and events have the type "District event". Both put the item first on the website and mark it "District". Check it: Yes is right when the district organised it or it was a district occasion, for example a grant inauguration or a district seminar. The Governor need not have been there. If not, set `district_level` to FALSE (or change the event type) before approving. The moderator note reminds you.
 
 **Open to everyone:** `open_to_all` (TRUE/FALSE) on an event marks it "Open to everyone" on the website. Club events open to all are marked anyway.

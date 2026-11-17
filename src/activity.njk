@@ -45,6 +45,21 @@ eleventyComputed:
   </div>
   {%- endif %}
 
+  {%- if a.beforeAfter %}
+  <section class="before-after" aria-label="{{ t.activity.before_after }}">
+    <h2>{{ t.activity.before_after }}</h2>
+    <div class="ba-pair">
+      {%- for side in [['before', a.beforeAfter.before], ['after', a.beforeAfter.after]] %}
+      {%- set im = side[1] %}
+      <figure class="ba-{{ side[0] }}">
+        <a href="{{ im.full.src }}"><img src="{{ im.card.src }}" srcset="{{ im.card.src }} {{ im.card.width }}w, {{ im.full.src }} {{ im.full.width }}w" sizes="(min-width: 760px) 360px, 50vw" alt="{{ t.activity[side[0]] }}: {{ a.title }}" width="{{ im.card.width }}" height="{{ im.card.height }}" loading="lazy"></a>
+        <figcaption>{{ t.activity[side[0]] }}</figcaption>
+      </figure>
+      {%- endfor %}
+    </div>
+  </section>
+  {%- endif %}
+
   <p class="story">{{ a.description }}</p>
   {%- if a.video %}{{ videoBlock(a.video, a.title, t) }}{% endif %}
 

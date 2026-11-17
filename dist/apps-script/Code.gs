@@ -219,7 +219,9 @@ var SCHEMA_MAIN = {
     'notified', 'is_sample', 'campaign_id', 'campaign_count', 'bulletin_exclude',
     'avenue', 'video_link', 'press_paper', 'press_date', 'press_link',
     // added 17 November 2026: the sender marked it as district work (the moderator checks it)
-    'district_level'],
+    'district_level',
+    // added 17 November 2026: one photo before and one after the work (shown side by side only when both are there)
+    'before_photo', 'after_photo'],
   events: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'title',
     'event_type', 'start_date', 'start_time', 'end_date', 'venue', 'city', 'organiser', 'description', 'map_link',
     'details_link', 'photo_files', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'report_activity_id', 'notified',
@@ -1354,6 +1356,8 @@ function Core_buildPublicData(tabs, nowIso, options) {
     var avenue = '';
     CORE_AVENUES.forEach(function (v) { if (v.toLowerCase() === Core_str(a.avenue).toLowerCase()) avenue = v; });
     var paper = Core_safeText(a.press_paper, 'activity ' + Core_str(a.id) + ' press', skippedItems);
+    var before = Core_photoRefs(a.before_photo)[0] || '';
+    var after = Core_photoRefs(a.after_photo)[0] || '';
     return {
       id: Core_str(a.id),
       club_id: Core_str(a.club_id),
@@ -1366,6 +1370,8 @@ function Core_buildPublicData(tabs, nowIso, options) {
       video: Core_videoLink(a.video_link),
       description: Core_str(a.description),
       photos: Core_photoRefs(a.photo_files).slice(0, 3),
+      // a place before and after the club's work (a school toilet, a classroom), side by side: both or neither
+      before_after: before && after && before !== after ? { before: before, after: after } : null,
       post_link: Core_url(a.post_link),
       people_helped: Number(a.people_helped) || 0,
       amount_spent: Number(a.amount_spent) || 0,
@@ -2662,7 +2668,8 @@ function makeActivityForm_(L) {
     .setHelpText('Two to five lines. Please do not write the names of children.')
     .setValidation(FormApp.createParagraphTextValidation().requireTextMatchesPattern('^[\\s\\S]{100,600}$')
       .setHelpText('Please write between 100 and 600 characters (about 2–5 lines)').build());
-  // The photo question is added here by hand (Google does not allow scripts to add file uploads)
+  // The photo question is added here by hand (Google does not allow scripts to add file uploads), and after it the
+  // optional "Before photo" and "After photo" questions (17 Nov 2026; see the Google setup guide)
   form.addTextItem().setTitle(Q.aLink).setHelpText('If your club already posted this on its website or social page, paste the link instead of photos.')
     .setValidation(urlRule_());
   addLaterQuestion_(form, Q.aVideo, L);
@@ -3041,6 +3048,8 @@ function fileActivityOrEvent_(a, meta) {
     avenue: Core_str(a[Q.aAvenue]), video_link: link_(a[Q.aVideo]),
     press_paper: Core_str(a[Q.aPressPaper]), press_date: Core_str(a[Q.aPressDate]), press_link: link_(a[Q.aPressLink]),
     district_level: Core_str(a[Q.aDistrict]) ? yes_(a[Q.aDistrict]) : '',
+    // the two upload questions are added by hand; only the first file of each is used
+    before_photo: fileIds_(firstStartingWith_(a, 'Before photo')), after_photo: fileIds_(firstStartingWith_(a, 'After photo')),
   });
   var campaignRows = readTab_(ss, 'campaigns');
   var count = Core_str(a[Q.aCampaignCount]).replace(/[,\s]/g, '');
@@ -3053,6 +3062,10 @@ function fileActivityOrEvent_(a, meta) {
   if (!row.photo_files && !row.post_link) notes.push('No photo or link: reject or ask the club for one');
   if (Core_isoDate(row.date) > today_()) notes.push('Date is in the future');
   if (row.district_level === true) notes.push(DISTRICT_CHECK);
+  if (row.before_photo || row.after_photo) {
+    notes.push(row.before_photo && row.after_photo ? 'Before and after photos: check they show the same place, not people'
+      : 'Only one of the before and after photos: it is not shown (both are needed)');
+  }
   if (Core_looksLikeUrl(row.press_paper)) {
     // a web address typed as the newspaper's name: keep it as the link, and ask for the name
     if (!row.press_link) row.press_link = link_(row.press_paper);
@@ -4427,6 +4440,11 @@ function deskCard_(tab, r) {
     add('Theme', r.theme); add('Avenue', r.avenue); if (Core_isTrue(r.district_level)) add('District level', 'Yes: check the district organised it'); add('People helped', r.people_helped); add('Amount spent (₹)', r.amount_spent);
     add('Partner clubs', Core_str(r.partner_clubs).split(',').map(function (s) { return s.trim(); }).filter(String).map(deskClubName_).join(', '));
     if (Core_str(r.campaign_id)) add('Campaign', Core_str(r.campaign_id) + (Core_str(r.campaign_count) !== '' ? ': ' + r.campaign_count : ''));
+    var ba = [r.before_photo, r.after_photo].map(function (v) { return Core_str(v).split(',')[0].trim(); });
+    if (ba[0] || ba[1]) {
+      add('Before and after', ba[0] && ba[1] ? 'The last two photos, shown side by side' : 'Only one given: not shown (both are needed)');
+      ba.forEach(function (p) { if (/^drive:/.test(p)) card.photos.push(p); });
+    }
     if (card.photos.length) add('Photo consent', Core_isTrue(r.photo_consent) ? 'Ticked' : 'NOT ticked: reject the photos');
     add('Newspaper', [Core_str(r.press_paper), Core_isoDate(r.press_date)].filter(String).join(', '));
     link('Club\'s post', r.post_link); link('Video', r.video_link); link('Newspaper report', r.press_link);
@@ -4602,11 +4620,14 @@ function deskPhoto_(me, ref, full, token) {
   if (token) {
     var t = deskRead_(token, ['it', 'bx']);
     deskLinkUser_(t);
-    split(deskFind_(t.tab, t.id).photo_files);
+    var item = deskFind_(t.tab, t.id);
+    split(item.photo_files); split(item.before_photo); split(item.after_photo);
   } else {
     if (me.views.content) {
       MODERATED_TABS.forEach(function (tab) {
-        readTab_(mainSs_(), tab).forEach(function (r) { if (Core_str(r.status) === 'pending') split(r.photo_files); });
+        readTab_(mainSs_(), tab).forEach(function (r) {
+          if (Core_str(r.status) === 'pending') { split(r.photo_files); split(r.before_photo); split(r.after_photo); }
+        });
       });
     }
     if (me.views.members) {

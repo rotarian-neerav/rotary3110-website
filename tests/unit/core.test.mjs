@@ -212,6 +212,14 @@ test('a business WhatsApp number becomes a wa.me link; the privacy check refuses
   assert.ok(core.Core_validatePublic(d).some((e) => /businesses\[\d+\]\.about: looks like a phone number/.test(e)));
 });
 
+test('before and after photos go public only as a pair (17 Nov)', () => {
+  const d = build();
+  const pairs = d.activities.filter((a) => a.before_after);
+  assert.equal(pairs.length, 1, 'the sample activity with both photos');
+  assert.deepEqual(plain(pairs[0].before_after), { before: 'sample:activity-13.jpg', after: 'sample:activity-14.jpg' });
+  assert.ok(d.activities.every((a) => a.before_after === null || (a.before_after.before && a.before_after.after)));
+});
+
 test('an activity marked district level says so on the website (17 Nov)', () => {
   const d = build();
   assert.equal(d.activities.filter((a) => a.district_level).length, 1);

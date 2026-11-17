@@ -1,0 +1,35 @@
+---
+layout: layouts/base.njk
+title: Club meetings by day
+description: Which Rotary clubs of District 3110 meet on each day of the week, town by town, for visiting Rotarians, members making up a missed meeting and guests.
+permalink: /meetings/
+scripts: ["meetings.js"]
+---
+<div class="wrap section">
+  <h1>{{ t.meetings.title }}</h1>
+  <p class="lead">{{ t.meetings.intro }}</p>
+  {%- if site.has.meetings %}
+  <ul class="day-links">
+    {%- for d in site.meetings %}{% if d.count %}<li><a class="chip" href="#{{ d.slug }}">{{ d.day }} ({{ d.count }})</a></li>{% endif %}{% endfor %}
+  </ul>
+  <div data-meeting-days>
+    {%- for d in site.meetings %}{% if d.count %}
+    <section class="meeting-day" id="{{ d.slug }}" data-day="{{ d.day }}">
+      <h2>{{ d.day }} <span class="small muted">{{ d.count }} {{ t.meetings.club if d.count == 1 else t.meetings.clubs }}</span><span class="chip today" data-today hidden>{{ t.meetings.today }}</span></h2>
+      {%- for town in d.towns %}
+      <h3>{% if town.url %}<a href="{{ town.url }}">{{ town.name }}</a>{% else %}{{ town.name }}{% endif %}</h3>
+      <ul class="club-list">
+        {%- for c in town.clubs %}
+        <li><a href="{{ c.url }}">{{ c.name }}</a>{% if c.meeting %} <span class="small muted">{{ c.meeting }}</span>{% endif %}</li>
+        {%- endfor %}
+      </ul>
+      {%- endfor %}
+    </section>
+    {%- endif %}{% endfor %}
+  </div>
+  {%- else %}
+  <p class="none">{{ t.meetings.empty }}</p>
+  {%- endif %}
+  <p class="small"><a href="/club-profile/">{{ t.meetings.missing }}</a></p>
+  <p class="more-links"><a class="more" href="/clubs/">All clubs</a></p>
+</div>

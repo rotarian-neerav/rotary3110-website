@@ -104,6 +104,7 @@ async function processImage(ref, kind) {
 
 const jobs = [];
 for (const a of data.activities) for (const p of a.photos) jobs.push([p, 'activity']);
+for (const a of data.activities) if (a.before_after) jobs.push([a.before_after.before, 'activity'], [a.before_after.after, 'activity']);
 for (const e of data.events) for (const p of e.photos || []) jobs.push([p, 'activity']);
 for (const m of data.members) if (m.photo) jobs.push([m.photo, 'person']);
 for (const r of [...data.officers, ...data.functionaries]) if (r.photo) jobs.push([r.photo, 'person']);

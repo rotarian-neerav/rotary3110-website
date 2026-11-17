@@ -115,6 +115,8 @@ function fileActivityOrEvent_(a, meta) {
     avenue: Core_str(a[Q.aAvenue]), video_link: link_(a[Q.aVideo]),
     press_paper: Core_str(a[Q.aPressPaper]), press_date: Core_str(a[Q.aPressDate]), press_link: link_(a[Q.aPressLink]),
     district_level: Core_str(a[Q.aDistrict]) ? yes_(a[Q.aDistrict]) : '',
+    // the two upload questions are added by hand; only the first file of each is used
+    before_photo: fileIds_(firstStartingWith_(a, 'Before photo')), after_photo: fileIds_(firstStartingWith_(a, 'After photo')),
   });
   var campaignRows = readTab_(ss, 'campaigns');
   var count = Core_str(a[Q.aCampaignCount]).replace(/[,\s]/g, '');
@@ -127,6 +129,10 @@ function fileActivityOrEvent_(a, meta) {
   if (!row.photo_files && !row.post_link) notes.push('No photo or link: reject or ask the club for one');
   if (Core_isoDate(row.date) > today_()) notes.push('Date is in the future');
   if (row.district_level === true) notes.push(DISTRICT_CHECK);
+  if (row.before_photo || row.after_photo) {
+    notes.push(row.before_photo && row.after_photo ? 'Before and after photos: check they show the same place, not people'
+      : 'Only one of the before and after photos: it is not shown (both are needed)');
+  }
   if (Core_looksLikeUrl(row.press_paper)) {
     // a web address typed as the newspaper's name: keep it as the link, and ask for the name
     if (!row.press_link) row.press_link = link_(row.press_paper);

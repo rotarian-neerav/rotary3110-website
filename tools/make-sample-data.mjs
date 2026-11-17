@@ -435,6 +435,12 @@ addActivity({ clubId: 'S-021', date: '2026-09-29', theme: 'Supporting education'
 /* ---------- events ---------- */
 // marked by its club as district level (a district occasion such as a grant inauguration; the moderator checked it)
 activities.find((a) => a.club_id === 'S-006' && a.date === '2026-08-20').district_level = true;
+// before and after photos (17 Nov 2026): one activity with both (shown side by side), one with only a before photo (not shown)
+{
+  const withPhotos = activities.filter((a) => a.status === 'approved' && a.photo_files);
+  Object.assign(withPhotos[3], { before_photo: 'sample:activity-13.jpg', after_photo: 'sample:activity-14.jpg' });
+  Object.assign(withPhotos[4], { before_photo: 'sample:activity-15.jpg', after_photo: '' });
+}
 
 const events = [];
 let evtSeq = 1;

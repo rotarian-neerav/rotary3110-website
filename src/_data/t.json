@@ -43,6 +43,9 @@
     "people_helped": "people helped",
     "amount_spent": "spent",
     "with": "With",
+    "before_after": "Before and after",
+    "before": "Before",
+    "after": "After",
     "read_post": "Read the club's own post",
     "share": "Share on WhatsApp",
     "filter_club": "Club",
@@ -138,7 +141,8 @@
     "guide": "How to post a good activity",
     "public_service": "Add a public service your club runs",
     "rmb": "Rotary Means Business",
-    "list_business": "List your business"
+    "list_business": "List your business",
+    "meetings": "Club meetings by day"
   },
   "club": {
     "services": "Regular services",
@@ -205,7 +209,17 @@
     "results": "clubs found",
     "empty": "No club matches. Try another name, city or day.",
     "meets": "Meets",
-    "city_page": "Rotary in"
+    "city_page": "Rotary in",
+    "by_day": "Club meetings by day"
+  },
+  "meetings": {
+    "title": "Club meetings by day",
+    "intro": "Visiting a town, or missed your own club's meeting? Rotary clubs welcome visiting Rotarians and guests. These are the clubs that have told us the day they meet. Please check the time and place with the club before you go.",
+    "today": "Today",
+    "clubs": "clubs",
+    "club": "club",
+    "empty": "No club has told us its meeting day yet.",
+    "missing": "Is your club missing? Office bearers can add the meeting day through the club profile form."
   },
   "services": {
     "title": "Services you can use",

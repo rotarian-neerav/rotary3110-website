@@ -379,7 +379,8 @@ function makeActivityForm_(L) {
     .setHelpText('Two to five lines. Please do not write the names of children.')
     .setValidation(FormApp.createParagraphTextValidation().requireTextMatchesPattern('^[\\s\\S]{100,600}$')
       .setHelpText('Please write between 100 and 600 characters (about 2–5 lines)').build());
-  // The photo question is added here by hand (Google does not allow scripts to add file uploads)
+  // The photo question is added here by hand (Google does not allow scripts to add file uploads), and after it the
+  // optional "Before photo" and "After photo" questions (17 Nov 2026; see the Google setup guide)
   form.addTextItem().setTitle(Q.aLink).setHelpText('If your club already posted this on its website or social page, paste the link instead of photos.')
     .setValidation(urlRule_());
   addLaterQuestion_(form, Q.aVideo, L);

@@ -1062,6 +1062,8 @@ function Core_buildPublicData(tabs, nowIso, options) {
     var avenue = '';
     CORE_AVENUES.forEach(function (v) { if (v.toLowerCase() === Core_str(a.avenue).toLowerCase()) avenue = v; });
     var paper = Core_safeText(a.press_paper, 'activity ' + Core_str(a.id) + ' press', skippedItems);
+    var before = Core_photoRefs(a.before_photo)[0] || '';
+    var after = Core_photoRefs(a.after_photo)[0] || '';
     return {
       id: Core_str(a.id),
       club_id: Core_str(a.club_id),
@@ -1074,6 +1076,8 @@ function Core_buildPublicData(tabs, nowIso, options) {
       video: Core_videoLink(a.video_link),
       description: Core_str(a.description),
       photos: Core_photoRefs(a.photo_files).slice(0, 3),
+      // a place before and after the club's work (a school toilet, a classroom), side by side: both or neither
+      before_after: before && after && before !== after ? { before: before, after: after } : null,
       post_link: Core_url(a.post_link),
       people_helped: Number(a.people_helped) || 0,
       amount_spent: Number(a.amount_spent) || 0,

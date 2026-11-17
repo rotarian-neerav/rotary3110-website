@@ -1210,6 +1210,29 @@ test('Rotary Means Business: the sender is found in the members list; members on
   assert.ok(!data().businesses.some((b) => b.owner === m.name), 'off the website');
 });
 
+test('before and after photos: filed from the hand-added questions, noted for the moderator, public only as a pair (17 Nov)', () => {
+  const base = { [Q.club]: 'RC Agra', [Q.name]: 'Rtn A', [Q.role]: 'Secretary', [Q.mobile]: '9812345678', [Q.kind]: Q.kindActivity,
+    [Q.aDate]: '2026-10-02', [Q.aTheme]: 'Providing clean water', [Q.aDesc]: 'The club built new toilets for girls at a government school, with water and a hand-washing station. '.repeat(2),
+    'Photos (up to 3, each under 1 MB)': ['1MainPhotoAbCdEfGhIjKlMnOpQrStU'], [Q.aConsent]: ['yes'] };
+  env.submit('activity', { ...base, [Q.aTitle]: 'Girls toilet block at a school',
+    'Before photo (optional)': ['1BeforePhotoAbCdEfGhIjKlMnOpQr'], 'After photo (optional)': ['1AfterPhotoAbCdEfGhIjKlMnOpQrS'] });
+  const both = env.main.rows('activities').at(-1);
+  assert.equal(both.before_photo, 'drive:1BeforePhotoAbCdEfGhIjKlMnOpQr');
+  assert.equal(both.after_photo, 'drive:1AfterPhotoAbCdEfGhIjKlMnOpQrS');
+  assert.match(both.moderator_note, /Before and after photos: check they show the same place/);
+  env.submit('activity', { ...base, [Q.aTitle]: 'Classroom painted', 'Before photo (optional)': ['1OnlyBeforeAbCdEfGhIjKlMnOpQrS'] });
+  const one = env.main.rows('activities').at(-1);
+  assert.match(one.moderator_note, /Only one of the before and after photos/);
+  env.setActive('activities', env.main.rows('activities').length);
+  env.run('approveSelected');
+  env.setActive('activities', env.main.rows('activities').length + 1);
+  env.run('approveSelected');
+  const pub = data().activities;
+  assert.deepEqual(plain(pub.find((a) => a.id === both.id).before_after),
+    { before: 'drive:1BeforePhotoAbCdEfGhIjKlMnOpQr', after: 'drive:1AfterPhotoAbCdEfGhIjKlMnOpQrS' });
+  assert.equal(pub.find((a) => a.id === one.id).before_after, null);
+});
+
 test('the activity form asks "District level?"; a Yes is noted for the moderator and shown on the website (17 Nov)', () => {
   const ids = JSON.parse(env.props.get('FORM_IDS'));
   const act = env.forms[ids.activity].titles();

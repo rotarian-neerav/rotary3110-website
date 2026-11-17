@@ -15,7 +15,7 @@ Moderators check everything before it appears on the website. Any Content modera
 | Type | On the desk |
 |---|---|
 | Content | **To check**: every waiting item as a card, with photos (tap to enlarge), notes, and **Approve**, **Reject** (with ready-made reasons to tap) and **Correct** (fix spelling or remove a phone number before approving). **Recent**: approved activities of the last 30 days and coming events, with **★ Story of the month** and **Leave out of bulletin** buttons |
-| Members | Consent forms and removal requests with the member's choices and photo, who sent the form and whether the member was told; **Approve** (with **"I have confirmed this with the member"** where asked) / **Remove now** / **Reject**; couples waiting; **Mark as deceased** (search by name, then confirm) |
+| Members | Consent forms and removal requests with the member's choices and photo, who sent the form and whether the member was told; **Approve** (with **"I have confirmed this with the member"** where asked) / **Remove now** / **Reject**; club changes (members joining, leaving, moving, passing away; club and district roles) beside what the members list holds; couples waiting; **Mark as deceased** (search by name, then confirm) |
 | Club engagement | **Quiet clubs**: active clubs with no activity in 30 days, the last activity date and who reminded them last. **Email President and Secretary** (their emails from the private members list; sent from the district account and signed "Rotary District 3110 website team"; a hidden copy comes to you; replies go to the district account; once a week at most) or **WhatsApp** (opens WhatsApp with a ready message and the club's own form link; you choose the person) |
 | District office | **Messages** from the contact form. **Reply**: type the answer and tap **Send**; it goes from the district account, signed "Rotary District 3110", so the person never sees your name or email, and the message is marked answered. Please never press Reply on the email alert. Someone who gave only a mobile number: call or WhatsApp from the **district office phone**, not your personal phone, then **Mark answered** |
 | Administrator | Everything above |
@@ -48,7 +48,7 @@ The **moderators** tab in the main Sheet lists who does what: one row per person
 | Type | Does | Receives | Access (when sheet_access is TRUE) |
 |---|---|---|---|
 | **Content** | Approves or rejects activities, events, club profiles, public services and campaign reports | 48-hour reminders for those; the Saturday bulletin preview | Main Sheet |
-| **Members** | Consent and removal requests, Mark as deceased | 48-hour reminders for member requests | Main Sheet and the private members Sheet |
+| **Members** | Consent and removal requests, club changes, Mark as deceased | 48-hour reminders for member requests | Main Sheet and the private members Sheet |
 | **Club engagement** | Follows up with quiet clubs (no activity in 30 days) | The monthly quiet-clubs list | Main Sheet |
 | **District office** | Answers the public | Contact form messages; the Sunday WhatsApp message to forward | Main Sheet |
 | **Administrator** | Yearly update, Upgrade Sheet, settings, sample data | (Build-failure emails, from Release B) | Main Sheet and the private members Sheet |
@@ -130,9 +130,9 @@ Members send the **Rotary Means Business** form for their own business, the topi
 
 Messages from the website's contact form go to the private Sheet's **contact_messages** tab and are emailed to the **District office** moderators (moderators tab). **Never press Reply on that email**: it would show your own name and email. Answer on the desk instead: **Messages → Reply**, type the answer, **Send**. It goes from the district account, signed "Rotary District 3110"; the answer is kept in the `replies` column and the message is marked answered. If the person gave only a mobile number, call or WhatsApp from the district office phone, then **Mark answered** (or set `status` to **answered** in the Sheet). Messages that look like spam (more than two links, or hardly any words) are kept with status **spam** and not emailed; so are messages beyond `contact_daily_limit` in a day. The reply details are never shown on the website.
 
-## Member requests (consent and removal)
+## Member requests (consent, removal and club changes)
 
-**Rotary → Member requests (consent & removal)…** opens a panel on the right.
+**Rotary → Member requests (consent, removal, club changes)…** opens a panel on the right; the desk's **Members** tab shows the same.
 
 - **Consent:** shows the member's choices, any photo, and whether the request matches someone in the private members list. Check the photo shows the member alone and is suitable. Watch for the warnings (declaration not ticked, spouse's agreement missing). Then **Approve** or **Reject**.
 - **Who sent it** (the same on the desk). Each form shows the Google account it was sent from and what that account is:
@@ -143,6 +143,14 @@ Messages from the website's contact form go to the private Sheet's **contact_mes
   - **Member:** says whether the member was emailed. If a member replies to that email to object, the reply reaches the district account: reject the form.
 - **Removal:** **Remove now**. Removals must be done **within two days**; the site updates within about 30 minutes, and removed photos are deleted from Drive.
 - **Confirmation emails:** whoever sent the form gets an email when you approve the listing (with the removal form's link), when the details are removed, or when you reject it (with your reason). Write the reason so the member can read it.
+- **Club changes:** sent by anyone through the **club changes form** (`form_club_change_url` in the settings tab): a member who joined, left, moved to another club or passed away, or a club role (President, Secretary) or district role. Each shows the member ID and what was sent, and beside it what the private members list holds for that ID now ("Not in the members list" if nothing). Nothing changes until you approve. **Approve** does this:
+  - *Joined:* adds the member (active, nothing shown on the website until they send the consent form) and a **club_history** row from the date joined. Someone already in another club is moved instead.
+  - *Left:* sets `status` to `left` and ends their **club_history** row.
+  - *Moved:* ends the old club's **club_history** row, adds the new club's and changes `club_id`. Moved to a club outside the district: marked as left.
+  - *Passed away:* the same as **Mark as deceased**.
+  - *Club role* or *district role:* adds a row to **officers** or **functionaries** with the name as the members list has it. The team's page and order follow the team's other rows. A role is added even if the person is not in the members list (no member card until they are). To change or remove a role later, edit the row in the Sheet.
+
+  Then the public members list and the role check are refreshed, the website is asked to rebuild, and the sender gets an "Approved" email. **Reject** sends your reason to the sender. If the member ID, club or year is wrong, correct it on the request row in the private Sheet's **club_change_requests** tab, then approve. The members list from Rotary International stays the master list: its next refresh shows any difference.
 - **Couples waiting:** anniversaries where one Rotarian spouse has not yet sent their own form, or where the two forms give different dates. Ask the club to follow up. For different dates, correct the `anniversary` in the private Sheet's **couples** tab, then set `status` to `active`.
 
 ## Professions list
@@ -153,7 +161,7 @@ The list grows as members ask. The consent form offers the professions in the **
 
 **Rotary → Mark as deceased…** → enter their ID (from the private members list). Birthday and anniversary greetings stop **immediately** (the site rebuilds within about 30 minutes). On the website they then have no member card and are removed from the club's member list, the directory and this year's office bearer and team lists. Their past roles and any past Member Spotlight story stay on record, showing the name only.
 
-Someone who **leaves Rotary** is treated the same way: set `status` to `left` in **members_master** (private Sheet), then **Rotary → Refresh public members**.
+Someone who **leaves Rotary** is treated the same way: approve the club's club change, or set `status` to `left` in **members_master** (private Sheet), then **Rotary → Refresh public members**.
 
 If they held a role this year, enter who holds it now in **officers** or **functionaries**. **Check roles and member IDs** (below) lists these.
 

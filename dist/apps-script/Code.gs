@@ -29,7 +29,7 @@ var PHOTO_QUESTIONS = {
   couplePhoto: 'Couple photo (optional, under 1 MB)',
 };
 
-var PRIVATE_TABS = ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests'];
+var PRIVATE_TABS = ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests', 'club_change_requests'];
 
 function props_() {
   return PropertiesService.getScriptProperties();
@@ -284,6 +284,11 @@ var SCHEMA_PRIVATE = {
   contact_messages: ['id', 'submitted_at', 'name', 'reply_to', 'topic', 'city', 'message', 'status', 'forwarded_to', 'note', 'is_sample', 'replies'],
   removal_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'name', 'member_id', 'mobile', 'remove_items',
     'reason', 'status', 'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
+  // club changes sent by anyone through the club changes form (17 November 2026): a member joined, left, moved or passed
+  // away, or a club or district role. Nothing changes until a Members moderator approves; change is one of
+  // joined, left, moved, deceased, club_role, district_role
+  club_change_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'change', 'member_id', 'name', 'date', 'new_club_id',
+    'rotary_year', 'role', 'section', 'committee', 'note', 'status', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
 };
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -2045,7 +2050,7 @@ function ensureLists_(report) {
 
 var TEXT_COLUMNS = ['from_date', 'member_id', 'chair_member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
   'person_b_id', 'spouse_id', 'spouse_member_id', 'matched_member_id', 'public_key', 'club_id', 'rotary_year', 'term', 'issue_month', 'month',
-  'phone', 'reply_to', 'whatsapp'];
+  'phone', 'reply_to', 'whatsapp', 'new_club_id'];
 
 function ensureTabs_(ss, schema, report) {
   Object.keys(schema).forEach(function (name) {
@@ -2102,6 +2107,7 @@ var DEFAULT_SETTINGS = [
   ['bulletin_emails', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['form_public_service_url', '', 'Filled in by setup'],
   ['form_business_url', '', 'Filled in by setup (Rotary Means Business form)'],
+  ['form_club_change_url', '', 'Filled in by setup (club changes form: members joining, leaving, moving; club and district roles)'],
   ['form_contact_url', '', 'Filled in by setup; shown inside the website\'s Contact page'],
   ['contact_email', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
@@ -2143,7 +2149,7 @@ function listRule_(values) {
 function addValidation_(main, priv) {
   // Start clean, so a dropdown copied onto the wrong column (see ensureTabs_) is removed; the rules below are put back
   [[main, MODERATED_TABS.concat(['clubs', 'moderators'])],
-    [priv, ['consent_requests', 'removal_requests', 'members_master', 'contact_messages', 'couples']]].forEach(function (pair) {
+    [priv, ['consent_requests', 'removal_requests', 'club_change_requests', 'members_master', 'contact_messages', 'couples']]].forEach(function (pair) {
     pair[1].forEach(function (tab) {
       var sh = pair[0].getSheetByName(tab);
       if (sh && sh.getMaxRows() > 1) sh.getRange(2, 1, sh.getMaxRows() - 1, sh.getMaxColumns()).clearDataValidations();
@@ -2178,7 +2184,7 @@ function addValidation_(main, priv) {
   apply(main, 'activities', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
   apply(main, 'events', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
   apply(main, 'events', 'registration_status', listRule_(CORE_REG_STATUSES));
-  ['consent_requests', 'removal_requests'].forEach(function (t) {
+  ['consent_requests', 'removal_requests', 'club_change_requests'].forEach(function (t) {
     apply(priv, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
   apply(priv, 'members_master', 'status', listRule_(['active', 'deceased', 'left']));
@@ -2288,9 +2294,10 @@ function tidyBlankRows_(ss, report) {
 
 // ===== Forms.js =====
 /**
- * The seven Google Forms. Questions are found again by their titles, so keep titles in Q unchanged.
+ * The eight Google Forms. Questions are found again by their titles, so keep titles in Q unchanged.
  * The activity, club profile, public service and business forms send answers to the main Sheet; the consent and removal
- * forms (members' personal details) and the website's contact form (visitors' reply details) to the private Sheet.
+ * forms (members' personal details), the club changes form and the website's contact form (visitors' reply details) to the
+ * private Sheet.
  * Each form's raw answers stay untouched in a "raw_…" tab; the script copies them into the working tabs.
  */
 
@@ -2402,7 +2409,33 @@ var Q = {
   bWhatsapp: 'Business WhatsApp number (optional)',
   bTopics: 'Topics I can speak on at club meetings (optional)',
   bConfirm: 'Confirmation',
+  // added 17 November 2026: the club changes form (members joining, leaving, moving; club and district roles)
+  gMemberId: "Member's Rotary member ID",
+  gChange: 'What has changed?',
+  gJoined: 'Date joined',
+  gLeft: 'Date left',
+  gNewClub: 'The new club',
+  gMoved: 'Date of the move',
+  gDied: 'Date of passing (if known)',
+  gClubYear: 'Rotary year of the club role',
+  gClubRole: 'Club role',
+  gDistYear: 'Rotary year of the district role',
+  gTeam: 'District team',
+  gCommittee: 'Committee (if any)',
+  gRole: 'Role in the team',
+  gNote: 'Anything else the moderator should know? (optional)',
 };
+
+// The club changes form's choices, by the change kept in club_change_requests
+var CLUB_CHANGES = {
+  joined: 'A member joined the club', left: 'A member left Rotary or the club', moved: 'A member moved to another club',
+  deceased: 'A member passed away', club_role: 'A club role: President or Secretary', district_role: 'A district role',
+};
+var CLUB_OUTSIDE = 'A club outside District 3110';
+var CLUB_CHANGE_DESCRIPTION = 'Tell the district about a change in your club: a member who joined, left, moved to another club or passed ' +
+  'away, or who holds a club or district role. Anyone may send it. A Members moderator checks every change before the website or the ' +
+  "district's members list is updated, and you get an email when it is decided.\n\n" +
+  "Give the member's Rotary member ID (from My Rotary or the club's records). No mobile numbers or emails, please.";
 
 var REMOVAL_ITEMS = ['Everything', 'Directory listing', 'WhatsApp / call button', 'My photo', 'Birthday', 'Anniversary', 'Couple photo',
   'Business listing (Rotary Means Business)'];
@@ -2564,6 +2597,7 @@ function formLists_() {
   if (!professions.length) professions = Core_list(s.professions);
   var teams = readTab_(mainSs_(), 'functionaries').map(function (f) { return Core_str(f.section); })
     .filter(function (x, i, a) { return x && a.indexOf(x) === i; });
+  var year = Core_str(s.current_rotary_year);
   return {
     clubs: activeClubs.length ? activeClubs : ['(clubs not loaded yet)'],
     areas: areas.length ? areas : ['(areas not loaded yet)'],
@@ -2573,6 +2607,9 @@ function formLists_() {
     serviceTypes: CORE_SERVICE_TYPES.slice(),
     trades: CORE_TRADES.slice(),
     campaigns: [CORE_NO_CAMPAIGN].concat(Core_openCampaigns(readTab_(mainSs_(), 'campaigns'), today_()).map(Core_campaignLabel)),
+    newClubs: (activeClubs.length ? activeClubs : ['(clubs not loaded yet)']).concat([CLUB_OUTSIDE]),
+    teams: teams.length ? teams.slice().sort() : ["Governor's Office Team"],
+    years: year ? [year, Core_nextRotaryYear(year)] : ['(Rotary year not set)'],
   };
 }
 
@@ -2580,11 +2617,11 @@ function createForms_(report) {
   var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
   var L = formLists_();
   var makers = { activity: makeActivityForm_, club_profile: makeClubProfileForm_, consent: makeConsentForm_, removal: makeRemovalForm_,
-    public_service: makePublicServiceForm_, contact: makeContactForm_, business: makeBusinessForm_ };
+    public_service: makePublicServiceForm_, contact: makeContactForm_, business: makeBusinessForm_, club_change: makeClubChangeForm_ };
   var destinations = { activity: mainSs_().getId(), club_profile: mainSs_().getId(), consent: privateSheetId_(), removal: privateSheetId_(),
-    public_service: mainSs_().getId(), contact: privateSheetId_(), business: mainSs_().getId() };
+    public_service: mainSs_().getId(), contact: privateSheetId_(), business: mainSs_().getId(), club_change: privateSheetId_() };
   var rawNames = { activity: 'raw_activity_form', club_profile: 'raw_club_profile_form', consent: 'raw_consent_form', removal: 'raw_removal_form',
-    public_service: 'raw_public_service_form', contact: 'raw_contact_form', business: 'raw_business_form' };
+    public_service: 'raw_public_service_form', contact: 'raw_contact_form', business: 'raw_business_form', club_change: 'raw_club_change_form' };
 
   Object.keys(makers).forEach(function (key) {
     var form = null;
@@ -2851,6 +2888,51 @@ function makeBusinessForm_(L) {
 }
 
 /**
+ * Club changes (17 Nov 2026): anyone tells the district that a member joined, left, moved or passed away, or holds a
+ * club or district role. The member and the change come first; each kind of change has its own page, and every page
+ * ends at the note. Nothing changes until a Members moderator approves it on the desk.
+ */
+function makeClubChangeForm_(L) {
+  var form = baseForm_('Club changes – Rotary District 3110', CLUB_CHANGE_DESCRIPTION);
+  var id = FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build();
+  form.addListItem().setTitle(Q.cClub).setChoiceValues(L.clubs).setRequired(true);
+  form.addTextItem().setTitle(Q.gMemberId).setRequired(true).setValidation(id)
+    .setHelpText("From My Rotary or the club's records. Never published.");
+  form.addTextItem().setTitle(Q.rName).setRequired(true);
+  var change = form.addMultipleChoiceItem().setTitle(Q.gChange).setRequired(true);
+
+  var joined = form.addPageBreakItem().setTitle(CLUB_CHANGES.joined);
+  form.addDateItem().setTitle(Q.gJoined).setRequired(true);
+  var left = form.addPageBreakItem().setTitle(CLUB_CHANGES.left);
+  form.addDateItem().setTitle(Q.gLeft).setRequired(true);
+  var moved = form.addPageBreakItem().setTitle(CLUB_CHANGES.moved).setHelpText('The club chosen on the first page is the club the member left.');
+  form.addListItem().setTitle(Q.gNewClub).setChoiceValues(L.newClubs).setRequired(true);
+  form.addDateItem().setTitle(Q.gMoved).setRequired(true);
+  var died = form.addPageBreakItem().setTitle(CLUB_CHANGES.deceased);
+  form.addDateItem().setTitle(Q.gDied);
+  var clubRole = form.addPageBreakItem().setTitle(CLUB_CHANGES.club_role);
+  form.addListItem().setTitle(Q.gClubYear).setChoiceValues(L.years).setRequired(true);
+  form.addListItem().setTitle(Q.gClubRole).setChoiceValues(['President', 'Secretary']).setRequired(true);
+  var districtRole = form.addPageBreakItem().setTitle(CLUB_CHANGES.district_role)
+    .setHelpText('The member may be from another club. Please say in the note who decided it, for example the Governor\'s letter.');
+  form.addListItem().setTitle(Q.gDistYear).setChoiceValues(L.years).setRequired(true);
+  form.addListItem().setTitle(Q.gTeam).setChoiceValues(L.teams).setRequired(true);
+  form.addTextItem().setTitle(Q.gCommittee).setHelpText('As the district names it, for example District Social Media Management Committee');
+  form.addTextItem().setTitle(Q.gRole).setRequired(true).setHelpText('For example: Chairman, Co-chairman, Member, Assistant Governor')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
+  var note = form.addPageBreakItem().setTitle('Anything else');
+  form.addParagraphTextItem().setTitle(Q.gNote)
+    .setValidation(FormApp.createParagraphTextValidation().requireTextLengthLessThanOrEqualTo(500).setHelpText('Up to 500 characters').build());
+
+  change.setChoices([change.createChoice(CLUB_CHANGES.joined, joined), change.createChoice(CLUB_CHANGES.left, left),
+    change.createChoice(CLUB_CHANGES.moved, moved), change.createChoice(CLUB_CHANGES.deceased, died),
+    change.createChoice(CLUB_CHANGES.club_role, clubRole), change.createChoice(CLUB_CHANGES.district_role, districtRole)]);
+  // each kind's page goes on to the note (a page break's "go to" applies at the end of the page before it)
+  [left, moved, died, clubRole, districtRole].forEach(function (p) { p.setGoToPage(note); });
+  return form;
+}
+
+/**
  * The website's contact form, shown inside the Contact page. No Google sign-in, so anyone can write.
  * Messages go to the private Sheet and are emailed on to the district; the reply details are never published.
  */
@@ -2915,6 +2997,7 @@ function updateFormLists(silent) {
   lists[Q.club] = L.clubs; lists[Q.cClub] = L.clubs; lists[Q.aPartners] = L.clubs; lists[Q.cSpouseClub] = L.clubs;
   lists[Q.eCity] = L.areas; lists[Q.cArea] = L.areas; lists[Q.cProfession] = L.professions; lists[Q.eOrganiser] = L.organisers;
   lists[Q.aCampaign] = L.campaigns; lists[Q.sCity] = L.areas; lists[Q.bCity] = L.areas; lists[Q.bTrade] = L.trades;
+  lists[Q.gNewClub] = L.newClubs; lists[Q.gTeam] = L.teams; lists[Q.gClubYear] = L.years; lists[Q.gDistYear] = L.years;
   Object.keys(ids).forEach(function (k) {
     var form = FormApp.openById(ids[k]);
     form.getItems().forEach(function (item) {
@@ -2954,6 +3037,7 @@ function onAnyFormSubmit(e) {
     else if (formId === ids.public_service) filePublicService_(answers, meta);
     else if (formId === ids.contact) fileContact_(answers, meta);
     else if (formId === ids.business) fileBusiness_(answers, meta);
+    else if (formId === ids.club_change) fileClubChange_(answers, meta);
   } finally {
     lock.releaseLock();
   }
@@ -3297,6 +3381,36 @@ function noticeMember_(ps, req) {
   }
 }
 
+/**
+ * A club change (17 Nov 2026): kept in the private Sheet as pending; nothing changes until a Members moderator approves.
+ * Anyone may send it, so no check of the sender; the moderator sees what the members list holds for the ID.
+ */
+function fileClubChange_(a, meta) {
+  var ps = privateSs_();
+  var said = Core_str(a[Q.gChange]);
+  var change = Object.keys(CLUB_CHANGES).filter(function (k) { return CLUB_CHANGES[k] === said; })[0] || '';
+  var date = { joined: Q.gJoined, left: Q.gLeft, moved: Q.gMoved, deceased: Q.gDied }[change];
+  var newClub = Core_str(a[Q.gNewClub]);
+  var req = {
+    id: nextId_(readTab_(ps, 'club_change_requests'), 'CHG-'), submitted_at: meta.submitted_at, submitter_email: meta.submitter_email,
+    club_id: clubIdByName_(a[Q.cClub]), change: change, member_id: Core_str(a[Q.gMemberId]).replace(/\D/g, ''), name: Core_str(a[Q.rName]),
+    date: date ? Core_str(a[date]) : '', new_club_id: change !== 'moved' ? '' : newClub === CLUB_OUTSIDE ? 'outside' : clubIdByName_(newClub),
+    rotary_year: Core_str(a[change === 'club_role' ? Q.gClubYear : Q.gDistYear]), role: Core_str(a[change === 'club_role' ? Q.gClubRole : Q.gRole]),
+    section: change === 'district_role' ? Core_str(a[Q.gTeam]) : '', committee: change === 'district_role' ? Core_str(a[Q.gCommittee]) : '',
+    note: Core_str(a[Q.gNote]), status: 'pending',
+  };
+  if (change !== 'club_role' && change !== 'district_role') { req.rotary_year = ''; req.role = ''; }
+  var notes = [];
+  if (!change) notes.push('The kind of change was not recognised: ' + said);
+  if (!req.club_id) notes.push('Club not recognised: ' + Core_str(a[Q.cClub]));
+  if (change === 'moved' && newClub === CLUB_OUTSIDE) notes.push('Moved to a club outside District 3110: approving marks the member as left');
+  else if (change === 'moved' && !req.new_club_id) notes.push('New club not recognised: ' + newClub);
+  textNotes_([req.note], notes);
+  req.moderator_note = notes.join('; ');
+  appendRow_(ps, 'club_change_requests', req);
+  alertMembers_('change', req);
+}
+
 function fileRemoval_(a, meta) {
   var ps = privateSs_();
   var req = {
@@ -3319,7 +3433,7 @@ function onOpen() {
     .addItem('✔ Approve selected row(s)', 'approveSelected')
     .addItem('✖ Reject selected row(s)…', 'rejectSelected')
     .addSeparator()
-    .addItem('Member requests (consent & removal)…', 'openMemberRequests')
+    .addItem('Member requests (consent, removal, club changes)…', 'openMemberRequests')
     .addItem('Mark as deceased…', 'markDeceased')
     .addItem('Refresh public members', 'refreshPublicMembers')
     .addSeparator()
@@ -3677,7 +3791,151 @@ function memberRequests_(withThumbs) {
     var name = function (id) { var m = master.filter(function (x) { return Core_str(x.member_id) === Core_str(id); })[0]; return m ? m.name : id; };
     return { id: c.couple_id, names: name(c.person_a_id) + ' & ' + name(c.person_b_id), status: c.status, notes: c.notes };
   });
-  return { consent: consent, removal: removal, waiting: waiting };
+  var change = readTab_(ps, 'club_change_requests').filter(function (r) { return Core_str(r.status) === 'pending'; }).map(function (r) {
+    return clubChangeCard_(r, master);
+  });
+  return { consent: consent, removal: removal, change: change, waiting: waiting };
+}
+
+/* ---------------- Club changes (17 Nov 2026) ---------------- */
+
+/** What a moderator sees of one club change: the request, and beside it what the members list holds for that ID now. */
+function clubChangeCard_(r, master) {
+  var club = function (id) { return clubNameById_(id) || Core_str(id) || '–'; };
+  var m = clubChangeMember_(r, master);
+  var lines = [];
+  var add = function (label, value) { if (Core_str(value)) lines.push([label, Core_str(value)]); };
+  add('Rotary member ID', r.member_id);
+  add('Date', Core_isoDate(r.date) || r.date);
+  if (r.change === 'moved') add('New club', r.new_club_id === 'outside' ? CLUB_OUTSIDE : club(r.new_club_id));
+  add('Rotary year', r.rotary_year);
+  add('Role', r.role);
+  add('Team', r.section);
+  add('Committee', r.committee);
+  return {
+    id: Core_str(r.id), submitted: Core_isoTimestamp(r.submitted_at), name: Core_str(r.name), club: club(r.club_id),
+    change: CLUB_CHANGES[r.change] || Core_str(r.change), lines: lines, note: Core_str(r.note), sentFrom: Core_str(r.submitter_email),
+    now: m ? 'Members list: ' + Core_str(m.name) + ', ' + club(m.club_id) + ', ' + (Core_str(m.status) || 'active') : 'Not in the members list',
+    warnings: Core_str(r.moderator_note) ? Core_str(r.moderator_note).split('; ') : [],
+  };
+}
+
+function clubChangeMember_(r, master) {
+  var id = Core_str(r.member_id);
+  return id ? master.filter(function (m) { return Core_str(m.member_id) === id; })[0] || null : null;
+}
+
+/** Called by the sidebar: approve a club change. */
+function approveClubChange(requestId) {
+  return approveClubChange_(requestId, moderatorEmail_());
+}
+
+/**
+ * Makes the change a club sent: the members list and club history for a member who joined, left, moved or passed away
+ * (passing away goes through markDeceased_), or a new officers or functionaries row for a role. Then the public members
+ * list and the role check are refreshed, a rebuild is asked for, and the sender is told.
+ */
+function approveClubChange_(requestId, who) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var ps = privateSs_();
+    var req = readTab_(ps, 'club_change_requests').filter(function (r) { return r.id === requestId; })[0];
+    if (!req || Core_str(req.status) !== 'pending') throw new Error('Request ' + requestId + ' is not pending.');
+    var done = { status: 'approved', approved_by: who, approved_at: nowIso_() };
+    if (Core_isPractice(req)) {
+      updateRow_(ps, 'club_change_requests', req._row, done);
+      return 'Practice: approved. Nothing was changed.';
+    }
+    var change = Core_str(req.change);
+    var id = Core_str(req.member_id);
+    if (!id) throw new Error('The request has no Rotary member ID: fill in member_id on the request, or reject it.');
+    var m = clubChangeMember_(req, readTab_(ps, 'members_master'));
+    var when = Core_isoDate(req.date) || today_();
+    var note = 'Club change ' + requestId;
+    var message;
+    if (change === 'joined') {
+      if (!Core_str(req.club_id)) throw new Error('The club was not recognised: fill in club_id on the request, or reject it.');
+      if (m && Core_str(m.status) === 'deceased') throw new Error(m.name + ' is marked as deceased in the members list: check the member ID.');
+      if (m) {
+        if (Core_str(m.club_id) === Core_str(req.club_id) && Core_str(m.status || 'active') === 'active') {
+          throw new Error(m.name + ' is already an active member of this club: reject this request.');
+        }
+        clubChangeMove_(ps, m, req.club_id, when, 'joined (' + note + ')', { status: 'active' });
+        message = m.name + ' is now recorded in ' + clubNameById_(req.club_id) + '.';
+      } else {
+        appendRow_(ps, 'members_master', { member_id: id, name: Core_str(req.name), club_id: Core_str(req.club_id), is_rotarian: true, status: 'active',
+          notes: 'Added from ' + note + ' (' + today_() + ')' });
+        appendRow_(ps, 'club_history', { member_id: id, club_id: Core_str(req.club_id), from_date: when, reason: 'joined (' + note + ')' });
+        message = Core_str(req.name) + ' is added to the members list.';
+      }
+    } else if (change === 'left' || change === 'moved' || change === 'deceased') {
+      if (!m) throw new Error('No one with member ID ' + id + ' in the members list: check the ID, or reject this request.');
+      if (Core_str(m.status) === 'deceased') throw new Error(m.name + ' is already marked as deceased.');
+      if (change === 'deceased') {
+        markDeceased_(m, who);
+        message = m.name + ' is marked as deceased. Greetings stop at once.';
+      } else if (change === 'moved' && Core_str(req.new_club_id) !== 'outside') {
+        if (!clubNameById_(req.new_club_id)) throw new Error('The new club was not recognised: fill in new_club_id on the request, or reject it.');
+        clubChangeMove_(ps, m, req.new_club_id, when, 'moved (' + note + ')', {});
+        message = m.name + ' is now recorded in ' + clubNameById_(req.new_club_id) + '.';
+      } else {
+        var why = change === 'moved' ? 'moved out of District 3110' : 'left';
+        updateRow_(ps, 'members_master', m._row, { status: 'left', notes: (Core_str(m.notes) + ' | Left ' + when + ' (' + note + ')').replace(/^ \| /, '') });
+        clubChangeEndHistory_(ps, id, when, why + ' (' + note + ')');
+        message = m.name + ' is marked as left.';
+      }
+    } else if (change === 'club_role' || change === 'district_role') {
+      if (!Core_str(req.rotary_year) || !Core_str(req.role)) throw new Error('The request has no Rotary year or role: fill them in on the request, or reject it.');
+      var name = m ? Core_str(m.name) : Core_str(req.name);
+      if (change === 'club_role') {
+        if (!Core_str(req.club_id)) throw new Error('The club was not recognised: fill in club_id on the request, or reject it.');
+        appendRow_(mainSs_(), 'officers', { rotary_year: req.rotary_year, club_id: req.club_id, member_id: id, name: name, role: req.role, contact_ok: false });
+      } else {
+        if (!Core_str(req.section)) throw new Error('The request has no district team: fill in section on the request, or reject it.');
+        appendRow_(mainSs_(), 'functionaries', clubChangeRoleRow_(req, m, name));
+      }
+      message = name + ' is added as ' + req.role + ' (' + req.rotary_year + ').' + (m ? '' : ' Not in the members list, so there is no member card until they are.');
+    } else {
+      throw new Error('This request does not say what changed: reject it.');
+    }
+    updateRow_(ps, 'club_change_requests', req._row, done);
+    refreshPublicMembers(true);
+    try { checkRoles(true); } catch (e) { Logger.log('Role check not run: ' + e.message); }
+    setSetting_('rebuild_requested_at', nowIso_());
+    notifyMember_(req, 'Approved: ' + (CLUB_CHANGES[change] || 'club change') + ' – ' + Core_str(req.name),
+      'Thank you. The change you sent to the district (' + (CLUB_CHANGES[change] || change).toLowerCase() + ': ' + Core_str(req.name) +
+      ') has been approved by a district moderator.\n\nThe website updates within about 30 minutes.');
+    return 'Approved ' + requestId + '. ' + message + ' The website updates within about 30 minutes.';
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** A member recorded in another club from a date: the open club history row ends, a new one starts, and club_id changes. */
+function clubChangeMove_(ps, m, clubId, from, reason, fields) {
+  clubChangeEndHistory_(ps, m.member_id, from, reason);
+  appendRow_(ps, 'club_history', { member_id: Core_str(m.member_id), club_id: Core_str(clubId), from_date: from, reason: reason });
+  fields.club_id = Core_str(clubId);
+  updateRow_(ps, 'members_master', m._row, fields);
+}
+
+function clubChangeEndHistory_(ps, memberId, to, reason) {
+  readTab_(ps, 'club_history').forEach(function (h) {
+    if (Core_str(h.member_id) === Core_str(memberId) && !Core_str(h.to_date)) updateRow_(ps, 'club_history', h._row, { to_date: to, reason: reason });
+  });
+}
+
+/** A functionaries row for a district role: on the page its team is already shown on, after the team's other rows. */
+function clubChangeRoleRow_(req, m, name) {
+  var rows = readTab_(mainSs_(), 'functionaries');
+  var same = rows.filter(function (f) { return Core_str(f.section) === Core_str(req.section); });
+  var leadership = ['College of Governors', 'District Counsellors', 'Assistant Governors', "Governor's Office Team"];
+  var page = same.length ? Core_str(same[0].page) : leadership.indexOf(Core_str(req.section)) >= 0 ? 'leadership' : 'teams';
+  var order = same.filter(function (f) { return Core_str(f.rotary_year) === Core_str(req.rotary_year); })
+    .reduce(function (max, f) { return Math.max(max, Number(f.sort_order) || 0); }, 0);
+  return { rotary_year: req.rotary_year, page: page, section: req.section, committee: Core_str(req.committee), member_id: Core_str(req.member_id),
+    name: name, role: req.role, club_id: m ? Core_str(m.club_id) : Core_str(req.club_id), sort_order: order + 1, contact_ok: false };
 }
 
 var CONSENT_SENDERS = { member: "The member's own email", officer: 'An office bearer of the club', other: 'Not the member or a club office bearer' };
@@ -3944,11 +4202,12 @@ function rejectRequest(kind, requestId, reason) {
 
 function rejectRequest_(kind, requestId, reason, who) {
   var ps = privateSs_();
-  var tab = kind === 'removal' ? 'removal_requests' : 'consent_requests';
+  var tab = kind === 'removal' ? 'removal_requests' : kind === 'change' ? 'club_change_requests' : 'consent_requests';
   var req = readTab_(ps, tab).filter(function (r) { return r.id === requestId; })[0];
   if (!req) throw new Error('Request not found');
   updateRow_(ps, tab, req._row, { status: 'rejected', moderator_note: reason || '', approved_by: who, approved_at: nowIso_() });
-  var what = kind === 'removal' ? 'request to remove details for ' + req.name : 'consent form for ' + req.name;
+  var what = kind === 'removal' ? 'request to remove details for ' + req.name
+    : kind === 'change' ? 'club change for ' + req.name : 'consent form for ' + req.name;
   notifyMember_(req, 'Not done yet: ' + what, 'Thank you for sending the ' + what + '. A district moderator could not act on it this time.' +
     (Core_str(reason) ? '\n\nReason: ' + reason : '') + '\n\nYou are welcome to send the form again with the changes.');
   return 'Rejected ' + requestId;
@@ -4648,14 +4907,17 @@ function deskPhoto_(me, ref, full, token) {
 
 function deskMember_(me, kind, action, id, reason, confirmed) {
   if (!me.views.members) throw deskError_('Only Members moderators can do this.');
-  if (kind !== 'consent' && kind !== 'removal') throw deskError_('Unknown request.');
+  if (kind !== 'consent' && kind !== 'removal' && kind !== 'change') throw deskError_('Unknown request.');
   var message;
-  if (action === 'approve') message = kind === 'consent' ? approveConsent_(id, me.email, confirmed) : approveRemoval_(id, me.email);
+  if (action === 'approve') {
+    message = kind === 'consent' ? approveConsent_(id, me.email, confirmed)
+      : kind === 'change' ? approveClubChange_(id, me.email) : approveRemoval_(id, me.email);
+  }
   else if (action === 'reject') {
     if (!Core_str(reason)) throw deskError_('Please write a reason. It is sent to the person who sent the form.');
     message = rejectRequest_(kind, id, Core_str(reason).slice(0, 500), me.email);
   } else throw deskError_('Unknown action.');
-  deskLog_(me, action, kind + '_requests', id, confirmed ? 'confirmed with the member or club' : reason);
+  deskLog_(me, action, kind === 'change' ? 'club_change_requests' : kind + '_requests', id, confirmed ? 'confirmed with the member or club' : reason);
   return { message: message };
 }
 
@@ -4919,13 +5181,13 @@ function alertContent_(tab, row, only) {
   }
 }
 
-/** A new consent or removal form: the Members moderators are told to open the desk (no details in the email beyond the name). */
+/** A new consent, removal or club change form: the Members moderators are told to open the desk (no details in the email beyond the name). */
 function alertMembers_(kind, row, only) {
   try {
     var to = only || moderatorRecipients_('Members').split(',').filter(String);
     if (!deskQuota_(to.length)) return;
     var club = deskClubName_(row.club_id);
-    var what = kind === 'removal' ? 'Removal request' : 'Consent form';
+    var what = kind === 'removal' ? 'Removal request' : kind === 'change' ? 'Club change' : 'Consent form';
     to.forEach(function (email) {
       var desk = Core_deskViews(deskTypes_(email)).members ? deskLink_({}) : '';
       MailApp.sendEmail(email, what + ' to check: ' + row.name + (club ? ' – ' + club : ''),
@@ -5080,7 +5342,7 @@ function sendReminders_() {
   });
   var members = [];
   var sender = consentChecker_(ps);
-  ['consent_requests', 'removal_requests'].forEach(function (t) {
+  ['consent_requests', 'removal_requests', 'club_change_requests'].forEach(function (t) {
     Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) {
       if (t === 'consent_requests' && consentHoldUntil_(r, sender(r)) > now) return; // still waiting for the member to object
       members.push(t + ': ' + r.id + ' – ' + r.name);
@@ -5267,6 +5529,8 @@ function weeklySummary() {
   var removals = readTab_(ps, 'removal_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; });
   if (consent) waiting.push(consent + ' member consent forms');
   if (removals.length) waiting.push(removals.length + ' removal requests');
+  var changes = readTab_(ps, 'club_change_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; }).length;
+  if (changes) waiting.push(changes + ' club changes');
   var late = Core_overdue(removals, now, 48);
   out.push('WAITING FOR MODERATORS\n' + (waiting.length ? waiting.join(', ') + '.' : 'Nothing is waiting.') +
     (late.length ? '\nREMOVALS PAST THEIR 2-DAY LIMIT: ' + late.length + ' (' + late.map(function (r) { return r.id; }).join(', ') + '). Please see they are handled today.' : ''));
@@ -5470,7 +5734,7 @@ function loadSampleData(silent) {
 var SAMPLE_ID_KEYS = {
   clubs: 'club_id', activities: 'id', events: 'id', club_profile_requests: 'id', campaigns: 'campaign_id',
   messages: 'id', members_master: 'member_id', couples: 'couple_id', consent_requests: 'id', removal_requests: 'id',
-  public_services: 'id', contact_messages: 'id', businesses: 'id',
+  public_services: 'id', contact_messages: 'id', businesses: 'id', club_change_requests: 'id',
 };
 
 function loadTabs_(ss, tabs, counts) {

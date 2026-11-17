@@ -492,14 +492,17 @@ function deskPhoto_(me, ref, full, token) {
 
 function deskMember_(me, kind, action, id, reason, confirmed) {
   if (!me.views.members) throw deskError_('Only Members moderators can do this.');
-  if (kind !== 'consent' && kind !== 'removal') throw deskError_('Unknown request.');
+  if (kind !== 'consent' && kind !== 'removal' && kind !== 'change') throw deskError_('Unknown request.');
   var message;
-  if (action === 'approve') message = kind === 'consent' ? approveConsent_(id, me.email, confirmed) : approveRemoval_(id, me.email);
+  if (action === 'approve') {
+    message = kind === 'consent' ? approveConsent_(id, me.email, confirmed)
+      : kind === 'change' ? approveClubChange_(id, me.email) : approveRemoval_(id, me.email);
+  }
   else if (action === 'reject') {
     if (!Core_str(reason)) throw deskError_('Please write a reason. It is sent to the person who sent the form.');
     message = rejectRequest_(kind, id, Core_str(reason).slice(0, 500), me.email);
   } else throw deskError_('Unknown action.');
-  deskLog_(me, action, kind + '_requests', id, confirmed ? 'confirmed with the member or club' : reason);
+  deskLog_(me, action, kind === 'change' ? 'club_change_requests' : kind + '_requests', id, confirmed ? 'confirmed with the member or club' : reason);
   return { message: message };
 }
 
@@ -763,13 +766,13 @@ function alertContent_(tab, row, only) {
   }
 }
 
-/** A new consent or removal form: the Members moderators are told to open the desk (no details in the email beyond the name). */
+/** A new consent, removal or club change form: the Members moderators are told to open the desk (no details in the email beyond the name). */
 function alertMembers_(kind, row, only) {
   try {
     var to = only || moderatorRecipients_('Members').split(',').filter(String);
     if (!deskQuota_(to.length)) return;
     var club = deskClubName_(row.club_id);
-    var what = kind === 'removal' ? 'Removal request' : 'Consent form';
+    var what = kind === 'removal' ? 'Removal request' : kind === 'change' ? 'Club change' : 'Consent form';
     to.forEach(function (email) {
       var desk = Core_deskViews(deskTypes_(email)).members ? deskLink_({}) : '';
       MailApp.sendEmail(email, what + ' to check: ' + row.name + (club ? ' – ' + club : ''),

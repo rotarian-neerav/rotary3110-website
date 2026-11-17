@@ -21,6 +21,7 @@ function onAnyFormSubmit(e) {
     else if (formId === ids.public_service) filePublicService_(answers, meta);
     else if (formId === ids.contact) fileContact_(answers, meta);
     else if (formId === ids.business) fileBusiness_(answers, meta);
+    else if (formId === ids.club_change) fileClubChange_(answers, meta);
   } finally {
     lock.releaseLock();
   }
@@ -362,6 +363,36 @@ function noticeMember_(ps, req) {
     Logger.log('Notice to the member failed: ' + e.message);
     return 'Not told: the email failed';
   }
+}
+
+/**
+ * A club change (17 Nov 2026): kept in the private Sheet as pending; nothing changes until a Members moderator approves.
+ * Anyone may send it, so no check of the sender; the moderator sees what the members list holds for the ID.
+ */
+function fileClubChange_(a, meta) {
+  var ps = privateSs_();
+  var said = Core_str(a[Q.gChange]);
+  var change = Object.keys(CLUB_CHANGES).filter(function (k) { return CLUB_CHANGES[k] === said; })[0] || '';
+  var date = { joined: Q.gJoined, left: Q.gLeft, moved: Q.gMoved, deceased: Q.gDied }[change];
+  var newClub = Core_str(a[Q.gNewClub]);
+  var req = {
+    id: nextId_(readTab_(ps, 'club_change_requests'), 'CHG-'), submitted_at: meta.submitted_at, submitter_email: meta.submitter_email,
+    club_id: clubIdByName_(a[Q.cClub]), change: change, member_id: Core_str(a[Q.gMemberId]).replace(/\D/g, ''), name: Core_str(a[Q.rName]),
+    date: date ? Core_str(a[date]) : '', new_club_id: change !== 'moved' ? '' : newClub === CLUB_OUTSIDE ? 'outside' : clubIdByName_(newClub),
+    rotary_year: Core_str(a[change === 'club_role' ? Q.gClubYear : Q.gDistYear]), role: Core_str(a[change === 'club_role' ? Q.gClubRole : Q.gRole]),
+    section: change === 'district_role' ? Core_str(a[Q.gTeam]) : '', committee: change === 'district_role' ? Core_str(a[Q.gCommittee]) : '',
+    note: Core_str(a[Q.gNote]), status: 'pending',
+  };
+  if (change !== 'club_role' && change !== 'district_role') { req.rotary_year = ''; req.role = ''; }
+  var notes = [];
+  if (!change) notes.push('The kind of change was not recognised: ' + said);
+  if (!req.club_id) notes.push('Club not recognised: ' + Core_str(a[Q.cClub]));
+  if (change === 'moved' && newClub === CLUB_OUTSIDE) notes.push('Moved to a club outside District 3110: approving marks the member as left');
+  else if (change === 'moved' && !req.new_club_id) notes.push('New club not recognised: ' + newClub);
+  textNotes_([req.note], notes);
+  req.moderator_note = notes.join('; ');
+  appendRow_(ps, 'club_change_requests', req);
+  alertMembers_('change', req);
 }
 
 function fileRemoval_(a, meta) {

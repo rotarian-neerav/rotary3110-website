@@ -120,7 +120,151 @@ function memberRequests_(withThumbs) {
     var name = function (id) { var m = master.filter(function (x) { return Core_str(x.member_id) === Core_str(id); })[0]; return m ? m.name : id; };
     return { id: c.couple_id, names: name(c.person_a_id) + ' & ' + name(c.person_b_id), status: c.status, notes: c.notes };
   });
-  return { consent: consent, removal: removal, waiting: waiting };
+  var change = readTab_(ps, 'club_change_requests').filter(function (r) { return Core_str(r.status) === 'pending'; }).map(function (r) {
+    return clubChangeCard_(r, master);
+  });
+  return { consent: consent, removal: removal, change: change, waiting: waiting };
+}
+
+/* ---------------- Club changes (17 Nov 2026) ---------------- */
+
+/** What a moderator sees of one club change: the request, and beside it what the members list holds for that ID now. */
+function clubChangeCard_(r, master) {
+  var club = function (id) { return clubNameById_(id) || Core_str(id) || '–'; };
+  var m = clubChangeMember_(r, master);
+  var lines = [];
+  var add = function (label, value) { if (Core_str(value)) lines.push([label, Core_str(value)]); };
+  add('Rotary member ID', r.member_id);
+  add('Date', Core_isoDate(r.date) || r.date);
+  if (r.change === 'moved') add('New club', r.new_club_id === 'outside' ? CLUB_OUTSIDE : club(r.new_club_id));
+  add('Rotary year', r.rotary_year);
+  add('Role', r.role);
+  add('Team', r.section);
+  add('Committee', r.committee);
+  return {
+    id: Core_str(r.id), submitted: Core_isoTimestamp(r.submitted_at), name: Core_str(r.name), club: club(r.club_id),
+    change: CLUB_CHANGES[r.change] || Core_str(r.change), lines: lines, note: Core_str(r.note), sentFrom: Core_str(r.submitter_email),
+    now: m ? 'Members list: ' + Core_str(m.name) + ', ' + club(m.club_id) + ', ' + (Core_str(m.status) || 'active') : 'Not in the members list',
+    warnings: Core_str(r.moderator_note) ? Core_str(r.moderator_note).split('; ') : [],
+  };
+}
+
+function clubChangeMember_(r, master) {
+  var id = Core_str(r.member_id);
+  return id ? master.filter(function (m) { return Core_str(m.member_id) === id; })[0] || null : null;
+}
+
+/** Called by the sidebar: approve a club change. */
+function approveClubChange(requestId) {
+  return approveClubChange_(requestId, moderatorEmail_());
+}
+
+/**
+ * Makes the change a club sent: the members list and club history for a member who joined, left, moved or passed away
+ * (passing away goes through markDeceased_), or a new officers or functionaries row for a role. Then the public members
+ * list and the role check are refreshed, a rebuild is asked for, and the sender is told.
+ */
+function approveClubChange_(requestId, who) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var ps = privateSs_();
+    var req = readTab_(ps, 'club_change_requests').filter(function (r) { return r.id === requestId; })[0];
+    if (!req || Core_str(req.status) !== 'pending') throw new Error('Request ' + requestId + ' is not pending.');
+    var done = { status: 'approved', approved_by: who, approved_at: nowIso_() };
+    if (Core_isPractice(req)) {
+      updateRow_(ps, 'club_change_requests', req._row, done);
+      return 'Practice: approved. Nothing was changed.';
+    }
+    var change = Core_str(req.change);
+    var id = Core_str(req.member_id);
+    if (!id) throw new Error('The request has no Rotary member ID: fill in member_id on the request, or reject it.');
+    var m = clubChangeMember_(req, readTab_(ps, 'members_master'));
+    var when = Core_isoDate(req.date) || today_();
+    var note = 'Club change ' + requestId;
+    var message;
+    if (change === 'joined') {
+      if (!Core_str(req.club_id)) throw new Error('The club was not recognised: fill in club_id on the request, or reject it.');
+      if (m && Core_str(m.status) === 'deceased') throw new Error(m.name + ' is marked as deceased in the members list: check the member ID.');
+      if (m) {
+        if (Core_str(m.club_id) === Core_str(req.club_id) && Core_str(m.status || 'active') === 'active') {
+          throw new Error(m.name + ' is already an active member of this club: reject this request.');
+        }
+        clubChangeMove_(ps, m, req.club_id, when, 'joined (' + note + ')', { status: 'active' });
+        message = m.name + ' is now recorded in ' + clubNameById_(req.club_id) + '.';
+      } else {
+        appendRow_(ps, 'members_master', { member_id: id, name: Core_str(req.name), club_id: Core_str(req.club_id), is_rotarian: true, status: 'active',
+          notes: 'Added from ' + note + ' (' + today_() + ')' });
+        appendRow_(ps, 'club_history', { member_id: id, club_id: Core_str(req.club_id), from_date: when, reason: 'joined (' + note + ')' });
+        message = Core_str(req.name) + ' is added to the members list.';
+      }
+    } else if (change === 'left' || change === 'moved' || change === 'deceased') {
+      if (!m) throw new Error('No one with member ID ' + id + ' in the members list: check the ID, or reject this request.');
+      if (Core_str(m.status) === 'deceased') throw new Error(m.name + ' is already marked as deceased.');
+      if (change === 'deceased') {
+        markDeceased_(m, who);
+        message = m.name + ' is marked as deceased. Greetings stop at once.';
+      } else if (change === 'moved' && Core_str(req.new_club_id) !== 'outside') {
+        if (!clubNameById_(req.new_club_id)) throw new Error('The new club was not recognised: fill in new_club_id on the request, or reject it.');
+        clubChangeMove_(ps, m, req.new_club_id, when, 'moved (' + note + ')', {});
+        message = m.name + ' is now recorded in ' + clubNameById_(req.new_club_id) + '.';
+      } else {
+        var why = change === 'moved' ? 'moved out of District 3110' : 'left';
+        updateRow_(ps, 'members_master', m._row, { status: 'left', notes: (Core_str(m.notes) + ' | Left ' + when + ' (' + note + ')').replace(/^ \| /, '') });
+        clubChangeEndHistory_(ps, id, when, why + ' (' + note + ')');
+        message = m.name + ' is marked as left.';
+      }
+    } else if (change === 'club_role' || change === 'district_role') {
+      if (!Core_str(req.rotary_year) || !Core_str(req.role)) throw new Error('The request has no Rotary year or role: fill them in on the request, or reject it.');
+      var name = m ? Core_str(m.name) : Core_str(req.name);
+      if (change === 'club_role') {
+        if (!Core_str(req.club_id)) throw new Error('The club was not recognised: fill in club_id on the request, or reject it.');
+        appendRow_(mainSs_(), 'officers', { rotary_year: req.rotary_year, club_id: req.club_id, member_id: id, name: name, role: req.role, contact_ok: false });
+      } else {
+        if (!Core_str(req.section)) throw new Error('The request has no district team: fill in section on the request, or reject it.');
+        appendRow_(mainSs_(), 'functionaries', clubChangeRoleRow_(req, m, name));
+      }
+      message = name + ' is added as ' + req.role + ' (' + req.rotary_year + ').' + (m ? '' : ' Not in the members list, so there is no member card until they are.');
+    } else {
+      throw new Error('This request does not say what changed: reject it.');
+    }
+    updateRow_(ps, 'club_change_requests', req._row, done);
+    refreshPublicMembers(true);
+    try { checkRoles(true); } catch (e) { Logger.log('Role check not run: ' + e.message); }
+    setSetting_('rebuild_requested_at', nowIso_());
+    notifyMember_(req, 'Approved: ' + (CLUB_CHANGES[change] || 'club change') + ' – ' + Core_str(req.name),
+      'Thank you. The change you sent to the district (' + (CLUB_CHANGES[change] || change).toLowerCase() + ': ' + Core_str(req.name) +
+      ') has been approved by a district moderator.\n\nThe website updates within about 30 minutes.');
+    return 'Approved ' + requestId + '. ' + message + ' The website updates within about 30 minutes.';
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** A member recorded in another club from a date: the open club history row ends, a new one starts, and club_id changes. */
+function clubChangeMove_(ps, m, clubId, from, reason, fields) {
+  clubChangeEndHistory_(ps, m.member_id, from, reason);
+  appendRow_(ps, 'club_history', { member_id: Core_str(m.member_id), club_id: Core_str(clubId), from_date: from, reason: reason });
+  fields.club_id = Core_str(clubId);
+  updateRow_(ps, 'members_master', m._row, fields);
+}
+
+function clubChangeEndHistory_(ps, memberId, to, reason) {
+  readTab_(ps, 'club_history').forEach(function (h) {
+    if (Core_str(h.member_id) === Core_str(memberId) && !Core_str(h.to_date)) updateRow_(ps, 'club_history', h._row, { to_date: to, reason: reason });
+  });
+}
+
+/** A functionaries row for a district role: on the page its team is already shown on, after the team's other rows. */
+function clubChangeRoleRow_(req, m, name) {
+  var rows = readTab_(mainSs_(), 'functionaries');
+  var same = rows.filter(function (f) { return Core_str(f.section) === Core_str(req.section); });
+  var leadership = ['College of Governors', 'District Counsellors', 'Assistant Governors', "Governor's Office Team"];
+  var page = same.length ? Core_str(same[0].page) : leadership.indexOf(Core_str(req.section)) >= 0 ? 'leadership' : 'teams';
+  var order = same.filter(function (f) { return Core_str(f.rotary_year) === Core_str(req.rotary_year); })
+    .reduce(function (max, f) { return Math.max(max, Number(f.sort_order) || 0); }, 0);
+  return { rotary_year: req.rotary_year, page: page, section: req.section, committee: Core_str(req.committee), member_id: Core_str(req.member_id),
+    name: name, role: req.role, club_id: m ? Core_str(m.club_id) : Core_str(req.club_id), sort_order: order + 1, contact_ok: false };
 }
 
 var CONSENT_SENDERS = { member: "The member's own email", officer: 'An office bearer of the club', other: 'Not the member or a club office bearer' };
@@ -387,11 +531,12 @@ function rejectRequest(kind, requestId, reason) {
 
 function rejectRequest_(kind, requestId, reason, who) {
   var ps = privateSs_();
-  var tab = kind === 'removal' ? 'removal_requests' : 'consent_requests';
+  var tab = kind === 'removal' ? 'removal_requests' : kind === 'change' ? 'club_change_requests' : 'consent_requests';
   var req = readTab_(ps, tab).filter(function (r) { return r.id === requestId; })[0];
   if (!req) throw new Error('Request not found');
   updateRow_(ps, tab, req._row, { status: 'rejected', moderator_note: reason || '', approved_by: who, approved_at: nowIso_() });
-  var what = kind === 'removal' ? 'request to remove details for ' + req.name : 'consent form for ' + req.name;
+  var what = kind === 'removal' ? 'request to remove details for ' + req.name
+    : kind === 'change' ? 'club change for ' + req.name : 'consent form for ' + req.name;
   notifyMember_(req, 'Not done yet: ' + what, 'Thank you for sending the ' + what + '. A district moderator could not act on it this time.' +
     (Core_str(reason) ? '\n\nReason: ' + reason : '') + '\n\nYou are welcome to send the form again with the changes.');
   return 'Rejected ' + requestId;

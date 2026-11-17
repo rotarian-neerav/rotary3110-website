@@ -85,6 +85,11 @@ var SCHEMA_PRIVATE = {
   contact_messages: ['id', 'submitted_at', 'name', 'reply_to', 'topic', 'city', 'message', 'status', 'forwarded_to', 'note', 'is_sample', 'replies'],
   removal_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'name', 'member_id', 'mobile', 'remove_items',
     'reason', 'status', 'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
+  // club changes sent by anyone through the club changes form (17 November 2026): a member joined, left, moved or passed
+  // away, or a club or district role. Nothing changes until a Members moderator approves; change is one of
+  // joined, left, moved, deceased, club_role, district_role
+  club_change_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'change', 'member_id', 'name', 'date', 'new_club_id',
+    'rotary_year', 'role', 'section', 'committee', 'note', 'status', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
 };
 
 if (typeof module !== 'undefined' && module.exports) {

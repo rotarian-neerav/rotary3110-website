@@ -23,7 +23,7 @@ You will need two files from this project: `dist/apps-script/Code.gs` and `dist/
 3. You will see **"Google hasn't verified this app"**. That is normal for a script you wrote yourself. Click **Advanced → Go to (project name) (unsafe)** → **Allow**.
    The script asks to manage your spreadsheets, forms and Drive files, send email as you (for moderator reminders and replies to clubs), and connect to an external service (to download the sample data from GitHub).
 4. Wait about a minute. The log at the bottom says **Setup finished** and lists what it did:
-   tabs in both Sheets, sample data loaded, six forms created (activity, club profile, public service, consent, removal and the website's contact form) and moved into the folder that holds the Sheet, sharing checked, daily reminders scheduled.
+   tabs in both Sheets, sample data loaded, eight forms created (activity, club profile, public service, Rotary Means Business, consent, removal, club changes and the website's contact form) and moved into the folder that holds the Sheet, sharing checked, daily reminders scheduled.
 5. Go back to the Sheet and reload the page. A **Rotary** menu appears.
 
 ## 3. Add the seven photo questions by hand (8 minutes)

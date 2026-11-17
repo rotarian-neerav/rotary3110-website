@@ -25,7 +25,7 @@ var PHOTO_QUESTIONS = {
   couplePhoto: 'Couple photo (optional, under 1 MB)',
 };
 
-var PRIVATE_TABS = ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests'];
+var PRIVATE_TABS = ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests', 'club_change_requests'];
 
 function props_() {
   return PropertiesService.getScriptProperties();

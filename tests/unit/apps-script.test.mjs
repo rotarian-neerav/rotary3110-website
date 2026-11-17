@@ -30,17 +30,18 @@ const data = () => {
   return r.data;
 };
 
-test('setup creates every tab, loads the sample, makes seven forms and fills their links', () => {
+test('setup creates every tab, loads the sample, makes eight forms and fills their links', () => {
   for (const t of ['settings', 'clubs', 'activities', 'events', 'functionaries', 'members_public', 'couples_public', 'dashboard', 'role_checks']) assert.ok(env.main.getSheetByName(t), t);
-  for (const t of ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests']) assert.ok(env.priv.getSheetByName(t), t);
+  for (const t of ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests', 'club_change_requests']) assert.ok(env.priv.getSheetByName(t), t);
   assert.equal(env.main.getSheetByName('Sheet1'), null, 'empty default tab removed');
   assert.equal(env.main.rows('clubs').length, 70);
   assert.equal(env.main.rows('functionaries').length, 181, '176 from the Excel plus 5 sample roles from last year');
   const s = Object.fromEntries(env.main.rows('settings').map((r) => [r.key, r.value]));
-  for (const k of ['form_activity_url', 'form_club_profile_url', 'form_consent_url', 'form_removal_url', 'form_public_service_url', 'form_contact_url', 'form_business_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
+  for (const k of ['form_activity_url', 'form_club_profile_url', 'form_consent_url', 'form_removal_url', 'form_public_service_url', 'form_contact_url', 'form_business_url', 'form_club_change_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
   assert.ok(env.main.getSheetByName('raw_activity_form'), 'raw answers tab for the activity form');
   assert.ok(env.priv.getSheetByName('raw_consent_form'), 'consent answers go to the private Sheet');
-  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 7);
+  assert.ok(env.priv.getSheetByName('raw_club_change_form'), 'club changes go to the private Sheet');
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 8);
   assert.ok(env.triggers.some((t) => t.getHandlerFunction() === 'dailyJobs'));
   assert.ok(token && token.length >= 32);
   assert.equal(env.main.rows('dashboard').length, 69, 'one dashboard row per active club');
@@ -49,7 +50,7 @@ test('setup creates every tab, loads the sample, makes seven forms and fills the
 test('running setup again does not duplicate forms, tabs or sample rows', () => {
   env.run('setup');
   assert.equal(env.main.rows('clubs').length, 70);
-  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 7);
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 8);
 });
 
 test('data link: refuses without the token; same result as the website build on the sample', () => {
@@ -542,7 +543,7 @@ test('Upgrade Sheet on a Sheet set up before Release A: new questions in place, 
   assert.equal(avenue.required, true, 'the avenue is asked of every activity');
   assert.deepEqual([...avenue.choices], ['Club Service', 'Vocational Service', 'Community Service', 'International Service', 'Youth Service']);
   assert.match(env.forms[after.activity].description, /how-to-post\//, 'the form links to the posting guide');
-  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 7);
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 8);
   assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'notPostingReport').length, 1);
   const s = settingsMap();
   for (const k of ['form_public_service_url', 'form_contact_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
@@ -799,7 +800,7 @@ test('"Clear all sample data" leaves only real rows, and the site data is still 
 
 test('new forms are moved from My Drive into the folder that holds the Sheet, and stay there on later upgrades', () => {
   const ids = JSON.parse(env.props.get('FORM_IDS'));
-  assert.equal(Object.keys(ids).length, 7);
+  assert.equal(Object.keys(ids).length, 8);
   for (const id of Object.values(ids)) assert.equal(env.moved.get(id), 'PARENT', `${id} in the Sheet's folder`);
   const before = env.moved.size;
   env.run('upgradeSheet');

@@ -128,7 +128,7 @@ function sendReminders_() {
   });
   var members = [];
   var sender = consentChecker_(ps);
-  ['consent_requests', 'removal_requests'].forEach(function (t) {
+  ['consent_requests', 'removal_requests', 'club_change_requests'].forEach(function (t) {
     Core_overdue(readTab_(ps, t), now, CONFIG.REMINDER_HOURS).forEach(function (r) {
       if (t === 'consent_requests' && consentHoldUntil_(r, sender(r)) > now) return; // still waiting for the member to object
       members.push(t + ': ' + r.id + ' – ' + r.name);
@@ -315,6 +315,8 @@ function weeklySummary() {
   var removals = readTab_(ps, 'removal_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; });
   if (consent) waiting.push(consent + ' member consent forms');
   if (removals.length) waiting.push(removals.length + ' removal requests');
+  var changes = readTab_(ps, 'club_change_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; }).length;
+  if (changes) waiting.push(changes + ' club changes');
   var late = Core_overdue(removals, now, 48);
   out.push('WAITING FOR MODERATORS\n' + (waiting.length ? waiting.join(', ') + '.' : 'Nothing is waiting.') +
     (late.length ? '\nREMOVALS PAST THEIR 2-DAY LIMIT: ' + late.length + ' (' + late.map(function (r) { return r.id; }).join(', ') + '). Please see they are handled today.' : ''));

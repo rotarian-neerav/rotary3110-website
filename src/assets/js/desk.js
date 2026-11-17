@@ -30,7 +30,7 @@
       story: '★ Story of the month', leaveOut: 'Leave out of bulletin', leaveThisOut: 'Leave this out', putBack: 'Put it back in',
       leftOut: 'Left out of the bulletin', inBulletin: 'In the bulletin',
       recentActs: 'Approved activities, last 30 days', upcoming: 'Coming events', none: 'None.',
-      consent: 'Consent forms', removal: 'Removal requests', removeNow: 'Remove now', couples: 'Couples waiting',
+      consent: 'Consent forms', removal: 'Removal requests', removeNow: 'Remove now', couples: 'Couples waiting', changes: 'Club changes',
       sentFrom: 'Sent from', memberTold: 'Member', holdUntil: 'The member can object until {day}. Approve after that, or confirm with them now.',
       confirmed: 'I have confirmed this with the member (or their club President or Secretary)',
       datesDiffer: 'Dates differ: check with the couple', waitingSpouse: "Waiting for the spouse's own form",
@@ -58,7 +58,7 @@
       story: '★ महीने की कहानी', leaveOut: 'बुलेटिन से हटाएँ', leaveThisOut: 'इसे हटा दें', putBack: 'वापस जोड़ें',
       leftOut: 'बुलेटिन से हटाया गया', inBulletin: 'बुलेटिन में है',
       recentActs: 'पिछले 30 दिनों की स्वीकृत गतिविधियाँ', upcoming: 'आने वाले कार्यक्रम', none: 'कोई नहीं।',
-      consent: 'सहमति फ़ॉर्म', removal: 'हटाने के अनुरोध', removeNow: 'अभी हटाएँ', couples: 'प्रतीक्षा में दंपति',
+      consent: 'सहमति फ़ॉर्म', removal: 'हटाने के अनुरोध', removeNow: 'अभी हटाएँ', couples: 'प्रतीक्षा में दंपति', changes: 'क्लब में बदलाव',
       sentFrom: 'किस ईमेल से भेजा', memberTold: 'सदस्य', holdUntil: 'सदस्य {day} तक आपत्ति कर सकते हैं। उसके बाद स्वीकृत करें, या अभी उनसे पुष्टि करें।',
       confirmed: 'मैंने सदस्य (या उनके क्लब के अध्यक्ष या सचिव) से इसकी पुष्टि कर ली है',
       datesDiffer: 'तारीखें अलग हैं: दंपति से पूछें', waitingSpouse: 'जीवनसाथी के अपने फ़ॉर्म की प्रतीक्षा',
@@ -427,7 +427,7 @@
     var d = state.data;
     var list = [];
     if (d.content) list.push(['check', t('tabCheck'), d.content.pending.length], ['recent', t('tabRecent'), null]);
-    if (d.members) list.push(['members', t('tabMembers'), d.members.consent.length + d.members.removal.length]);
+    if (d.members) list.push(['members', t('tabMembers'), d.members.consent.length + d.members.removal.length + (d.members.change || []).length]);
     if (d.clubs) list.push(['clubs', t('tabClubs'), d.clubs.length]);
     if (d.office) list.push(['office', t('tabOffice'), d.office.filter(function (m) { return m.status === 'new'; }).length]);
     return list;
@@ -507,6 +507,20 @@
         '<p class="muted">' + esc(r.club) + '</p><p class="small">' + esc(r.match) + '</p><p><strong>' + esc(r.items) + '</strong></p>' +
         (r.reason ? '<p class="desk-text">' + esc(r.reason) + '</p>' : '') +
         '<div class="desk-actions" data-actions><button type="button" class="btn btn-go" data-m="approve">' + esc(t('removeNow')) + '</button>' +
+        '<button type="button" class="btn btn-no" data-m="reject">' + esc(t('reject')) + '</button></div><div data-panel></div></article>';
+    });
+    var changes = m.change || [];
+    h += '<h2>' + esc(t('changes')) + ' (' + changes.length + ')</h2>';
+    if (!changes.length) h += '<p>' + esc(t('none')) + '</p>';
+    changes.forEach(function (r) {
+      h += '<article class="desk-card" data-member="change|' + esc(r.id) + '"><p class="desk-kind">' + esc(r.id) + ' · ' + esc(day(r.submitted)) + '</p><h2>' + esc(r.name) + '</h2>' +
+        '<p class="muted">' + esc(r.club) + '</p><p><strong>' + esc(r.change) + '</strong></p>' +
+        '<dl class="desk-lines">' + r.lines.map(function (l) { return '<dt>' + esc(l[0]) + '</dt><dd>' + esc(l[1]) + '</dd>'; }).join('') + '</dl>' +
+        '<p class="small">' + esc(r.now) + '</p>' +
+        (r.sentFrom ? '<p class="small">' + esc(t('sentFrom')) + ': ' + esc(r.sentFrom) + '</p>' : '') +
+        (r.warnings.length ? '<p class="desk-note">' + r.warnings.map(esc).join('<br>') + '</p>' : '') +
+        (r.note ? '<p class="desk-text">' + esc(r.note) + '</p>' : '') +
+        '<div class="desk-actions" data-actions><button type="button" class="btn btn-go" data-m="approve">' + esc(t('approve')) + '</button>' +
         '<button type="button" class="btn btn-no" data-m="reject">' + esc(t('reject')) + '</button></div><div data-panel></div></article>';
     });
     if (m.waiting.length) {

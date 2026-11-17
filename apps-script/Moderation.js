@@ -7,7 +7,7 @@ function onOpen() {
     .addItem('✔ Approve selected row(s)', 'approveSelected')
     .addItem('✖ Reject selected row(s)…', 'rejectSelected')
     .addSeparator()
-    .addItem('Member requests (consent & removal)…', 'openMemberRequests')
+    .addItem('Member requests (consent, removal, club changes)…', 'openMemberRequests')
     .addItem('Mark as deceased…', 'markDeceased')
     .addItem('Refresh public members', 'refreshPublicMembers')
     .addSeparator()

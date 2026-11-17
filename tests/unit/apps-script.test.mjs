@@ -1091,6 +1091,18 @@ test('weekly backup: both Sheets copied into a private Backups folder next to th
   assert.ok(settingsMap().last_backup_at, 'when the last backup ran is shown in settings');
 });
 
+test('weekly backup: the form copies Google makes with the Sheet go to the Bin; the real forms stay', () => {
+  const formsIn = () => [...env.files.entries()].filter(([, f]) => f.mime === 'application/vnd.google-apps.form');
+  const r = env.run('weeklyBackup', '2027-03-07');
+  assert.ok(r.formsRemoved > 0, 'Google copied the linked forms, and the backup removed them');
+  assert.deepEqual(formsIn(), [], 'no "Copy of" forms left next to the real ones');
+  // a copy someone made by hand, not linked to a backup, is left alone
+  env.files.set('HANDCOPY', { name: 'Copy of Club profile', folder: 'PARENT', mime: 'application/vnd.google-apps.form' });
+  env.run('weeklyBackup', '2027-03-14');
+  assert.deepEqual(formsIn().map(([id]) => id), ['HANDCOPY']);
+  for (const form of ['FORM1', 'FORM2']) assert.ok(!env.trashed.includes(form), 'a live form is never moved to the Bin');
+});
+
 test('a rebuild that has not happened after 3 hours: one email to the owner; none once the site is built', () => {
   assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'checkRebuild').length, 1, 'scheduled by setup');
   const asked = new Date(Date.now() - 4 * 3600000).toISOString();

@@ -350,6 +350,8 @@ var BACKUP_WEEKS = 8;
  * Sunday 3 am: a copy of the main Sheet and of the private members Sheet, in a private "Backups" folder next to the
  * Sheets; the last 8 weeks are kept. A copy of a Sheet does not take its sharing, so only the district account can
  * open the copies. To restore: open a copy and copy the rows back, or File → Make a copy of it.
+ * Google also copies every form linked to a Sheet it copies ("Copy of Club profile …", next to the real forms);
+ * those copies are moved to the Bin, so only the real forms stay in the folder.
  */
 function weeklyBackup(today) {
   var day = today || today_();
@@ -365,6 +367,7 @@ function weeklyBackup(today) {
     retry_(function () { DriveApp.getFileById(ss.getId()).makeCopy(name, folder); });
     made.push(name);
   });
+  var formsRemoved = removeBackupFormCopies_(parent, folder);
   // keep the newest 8 weeks: names start with the date, so they sort oldest first
   var files = [];
   var list = folder.getFiles();
@@ -373,14 +376,34 @@ function weeklyBackup(today) {
   var removed = 0;
   files.slice(BACKUP_WEEKS * 2).forEach(function (f) { f.setTrashed(true); removed++; });
   setSetting_('last_backup_at', nowIso_());
-  return { made: made, removed: removed };
+  return { made: made, removed: removed, formsRemoved: formsRemoved };
+}
+
+/** Forms named "Copy of …" that send their answers to a Sheet in the Backups folder; never a live form. */
+function removeBackupFormCopies_(parent, folder) {
+  var backups = {};
+  var list = folder.getFiles();
+  while (list.hasNext()) backups[list.next().getId()] = true;
+  var removed = 0;
+  [parent, folder].forEach(function (where) {
+    var forms = where.getFilesByType(MimeType.GOOGLE_FORMS);
+    while (forms.hasNext()) {
+      var f = forms.next();
+      if (f.getName().indexOf('Copy of ') !== 0) continue;
+      var dest = '';
+      try { dest = FormApp.openById(f.getId()).getDestinationId(); } catch (e) { continue; } // no answers Sheet: leave it
+      if (backups[dest]) { f.setTrashed(true); removed++; }
+    }
+  });
+  return removed;
 }
 
 function backupNow() {
   var r = weeklyBackup();
   try {
     SpreadsheetApp.getUi().alert('Backed up to the private "' + BACKUP_FOLDER_NAME + '" folder next to the Sheets:\n' + r.made.join('\n') +
-      (r.removed ? '\n\nRemoved ' + r.removed + ' copies older than ' + BACKUP_WEEKS + ' weeks.' : ''));
+      (r.removed ? '\n\nRemoved ' + r.removed + ' copies older than ' + BACKUP_WEEKS + ' weeks.' : '') +
+      (r.formsRemoved ? '\n\nMoved ' + r.formsRemoved + ' form copies that Google made with the Sheet to the Bin.' : ''));
   } catch (e) { /* editor */ }
 }
 

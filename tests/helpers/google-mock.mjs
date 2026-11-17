@@ -246,6 +246,11 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
         setTrashed: () => { trashed.push(fid); files.delete(fid); } }));
       return { hasNext: () => list.length > 0, next: () => list.shift() };
     },
+    getFilesByType: (mime) => {
+      const list = [...files.entries()].filter(([, f]) => f.folder === id && f.mime === mime).map(([fid, f]) => ({ getId: () => fid, getName: () => f.name,
+        setTrashed: () => { trashed.push(fid); files.delete(fid); } }));
+      return { hasNext: () => list.length > 0, next: () => list.shift() };
+    },
     getFoldersByName: (n) => {
       const found = n === 'MemberPhotos' ? (sharing.has('folder:MemberPhotos') ? [folder('PHOTOS', 'MemberPhotos')] : [])
         : sharing.has('folder:' + n) ? [folder('FOLDER-' + n, n)] : [];
@@ -317,6 +322,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
         return { getResponseCode: () => 200, getContentText: () => sampleJson };
       },
     },
+    MimeType: { GOOGLE_FORMS: 'application/vnd.google-apps.form', GOOGLE_SHEETS: 'application/vnd.google-apps.spreadsheet' },
     ContentService: { createTextOutput: (s) => ({ setMimeType: () => ({ content: s }) }), MimeType: { JSON: 'JSON' } },
     HtmlService: { createTemplateFromFile: () => chain() },
     ScriptApp: {
@@ -338,7 +344,19 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
         },
         moveTo: (f) => moved.set(id, f.getId()),
         // like Drive: the copy belongs to whoever runs the script and does not take the original's sharing
-        makeCopy: (name, f) => { const cid = 'COPY' + (++copySeq); files.set(cid, { name, folder: f.getId() }); return { getId: () => cid, getName: () => name }; },
+        // like Drive, copying a spreadsheet also copies the forms that send answers to it: each copy is named
+        // "Copy of …", sits in the original form's folder and sends its answers to the copied spreadsheet
+        makeCopy: (name, f) => {
+          const cid = 'COPY' + (++copySeq);
+          files.set(cid, { name, folder: f.getId() });
+          for (const form of Object.values(forms)) {
+            if (form.destination !== id) continue;
+            const fid = 'COPY' + (++copySeq);
+            files.set(fid, { name: 'Copy of ' + form.title, folder: 'PARENT', mime: 'application/vnd.google-apps.form' });
+            forms[fid] = { proxy: { getId: () => fid, getTitle: () => 'Copy of ' + form.title, getDestinationId: () => cid } };
+          }
+          return { getId: () => cid, getName: () => name };
+        },
         getOwner: () => ({ getEmail: () => 'rotarian.neerav@gmail.com' }),
         getName: () => (files.get(id)?.name || id),
         getSharingAccess: () => sharing.get(id) || 'ANYONE_WITH_LINK',
@@ -358,8 +376,9 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
           getId: () => id,
           getPublishedUrl: () => `https://docs.google.com/forms/d/e/${id}/viewform`,
           // the response tab appears in the destination spreadsheet
-          setDestination: (_t, ssId) => { const ss = ssId === privateId ? priv : main; const sh = ss.insertSheet('Form Responses ' + formSeq); sh.formUrl = `https://docs.google.com/forms/d/${id}/edit`; return form.proxy; },
+          setDestination: (_t, ssId) => { form.destination = ssId; const ss = ssId === privateId ? priv : main; const sh = ss.insertSheet('Form Responses ' + formSeq); sh.formUrl = `https://docs.google.com/forms/d/${id}/edit`; return form.proxy; },
           getItems: () => [...form.items],
+          getDestinationId: () => { if (!form.destination) throw new Error('The form currently has no response destination.'); return form.destination; },
           setDescription: (d) => { form.description = d; return form.proxy; },
           getDescription: () => form.description,
           moveItem: (from, to) => { const [it] = form.items.splice(from, 1); form.items.splice(to, 0, it); return it; },

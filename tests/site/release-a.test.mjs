@@ -388,8 +388,14 @@ test('links back to the page above are outlined buttons, with no arrow (17 Nov)'
 });
 
 test('Rotary Means Business: home, trade, business and speaker pages; members only; no phone numbers (17 Nov)', () => {
-  const list = data.businesses.filter((b) => b.name);
-  assert.ok(list.length >= 5, 'the sample has businesses');
+  const list = (data.businesses || []).filter((b) => b.name);
+  if (!sample && !list.length) {
+    // the live Sheet before its first listing: the page says so, and nothing links to it until the form exists
+    assert.match(page('/rmb/'), /No businesses listed yet/);
+    if (!data.forms.business) assert.ok(!page('/').includes('href="/rmb/"'), 'no footer link yet');
+    return;
+  }
+  assert.ok(list.length >= (sample ? 5 : 1), 'businesses to check');
   const home = dom('/rmb/');
   assert.equal(home.querySelectorAll('.business-card').length, list.length, 'every business on the RMB home page');
   for (const b of list) assert.ok(home.querySelector(`.business-card[data-trade]`) && page('/rmb/').includes(b.name.replace(/&/g, '&amp;').replace(/'/g, '&#39;')), b.name);
@@ -401,28 +407,30 @@ test('Rotary Means Business: home, trade, business and speaker pages; members on
     assert.ok(tp.querySelector('h2'), `${tr}: grouped by city`);
   }
   // two businesses with one name in one trade get their own pages
-  assert.ok(existsSync(join(SITE, 'rmb/tours-travel/city-tours/index.html')) && existsSync(join(SITE, 'rmb/tours-travel/city-tours-biz-s006/index.html')));
-  const biz = page('/rmb/shop-retail/gupta-opticals/');
+  if (sample) assert.ok(existsSync(join(SITE, 'rmb/tours-travel/city-tours/index.html')) && existsSync(join(SITE, 'rmb/tours-travel/city-tours-biz-s006/index.html')));
+  const first = list.find((b) => b.name === 'Gupta Opticals') || list[0];
+  const card = parse(page('/rmb/')).querySelectorAll('.business-card h3 a').find((a) => a.text.trim() === first.name.trim());
+  const biz = page(card.getAttribute('href').slice(PREFIX.length));
   assert.match(biz, /"@type":"LocalBusiness"/);
   assert.match(biz, /data-pagefind-body/, 'business pages can be found by search');
   assert.doesNotMatch(biz, /name="robots" content="noindex/);
-  assert.match(page('/rmb/speakers/'), /First aid at home/);
+  if (sample) assert.match(page('/rmb/speakers/'), /First aid at home/);
   for (const f of htmlFiles.filter((x) => x.includes(`${join('_site', 'rmb')}`))) {
     const html = read(f);
     assert.ok(!/DECEASED-SAMPLE|LEFT-SAMPLE|PENDING-SAMPLE|REJECTED-SAMPLE|REPLACED-SAMPLE/.test(html), `${relative(SITE, f)}: only approved listings of active members`);
     assert.ok(!/60000[\s-]?0000[12]|6000000001/.test(html), `${relative(SITE, f)}: no phone numbers`);
   }
   // the city page lists its businesses; a business owner's card links to the business
-  const gupta = data.businesses.find((b) => b.name === 'Gupta Opticals');
-  const city = dom(`/cities/${citySlug(gupta.city)}/`);
-  assert.ok(city.querySelector('#businesses .business-card'), 'city page section');
+  const withCity = list.find((b) => existsSync(join(SITE, 'cities', citySlug(b.city), 'index.html')));
+  if (withCity) assert.ok(dom(`/cities/${citySlug(withCity.city)}/`).querySelector('#businesses .business-card'), 'city page section');
   assert.ok(page('/').includes('href="/rmb/"'), 'footer link');
   assert.ok(existsSync(join(SITE, 'list-business', 'index.html')), 'the short link to the form');
 });
 
 test('district work is marked: activities, past district events first, recent district events on the home page (17 Nov)', () => {
   const marked = data.activities.find((a) => a.district_level);
-  assert.ok(dom(`/activities/${marked.id.toLowerCase()}/`).querySelector('main .chip-district'), 'activity marked district level');
+  if (sample) assert.ok(marked, 'the sample marks one activity');
+  if (marked) assert.ok(dom(`/activities/${marked.id.toLowerCase()}/`).querySelector('main .chip-district'), 'activity marked district level');
   const districtEvent = data.events.find((e) => e.event_type === 'District event' && e.report_activity_id);
   if (districtEvent) assert.ok(dom(`/activities/${districtEvent.report_activity_id.toLowerCase()}/`).querySelector('main .chip-district'), 'report of a district event');
   const today = new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10);

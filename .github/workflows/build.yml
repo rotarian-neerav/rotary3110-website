@@ -24,10 +24,10 @@ concurrency:
 env:
   SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
   PATH_PREFIX: ${{ vars.PATH_PREFIX || format('/{0}/', github.event.repository.name) }}
-  # Until launch the site holds dummy data, so search engines are kept out of all of it.
-  # At launch, set the repository variable HIDE_FROM_SEARCH to false.
+  # Search engines are kept out unless the repository variable says otherwise (false since launch, 16 Nov 2026),
+  # so a copy of the site without the variable, such as a fork, stays out of search.
   HIDE_FROM_SEARCH: ${{ vars.HIDE_FROM_SEARCH || 'true' }}
-  # Everything in the Sheet is sample data until production; at launch, set the repository variable SAMPLE_DATA to false.
+  # The sample-data banner shows unless the repository variable says otherwise (false since launch, 16 Nov 2026).
   SAMPLE_DATA: ${{ vars.SAMPLE_DATA || 'true' }}
 
 jobs:

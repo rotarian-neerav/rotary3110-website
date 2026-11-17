@@ -743,7 +743,7 @@ const settings = [
   ['zones', 'Agra, Bareilly, Kanpur', "District zones: for the district's own use only, never shown on the website"],
   ['professions', PROFESSIONS.join(', '), 'Placeholder list; replace with the real list'],
   ['moderator_emails', '', 'Comma-separated; receive the 48-hour reminders'],
-  ['site_url', 'https://rotarian-neerav.github.io/rotary3110-website/', 'Used in emails to submitters'],
+  ['site_url', 'https://rotary3110.org/', 'Used in emails to submitters'],
   ['form_activity_url', '', 'Filled in by the setup script'],
   ['form_club_profile_url', '', 'Filled in by the setup script'],
   ['form_consent_url', '', 'Filled in by the setup script'],

@@ -1,6 +1,6 @@
 # Google setup (about 30 minutes, once)
 
-Do this **signed in to Google as rotarian.neerav@gmail.com**, on a computer (not a phone).
+Do this **signed in to Google as the district account** (the account that owns the Sheets), on a computer (not a phone).
 You will need two files from this project: `dist/apps-script/Code.gs` and `dist/apps-script/Sidebar.html`.
 
 ## 1. Put the script into the Sheet (3 minutes)
@@ -19,7 +19,7 @@ You will need two files from this project: `dist/apps-script/Code.gs` and `dist/
 ## 2. Run the setup (3 minutes)
 
 1. At the top of the editor, choose the function **`setup`** in the drop-down, then click **Run**.
-2. Google asks for permission. Click **Review permissions** → choose **rotarian.neerav@gmail.com**.
+2. Google asks for permission. Click **Review permissions** → choose **the district account**.
 3. You will see **"Google hasn't verified this app"**. That is normal for a script you wrote yourself. Click **Advanced → Go to (project name) (unsafe)** → **Allow**.
    The script asks to manage your spreadsheets, forms and Drive files, send email as you (for moderator reminders and replies to clubs), and connect to an external service (to download the sample data from GitHub).
 4. Wait about a minute. The log at the bottom says **Setup finished** and lists what it did:
@@ -54,7 +54,7 @@ And in the **Before photo** question's description: *Only for work that changed 
 
 1. In the Apps Script editor, click **Deploy → New deployment**.
 2. Click the gear next to "Select type" → **Web app**.
-3. Description: `Website data link`. **Execute as: Me (rotarian.neerav@gmail.com)**. **Who has access: Anyone**.
+3. Description: `Website data link`. **Execute as: Me (the district account)**. **Who has access: Anyone**.
    ("Anyone" is needed so the website build can reach it. Without the secret token it returns nothing.)
 4. Click **Deploy** → copy the **Web app URL** (ends in `/exec`).
 5. In the Sheet: **Rotary → Administrator → Show data link details** shows the address and the **token**.

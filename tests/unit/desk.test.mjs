@@ -14,7 +14,7 @@ const ROOT = resolve(import.meta.dirname, '../..');
 let env;
 let token;
 const Q = {};
-const OWNER = 'rotarian.neerav@gmail.com';
+const OWNER = 'district.account@example.com';
 
 // Google's email allowance is per day; each test counts as a new day (the test on the July check sets its own)
 beforeEach(() => { if (env) env.quota.left = 100; });
@@ -170,25 +170,32 @@ test('a new activity: each Content moderator gets their own email with Approve a
   const linkToken = linkParam(mail.body, 'Approve', 'a');
   assert.equal(linkParam(mail.body, 'Reject', 'a'), linkToken);
 
-  const peek = env.post({ fn: 'peek', token: linkToken });
+  // only on a phone where the same moderator is signed in: a forwarded copy asks for that moderator's code
+  const bare = env.post({ fn: 'peek', token: linkToken });
+  assert.equal(bare.signInAs, 'asha@example.com');
+  assert.match(bare.error, /sign in to the desk on this phone first, as asha@example.com/);
+  assert.equal(env.post({ fn: 'confirm', token: linkToken, action: 'approve', session: signIn('meera@example.com') }).signInAs, 'asha@example.com', 'another moderator\'s session does not do');
+  const ses = signIn('asha@example.com');
+  const peek = env.post({ fn: 'peek', token: linkToken, session: ses });
   assert.ok(peek.ok, peek.error);
   assert.deepEqual([peek.item.title, peek.item.status, peek.me.name], ['Desk test blankets', 'pending', 'Asha Content']);
   assert.equal(env.main.rows('activities').at(-1).status, 'pending', 'opening the link changes nothing');
   // the link shows this item's photo, and no other
-  assert.ok(env.post({ fn: 'photo', token: linkToken, ref: 'drive:1DeskPhotoAbCdEfGhIjKlMnOpQrStUv' }).base64);
-  assert.match(env.post({ fn: 'photo', token: linkToken, ref: 'drive:1SomeoneElsesFile' }).error, /not available/);
+  assert.ok(env.post({ fn: 'photo', token: linkToken, session: ses, ref: 'drive:1DeskPhotoAbCdEfGhIjKlMnOpQrStUv' }).base64);
+  assert.equal(env.post({ fn: 'photo', token: linkToken, ref: 'drive:1DeskPhotoAbCdEfGhIjKlMnOpQrStUv' }).signInAs, 'asha@example.com');
+  assert.match(env.post({ fn: 'photo', token: linkToken, session: ses, ref: 'drive:1SomeoneElsesFile' }).error, /not available/);
   // an altered link is refused
   const other = linkToken.replace(alerted.id, 'ACT-2026-0001');
-  assert.equal(env.post({ fn: 'confirm', token: other, action: 'approve' }).error, 'This link is not valid.');
+  assert.equal(env.post({ fn: 'confirm', token: other, action: 'approve', session: ses }).error, 'This link is not valid.');
 
   const before2 = env.mails.length;
-  const done = env.post({ fn: 'confirm', token: linkToken, action: 'approve' });
+  const done = env.post({ fn: 'confirm', token: linkToken, action: 'approve', session: ses });
   assert.ok(done.ok, done.error);
   assert.match(done.message, /^Approved: Desk test blankets/);
   const row = env.main.rows('activities').find((r) => r.id === alerted.id);
   assert.deepEqual([row.status, row.approved_by], ['approved', 'asha@example.com']);
   assert.ok(env.mails.slice(before2).some((m) => m.to === 'secretary@example.com' && /^Approved:/.test(m.subject)), 'the club is told');
-  assert.match(env.post({ fn: 'confirm', token: linkToken, action: 'reject', reason: 'x' }).message, /^Already approved by Asha Content on /, 'the link works once');
+  assert.match(env.post({ fn: 'confirm', token: linkToken, action: 'reject', reason: 'x', session: ses }).message, /^Already approved by Asha Content on /, 'the link works once');
   const log = env.main.rows('moderator_log').at(-1);
   assert.deepEqual([log.moderator, log.action, log.item], ['asha@example.com', 'approve', alerted.id]);
   assert.ok(!JSON.stringify(data()).includes('asha@example.com'), 'moderators are never published');
@@ -198,7 +205,7 @@ test('expired links and links for someone no longer a Content moderator do nothi
   const t = env.run('deskToken_', 'it', 'activities', alerted.id, 'asha@example.com', -1);
   assert.match(env.post({ fn: 'peek', token: t }).error, /expired/);
   const kabir = env.run('deskToken_', 'it', 'activities', alerted.id, 'kabir@example.com', 60);
-  assert.match(env.post({ fn: 'peek', token: kabir }).error, /no longer a Content moderator/);
+  assert.equal(env.post({ fn: 'peek', token: kabir }).signInAs, 'kabir@example.com', 'someone no longer a moderator cannot sign in, so the link does nothing');
   const ses = env.run('deskToken_', 'ses', '', '', 'asha@example.com', 60);
   assert.equal(env.post({ fn: 'confirm', token: ses, action: 'approve' }).error, 'This link is not valid.', 'a session is not an item link');
 });
@@ -250,13 +257,14 @@ test('Saturday preview: each Content moderator gets "Leave this out" links; one 
   const line = mail.body.split('\n').find((l) => l.trim().startsWith('Leave this out: '));
   assert.ok(line, 'at least one item has a link');
   const t = decodeURIComponent(line.split('#')[1].split('&').find((p) => p.startsWith('a=')).slice(2));
-  const peek = env.post({ fn: 'peek', token: t });
+  const ses = signIn('asha@example.com');
+  const peek = env.post({ fn: 'peek', token: t, session: ses });
   assert.equal(peek.kind, 'bx');
   const [, tab, id] = t.split('~');
-  const r = env.post({ fn: 'confirm', token: t, action: 'leaveout' });
+  const r = env.post({ fn: 'confirm', token: t, action: 'leaveout', session: ses });
   assert.ok(r.ok, r.error);
   assert.equal(env.main.rows(tab).find((x) => x.id.toLowerCase() === id.toLowerCase()).bulletin_exclude, 'TRUE');
-  env.post({ fn: 'confirm', token: t, action: 'putback' });
+  env.post({ fn: 'confirm', token: t, action: 'putback', session: ses });
   assert.equal(env.main.rows(tab).find((x) => x.id.toLowerCase() === id.toLowerCase()).bulletin_exclude, 'FALSE');
 });
 

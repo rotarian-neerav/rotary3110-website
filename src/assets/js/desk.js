@@ -166,13 +166,15 @@
   }
 
   function api(payload) {
-    if (session && !payload.token && payload.fn !== 'code' && payload.fn !== 'signin') payload.session = session;
+    if (session && payload.fn !== 'code' && payload.fn !== 'signin') payload.session = session;
     return fetch('https://script.google.com/macros/s/' + apiId + '/exec', {
       method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload),
     }).then(function (r) { return r.json(); }).then(function (d) {
       if (!d.ok) {
         if (d.signedOut) setSession(null);
-        throw new Error(d.error || 'Something went wrong');
+        var err = new Error(d.error || 'Something went wrong');
+        err.signInAs = d.signInAs || '';
+        throw err;
       }
       return d;
     });
@@ -243,10 +245,13 @@
     });
   }
 
+  var afterSignIn = null; // an email link waiting for its moderator to sign in on this phone
   function signedIn(d) {
     setSession(d.session, d.me);
     say('');
-    load();
+    var next = afterSignIn;
+    afterSignIn = null;
+    if (next) next(); else load();
   }
 
   /* ---------- Cards ---------- */
@@ -435,6 +440,14 @@
       if (intent === 'approve' && !c.block) ask('approve');
       if (intent === 'reject') ask('reject');
     }).catch(function (err) {
+      if (err.signInAs) {
+        // not signed in here as this link's moderator (a forwarded email, or a new phone): sign in, then open the link
+        if (session && state.me && state.me.email !== err.signInAs) setSession(null);
+        afterSignIn = function () { showLink(token, intent); };
+        say(err.message);
+        showSignIn(err.signInAs);
+        return;
+      }
       out.innerHTML = '<p><a class="btn-small" href="" data-open>' + esc(t('openDesk')) + '</a></p>';
       out.querySelector('[data-open]').addEventListener('click', function (ev) { ev.preventDefault(); say(''); start(); });
       say(err.message, true);

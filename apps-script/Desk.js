@@ -40,7 +40,7 @@ function doPost(e) {
     return json_(out);
   } catch (err) {
     if (!err.desk) Logger.log('Desk request stopped: ' + (err && err.stack || err));
-    return json_({ ok: false, error: Core_safeError(err), signedOut: !!err.signedOut });
+    return json_({ ok: false, error: Core_safeError(err), signedOut: !!err.signedOut, signInAs: err.signInAs || '' });
   }
 }
 
@@ -48,9 +48,9 @@ function desk_(req) {
   var fn = Core_str(req.fn);
   if (fn === 'code') return deskSendCode_(req.email);
   if (fn === 'signin') return deskSignIn_(req);
-  if (fn === 'peek') return deskPeek_(req.token);
+  if (fn === 'peek') return deskPeek_(req.token, req.session);
   if (fn === 'confirm') return deskConfirm_(req);
-  if (fn === 'photo' && req.token) return deskPhoto_(null, req.ref, req.full, req.token);
+  if (fn === 'photo' && req.token) return deskPhoto_(null, req.ref, req.full, req.token, req.session);
   var me = deskUser_(req.session);
   if (fn === 'list') return deskList_(me);
   if (fn === 'photo') return deskPhoto_(me, req.ref, req.full);
@@ -372,15 +372,26 @@ function deskLog_(me, action, tab, item, details) {
 
 /* ---------- One-tap links from emails ---------- */
 
-function deskLinkUser_(t) {
+/**
+ * Security audit S3 (owner, 18 Nov 2026): an email's Approve, Reject or Leave out link works only on a phone where the
+ * same moderator is signed in to the desk, so a forwarded copy asks for that moderator's sign-in code.
+ */
+function deskLinkUser_(t, session) {
+  var me = null;
+  try { me = deskUser_(session); } catch (e) { me = null; }
+  if (!me || Core_str(me.email).toLowerCase() !== t.email) {
+    var err = deskError_('Please sign in to the desk on this phone first, as ' + t.email + '. Then the link opens.');
+    err.signInAs = t.email;
+    throw err;
+  }
   var types = deskTypes_(t.email);
   if (!Core_deskViews(types).content) throw deskError_('This email is no longer a Content moderator.');
   return deskMe_(t.email, types);
 }
 
-function deskPeek_(token) {
+function deskPeek_(token, session) {
   var t = deskRead_(token, ['it', 'bx']);
-  var me = deskLinkUser_(t);
+  var me = deskLinkUser_(t, session);
   var r = deskFind_(t.tab, t.id);
   return { kind: t.kind, me: { name: me.name, email: me.email }, item: deskCard_(t.tab, r), left_out: Core_isTrue(r.bulletin_exclude),
     message: t.kind === 'it' && Core_str(r.status) !== 'pending' ? deskDoneBy_(r) : '' };
@@ -388,7 +399,7 @@ function deskPeek_(token) {
 
 function deskConfirm_(req) {
   var t = deskRead_(req.token, ['it', 'bx']);
-  var me = deskLinkUser_(t);
+  var me = deskLinkUser_(t, req.session);
   if (t.kind === 'bx') return deskFlag_(me, t.tab, t.id, 'bulletin_exclude', req.action === 'putback' ? 'FALSE' : 'TRUE');
   if (req.action !== 'approve' && req.action !== 'reject') throw deskError_('Choose Approve or Reject.');
   return deskModerate_(me, req.action, t.tab, t.id, req.reason);
@@ -487,13 +498,13 @@ function deskContent_() {
 }
 
 /** A photo of a waiting item, for a moderator who may see that item (or the holder of that item's email link). */
-function deskPhoto_(me, ref, full, token) {
+function deskPhoto_(me, ref, full, token, session) {
   ref = Core_str(ref);
   var allowed = [];
   var split = function (v) { Core_str(v).split(',').forEach(function (s) { if (s.trim()) allowed.push(s.trim()); }); };
   if (token) {
     var t = deskRead_(token, ['it', 'bx']);
-    deskLinkUser_(t);
+    deskLinkUser_(t, session);
     var item = deskFind_(t.tab, t.id);
     split(item.photo_files); split(item.before_photo); split(item.after_photo);
   } else {
@@ -737,7 +748,7 @@ function deskEmailText_(card, intro, buttons, how) {
   if (card.sender) out.push('', 'Sent by ' + card.sender + (card.sender_mobile ? ' (+' + card.sender_mobile + ')' : ''));
   out.push('');
   buttons.forEach(function (b) { out.push(b[0] + ': ' + b[1]); });
-  if (buttons.length) out.push('', 'These links are personal to you and work for ' + DESK_LINK_DAYS + ' days. Please do not forward this email: anyone who has it can use them as you.');
+  if (buttons.length) out.push('', 'These links work for ' + DESK_LINK_DAYS + ' days, only on a phone where you are signed in to the desk (elsewhere it asks for your sign-in code first). Please do not forward this email.');
   if (how) out.push(how);
   out.push('', 'Rotary District 3110 website');
   return out.join('\n');
@@ -761,7 +772,7 @@ function deskEmailHtml_(card, intro, buttons, how, imageIds) {
   }
   if (card.sender) h += '<p style="color:#5b6573;font-size:13px">Sent by ' + e(card.sender) + (card.sender_mobile ? ' · <a href="tel:+' + card.sender_mobile + '">+' + card.sender_mobile + '</a>' : '') + '</p>';
   h += '<p>' + buttons.map(function (b) { return deskButton_(b[0], b[1], b[2]); }).join('') + '</p>';
-  if (buttons.length) h += '<p style="color:#5b6573;font-size:13px">Approve and Reject open the moderation desk, where one more tap confirms. These links are personal to you and work for ' + DESK_LINK_DAYS + ' days. <strong>Please do not forward this email</strong>: anyone who has it can use these buttons as you.</p>';
+  if (buttons.length) h += '<p style="color:#5b6573;font-size:13px">Approve and Reject open the moderation desk, where one more tap confirms. They work for ' + DESK_LINK_DAYS + ' days, only on a phone where you are signed in to the desk (elsewhere it asks for your sign-in code first). <strong>Please do not forward this email.</strong></p>';
   if (how) h += '<p>' + e(how) + '</p>';
   return h + '</div>';
 }

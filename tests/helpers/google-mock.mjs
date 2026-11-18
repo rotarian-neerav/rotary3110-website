@@ -190,9 +190,9 @@ class FakeSheet {
 }
 
 class FakeSpreadsheet {
-  constructor(id, name) { this.id = id; this.name = name; this.sheets = [new FakeSheet('Sheet1')]; this.editors = ['rotarian.neerav@gmail.com']; }
+  constructor(id, name) { this.id = id; this.name = name; this.sheets = [new FakeSheet('Sheet1')]; this.editors = ['district.account@example.com']; }
   getEditors() { return this.editors.map((e) => ({ getEmail: () => e })); }
-  getOwner() { return { getEmail: () => 'rotarian.neerav@gmail.com' }; }
+  getOwner() { return { getEmail: () => 'district.account@example.com' }; }
   addEditor(e) { if (!this.editors.includes(e)) this.editors.push(e); return this; }
   removeEditor(e) { this.editors = this.editors.filter((x) => x !== e); return this; }
   getId() { return this.id; }
@@ -305,7 +305,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
       },
     },
     LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
-    Session: { getActiveUser: () => ({ getEmail: () => activeUser }), getEffectiveUser: () => ({ getEmail: () => 'rotarian.neerav@gmail.com' }) },
+    Session: { getActiveUser: () => ({ getEmail: () => activeUser }), getEffectiveUser: () => ({ getEmail: () => 'district.account@example.com' }) },
     Utilities: {
       sleep: (ms) => { slept.push(ms); },
       getUuid: () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, () => Math.floor(Math.random() * 16).toString(16)),
@@ -369,7 +369,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
           }
           return { getId: () => cid, getName: () => name };
         },
-        getOwner: () => ({ getEmail: () => 'rotarian.neerav@gmail.com' }),
+        getOwner: () => ({ getEmail: () => 'district.account@example.com' }),
         getName: () => (files.get(id)?.name || id),
         getSharingAccess: () => sharing.get(id) || 'ANYONE_WITH_LINK',
         setSharing: (a) => sharing.set(id, a),

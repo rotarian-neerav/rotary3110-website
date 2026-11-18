@@ -200,7 +200,7 @@ test('on: a stranger is told politely and the form waits as not accepted; office
   before = env.mails.length;
   assert.equal(activity(clubName('S-004'), 'On: president', 'OLD.PRESIDENT@example.com').status, 'pending');
   assert.equal(activity(clubName('S-004'), 'On: moderator', 'asha@example.com').status, 'pending');
-  assert.equal(activity(clubName('S-004'), 'On: district account', 'rotarian.neerav@gmail.com').status, 'pending', 'the Sheet\'s owner counts as an Administrator');
+  assert.equal(activity(clubName('S-004'), 'On: district account', 'district.account@example.com').status, 'pending', 'the Sheet\'s owner counts as an Administrator');
   const unchecked = activity(clubName('S-005'), 'On: club with no office bearer email', 'stranger@example.com');
   assert.equal(unchecked.status, 'pending', 'a gap in the records refuses nobody');
   assert.match(unchecked.sender_check, /^Not checked/);

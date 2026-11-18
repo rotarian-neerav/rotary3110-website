@@ -176,7 +176,8 @@ Areas are never shown on the website.
 ### Working from email
 
 Each new item sends the right moderators an email with its details and photos. Content items have **Approve** and
-**Reject** buttons that work straight from the email. Members' requests are never approved from an email: open the
+**Reject** buttons that open the item on the desk, where one more tap confirms. They work only on a phone where you
+are signed in to the desk; anywhere else the desk asks for your sign-in code first. Please do not forward these emails. Members' requests are never approved from an email: open the
 desk.
 
 ### The moderation desk (made for phones)

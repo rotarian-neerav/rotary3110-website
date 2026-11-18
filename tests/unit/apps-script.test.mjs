@@ -495,7 +495,7 @@ test('Saturday preview: the coming Sunday\'s bulletin with the row ids, to the m
   assert.ok(mail, 'preview sent');
   const s = settingsMap();
   // one email per moderator (each gets their own "Leave this out" links once on the moderators tab)
-  assert.equal(sent.map((m) => m.to).join(','), String(s.moderator_emails || '').split(/\s*,\s*/).filter(Boolean).join(',') || 'rotarian.neerav@gmail.com');
+  assert.equal(sent.map((m) => m.to).join(','), String(s.moderator_emails || '').split(/\s*,\s*/).filter(Boolean).join(',') || 'district.account@example.com');
   assert.match(mail.body, /Full bulletin: \S+\/bulletin\/\d{4}-\d{2}-\d{2}\//);
   assert.match(mail.body, /set bulletin_exclude to TRUE/);
 });
@@ -657,7 +657,7 @@ test('contact form: kept in the private Sheet and emailed on; spam and messages 
   };
   const before = env.mails.length;
   const first = send('I would like to help at the next blood donation camp in Agra. How can I join?');
-  const moderators = String(settingsMap().moderator_emails || '').split(/\s*,\s*/).filter(Boolean).join(',') || 'rotarian.neerav@gmail.com';
+  const moderators = String(settingsMap().moderator_emails || '').split(/\s*,\s*/).filter(Boolean).join(',') || 'district.account@example.com';
   assert.deepEqual([first.status, first.forwarded_to, first.reply_to, first.topic], ['new', moderators, 'asha.v@example.com', 'I want to volunteer'], 'contact_email blank: the moderators');
   const mail = env.mails.at(-1);
   assert.equal(env.mails.length, before + 1);
@@ -896,7 +896,7 @@ test('Apply moderators: owner only; only rows with sheet_access TRUE edit the ma
   env.setUser('moderator.a@example.com');
   env.run('applyModerators');
   assert.match(env.alerts.at(-1), /Only the owner/);
-  env.setUser('rotarian.neerav@gmail.com');
+  env.setUser('district.account@example.com');
   const mods = env.main.getSheetByName('moderators');
   [2, 3, 4, 5, 6].forEach((row) => mods.set(row, 7, 'TRUE'));
   env.main.editors.push('nosheet@example.com');
@@ -907,8 +907,8 @@ test('Apply moderators: owner only; only rows with sheet_access TRUE edit the ma
   assert.deepEqual([...plan.removeMain].sort(), ['content.two@example.com', 'nosheet@example.com'], 'inactive, or active without sheet_access (the desk needs none)');
   assert.deepEqual([...plan.addPrivate], ['members.one@example.com']);
   assert.ok(env.main.editors.includes('helper@example.com'), 'people not in the tab are left alone');
-  assert.ok(env.main.editors.includes('rotarian.neerav@gmail.com') && !env.main.editors.includes('content.two@example.com'));
-  assert.deepEqual([...env.priv.editors].sort(), ['members.one@example.com', 'rotarian.neerav@gmail.com']);
+  assert.ok(env.main.editors.includes('district.account@example.com') && !env.main.editors.includes('content.two@example.com'));
+  assert.deepEqual([...env.priv.editors].sort(), ['district.account@example.com', 'members.one@example.com']);
   // moving someone off the Members type removes the private Sheet only
   env.main.getSheetByName('moderators').set(4, 1, 'Content');
   const again = env.run('applyModerators');
@@ -987,7 +987,7 @@ test('Google briefly slow: steps safe to repeat are tried again, others are not;
   assert.ok(new Date(stamp).getTime() >= t0 - 1000, 'rebuild requested');
 
   // Apply moderators: a person Google keeps timing out on is listed; the others are done; running again finishes
-  env.setUser('rotarian.neerav@gmail.com');
+  env.setUser('district.account@example.com');
   const mods = env.main.getSheetByName('moderators');
   mods.appendRow(['Content', 'Slow One', 'slow.one@example.com', 'TRUE', '', '', 'TRUE']);
   mods.appendRow(['Content', 'Quick One', 'quick.one@example.com', 'TRUE', '', '', 'TRUE']);
@@ -1040,12 +1040,12 @@ test('July member check: listed members with an email, July and August only, wit
   env.run('memberCheckEmails_', '2028-07-01');
   assert.equal(mine().length - next, 4, 'next July everyone again, including the one who gave consent in 2027');
   // the owner's sample: one member's email, sent only to the person who asks
-  env.setUser('rotarian.neerav@gmail.com');
+  env.setUser('district.account@example.com');
   const before = env.mails.length;
-  assert.match(env.run('sendMemberCheckSample'), /sent to rotarian\.neerav@gmail\.com/);
+  assert.match(env.run('sendMemberCheckSample'), /sent to district\.account@example\.com/);
   assert.equal(env.mails.length - before, 1);
   assert.match(env.mails.at(-1).subject, /^SAMPLE/);
-  assert.equal(env.mails.at(-1).to, 'rotarian.neerav@gmail.com');
+  assert.equal(env.mails.at(-1).to, 'district.account@example.com');
   const sh = env.priv.getSheetByName('members_master');
   sh.data = sh.data.filter((r) => !/^99900\d\d$/.test(String(r[0])));
 });
@@ -1059,7 +1059,7 @@ test('weekly summary: Monday 8 am to the owner: last build, a rebuild not yet ru
   rr.set(rr.getLastRow(), rr.data[0].indexOf('submitted_at') + 1, '2026-01-01T00:00:00Z');
   env.run('weeklySummary');
   let mail = env.mails.at(-1);
-  assert.equal(mail.to, 'rotarian.neerav@gmail.com', 'the district account until summary_emails is set');
+  assert.equal(mail.to, 'district.account@example.com', 'the district account until summary_emails is set');
   assert.match(mail.subject, /weekly summary/);
   for (const part of ['THE WEBSITE', 'Last built: 15', 'has not run yet', 'WENT LIVE IN THE LAST 7 DAYS', 'WAITING FOR MODERATORS', 'PAST THEIR 2-DAY LIMIT', 'QUIET CLUBS']) assert.ok(mail.body.includes(part), part);
   assert.ok(!mail.body.includes('Rtn Slow Removal') && !mail.body.includes('9876501111'), 'request IDs only, no names or numbers');

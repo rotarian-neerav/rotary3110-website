@@ -79,6 +79,13 @@ test('My details: page 1 finds the member; show, remove or business; the upload 
   assert.equal(page('Your business').goToPage, 'SUBMIT');
   assert.ok(item(f, Q.rItems).choices.includes('Business listing (Rotary Means Business)'));
   assert.match(f.description, /Sent from your own email .* applied at the next website update/);
+  const id = item(f, Q.cMemberId);
+  assert.equal(id.required, true, 'the RI member ID is required (owner, 18 Nov 2026)');
+  // a My details form made before that: Upgrade Sheet makes it required, once
+  id.required = false;
+  assert.ok(env.run('upgradeSheet').some((l) => /RI member ID is now required/.test(l)));
+  assert.equal(id.required, true);
+  assert.ok(!env.run('upgradeSheet').some((l) => /RI member ID is now required/.test(l)));
 });
 
 test("Club updates files each section where the old forms did; a new member's mobile and email reach the members list", () => {
@@ -104,11 +111,11 @@ test("Club updates files each section where the old forms did; a new member's mo
   assert.equal(env.priv.rows('club_change_requests').at(-1).change, 'club_role');
 });
 
-test("Core: a member is found by RI ID, by mobile in their club, then by the sender's own email when the name agrees", () => {
+test("Core: a member is found by RI ID, then by the sender's own email when the name agrees; never by a typed mobile", () => {
   const master = [{ member_id: '1', name: 'Rtn Asha Verma', club_id: 'A', mobile: '9811100001', email: 'asha@x.com' },
     { member_id: '2', name: 'Rtn Ravi Gupta', club_id: 'A', email: 'ravi@x.com' }];
   assert.equal(core.Core_matchMember({ member_id: '2' }, master), 1);
-  assert.equal(core.Core_matchMember({ mobile: '+91 98111 00001', club_id: 'A' }, master), 0);
+  assert.equal(core.Core_matchMember({ mobile: '+91 98111 00001', club_id: 'A' }, master), -1, 'anyone could type it');
   assert.equal(core.Core_matchMember({ name: 'Asha Verma', submitter_email: 'ASHA@x.com', filled_by: 'The member' }, master), 0);
   assert.equal(core.Core_matchMember({ name: 'Sita Devi', submitter_email: 'asha@x.com', filled_by: 'The member' }, master), -1, 'writing for someone else from one\'s own account');
   assert.equal(core.Core_matchMember({ name: 'Asha Verma', submitter_email: 'asha@x.com', filled_by: 'Club secretary for the member' }, master), -1, 'a secretary\'s own email is not the member\'s');

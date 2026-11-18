@@ -59,6 +59,8 @@ class FakeForm {
       asListItem() { return item; },
       asCheckboxItem() { return item; },
       asMultipleChoiceItem() { return item; },
+      asTextItem() { return item; },
+      isRequired() { return this.required; },
       // a multiple-choice answer can lead to a section (page break), like Google Forms' "go to section based on answer"
       createChoice(value, page) { return { value, page }; },
       setChoices(list) { this.choices = list.map((c) => c.value); this.goTo = list.map((c) => c.page); return item; },

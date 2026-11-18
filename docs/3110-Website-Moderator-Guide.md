@@ -60,11 +60,12 @@ Sheet's moderator_log names only the action and the row.
 - **My details on the website** form (members): show my details, remove them, or list my business. **Sent from the
   member's own email** (the one the members list has), it is applied by itself, marked `approved_by` "automatic: sent from
   the member's own email", and the member gets the usual confirmation; nothing reaches the desk. Sent by anyone else (a
-  club secretary, another email), or found only by a typed mobile number, it comes to the Members moderator as before,
-  and the member is told by email. A business listing with something to check (a phone number in the text, not found
+  club secretary, another email), it comes to the Members moderator as before, and the member is told by email. A business listing with something to check (a phone number in the text, not found
   in the members list) also comes to the desk.
-- A member is found by RI member ID, then by mobile in their club, then by the sender's own email when the name on the
-  form agrees.
+- The RI member ID is required on the My details form. A member is found by that ID, or else by the sender's own email
+  when the name on the form agrees; a typed mobile number never finds anyone (anyone could type it). A form whose member
+  is not found waits on the desk: find the member (Find a member) and put their RI ID on the request before approving,
+  so nobody gets a second card.
 
 ## Practice round (before the website opens)
 

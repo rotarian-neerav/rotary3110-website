@@ -159,6 +159,8 @@ var OLD_FORMS = {
   removal: { raw: 'raw_removal_form', sheet: 'private', now: 'my_details', kind: 'removal' },
   business: { raw: 'raw_business_form', sheet: 'main', now: 'my_details', kind: 'business' },
 };
+// The member's RI ID is required on the My details form: with the sender's own email, it is how the member is found (owner, 18 Nov 2026)
+var MY_DETAILS_ID_HELP = "Your Rotary member ID, from My Rotary or your club's records. It is how we find your record. Never published.";
 var CLUB_UPDATES_DESCRIPTION = 'Tell the district about your club: its details (website, social pages, meeting, projects and services), ' +
   'a member who joined, left, moved or passed away, a club or district role, or a public service the club runs. ' +
   "A district moderator checks everything before the website or the district's members list changes, and you get an email when it is decided.";
@@ -267,6 +269,16 @@ function addLaterQuestions_(report) {
     report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
   });
   if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
+  if (ids.my_details) {
+    // the RI member ID became required on the My details form (owner, 18 Nov 2026)
+    FormApp.openById(ids.my_details).getItems().forEach(function (it) {
+      if (it.getTitle() !== Q.cMemberId) return;
+      var text = it.asTextItem();
+      if (text.isRequired()) return;
+      text.setRequired(true).setHelpText(MY_DETAILS_ID_HELP);
+      report.push('The RI member ID is now required on the My details form');
+    });
+  }
   ['removal', 'my_details'].forEach(function (key) {
     if (!ids[key]) return;
     // the removal form offers each thing that can be shown, the business listing included (17 Nov 2026)
@@ -662,10 +674,10 @@ function makeMyDetailsForm_(L) {
   var form = baseForm_('My details on the website – Rotary District 3110', MY_DETAILS_DESCRIPTION);
   form.addListItem().setTitle(Q.cClub).setChoiceValues(L.clubs).setRequired(true);
   form.addTextItem().setTitle(Q.cName).setRequired(true);
-  form.addTextItem().setTitle(Q.cMemberId).setHelpText('Helps us find your record. Never published.')
+  form.addTextItem().setTitle(Q.cMemberId).setRequired(true).setHelpText(MY_DETAILS_ID_HELP)
     .setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
   form.addTextItem().setTitle(Q.cMobile).setRequired(true)
-    .setHelpText('Used to find your record. Shown only as a WhatsApp/call button, and only if you say Yes to it.')
+    .setHelpText('Shown only as a WhatsApp/call button, and only if you say Yes to it. Never shown otherwise.')
     .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
   form.addMultipleChoiceItem().setTitle(Q.cFilledBy).setChoiceValues(['The member', 'Club secretary for the member']).setRequired(true);
   var kind = form.addMultipleChoiceItem().setTitle(Q.mKind).setRequired(true);

@@ -143,11 +143,10 @@ test("an office bearer's contact link is published only as a WhatsApp link to a 
   assert.deepEqual(plain(core.Core_validatePublic(d)), []);
 });
 
-test('matching a request to a member: ID first, then mobile + club', () => {
+test('matching a request to a member: by RI member ID; a typed mobile alone finds no one (owner, 18 Nov 2026)', () => {
   const master = [member({ member_id: '111', mobile: '9876543210', club_id: 'S-001' }), member({ member_id: '222', mobile: '9811111111', club_id: 'S-002' })];
   assert.equal(core.Core_matchMember({ member_id: '222' }, master), 1);
-  assert.equal(core.Core_matchMember({ mobile: '+91 98765 43210', club_id: 'S-001' }, master), 0);
-  assert.equal(core.Core_matchMember({ mobile: '9876543210', club_id: 'S-009' }, master), -1);
+  assert.equal(core.Core_matchMember({ mobile: '+91 98765 43210', club_id: 'S-001' }, master), -1);
 });
 
 test('duplicate check: same club, within a day, similar title', () => {

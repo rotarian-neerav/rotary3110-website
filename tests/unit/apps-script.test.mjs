@@ -345,7 +345,10 @@ test('removal: either spouse can withdraw the anniversary alone; "Everything" re
   assert.ok(!data().couples.some((c) => [c.person_a_name, c.person_b_name].includes('Rtn Neha Sood')));
   assert.ok(data().members.some((m) => m.name === 'Rtn Amit Sood'), "the other spouse's own listing stays");
 
+  // a typed mobile no longer finds the member (owner, 18 Nov 2026): the RI member ID does
   env.submit('removal', { [Q.rClub]: 'RC Agra North', [Q.rName]: 'Rtn Ravi Kumar', [Q.rMobile]: '9876501234', [Q.rItems]: ['Everything'] });
+  assert.throws(() => env.run('approveRemoval', pendingId('removal_requests')), /Find the member on the desk/);
+  env.submit('removal', { [Q.rClub]: 'RC Agra North', [Q.rName]: 'Rtn Ravi Kumar', [Q.rMemberId]: '7654321', [Q.rMobile]: '9876501234', [Q.rItems]: ['Everything'] });
   env.run('approveRemoval', pendingId('removal_requests'));
   const d = data();
   assert.ok(!d.members.some((m) => m.name === 'Rtn Ravi Kumar'));

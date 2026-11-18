@@ -1533,12 +1533,7 @@ function Core_matchMember(request, master) {
   if (id) {
     for (i = 0; i < master.length; i++) if (Core_str(master[i].member_id) === id) return i;
   }
-  var mobile = Core_mobile(request.mobile);
-  if (mobile) {
-    for (i = 0; i < master.length; i++) {
-      if (Core_mobile(master[i].mobile) === mobile && Core_str(master[i].club_id) === Core_str(request.club_id)) return i;
-    }
-  }
+  // a typed mobile number no longer finds anyone: anyone can type another member's number (owner, 18 Nov 2026)
   // Release 2: then by email: the sender's own Google account, unless a club secretary filled it in for the member,
   // and only when the name on the form shares a word with that member's name (someone writing for another member
   // from their own account is not mistaken for them)

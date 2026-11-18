@@ -490,7 +490,7 @@ function approveRemoval_(requestId, who) {
     }
     var master = readTab_(ps, 'members_master');
     var i = Core_matchMember(req, master);
-    if (i < 0) throw new Error('No member matches this request. Check the name, club and mobile number, then fill in member_id on the request.');
+    if (i < 0) throw new Error('No member matches this request. Find the member on the desk (Find a member) and fill in their RI member ID (member_id) on the request.');
     var m = master[i];
     var items = Core_str(req.remove_items).toLowerCase();
     var all = items.indexOf('everything') >= 0;

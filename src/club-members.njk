@@ -19,7 +19,7 @@ eleventyComputed:
     {%- if c.member_count and c.member_count >= c.members.length %}{{ c.members.length }} of {{ c.member_count }} members are listed.
     {%- else %}{{ c.members.length }} {{ 'member' if c.members.length == 1 else 'members' }} listed.{% endif %}
     Office bearers and district role holders are listed by their role; others only if they agreed.
-    <a href="/consent/">Join through the consent form</a>.
+    <a href="/consent/">Join through the My details form</a>.
   </p>
   {%- if c.members.length %}
   <ul class="people-grid">

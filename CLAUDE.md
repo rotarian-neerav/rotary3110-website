@@ -25,8 +25,9 @@ This repository is **public**. Never commit members' data, phone numbers, emails
 - A change to `apps-script/` needs `npm run bundle-script` and the bundled file committed with it.
 - New behaviour gets a test in the matching file. The Sheet script is tested through the mock; extend the mock
   (it should behave like Google, including limits) rather than working around it.
-- Pushing to `main` builds and publishes the site. The build also runs on a schedule (every 15 minutes it checks
-  whether a moderator pressed "Rebuild site now"; Sundays it always builds).
+- Pushing to `main` builds and publishes the site (a push that changes only `docs/` or `.md` files does not build). The
+  build also runs on a schedule: at 9 am, 1 pm, 6 pm and 10 pm IST when anything was approved, hidden or corrected since
+  the last build; every 15 minutes it checks whether a moderator pressed "Rebuild site now"; Sundays it always builds.
 
 ## Style
 
@@ -41,7 +42,11 @@ This repository is **public**. Never commit members' data, phone numbers, emails
 - Processed photos are cached between builds and saved right after the build step, so a failed check later does
   not mean processing every photo again (a year of activities takes about 45 minutes).
 - Apps Script: the cache holds at most 100 KB per value (the allowed-files list is kept in parts); a run stops
-  after 6 minutes; the Sheet menu's Reject emails the person who submitted the row.
+  after 6 minutes (Upgrade Sheet skips the form lists when time is short); the Sheet menu's Reject emails the person who
+  submitted the row.
+- Google Forms (18 Nov 2026): "Invalid data updating form" can come from any change Google refuses; it refused a
+  closed form's custom message, even plain text, and unlinking closed forms. A tab still linked to a form cannot be
+  deleted (Form → Unlink form in the Sheet first). Wrap such calls so one refusal does not stop a whole Upgrade Sheet.
 - Eleventy renders computed front matter with Nunjucks escaping on, so those values arrive HTML-escaped; the page
   head unescapes them (`unescaped` filter) before escaping once. `json` writes `<` as `<`.
 - Real club data has apostrophes, quotes, `&`, HEIC photos, dates typed wrongly. Sample data should include

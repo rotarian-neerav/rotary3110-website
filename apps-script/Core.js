@@ -833,8 +833,8 @@ function Core_memberCheckEmail(m, clubName, siteUrl, forms) {
     'Once a year, in July, we check with every member listed on the Rotary District 3110 website (' + site + ') ' +
     'that it still shows what you want. This is what it shows about you:\n\n' + lines.join('\n') + '\n\n' +
     'Nothing to do if this is right.\n\n' +
-    'To change any of it, fill in the member consent form again' + (forms && forms.consent ? ':\n' + forms.consent : ' (linked from the website\'s Privacy page).') + '\n\n' +
-    'To remove any of it, or your whole listing' + (forms && forms.removal ? ':\n' + forms.removal : ', use the removal form (linked from the website\'s Privacy page).') + '\n\n' +
+    'To change any of it, send the My details on the website form again' + (forms && forms.consent ? ':\n' + forms.consent : ' (linked from the website\'s Privacy page).') + '\n\n' +
+    'To remove any of it, or your whole listing' + (forms && forms.removal ? ', use the same form:\n' + forms.removal : ', use the same form and choose "Remove" (linked from the website\'s Privacy page).') + '\n\n' +
     'Your mobile number and email address are never shown on the website.\n\nRotary District 3110';
   return { subject: 'Your listing on the Rotary District 3110 website: still right?', body: body };
 }
@@ -1361,6 +1361,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
       public_service: Core_url(settings.form_public_service_url),
       contact: Core_url(settings.form_contact_url),
       business: Core_url(settings.form_business_url),
+      club_change: Core_url(settings.form_club_change_url),
     },
     lists: {
       themes: CORE_THEMES.slice(),

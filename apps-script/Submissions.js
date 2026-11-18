@@ -16,14 +16,8 @@ function onAnyFormSubmit(e) {
       submitter_email: e.response.getRespondentEmail() || '',
     };
     if (formId === ids.activity) fileActivityOrEvent_(answers, meta);
-    else if (formId === ids.club_profile) fileClubProfile_(answers, meta);
-    else if (formId === ids.consent) fileConsent_(answers, meta);
-    else if (formId === ids.removal) fileRemoval_(answers, meta);
-    else if (formId === ids.public_service) filePublicService_(answers, meta);
     else if (formId === ids.contact) fileContact_(answers, meta);
-    else if (formId === ids.business) fileBusiness_(answers, meta);
-    else if (formId === ids.club_change) fileClubChange_(answers, meta);
-    // Release 2: the two forms with sections
+    // the two forms with sections (Release 2): each section is filed by the code its old form used
     else if (formId === ids.club_updates) fileClubUpdates_(answers, meta);
     else if (formId === ids.my_details) fileMyDetails_(answers, meta);
   } finally {
@@ -418,10 +412,10 @@ function noticeMember_(ps, req) {
   var until = Core_dateLabel(Core_isoDate(new Date(consentHoldUntil_(req, check))));
   try {
     MailApp.sendEmail(check.memberEmail, 'Your details were sent to the Rotary District 3110 website',
-      'Dear ' + (check.memberName || req.name) + ',\n\nA member consent form was sent for you to the district website by ' + req.submitter_email +
+      'Dear ' + (check.memberName || req.name) + ',\n\nA request to show your details on the district website was sent for you by ' + req.submitter_email +
       (req.filled_by ? ' (as "' + req.filled_by + '")' : '') + '.\n\nIt asks to show:\n' + (choices.join('\n') || '- nothing') +
       '\n\nIf you or your club sent it, there is nothing to do. A district moderator checks every form, and nothing is shown before ' + until + '.' +
-      '\n\nIf you did not agree to this, reply to this email or use the removal form, and nothing will be shown.' + removalLine_() +
+      '\n\nIf you did not agree to this, reply to this email or use the My details form to remove them, and nothing will be shown.' + removalLine_() +
       '\n\nRotary District 3110', { name: 'Rotary District 3110' });
     return 'Told by email ' + today_();
   } catch (e) {

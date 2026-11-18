@@ -8,7 +8,7 @@ The July update **adds** rows; it never overwrites last year's, so history is ke
 2. **functionaries**: add the new year's teams and committees with the new `rotary_year`. Last year's teams stay visible under "Past years".
 3. **Rotary → Administrator → Start new Rotary year…** (after steps 1 and 2): it moves **settings → current_rotary_year** on by one year, adds the governor who has just finished to **past_governors**, runs the role check and the form lists, asks for a rebuild, and lists what is left (steps 4, 7 and 8). It refuses while the new year has no office bearers or team rows.
 4. **Clubs** (desk, Admin → Clubs): add new clubs, close the ones that closed (their members move or are marked left). Member counts are worked out from the members list every day; nobody types them.
-5. **Members who moved clubs**: clubs send them through the club changes form, or a Members moderator uses **Find a member → Edit** on the desk. The club history follows by itself.
+5. **Members who moved clubs**: clubs send them through the Club updates form (members and roles, `/club-changes/`), or a Members moderator uses **Find a member → Edit** on the desk. The club history follows by itself.
 6. **Roles to check** (desk, Roles tab): fix what the daily role check found, so each person's new roles join their member card. Last year's roles stay on the cards under last year.
 6a. **Moderators** (desk, Admin → Moderators): the new year's zone moderators in, with their zones; those who stepped down set to inactive. Nobody can take themselves off, so an Administrator does it.
 7. **campaigns**: add the new year's district campaigns (see the moderator guide). Last year's campaign pages stay, under last year.
@@ -24,8 +24,8 @@ then; the full list is in this file's history on GitHub.
 |---|---|---|
 | Named owner for the yearly update, with a backup | District | Open |
 | Practice round: **Administrator → Practice round: start…**; each moderator works through their practice items (guide at `…/desk/guide/`); check **Practice round: report**, then **remove practice items** | Administrator + moderators | Installed; to try |
-| Clubs send their public services (blood banks, eye care…) through the public service form | Clubs | Open |
-| Clubs send their website and social links, and their meeting day, through the club profile form | Clubs | Open |
+| Clubs send their public services (blood banks, eye care…) through the Club updates form (public service section, `/public-service/`) | Clubs | Open |
+| Clubs send their website and social links, and their meeting day, through the Club updates form (club details section, `/club-profile/`) | Clubs | Open |
 | Profession list (`lists` tab): an evolving list; moderators add professions as members ask | Moderators | Ongoing |
 | Release B, the rest: visitor counts (a Cloudflare account under the district email), an outside-link check, a test Sheet | District + developer | Not yet decided |
 | Register the site with Google Search Console | District | Deferred |

@@ -16,14 +16,13 @@ function onOpen() {
     .addItem('Check roles and member IDs', 'checkRoles')
     .addItem('Update form lists (clubs, areas, professions)', 'updateFormLists')
     .addSeparator()
-    // Load sample data and Reset for production left the menu after launch (17 Nov 2026); both stay in the script
-    // for a test Sheet, run from the script editor
+    // Load sample data left the menu after launch (17 Nov 2026); setup uses it for a new test Sheet.
+    // Reset for production, used once on 29 Oct, was removed (18 Nov 2026)
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Sample data')
       .addItem('Clear all sample data…', 'clearSampleData'))
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Administrator')
       .addItem('Show data link details', 'showDataLink')
       .addItem('Upgrade Sheet (new tabs, columns, questions)', 'upgradeSheet')
-      .addItem('Delete the old forms and their answer tabs…', 'deleteOldForms')
       .addItem('Apply moderators (Sheet access)…', 'applyModerators')
       .addItem('Sign everyone out of the desk…', 'deskSignOutAll')
       .addItem('Send bulletin preview now', 'bulletinPreview')

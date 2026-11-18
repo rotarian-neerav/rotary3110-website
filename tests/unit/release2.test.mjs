@@ -52,6 +52,8 @@ test('four forms: activity, Club updates, My details on the website, contact; th
     assert.ok(url.includes(ids()[f]) && url.endsWith('=' + encodeURIComponent(kind)), k);
   }
   assert.equal(data().forms.consent, setting('form_consent_url'), 'the website links to the new form');
+  // the old forms were closed and deleted on 18 Nov 2026; what closed and deleted them went with them
+  for (const fn of ['closeOldForms_', 'deleteOldForms', 'deleteOldForms_']) assert.equal(typeof env.context[fn], 'undefined', fn);
 });
 
 test('Club updates: page 1 says who and what; each answer leads to its own section, and each section ends the form', () => {
@@ -159,72 +161,3 @@ test("a member's own update from their own email goes live by itself; anyone els
   assert.match(b.moderator_note, /phone number or email/);
 });
 
-test('the old forms: Upgrade Sheet closes them and points to the new form; they still file what was sent; Delete the old forms removes them and their answer tabs', () => {
-  // an install from before Release 2 still has, for example, the consent form with its answer tab and trigger
-  const old = env.context.FormApp.create('Member consent – Rotary District 3110');
-  old.setDestination('SPREADSHEET', 'PRIVATE');
-  const id = old.getId();
-  env.priv.getSheets().at(-1).setName('raw_consent_form');
-  env.props.set('FORM_IDS', JSON.stringify({ ...ids(), consent: id }));
-  env.context.ScriptApp.newTrigger('onAnyFormSubmit').forForm(id).onFormSubmit().create();
-  const report = env.run('upgradeSheet');
-  assert.ok(report.some((l) => /Closed the old consent form/.test(l)), report.join('\n'));
-  assert.equal(env.forms[id].accepting, false);
-  assert.match(env.forms[id].closedMessage, /has moved.*My details on the website/);
-  assert.ok(!/https?:/.test(env.forms[id].closedMessage), 'no link: Google refused the long prefilled one (18 Nov 2026)');
-  assert.ok(!env.run('upgradeSheet').some((l) => /Closed the old consent form/.test(l)), 'once');
-  // Google refuses a form's update: Upgrade Sheet still finishes and says what to do by hand
-  const refusing = (title, raw, refuse) => {
-    const f = env.context.FormApp.create(title);
-    f.setDestination('SPREADSHEET', 'MAIN');
-    env.main.getSheets().at(-1).setName(raw);
-    env.forms[f.getId()].refuse = refuse;
-    return f.getId();
-  };
-  const profile = refusing('Club profile – Rotary District 3110', 'raw_club_profile_form', 'message');
-  const service = refusing('Public service – Rotary District 3110', 'raw_public_service_form', 'close');
-  env.props.set('FORM_IDS', JSON.stringify({ ...ids(), club_profile: profile, public_service: service }));
-  const again = env.run('upgradeSheet');
-  assert.equal(env.forms[profile].accepting, false, 'closed even though its message was refused');
-  assert.ok(again.some((l) => /club profile form is closed, but Google refused/.test(l)), again.join('\n'));
-  assert.ok(again.some((l) => /Could not close the old public service form.*Accepting responses/.test(l)), again.join('\n'));
-  // once Google accepts it, the next run puts the message on the form that was closed without one
-  env.forms[profile].refuse = null;
-  env.run('upgradeSheet');
-  assert.match(env.forms[profile].closedMessage, /has moved.*Club updates/);
-  env.forms[service].refuse = null;
-  env.props.set('FORM_IDS', JSON.stringify({ ...ids(), club_profile: null, public_service: null }));
-  // an answer already on its way when the form closed is still filed
-  addMember('7600001', { name: 'Rtn Late Sender', email: 'late@example.com' });
-  env.submit('consent', { ...page1({ [Q.cMemberId]: '7600001', [Q.cName]: 'Rtn Late Sender' }), ...consent }, 'secretary@example.com', new Date());
-  assert.equal(env.priv.rows('consent_requests').at(-1).member_id, '7600001');
-
-  assert.equal(env.run('deleteOldForms_', () => false), 'Nothing deleted.');
-  assert.ok(ids().consent);
-  const out = env.run('deleteOldForms_', () => true);
-  assert.match(out, /^Deleted: the consent forms/);
-  assert.ok(env.trashed.includes(id), 'the form is in the Bin');
-  assert.equal(env.priv.getSheetByName('raw_consent_form'), null, 'its answer tab is gone');
-  assert.ok(!ids().consent);
-  assert.ok(!env.triggers.some((t) => t.getTriggerSourceId() === id), 'its trigger is gone');
-  assert.ok(env.priv.rows('consent_requests').some((r) => r.member_id === '7600001'), 'what it sent stays');
-
-  // Google refuses to unlink a closed old form, and refuses to delete a linked tab (18 Nov 2026): the owner unlinks it by hand
-  const removal = env.context.FormApp.create('Removal request – Rotary District 3110');
-  removal.setDestination('SPREADSHEET', 'PRIVATE');
-  const rTab = env.priv.getSheets().at(-1);
-  rTab.setName('raw_removal_form');
-  env.forms[removal.getId()].refuse = 'unlink';
-  env.props.set('FORM_IDS', JSON.stringify({ ...ids(), removal: removal.getId() }));
-  const stuck = env.run('deleteOldForms_', () => true);
-  assert.match(stuck, /^Nothing deleted yet/);
-  assert.match(stuck, /removal form \(Google said: Invalid data updating form\.\): in the private members Sheet open the tab raw_removal_form, choose Form → Unlink form/);
-  assert.ok(env.priv.getSheetByName('raw_removal_form'), 'the tab stays');
-  assert.ok(!env.trashed.includes(removal.getId()), 'the form stays out of the Bin until its tab can go');
-  assert.ok(ids().removal);
-  rTab.formUrl = null; // Form → Unlink form, by hand
-  assert.match(env.run('deleteOldForms_', () => true), /^Deleted: the removal forms/);
-  assert.equal(env.priv.getSheetByName('raw_removal_form'), null);
-  assert.ok(env.trashed.includes(removal.getId()));
-  assert.equal(env.run('deleteOldForms_', () => true), 'The old forms are already gone.');
-});

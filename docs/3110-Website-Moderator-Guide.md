@@ -15,7 +15,7 @@ Moderators check everything before it appears on the website. Any Content modera
 | Type | On the desk |
 |---|---|
 | Content | **To check**: every waiting item as a card, with photos (tap to enlarge), notes, and **Approve**, **Reject** (with ready-made reasons to tap) and **Correct** (fix spelling or remove a phone number before approving). **Recent**: approved activities of the last 30 days and coming events, with **★ Story of the month** and **Leave out of bulletin** buttons |
-| Members | Consent forms and removal requests with the member's choices and photo, who sent the form and whether the member was told; **Approve** (with **"I have confirmed this with the member"** where asked) / **Remove now** / **Reject**; club changes (members joining, leaving, moving, passing away; club and district roles) beside what the members list holds; couples waiting; **Mark as deceased** (search by name, then confirm) |
+| Members | Consent and removal requests (from the My details form) with the member's choices and photo, who sent the form and whether the member was told; **Approve** (with **"I have confirmed this with the member"** where asked) / **Remove now** / **Reject**; club changes (members joining, leaving, moving, passing away; club and district roles) beside what the members list holds; couples waiting; **Mark as deceased** (search by name, then confirm) |
 | Club engagement | **Quiet clubs**: active clubs with no activity in 30 days, the last activity date and who reminded them last. **Email President and Secretary** (their emails from the private members list; sent from the district account and signed "Rotary District 3110 website team"; a hidden copy comes to you; replies go to the district account; once a week at most) or **WhatsApp** (opens WhatsApp with a ready message and the club's own form link; you choose the person) |
 | District office | **Messages** from the contact form. **Reply**: type the answer and tap **Send**; it goes from the district account, signed "Rotary District 3110", so the person never sees your name or email, and the message is marked answered. Please never press Reply on the email alert. Someone who gave only a mobile number: call or WhatsApp from the **district office phone**, not your personal phone, then **Mark answered** |
 | Administrator | Everything above |
@@ -74,7 +74,7 @@ Sheet's moderator_log names only the action and the row.
 | Type | Practice items |
 |---|---|
 | Content | A good activity to approve (from the email's button); one with a personal mobile number to remove with **Correct**, then approve; an event whose fee has UPI details to correct, then approve; one with no photo or link to reject |
-| Members | A consent form without the declaration ticked, to reject; a search in **Mark as deceased**, without confirming |
+| Members | A consent request without the declaration ticked, to reject; a search in **Mark as deceased**, without confirming |
 | District office | A message with the moderator's own email as the reply address, to answer with **Reply** (it arrives in their own inbox, as the public would get it); a phone-only message to mark answered, without calling |
 | Club engagement | No items: send a **WhatsApp** reminder to themselves from **Quiet clubs** (not **Email**, which really emails the club) |
 
@@ -142,7 +142,7 @@ New ones appear in **club_profile_requests**. Check that the links work and belo
 
 ### Regular services and permanent projects
 
-Clubs list them on the club profile form, one per line:
+Clubs list them on the Club updates form (club details section), one per line:
 - **Regular services**: what – when – where, for example `Free eye check-up – every Thursday, 11 am–1 pm – Roshni Centre, Civil Lines`.
 - **Permanent projects**: name – what it is – where, for example `Rotary Eye Hospital – eye hospital under construction – Kasganj`.
 
@@ -166,7 +166,7 @@ Members send the **Rotary Means Business** form for their own business, the topi
 - The business needs a **trade** and a **city**. The WhatsApp number must be a mobile number; it is shown only as a WhatsApp button.
 - No phone numbers or emails in the text; the website leaves such text out anyway. Light fixes (spelling, length) are fine.
 - "Updates BIZ-…" means the member sent the same business again: approving replaces the older listing.
-- To take a listing off: the member uses the removal form (**Business listing**), or set its status to **removed**.
+- To take a listing off: the member uses the My details form (**Remove**, then **Business listing**), or set its status to **removed**.
 
 ## Contact messages
 
@@ -184,9 +184,9 @@ Messages from the website's contact form go to the private Sheet's **contact_mes
   - Warnings to read: the form says *the member* but came from another email; it says *club secretary* but the sender is not an office bearer; the member ID matches but the name differs; no email on file, so nobody could tell the member. If the member sent a removal request after the form, it cannot be approved: reject it.
   - **Member:** says whether the member was emailed. If a member replies to that email to object, the reply reaches the district account: reject the form.
 - **Removal:** **Remove now**. Removals must be done **within two days**; the website drops the details at its next update, and removed photos are deleted from Drive.
-- **Confirmation emails:** whoever sent the form gets an email when you approve the listing (with the removal form's link), when the details are removed, or when you reject it (with your reason). Write the reason so the member can read it.
-- **Club changes:** sent by anyone through the **club changes form** (`form_club_change_url` in the settings tab): a member who joined, left, moved to another club or passed away, or a club role (President, Secretary) or district role. Each shows the member ID and what was sent, and beside it what the private members list holds for that ID now ("Not in the members list" if nothing). Nothing changes until you approve. **Approve** does this:
-  - *Joined:* adds the member (active, nothing shown on the website until they send the consent form) and a **club_history** row from the date joined. Someone already in another club is moved instead.
+- **Confirmation emails:** whoever sent the form gets an email when you approve the listing (with the link to remove details), when the details are removed, or when you reject it (with your reason). Write the reason so the member can read it.
+- **Club changes:** sent by anyone through the **Club updates** form, members and roles section (`/club-changes/` on the website; `form_club_change_url` in the settings tab): a member who joined, left, moved to another club or passed away, or a club role (President, Secretary) or district role. Each shows the member ID and what was sent, and beside it what the private members list holds for that ID now ("Not in the members list" if nothing). Nothing changes until you approve. **Approve** does this:
+  - *Joined:* adds the member (active, nothing shown on the website until they send the My details form) and a **club_history** row from the date joined. Someone already in another club is moved instead.
   - *Left:* sets `status` to `left` and ends their **club_history** row.
   - *Moved:* ends the old club's **club_history** row, adds the new club's and changes `club_id`. Moved to a club outside the district: marked as left.
   - *Passed away:* the same as **Mark as deceased**.
@@ -197,7 +197,7 @@ Messages from the website's contact form go to the private Sheet's **contact_mes
 
 ## Professions list
 
-The list grows as members ask. The consent form offers the professions in the **lists** tab (rows with `list` = `profession`) plus **Other**. When members choose Other and name something new, add it to the **lists** tab, then **Rotary → Update form lists**; you can also correct the member's `profession` in **members_master**.
+The list grows as members ask. The My details form offers the professions in the **lists** tab (rows with `list` = `profession`) plus **Other**. When members choose Other and name something new, add it to the **lists** tab, then **Rotary → Update form lists**; you can also correct the member's `profession` in **members_master**.
 
 ## When a member or spouse passes away
 
@@ -209,7 +209,7 @@ If they held a role this year, enter who holds it now in **officers** or **funct
 
 ## Member cards and member IDs
 
-Every office bearer and district team member has a **member card** on the website, with all their roles, newest year first. Members who agreed through the consent form also show their profession, photo and contact. The cards join up by **member ID**, so the ID must be the same in **officers**, **functionaries** and the private **members_master**.
+Every office bearer and district team member has a **member card** on the website, with all their roles, newest year first. Members who agreed through the My details form also show their profession, photo and contact. The cards join up by **member ID**, so the ID must be the same in **officers**, **functionaries** and the private **members_master**.
 
 **Rotary → Check roles and member IDs** (also run every morning) lists what to fix in the **role_checks** tab, most urgent first:
 - someone marked deceased or left who still holds a role this year;
@@ -260,7 +260,7 @@ Type them into the **messages** tab: name, position, message, date. Tick `featur
 
 ## Member spotlight
 
-Each month, choose a member who ticked "member spotlight" on the consent form. In **spotlights**, add the month (`2026-11`), the member's `public_key` (from **members_public**), a headline and the story.
+Each month, choose a member who ticked "member spotlight" on the My details form. In **spotlights**, add the month (`2026-11`), the member's `public_key` (from **members_public**), a headline and the story.
 
 ## Quiet clubs
 

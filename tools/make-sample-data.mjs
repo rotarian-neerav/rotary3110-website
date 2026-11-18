@@ -755,6 +755,7 @@ const settings = [
   ['bulletin_start_date', core.Core_addDays(core.Core_sundayOf(TODAY), -28), "A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week's bulletin"],
   ['bulletin_emails', '', 'Comma-separated; they receive the Sunday WhatsApp message to forward. Blank: the moderators'],
   ['form_public_service_url', '', 'Filled in by the setup script'],
+  ['form_club_change_url', '', 'Filled in by the setup script'],
   ['form_contact_url', '', "Filled in by the setup script; shown inside the website's Contact page"],
   ['contact_email', '', "Where messages from the website's contact form are emailed (never shown on the website). Blank: the moderators"],
   ['contact_daily_limit', '20', 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],

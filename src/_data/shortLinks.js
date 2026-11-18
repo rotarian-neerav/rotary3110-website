@@ -5,5 +5,6 @@ export default [
   { slug: 'consent', form: 'consent', title: 'Join the directory or celebrations', text: 'Choose what may be shown about you: directory listing, photo, WhatsApp button, birthday, anniversary. Each is a separate tick.' },
   { slug: 'remove', form: 'removal', title: 'Remove my details', text: 'Ask for some or all of your details to be removed. Moderators act within two days.' },
   { slug: 'list-business', form: 'business', title: 'List your business: Rotary Means Business', text: 'For members of the Rotary clubs of District 3110: list your own business, and the topics you can speak on at club meetings. A moderator checks it first.' },
+  { slug: 'club-changes', form: 'club_change', title: 'Tell us about members and roles', text: 'For clubs: a member who joined, left, moved or passed away, or who holds a club or district role. A Members moderator checks it before the website changes.' },
   { slug: 'public-service', form: 'public_service', title: 'Add a public service your club runs', text: 'For club office bearers: a blood bank, eye hospital, dialysis unit, clinic, library, skill centre or ambulance that the public can use. One form per facility.' },
 ];

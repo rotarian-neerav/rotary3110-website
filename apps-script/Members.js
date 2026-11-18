@@ -550,7 +550,7 @@ function rejectRequest_(kind, requestId, reason, who) {
   if (!req) throw new Error('Request not found');
   updateRow_(ps, tab, req._row, { status: 'rejected', moderator_note: reason || '', approved_by: who, approved_at: nowIso_() });
   var what = kind === 'removal' ? 'request to remove details for ' + req.name
-    : kind === 'change' ? 'club change for ' + req.name : 'consent form for ' + req.name;
+    : kind === 'change' ? 'club change for ' + req.name : 'request to show the details of ' + req.name;
   notifyMember_(req, 'Not done yet: ' + what, 'Thank you for sending the ' + what + '. A district moderator could not act on it this time.' +
     (Core_str(reason) ? '\n\nReason: ' + reason : '') + '\n\nYou are welcome to send the form again with the changes.');
   return 'Rejected ' + requestId;

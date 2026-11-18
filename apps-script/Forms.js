@@ -150,14 +150,15 @@ var MY_DETAILS_KINDS = {
   removal: 'Remove some or all of my details',
   business: 'List my business, or the topics I can speak on (Rotary Means Business)',
 };
-// The six forms Release 2 replaced, with their answer tabs, and the new form and section each one's link now opens
-var OLD_FORMS = {
-  club_profile: { raw: 'raw_club_profile_form', sheet: 'main', now: 'club_updates', kind: 'profile' },
-  public_service: { raw: 'raw_public_service_form', sheet: 'main', now: 'club_updates', kind: 'service' },
-  club_change: { raw: 'raw_club_change_form', sheet: 'private', now: 'club_updates', kind: 'member' },
-  consent: { raw: 'raw_consent_form', sheet: 'private', now: 'my_details', kind: 'consent' },
-  removal: { raw: 'raw_removal_form', sheet: 'private', now: 'my_details', kind: 'removal' },
-  business: { raw: 'raw_business_form', sheet: 'main', now: 'my_details', kind: 'business' },
+// The links named after the six forms Release 2 replaced (website, emails) open the new form at the right section.
+// The old forms themselves were closed and deleted on 18 Nov 2026.
+var SECTION_LINKS = {
+  club_profile: { now: 'club_updates', kind: 'profile' },
+  public_service: { now: 'club_updates', kind: 'service' },
+  club_change: { now: 'club_updates', kind: 'member' },
+  consent: { now: 'my_details', kind: 'consent' },
+  removal: { now: 'my_details', kind: 'removal' },
+  business: { now: 'my_details', kind: 'business' },
 };
 // The member's RI ID is required on the My details form: with the sender's own email, it is how the member is found (owner, 18 Nov 2026)
 var MY_DETAILS_ID_HELP = "Your Rotary member ID, from My Rotary or your club's records. It is how we find your record. Never published.";
@@ -389,12 +390,11 @@ function createForms_(report) {
     setSetting_('form_' + key + '_url', form.getPublishedUrl());
   });
   // the older forms' links (on the website and in emails) now open the new form at the right section
-  Object.keys(OLD_FORMS).forEach(function (key) {
-    var o = OLD_FORMS[key];
+  Object.keys(SECTION_LINKS).forEach(function (key) {
+    var o = SECTION_LINKS[key];
     var url = sectionLink_(o.now, o.kind);
     if (url) setSetting_('form_' + key + '_url', url);
   });
-  closeOldForms_(ids, report);
 }
 
 /** A link to the Club updates or My details form with the first question already answered, so it opens at that section. */
@@ -411,88 +411,6 @@ function sectionLink_(formKey, kind) {
   } catch (e) {
     return form.getPublishedUrl();
   }
-}
-
-/** The six older forms stop taking answers once the two new ones exist, and say where to go instead. Nothing is deleted. */
-function closeOldForms_(ids, report) {
-  if (!ids.club_updates || !ids.my_details) return;
-  Object.keys(OLD_FORMS).forEach(function (key) {
-    if (!ids[key]) return;
-    var form;
-    try { form = FormApp.openById(ids[key]); } catch (e) { return; }
-    var now = OLD_FORMS[key].now === 'club_updates' ? 'Club updates' : 'My details on the website';
-    var name = key.replace('_', ' ');
-    // Google refused this message with the new form's prefilled link in it ("Invalid data updating form", 18 Nov 2026),
-    // so it names the form and the website instead; the website's links already open the new form at the right section
-    var message = 'This form has moved. Please use the "' + now + '" form, linked on the district website.';
-    if (form.isAcceptingResponses()) {
-      try {
-        form.setAcceptingResponses(false);
-      } catch (e) {
-        report.push('Could not close the old ' + name + ' form (Google said: ' + e.message + '). Close it by hand: open the form, Responses, turn off Accepting responses');
-        return;
-      }
-      report.push('Closed the old ' + name + ' form (it points to the ' + now + ' form)');
-    }
-    try {
-      if (form.getCustomClosedFormMessage() !== message) form.setCustomClosedFormMessage(message);
-    } catch (e) {
-      report.push('The old ' + name + ' form is closed, but Google refused its "has moved" message (' + e.message + '); it shows Google\'s own closed message');
-    }
-  });
-}
-
-/**
- * Administrator → Delete the old forms and their answer tabs…: once the two new forms work, the six older forms go to
- * Google Drive's Bin (deleted for good after 30 days) and their raw answer tabs are deleted (owner, 18 Nov 2026).
- * What they filed stays in the working tabs (consent_requests, club_change_requests and so on).
- */
-function deleteOldForms() {
-  var ui = SpreadsheetApp.getUi();
-  var out = deleteOldForms_(function (list) {
-    return ui.alert('Delete the old forms', 'These forms go to the Bin and their answer tabs are deleted:\n\n' + list.join('\n') +
-      '\n\nWhat they sent stays in the working tabs. Go ahead?', ui.ButtonSet.YES_NO) === ui.Button.YES;
-  });
-  ui.alert(out);
-  return out;
-}
-
-function deleteOldForms_(confirm) {
-  var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
-  if (!ids.club_updates || !ids.my_details) return 'The two new forms are not set up yet: run Upgrade Sheet first.';
-  var old = Object.keys(OLD_FORMS).filter(function (k) { return ids[k]; });
-  if (!old.length) return 'The old forms are already gone.';
-  if (!confirm(old.map(function (k) { return '• ' + k.replace('_', ' ') + ' form, tab ' + OLD_FORMS[k].raw; }))) return 'Nothing deleted.';
-  var done = [];
-  var byHand = [];
-  old.forEach(function (key) {
-    var o = OLD_FORMS[key];
-    var name = key.replace('_', ' ');
-    // Google keeps a tab linked to its form until the form lets go, and refuses to delete a linked tab (18 Nov 2026);
-    // a closed old form may refuse to unlink, so the tab is unlinked by hand from the Sheet and this is run again
-    var why = '';
-    try { FormApp.openById(ids[key]).removeDestination(); } catch (e) { why = e.message; }
-    SpreadsheetApp.flush();
-    var ss = o.sheet === 'main' ? mainSs_() : privateSs_();
-    var tab = ss.getSheetByName(o.raw);
-    if (tab) {
-      try {
-        ss.deleteSheet(tab);
-      } catch (e) {
-        byHand.push('• ' + name + ' form' + (why ? ' (Google said: ' + why + ')' : '') + ': in the ' + (o.sheet === 'main' ? 'main' : 'private members') +
-          ' Sheet open the tab ' + o.raw + ', choose Form → Unlink form, then run this again');
-        return;
-      }
-    }
-    ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getTriggerSourceId && t.getTriggerSourceId() === ids[key]) ScriptApp.deleteTrigger(t); });
-    try { DriveApp.getFileById(ids[key]).setTrashed(true); } catch (e) { Logger.log('Form ' + key + ' not moved to the Bin: ' + e.message); }
-    delete ids[key];
-    props_().setProperty('FORM_IDS', JSON.stringify(ids));
-    done.push(name);
-  });
-  var out = done.length ? 'Deleted: the ' + done.join(', ') + ' forms (in the Bin for 30 days) and their answer tabs.' : 'Nothing deleted yet.';
-  if (byHand.length) out += '\n\nGoogle would not unlink these forms from their answer tabs. Please:\n' + byHand.join('\n');
-  return out;
 }
 
 /** Google creates new forms in My Drive; move one into the folder that holds the main Sheet (testing or production). */
@@ -845,7 +763,6 @@ function updateFormLists(silent) {
   lists[Q.gNewClub] = L.newClubs; lists[Q.gTeam] = L.teams; lists[Q.gClubYear] = L.years; lists[Q.gDistYear] = L.years;
   Object.keys(ids).forEach(function (k) {
     var form = FormApp.openById(ids[k]);
-    if (OLD_FORMS[k] && !form.isAcceptingResponses()) return; // a closed old form needs no fresh lists
     form.getItems().forEach(function (item) {
       var values = lists[item.getTitle()];
       if (!values) return;

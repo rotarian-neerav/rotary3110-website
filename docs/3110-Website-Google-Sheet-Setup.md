@@ -30,8 +30,7 @@ You will need two files from this project: `dist/apps-script/Code.gs` and `dist/
 ## 3. Add the seven photo questions by hand (8 minutes)
 
 Google does not let a script add file-upload questions, so these seven are added by hand. Release 2 (18 Nov 2026) moved the
-last three into the **My details on the website** form, in its sections: an install that already had them on the old
-consent and business forms adds them again there. **The titles must match exactly** (copy them from here).
+last three into the **My details on the website** form, in its sections. **The titles must match exactly** (copy them from here).
 
 The forms are in the same folder as the Sheet (testing: **3110Website-Testing**; production: **3110Website**), or open them from the Sheet's **settings** tab (`form_…_url`; change `viewform` to `edit` in the address).
 
@@ -113,10 +112,11 @@ The desk (`…/desk/` on the website) lets moderators approve, reject and follow
 **Release 2 (18 Nov 2026):** paste the new `Code.gs`, deploy a new version, run **Upgrade Sheet**. It creates the
 **Club updates** and **My details on the website** forms (answers to the private Sheet, tabs `raw_club_updates_form` and
 `raw_my_details_form`), points every old form link (settings `form_consent_url` and the others) to the new form at the
-right section, and closes the six old forms. (On 18 Nov 2026 Google refused every "has moved" message on the old forms, even plain text; they show Google's own closed note, and Upgrade Sheet lists them until the old forms are deleted.) Then add the three photo questions
-to the My details form (section 3), send one test of each section, and run **Administrator → Delete the old forms and
-their answer tabs…**: the old forms go to Drive's Bin (30 days) and their `raw_…` tabs are deleted; what they sent stays
-in the working tabs. If Google will not unlink an old form, the menu lists it: open that `raw_…` tab, choose **Form → Unlink form**, and run the menu item again. A member's own update (from the email the members list has for them) is applied by itself.
+right section. Then add the three photo questions to the My details form (section 3) and send one test of each section.
+A member's own update (from the email the members list has for them) is applied by itself. The six old forms were
+closed and deleted with their answer tabs on 18 Nov 2026, and the code and menu item that did it were then removed.
+Two Google limits met on the way: Google refused a "has moved" message on a closed form, even plain text; and it will
+not delete a tab that a form still sends answers to (in the Sheet: open the tab, **Form → Unlink form**, then delete it).
 
 **Release 1 (18 Nov 2026):** paste the new `Code.gs` and `Sidebar.html`, deploy a new version, then run **Administrator → Upgrade Sheet**. It adds the columns `charter_date` and `merged_into` (clubs), `ended_on` (officers, functionaries), `hidden_by` and `hidden_at` (activities), `zone` (moderators), the setting `content_changed_at`, and the private **change_log** tab, where every correction made on the desk is kept. Nothing is deleted. From then on, approvals reach the website at the next of four daily updates (about 9 am, 1 pm, 6 pm, 10 pm).
 

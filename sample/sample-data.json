@@ -84,6 +84,11 @@
     "notes": "Filled in by the setup script"
    },
    {
+    "key": "form_club_change_url",
+    "value": "",
+    "notes": "Filled in by the setup script"
+   },
+   {
     "key": "form_contact_url",
     "value": "",
     "notes": "Filled in by the setup script; shown inside the website's Contact page"

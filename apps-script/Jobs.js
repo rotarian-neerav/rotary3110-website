@@ -314,7 +314,7 @@ function weeklySummary() {
 
   var consent = readTab_(ps, 'consent_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; }).length;
   var removals = readTab_(ps, 'removal_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; });
-  if (consent) waiting.push(consent + ' member consent forms');
+  if (consent) waiting.push(consent + ' member consent requests');
   if (removals.length) waiting.push(removals.length + ' removal requests');
   var changes = readTab_(ps, 'club_change_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; }).length;
   if (changes) waiting.push(changes + ' club changes');

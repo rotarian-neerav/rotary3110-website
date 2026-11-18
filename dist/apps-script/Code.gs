@@ -1149,8 +1149,8 @@ function Core_memberCheckEmail(m, clubName, siteUrl, forms) {
     'Once a year, in July, we check with every member listed on the Rotary District 3110 website (' + site + ') ' +
     'that it still shows what you want. This is what it shows about you:\n\n' + lines.join('\n') + '\n\n' +
     'Nothing to do if this is right.\n\n' +
-    'To change any of it, fill in the member consent form again' + (forms && forms.consent ? ':\n' + forms.consent : ' (linked from the website\'s Privacy page).') + '\n\n' +
-    'To remove any of it, or your whole listing' + (forms && forms.removal ? ':\n' + forms.removal : ', use the removal form (linked from the website\'s Privacy page).') + '\n\n' +
+    'To change any of it, send the My details on the website form again' + (forms && forms.consent ? ':\n' + forms.consent : ' (linked from the website\'s Privacy page).') + '\n\n' +
+    'To remove any of it, or your whole listing' + (forms && forms.removal ? ', use the same form:\n' + forms.removal : ', use the same form and choose "Remove" (linked from the website\'s Privacy page).') + '\n\n' +
     'Your mobile number and email address are never shown on the website.\n\nRotary District 3110';
   return { subject: 'Your listing on the Rotary District 3110 website: still right?', body: body };
 }
@@ -1677,6 +1677,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
       public_service: Core_url(settings.form_public_service_url),
       contact: Core_url(settings.form_contact_url),
       business: Core_url(settings.form_business_url),
+      club_change: Core_url(settings.form_club_change_url),
     },
     lists: {
       themes: CORE_THEMES.slice(),
@@ -2530,14 +2531,15 @@ var MY_DETAILS_KINDS = {
   removal: 'Remove some or all of my details',
   business: 'List my business, or the topics I can speak on (Rotary Means Business)',
 };
-// The six forms Release 2 replaced, with their answer tabs, and the new form and section each one's link now opens
-var OLD_FORMS = {
-  club_profile: { raw: 'raw_club_profile_form', sheet: 'main', now: 'club_updates', kind: 'profile' },
-  public_service: { raw: 'raw_public_service_form', sheet: 'main', now: 'club_updates', kind: 'service' },
-  club_change: { raw: 'raw_club_change_form', sheet: 'private', now: 'club_updates', kind: 'member' },
-  consent: { raw: 'raw_consent_form', sheet: 'private', now: 'my_details', kind: 'consent' },
-  removal: { raw: 'raw_removal_form', sheet: 'private', now: 'my_details', kind: 'removal' },
-  business: { raw: 'raw_business_form', sheet: 'main', now: 'my_details', kind: 'business' },
+// The links named after the six forms Release 2 replaced (website, emails) open the new form at the right section.
+// The old forms themselves were closed and deleted on 18 Nov 2026.
+var SECTION_LINKS = {
+  club_profile: { now: 'club_updates', kind: 'profile' },
+  public_service: { now: 'club_updates', kind: 'service' },
+  club_change: { now: 'club_updates', kind: 'member' },
+  consent: { now: 'my_details', kind: 'consent' },
+  removal: { now: 'my_details', kind: 'removal' },
+  business: { now: 'my_details', kind: 'business' },
 };
 // The member's RI ID is required on the My details form: with the sender's own email, it is how the member is found (owner, 18 Nov 2026)
 var MY_DETAILS_ID_HELP = "Your Rotary member ID, from My Rotary or your club's records. It is how we find your record. Never published.";
@@ -2769,12 +2771,11 @@ function createForms_(report) {
     setSetting_('form_' + key + '_url', form.getPublishedUrl());
   });
   // the older forms' links (on the website and in emails) now open the new form at the right section
-  Object.keys(OLD_FORMS).forEach(function (key) {
-    var o = OLD_FORMS[key];
+  Object.keys(SECTION_LINKS).forEach(function (key) {
+    var o = SECTION_LINKS[key];
     var url = sectionLink_(o.now, o.kind);
     if (url) setSetting_('form_' + key + '_url', url);
   });
-  closeOldForms_(ids, report);
 }
 
 /** A link to the Club updates or My details form with the first question already answered, so it opens at that section. */
@@ -2791,88 +2792,6 @@ function sectionLink_(formKey, kind) {
   } catch (e) {
     return form.getPublishedUrl();
   }
-}
-
-/** The six older forms stop taking answers once the two new ones exist, and say where to go instead. Nothing is deleted. */
-function closeOldForms_(ids, report) {
-  if (!ids.club_updates || !ids.my_details) return;
-  Object.keys(OLD_FORMS).forEach(function (key) {
-    if (!ids[key]) return;
-    var form;
-    try { form = FormApp.openById(ids[key]); } catch (e) { return; }
-    var now = OLD_FORMS[key].now === 'club_updates' ? 'Club updates' : 'My details on the website';
-    var name = key.replace('_', ' ');
-    // Google refused this message with the new form's prefilled link in it ("Invalid data updating form", 18 Nov 2026),
-    // so it names the form and the website instead; the website's links already open the new form at the right section
-    var message = 'This form has moved. Please use the "' + now + '" form, linked on the district website.';
-    if (form.isAcceptingResponses()) {
-      try {
-        form.setAcceptingResponses(false);
-      } catch (e) {
-        report.push('Could not close the old ' + name + ' form (Google said: ' + e.message + '). Close it by hand: open the form, Responses, turn off Accepting responses');
-        return;
-      }
-      report.push('Closed the old ' + name + ' form (it points to the ' + now + ' form)');
-    }
-    try {
-      if (form.getCustomClosedFormMessage() !== message) form.setCustomClosedFormMessage(message);
-    } catch (e) {
-      report.push('The old ' + name + ' form is closed, but Google refused its "has moved" message (' + e.message + '); it shows Google\'s own closed message');
-    }
-  });
-}
-
-/**
- * Administrator → Delete the old forms and their answer tabs…: once the two new forms work, the six older forms go to
- * Google Drive's Bin (deleted for good after 30 days) and their raw answer tabs are deleted (owner, 18 Nov 2026).
- * What they filed stays in the working tabs (consent_requests, club_change_requests and so on).
- */
-function deleteOldForms() {
-  var ui = SpreadsheetApp.getUi();
-  var out = deleteOldForms_(function (list) {
-    return ui.alert('Delete the old forms', 'These forms go to the Bin and their answer tabs are deleted:\n\n' + list.join('\n') +
-      '\n\nWhat they sent stays in the working tabs. Go ahead?', ui.ButtonSet.YES_NO) === ui.Button.YES;
-  });
-  ui.alert(out);
-  return out;
-}
-
-function deleteOldForms_(confirm) {
-  var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
-  if (!ids.club_updates || !ids.my_details) return 'The two new forms are not set up yet: run Upgrade Sheet first.';
-  var old = Object.keys(OLD_FORMS).filter(function (k) { return ids[k]; });
-  if (!old.length) return 'The old forms are already gone.';
-  if (!confirm(old.map(function (k) { return '• ' + k.replace('_', ' ') + ' form, tab ' + OLD_FORMS[k].raw; }))) return 'Nothing deleted.';
-  var done = [];
-  var byHand = [];
-  old.forEach(function (key) {
-    var o = OLD_FORMS[key];
-    var name = key.replace('_', ' ');
-    // Google keeps a tab linked to its form until the form lets go, and refuses to delete a linked tab (18 Nov 2026);
-    // a closed old form may refuse to unlink, so the tab is unlinked by hand from the Sheet and this is run again
-    var why = '';
-    try { FormApp.openById(ids[key]).removeDestination(); } catch (e) { why = e.message; }
-    SpreadsheetApp.flush();
-    var ss = o.sheet === 'main' ? mainSs_() : privateSs_();
-    var tab = ss.getSheetByName(o.raw);
-    if (tab) {
-      try {
-        ss.deleteSheet(tab);
-      } catch (e) {
-        byHand.push('• ' + name + ' form' + (why ? ' (Google said: ' + why + ')' : '') + ': in the ' + (o.sheet === 'main' ? 'main' : 'private members') +
-          ' Sheet open the tab ' + o.raw + ', choose Form → Unlink form, then run this again');
-        return;
-      }
-    }
-    ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getTriggerSourceId && t.getTriggerSourceId() === ids[key]) ScriptApp.deleteTrigger(t); });
-    try { DriveApp.getFileById(ids[key]).setTrashed(true); } catch (e) { Logger.log('Form ' + key + ' not moved to the Bin: ' + e.message); }
-    delete ids[key];
-    props_().setProperty('FORM_IDS', JSON.stringify(ids));
-    done.push(name);
-  });
-  var out = done.length ? 'Deleted: the ' + done.join(', ') + ' forms (in the Bin for 30 days) and their answer tabs.' : 'Nothing deleted yet.';
-  if (byHand.length) out += '\n\nGoogle would not unlink these forms from their answer tabs. Please:\n' + byHand.join('\n');
-  return out;
 }
 
 /** Google creates new forms in My Drive; move one into the folder that holds the main Sheet (testing or production). */
@@ -3225,7 +3144,6 @@ function updateFormLists(silent) {
   lists[Q.gNewClub] = L.newClubs; lists[Q.gTeam] = L.teams; lists[Q.gClubYear] = L.years; lists[Q.gDistYear] = L.years;
   Object.keys(ids).forEach(function (k) {
     var form = FormApp.openById(ids[k]);
-    if (OLD_FORMS[k] && !form.isAcceptingResponses()) return; // a closed old form needs no fresh lists
     form.getItems().forEach(function (item) {
       var values = lists[item.getTitle()];
       if (!values) return;
@@ -3258,14 +3176,8 @@ function onAnyFormSubmit(e) {
       submitter_email: e.response.getRespondentEmail() || '',
     };
     if (formId === ids.activity) fileActivityOrEvent_(answers, meta);
-    else if (formId === ids.club_profile) fileClubProfile_(answers, meta);
-    else if (formId === ids.consent) fileConsent_(answers, meta);
-    else if (formId === ids.removal) fileRemoval_(answers, meta);
-    else if (formId === ids.public_service) filePublicService_(answers, meta);
     else if (formId === ids.contact) fileContact_(answers, meta);
-    else if (formId === ids.business) fileBusiness_(answers, meta);
-    else if (formId === ids.club_change) fileClubChange_(answers, meta);
-    // Release 2: the two forms with sections
+    // the two forms with sections (Release 2): each section is filed by the code its old form used
     else if (formId === ids.club_updates) fileClubUpdates_(answers, meta);
     else if (formId === ids.my_details) fileMyDetails_(answers, meta);
   } finally {
@@ -3660,10 +3572,10 @@ function noticeMember_(ps, req) {
   var until = Core_dateLabel(Core_isoDate(new Date(consentHoldUntil_(req, check))));
   try {
     MailApp.sendEmail(check.memberEmail, 'Your details were sent to the Rotary District 3110 website',
-      'Dear ' + (check.memberName || req.name) + ',\n\nA member consent form was sent for you to the district website by ' + req.submitter_email +
+      'Dear ' + (check.memberName || req.name) + ',\n\nA request to show your details on the district website was sent for you by ' + req.submitter_email +
       (req.filled_by ? ' (as "' + req.filled_by + '")' : '') + '.\n\nIt asks to show:\n' + (choices.join('\n') || '- nothing') +
       '\n\nIf you or your club sent it, there is nothing to do. A district moderator checks every form, and nothing is shown before ' + until + '.' +
-      '\n\nIf you did not agree to this, reply to this email or use the removal form, and nothing will be shown.' + removalLine_() +
+      '\n\nIf you did not agree to this, reply to this email or use the My details form to remove them, and nothing will be shown.' + removalLine_() +
       '\n\nRotary District 3110', { name: 'Rotary District 3110' });
     return 'Told by email ' + today_();
   } catch (e) {
@@ -3751,14 +3663,13 @@ function onOpen() {
     .addItem('Check roles and member IDs', 'checkRoles')
     .addItem('Update form lists (clubs, areas, professions)', 'updateFormLists')
     .addSeparator()
-    // Load sample data and Reset for production left the menu after launch (17 Nov 2026); both stay in the script
-    // for a test Sheet, run from the script editor
+    // Load sample data left the menu after launch (17 Nov 2026); setup uses it for a new test Sheet.
+    // Reset for production, used once on 29 Oct, was removed (18 Nov 2026)
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Sample data')
       .addItem('Clear all sample data…', 'clearSampleData'))
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Administrator')
       .addItem('Show data link details', 'showDataLink')
       .addItem('Upgrade Sheet (new tabs, columns, questions)', 'upgradeSheet')
-      .addItem('Delete the old forms and their answer tabs…', 'deleteOldForms')
       .addItem('Apply moderators (Sheet access)…', 'applyModerators')
       .addItem('Sign everyone out of the desk…', 'deskSignOutAll')
       .addItem('Send bulletin preview now', 'bulletinPreview')
@@ -4540,7 +4451,7 @@ function rejectRequest_(kind, requestId, reason, who) {
   if (!req) throw new Error('Request not found');
   updateRow_(ps, tab, req._row, { status: 'rejected', moderator_note: reason || '', approved_by: who, approved_at: nowIso_() });
   var what = kind === 'removal' ? 'request to remove details for ' + req.name
-    : kind === 'change' ? 'club change for ' + req.name : 'consent form for ' + req.name;
+    : kind === 'change' ? 'club change for ' + req.name : 'request to show the details of ' + req.name;
   notifyMember_(req, 'Not done yet: ' + what, 'Thank you for sending the ' + what + '. A district moderator could not act on it this time.' +
     (Core_str(reason) ? '\n\nReason: ' + reason : '') + '\n\nYou are welcome to send the form again with the changes.');
   return 'Rejected ' + requestId;
@@ -6528,7 +6439,7 @@ function weeklySummary() {
 
   var consent = readTab_(ps, 'consent_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; }).length;
   var removals = readTab_(ps, 'removal_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; });
-  if (consent) waiting.push(consent + ' member consent forms');
+  if (consent) waiting.push(consent + ' member consent requests');
   if (removals.length) waiting.push(removals.length + ' removal requests');
   var changes = readTab_(ps, 'club_change_requests').filter(real).filter(function (r) { return Core_str(r.status) === 'pending'; }).length;
   if (changes) waiting.push(changes + ' club changes');
@@ -6814,44 +6725,6 @@ function clearSampleData() {
   ui.alert('Sample data cleared.\n' + (removed.join('\n') || 'Nothing to clear.'));
 }
 
-/** Tabs that Reset for production leaves alone: settings and form links, lists, moderators, and clubs (so the forms keep a club list until the real one is imported). */
-var RESET_KEEP_TABS = ['settings', 'lists', 'moderators', 'clubs'];
-
-/**
- * Administrator → Reset for production (once): before the real data is imported, removes every data row, sample or
- * test, from both Sheets, the form-response tabs included. Headers, settings, lists, moderators and clubs stay.
- * Runs only once: afterwards the Sheet holds real data, so the command refuses.
- */
-function resetForProduction() {
-  var ui = SpreadsheetApp.getUi();
-  var done = Core_str(props_().getProperty('PRODUCTION_RESET_AT'));
-  if (done) { ui.alert('The Sheet was already reset for production on ' + done + '. It now holds real data, so this command does nothing.'); return []; }
-  if (ui.alert('Reset for production?', 'Every data row in both Sheets will be deleted (sample and test rows, form responses, the moderator log). ' +
-    'Kept: settings, lists, moderators and clubs.\n\nName a version first (File → Version history). This can only be done once.', ui.ButtonSet.YES_NO) !== ui.Button.YES) return [];
-  var removed = [];
-  [mainSs_(), privateSs_()].forEach(function (ss) {
-    ss.getSheets().forEach(function (sh) {
-      var name = sh.getName();
-      var last = sh.getLastRow();
-      if (RESET_KEEP_TABS.indexOf(name) >= 0 || last < 2) return;
-      if (/^raw_/.test(name)) {
-        // a form writes after its last row, so its rows are deleted rather than emptied (one blank row is added first: a tab keeps at least one)
-        sh.insertRowsAfter(sh.getMaxRows(), 1);
-        sh.deleteRows(2, last - 1);
-      } else {
-        sh.getRange(2, 1, last - 1, Math.max(1, sh.getLastColumn())).clearContent();
-      }
-      removed.push(ss.getName() + ' → ' + name + ': ' + (last - 1));
-    });
-  });
-  setSetting_('inactive_keys', '');
-  props_().setProperty('PRODUCTION_RESET_AT', today_());
-  refreshPublicMembers(true);
-  refreshDashboard();
-  ui.alert('Reset for production done.\n' + (removed.join('\n') || 'Nothing to remove.') +
-    '\n\nNext: import the real clubs, members_master and club_history, then Update form lists and Rebuild site now.');
-  return removed;
-}
 
 
 // ===== Practice.js =====

@@ -280,7 +280,8 @@ test('In the news and the year summaries match the data', () => {
 
 test('the footer links to the new pages; form short links open in a new tab', () => {
   const footer = dom('').querySelectorAll('.site-footer a').map((a) => a.getAttribute('href'));
-  for (const p of ['/services/', '/cities/', '/news/', '/years/', '/about/', '/contact/', '/how-to-post/', '/public-service/', '/events/calendar.ics']) {
+  // /club-changes/: the Club updates form's members and roles section (18 Nov 2026)
+  for (const p of ['/services/', '/cities/', '/news/', '/years/', '/about/', '/contact/', '/how-to-post/', '/public-service/', '/club-changes/', '/events/calendar.ics']) {
     const shown = p === '/services/' ? has.services : p === '/news/' ? has.news : true;
     assert.equal(footer.some((h) => h.endsWith(p)), shown, p);
   }

@@ -16,7 +16,8 @@ This repository is **public**. Never commit members' data, phone numbers, emails
 - `src/` pages (Nunjucks), `src/_data/t.json` all page wording, `lib/` data shaping for pages, `scripts/` build steps.
 - `tests/unit/` (rules, recognition, the Sheet script in a mock Google environment: `tests/helpers/google-mock.mjs`)
   and `tests/site/` (checks on the built `_site/`).
-- `docs/` guides for the district: Google setup, moderator guide, yearly update, requirements checklist.
+- `docs/` guides for the district: the user manual (start here; a summary of the others, keep it in step), Google setup,
+  moderator guide, yearly update, requirements checklist.
 
 ## Working on it
 

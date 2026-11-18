@@ -6,7 +6,7 @@ The district's website: what our clubs achieve. Built from the district Google S
 - **Rotary Means Business** (17 Nov 2026): members list their own businesses at `/list-business/`; shown at `/rmb/`
   (members only, WhatsApp button and website only). It joins the top menu once 25 listings are in
 - **Project brief:** `../3110-Website-Project-Brief.md` (version 4.3)
-- **Guides:** [Google setup](docs/3110-Website-Google-Sheet-Setup.md) · [Moderator guide](docs/3110-Website-Moderator-Guide.md) · [Yearly update](docs/3110-Website-Yearly-Update-and-Launch.md)
+- **Guides:** [User manual](docs/3110-Website-User-Manual.md) (start here) · [Google setup](docs/3110-Website-Google-Sheet-Setup.md) · [Moderator guide](docs/3110-Website-Moderator-Guide.md) · [Yearly update](docs/3110-Website-Yearly-Update-and-Launch.md)
 
 ## How it works
 

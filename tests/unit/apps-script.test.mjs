@@ -1,7 +1,7 @@
 // Runs the whole Sheet script (dist/apps-script/Code.gs) against a simulated Google environment:
 // setup, form submissions, moderation, members and spouses, removals, deceased, clean-up and the data link.
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { before, beforeEach, test } from 'node:test';
 import { createGoogleEnv } from '../helpers/google-mock.mjs';
@@ -1154,6 +1154,13 @@ test('Start new Rotary year: only once the new team is in; moves the year on, ad
 test('members_master has the gender column; Reset for production is gone (it removed every data row; used once on 29 Oct)', () => {
   assert.ok(env.priv.getSheetByName('members_master').getRange(1, 1, 1, 40).getValues()[0].includes('gender'), 'members_master has gender');
   assert.equal(typeof env.context.resetForProduction, 'undefined');
+});
+
+test('every file the sample-data generator reads is in the repository (17 Nov 2026: it read a file that was removed)', () => {
+  const src = readFileSync(resolve(ROOT, 'tools/make-sample-data.mjs'), 'utf8');
+  const files = [...src.matchAll(/readFileSync\(resolve\(ROOT, '([^']+)'\)/g)].map((m) => m[1]);
+  assert.ok(files.includes('tools/sample-base.json'), files.join(', '));
+  for (const f of files) assert.ok(existsSync(resolve(ROOT, f)), f);
 });
 
 test('the committed Code.gs is the bundle of the current source files (run npm run bundle-script after a change)', () => {

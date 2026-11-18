@@ -11,7 +11,8 @@ import sharp from 'sharp';
 import { core, plain, SCHEMA_MAIN, SCHEMA_PRIVATE } from '../lib/core.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const converted = JSON.parse(readFileSync(resolve(ROOT, 'tools/out/excel-converted.json'), 'utf8'));
+// The clubs and the district team (17 Nov 2026: kept in tools/sample-base.json once the Excel converter was removed)
+const converted = JSON.parse(readFileSync(resolve(ROOT, 'tools/sample-base.json'), 'utf8'));
 
 /* ---------- seeded random ---------- */
 let seed = 3110;

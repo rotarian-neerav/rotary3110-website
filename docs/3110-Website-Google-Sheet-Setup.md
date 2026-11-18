@@ -89,7 +89,19 @@ Each change is described in the commit that made it. The notes for every version
 the bulletin preview on Saturday at 6 pm and the message on Sunday at 8 am; the backup of both Sheets on Sunday at
 3 am (8 weeks kept, in the private **Backups** folder; the form copies Google makes with it go to the Bin); the weekly
 summary on Monday at 8 am; the clubs-not-posting email on the 1st at 9 am; and every 2 hours, a check that a
-**Rebuild site now** was not missed.
+**Rebuild site now** was not missed. With the 7 am jobs, the weekly club emails, when switched on (below).
+
+**Club office bearers (Release 3), three settings** in the settings tab, all **off** after Upgrade Sheet:
+- `club_senders_only`: **off**, **watch** or **on** (who may send the activity and Club updates forms for a club; the
+  moderator guide explains it). Start with **watch** for a week or two and read the weekly summary's "Who sent the club
+  forms"; switch to **on** when most clubs have told this year's office bearers.
+- `weekly_club_email`: **off**, **test** or **on**. Start with **test**: the day's club emails come to one address
+  (`weekly_club_email_test_to`, or the district account when blank) so you can read them before the clubs do.
+- `weekly_club_email_test_to`: that address.
+The office bearers come from the officers tab: this year's, or the last known until this year's is told. Their
+emails come from the members list, so a club whose office bearers have no email there gets no weekly email and is not
+checked. A free Google account may send about 100 emails a day; the club emails stop for the day before that and
+carry on the next.
 
 ## 6. Name the moderators
 

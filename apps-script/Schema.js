@@ -28,14 +28,20 @@ var SCHEMA_MAIN = {
     // added 17 November 2026: one photo before and one after the work (shown side by side only when both are there)
     'before_photo', 'after_photo',
     // added in Release 1 (18 November 2026): a published activity a moderator took off the website (status hidden)
-    'hidden_by', 'hidden_at'],
+    'hidden_by', 'hidden_at',
+    // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
+    'sender_check'],
   events: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'title',
     'event_type', 'start_date', 'start_time', 'end_date', 'venue', 'city', 'organiser', 'description', 'map_link',
     'details_link', 'photo_files', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'report_activity_id', 'notified',
-    'is_sample', 'registration_close_date', 'fee', 'registration_status', 'bulletin_exclude', 'open_to_all'],
+    'is_sample', 'registration_close_date', 'fee', 'registration_status', 'bulletin_exclude', 'open_to_all',
+    // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
+    'sender_check'],
   club_profile_requests: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile',
     'club_id', 'club_name', 'website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'meeting_day_place', 'status',
-    'approved_by', 'approved_at', 'moderator_note', 'is_sample', 'permanent_projects', 'regular_services', 'meeting_day'],
+    'approved_by', 'approved_at', 'moderator_note', 'is_sample', 'permanent_projects', 'regular_services', 'meeting_day',
+    // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
+    'sender_check'],
   campaigns: ['campaign_id', 'rotary_year', 'name', 'slug', 'unit', 'start_date', 'end_date', 'target', 'description', 'chair',
     'chair_member_id', 'sort_order', 'is_sample'],
   magazines: ['issue_month', 'title', 'pdf_file', 'pdf_url', 'cover_image', 'is_sample'],
@@ -48,7 +54,9 @@ var SCHEMA_MAIN = {
   // lasting facilities the public can use (blood banks, eye care, dialysis…), sent through the public service form
   public_services: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'club_id',
     'club_name', 'name', 'service_type', 'timings', 'phone', 'address', 'city', 'map_link', 'about', 'status', 'approved_by',
-    'approved_at', 'moderator_note', 'notified', 'is_sample'],
+    'approved_at', 'moderator_note', 'notified', 'is_sample',
+    // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
+    'sender_check'],
   // Rotary Means Business (17 November 2026): a member's own business and the topics they can speak on, sent through
   // the business form. member_id and member_name are filled from the private members list; only an approved row of
   // an active member is published, and never the member ID, the sender's mobile or email
@@ -100,7 +108,9 @@ var SCHEMA_PRIVATE = {
   club_change_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'change', 'member_id', 'name', 'date', 'new_club_id',
     'rotary_year', 'role', 'section', 'committee', 'note', 'status', 'approved_by', 'approved_at', 'moderator_note', 'is_sample',
     // added in Release 2 (18 November 2026): a new member's own mobile and email, for the members list only
-    'mobile', 'email'],
+    'mobile', 'email',
+    // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
+    'sender_check'],
   // every change a moderator makes on the desk to a member, a role, a club or a moderator (Release 1, 18 November 2026):
   // one row per field, rows of one save share an id; Undo puts old_value back while the field still holds new_value
   change_log: ['id', 'at', 'moderator', 'action', 'tab', 'key', 'field', 'old_value', 'new_value', 'reason', 'undone_at', 'undone_by'],

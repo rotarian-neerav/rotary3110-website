@@ -284,12 +284,14 @@ var CONSENT_SENDERS = { member: "The member's own email", officer: 'An office be
 
 /**
  * Safeguards against a consent form sent for someone without their agreement (1 Nov 2026): who sent it, judged
- * against the members list and this year's office bearers. Returns a function of one consent request.
+ * against the members list and the club's acting office bearers (Release 3: this year's, or the last known). Returns a
+ * function of one consent request.
  */
 function consentChecker_(ps, master) {
   master = master || readTab_(ps, 'members_master');
-  var year = Core_str(settings_().current_rotary_year);
-  var officers = readTab_(mainSs_(), 'officers').filter(function (o) { return !year || Core_str(o.rotary_year) === year; });
+  var acting = actingOfficers_();
+  var officers = [];
+  Object.keys(acting).forEach(function (id) { Object.keys(acting[id]).forEach(function (r) { officers.push(acting[id][r]); }); });
   var removals = readTab_(ps, 'removal_requests');
   return function (req) { return Core_consentSender(req, master, officers, removals); };
 }

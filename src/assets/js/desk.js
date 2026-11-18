@@ -18,6 +18,8 @@
   var T = {
     en: {
       // Release 1 (18 Nov 2026)
+      tabHeld: 'Not accepted', heldIntro: 'Sent by someone who is not an office bearer of the club on file; they were told by email. Let one through if it should be (a new office bearer? Add them on the Roles tab too).', letThrough: 'Let through', from: 'from',
+      officersYear: 'Club office bearers, {year}', officersTold: "Clubs that have told this year's President and Secretary: {n}", officersCarried: "Clubs where last year's (or older) still act: {n}", officersNone: 'Clubs with none on record: {n}', actsNow: 'acts now', carriedOver: "acts until this year's is told",
       tabRoles: 'Roles', tabAdmin: 'Admin', subClean: 'Clean', subLook: 'Needs a look', otherZones: 'Other areas',
       cleanIntro: 'Nothing to check was found in these. Glance at each, untick any that look wrong (it moves to Needs a look), then approve the rest.',
       approveTicked: 'Approve the ticked ({n})', confirmMany: 'Approve {n} activities?', showMore: 'Show more', lookIntro: 'Each of these needs a full look: the reason is at the top.',
@@ -51,7 +53,7 @@
       deceased: 'Mark as deceased', searchName: 'Type at least three letters of the name', search: 'Search',
       confirmDeceased: 'Mark {name} as deceased? Birthday and anniversary greetings stop at once.', noOne: 'No one found.',
       quietIntro: 'Active clubs with no activity in the last 30 days.', lastActivity: 'Last activity', never: 'none yet',
-      reminded: 'Reminded', by: 'by', emailClub: 'Email President and Secretary', whatsapp: 'WhatsApp',
+      reminded: 'Reminded', by: 'by', emailClub: 'Email the office bearers', whatsapp: 'WhatsApp',
       reply: 'Reply', replyLabel: 'Your answer (sent from the district account, signed Rotary District 3110; your name and email are not shown)', send: 'Send', phoneOnly: 'Mobile number: please call or WhatsApp from the district office phone, not your personal phone.', earlier: 'Sent earlier', markAnswered: 'Mark answered', answered: 'Answered', newMsg: 'New',
       openDesk: 'Open the moderation desk', linkFor: 'This link is for', approveQ: 'Approve this?', rejectQ: 'Reject this?',
       leaveQ: "Leave this out of Sunday's bulletin?", fields: { title: 'Title', description: 'Description', press_paper: 'Newspaper name',
@@ -59,6 +61,8 @@
         regular_services: 'Regular services', name: 'Name', timings: 'Timings', phone: 'Phone (shown on the website)', address: 'Address', about: 'About' },
     },
     hi: {
+      tabHeld: 'स्वीकार नहीं', heldIntro: 'इन्हें किसी ऐसे व्यक्ति ने भेजा जो रिकॉर्ड में क्लब का पदाधिकारी नहीं है; उन्हें ईमेल से बता दिया गया। ठीक हो तो आगे भेजें (नए पदाधिकारी? उन्हें पद टैब में भी जोड़ें)।', letThrough: 'आगे भेजें', from: 'से',
+      officersYear: 'क्लब पदाधिकारी, {year}', officersTold: 'जिन क्लबों ने इस वर्ष के अध्यक्ष और सचिव बताए: {n}', officersCarried: 'जहाँ पिछले (या पुराने) पदाधिकारी अभी काम कर रहे हैं: {n}', officersNone: 'जिनका कोई रिकॉर्ड नहीं: {n}', actsNow: 'अभी पद पर', carriedOver: 'इस वर्ष के बताए जाने तक पद पर',
       tabRoles: 'पद', tabAdmin: 'प्रशासन', subClean: 'साफ़', subLook: 'देखना ज़रूरी', otherZones: 'दूसरे क्षेत्र',
       cleanIntro: 'इनमें जाँचने लायक कुछ नहीं मिला। हर एक पर नज़र डालें, जो ठीक न लगे उसका टिक हटाएँ (वह "देखना ज़रूरी" में चला जाएगा), फिर बाकी स्वीकृत करें।',
       approveTicked: 'टिक किए गए स्वीकृत करें ({n})', confirmMany: '{n} गतिविधियाँ स्वीकृत करें?', showMore: 'और दिखाएँ', lookIntro: 'इनमें से हर एक को पूरा देखना है: कारण सबसे ऊपर लिखा है।',
@@ -456,6 +460,7 @@
     var list = [];
     if (d.content) list.push(['check', t('tabCheck'), d.content.pending.length], ['recent', t('tabRecent'), null]);
     if (d.members) list.push(['members', t('tabMembers'), d.members.consent.length + d.members.removal.length + (d.members.change || []).length]);
+    if (d.held && d.held.length) list.push(['held', t('tabHeld'), d.held.length]);
     if (d.roles) list.push(['roles', t('tabRoles'), (d.roles.checks || []).length]);
     if (d.clubs) list.push(['clubs', t('tabClubs'), d.clubs.length]);
     if (d.office) list.push(['office', t('tabOffice'), d.office.filter(function (m) { return m.status === 'new'; }).length]);
@@ -476,7 +481,7 @@
       b.addEventListener('click', function () { state.tab = b.getAttribute('data-tab'); store.set('deskTab', state.tab); say(''); drawDesk(); });
     });
     var view = out.querySelector('[data-view]');
-    ({ check: drawCheck, recent: drawRecent, members: drawMembers, roles: drawRoles, clubs: drawClubs, office: drawOffice, admin: drawAdmin }[state.tab] || function () {})(view);
+    ({ check: drawCheck, recent: drawRecent, members: drawMembers, roles: drawRoles, held: drawHeld, clubs: drawClubs, office: drawOffice, admin: drawAdmin }[state.tab] || function () {})(view);
   }
 
   // A moderator given zones sees their zones' clubs first; the others follow under "Other zones"
@@ -783,10 +788,31 @@
 
   /* ---------- Roles: office bearers (Content or Members) and district roles (Members) ---------- */
 
+  // Release 3: forms refused by the sender check, until a moderator lets one through
+  function drawHeld(view) {
+    var held = state.data.held || [];
+    if (!held.length) { view.innerHTML = '<p class="desk-empty">' + esc(t('nothing')) + '</p>'; return; }
+    view.innerHTML = '<p class="small muted">' + esc(t('heldIntro')) + '</p><ul class="desk-list">' + held.map(function (x, i) {
+      return '<li class="desk-row"><div><strong>' + esc(x.title || x.kind) + '</strong><br><span class="small muted">' + esc([x.kind, x.club, day(x.submitted)].filter(Boolean).join(' · ')) +
+        '</span><br><span class="small">' + esc([x.sender, x.from ? t('from') + ' ' + x.from : ''].filter(Boolean).join(' · ')) + '</span></div><div>' +
+        '<button type="button" class="btn-small" data-let="' + i + '">' + esc(t('letThrough')) + '</button></div></li>';
+    }).join('') + '</ul>';
+    Array.prototype.forEach.call(view.querySelectorAll('[data-let]'), function (b) {
+      b.addEventListener('click', function () {
+        var x = held[+b.getAttribute('data-let')];
+        b.disabled = true;
+        send({ fn: 'letthrough', tab: x.tab, id: x.id }, function () { load(); });
+      });
+    });
+  }
+
   function drawRoles(view) {
     var checks = (state.data.roles && state.data.roles.checks) || [];
     var L = state.data.lists || {};
-    var h = '';
+    var o = state.data.roles && state.data.roles.officers;
+    var h = o ? '<h2>' + esc(t('officersYear').replace('{year}', o.year)) + '</h2><p class="small">' + esc(t('officersTold').replace('{n}', o.current)) + '<br>' +
+      esc(t('officersCarried').replace('{n}', o.carried.length)) + (o.carried.length ? ' <span class="muted">(' + esc(o.carried.slice(0, 40).join(', ') + (o.carried.length > 40 ? '…' : '')) + ')</span>' : '') +
+      '<br>' + esc(t('officersNone').replace('{n}', o.none)) + '</p>' : '';
     if (state.data.members) {
       h += '<h2>' + esc(t('roleChecks')) + ' (' + checks.length + ')</h2>' + (checks.length ? '<ul class="desk-list">' + checks.map(function (p, i) {
         return '<li class="desk-row"><div><strong>' + esc(p.name || '–') + '</strong>' + (p.member_id ? ' · ' + esc(p.member_id) : '') + '<br><span class="small muted">' +
@@ -827,7 +853,7 @@
     var L = state.data.lists || {};
     box.innerHTML = roles.length ? '<ul class="desk-list">' + roles.map(function (r, i) {
       return '<li class="desk-row' + (r.ended_on ? ' desk-done' : '') + '"><div><strong>' + esc(r.role) + ' · ' + esc(r.rotary_year) + '</strong><br>' + esc(r.name) +
-        (r.member_id ? ' (' + esc(r.member_id) + ')' : '') + '<br><span class="small muted">' + esc([r.club, r.section, r.committee].filter(Boolean).join(' · ')) +
+        (r.member_id ? ' (' + esc(r.member_id) + ')' : '') + (r.acts ? ' · <em>' + esc(r.acts === 'this year' ? t('actsNow') : t('carriedOver')) + '</em>' : '') + '<br><span class="small muted">' + esc([r.club, r.section, r.committee].filter(Boolean).join(' · ')) +
         (r.ag && r.ag_clubs ? '<br>' + esc(r.ag_clubs) : '') + (r.ended_on ? ' · ' + esc(t('ended')) + ' ' + esc(day(r.ended_on)) : '') + '</span></div><div>' +
         (r.ended_on ? '' : '<button type="button" class="btn-small" data-role-edit="' + i + '">' + esc(t('change')) + '</button>' +
           '<button type="button" class="btn-small btn-no-small" data-role-end="' + i + '">' + esc(t('endRole')) + '</button>') +

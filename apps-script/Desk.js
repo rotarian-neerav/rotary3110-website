@@ -77,6 +77,8 @@ function desk_(req) {
   if (fn === 'clubadd') return deskClubAdd_(me, req.fields || {}, req.reason);
   if (fn === 'clubsave') return deskClubSave_(me, req.club_id, req.fields || {}, req.reason);
   if (fn === 'clubclose') return deskClubClose_(me, req.club_id, req.move_to, req.reason);
+  // Release 3 (18 Nov 2026): a form refused by the sender check (Clubs.js)
+  if (fn === 'letthrough') return deskLetThrough_(me, req.tab, req.id);
   if (fn === 'modsave') return deskModeratorSave_(me, req.row, req.fields || {}, req.reason);
   throw new Error('unknown request');
 }
@@ -301,6 +303,7 @@ function deskCard_(tab, r) {
     block: approveBlock_(tab, r), done_by: deskName_(r.approved_by), done_at: Core_isoTimestamp(r.approved_at),
     edit: {}, zone: deskClubZone_(r.club_id),
   };
+  if (Core_str(r.sender_check)) lines.push(['Sender', Core_str(r.sender_check)]);
   // an activity with nothing to check is "clean": Approve all clean takes it in one tap (Release 1)
   card.checks = tab === 'activities' ? Core_activityChecks(r) : card.notes.slice();
   card.clean = tab === 'activities' && !card.checks.length && !card.block;
@@ -544,21 +547,22 @@ function deskDeceased_(me, memberId) {
 
 /* ---------- Club engagement ---------- */
 
-/** Emails of each club's President and Secretary this Rotary year, from the private members list. */
+/** Emails of each club's acting office bearers (Release 3: this year's, or the last known until this year's is told). */
 function deskOfficerEmails_() {
-  var year = Core_str(settings_().current_rotary_year);
   var email = {};
   readTab_(privateSs_(), 'members_master').forEach(function (m) {
     var e = Core_str(m.email);
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) && Core_str(m.status || 'active') === 'active' && !Core_isTrue(m.is_sample)) email[Core_str(m.member_id)] = e;
   });
+  var acting = actingOfficers_();
   var out = {};
-  readTab_(mainSs_(), 'officers').forEach(function (o) {
-    var e = email[Core_str(o.member_id)];
-    if (!e || Core_str(o.rotary_year) !== year || !/^(president|secretary)$/i.test(Core_str(o.role))) return;
-    var id = Core_str(o.club_id);
-    out[id] = out[id] || [];
-    if (out[id].indexOf(e) < 0) out[id].push(e);
+  Object.keys(acting).forEach(function (id) {
+    CORE_CLUB_ROLES.forEach(function (role) {
+      var e = acting[id][role] && email[Core_str(acting[id][role].member_id)];
+      if (!e) return;
+      out[id] = out[id] || [];
+      if (out[id].indexOf(e) < 0) out[id].push(e);
+    });
   });
   return out;
 }
@@ -680,7 +684,10 @@ function deskList_(me) {
   var out = { me: me };
   if (me.views.content) out.content = deskContent_();
   if (me.views.members) out.members = memberRequests_(false);
-  if (me.views.members || me.views.content) out.roles = { checks: me.views.members ? deskRoleChecks_() : [] };
+  if (me.views.members || me.views.content) {
+    out.roles = { checks: me.views.members ? deskRoleChecks_() : [], officers: deskOfficerYear_() };
+    out.held = deskNotAccepted_(me);
+  }
   if (me.views.clubs) out.clubs = deskClubs_(me);
   if (me.views.office) out.office = deskOffice_();
   if (me.views.admin) out.admin = { clubs: clubs_().map(deskClubRow_), moderators: deskModerators_() };

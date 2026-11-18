@@ -230,14 +230,20 @@ var SCHEMA_MAIN = {
     // added 17 November 2026: one photo before and one after the work (shown side by side only when both are there)
     'before_photo', 'after_photo',
     // added in Release 1 (18 November 2026): a published activity a moderator took off the website (status hidden)
-    'hidden_by', 'hidden_at'],
+    'hidden_by', 'hidden_at',
+    // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
+    'sender_check'],
   events: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'title',
     'event_type', 'start_date', 'start_time', 'end_date', 'venue', 'city', 'organiser', 'description', 'map_link',
     'details_link', 'photo_files', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'report_activity_id', 'notified',
-    'is_sample', 'registration_close_date', 'fee', 'registration_status', 'bulletin_exclude', 'open_to_all'],
+    'is_sample', 'registration_close_date', 'fee', 'registration_status', 'bulletin_exclude', 'open_to_all',
+    // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
+    'sender_check'],
   club_profile_requests: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile',
     'club_id', 'club_name', 'website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'meeting_day_place', 'status',
-    'approved_by', 'approved_at', 'moderator_note', 'is_sample', 'permanent_projects', 'regular_services', 'meeting_day'],
+    'approved_by', 'approved_at', 'moderator_note', 'is_sample', 'permanent_projects', 'regular_services', 'meeting_day',
+    // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
+    'sender_check'],
   campaigns: ['campaign_id', 'rotary_year', 'name', 'slug', 'unit', 'start_date', 'end_date', 'target', 'description', 'chair',
     'chair_member_id', 'sort_order', 'is_sample'],
   magazines: ['issue_month', 'title', 'pdf_file', 'pdf_url', 'cover_image', 'is_sample'],
@@ -250,7 +256,9 @@ var SCHEMA_MAIN = {
   // lasting facilities the public can use (blood banks, eye care, dialysis…), sent through the public service form
   public_services: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'club_id',
     'club_name', 'name', 'service_type', 'timings', 'phone', 'address', 'city', 'map_link', 'about', 'status', 'approved_by',
-    'approved_at', 'moderator_note', 'notified', 'is_sample'],
+    'approved_at', 'moderator_note', 'notified', 'is_sample',
+    // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
+    'sender_check'],
   // Rotary Means Business (17 November 2026): a member's own business and the topics they can speak on, sent through
   // the business form. member_id and member_name are filled from the private members list; only an approved row of
   // an active member is published, and never the member ID, the sender's mobile or email
@@ -302,7 +310,9 @@ var SCHEMA_PRIVATE = {
   club_change_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'change', 'member_id', 'name', 'date', 'new_club_id',
     'rotary_year', 'role', 'section', 'committee', 'note', 'status', 'approved_by', 'approved_at', 'moderator_note', 'is_sample',
     // added in Release 2 (18 November 2026): a new member's own mobile and email, for the members list only
-    'mobile', 'email'],
+    'mobile', 'email',
+    // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
+    'sender_check'],
   // every change a moderator makes on the desk to a member, a role, a club or a moderator (Release 1, 18 November 2026):
   // one row per field, rows of one save share an id; Undo puts old_value back while the field still holds new_value
   change_log: ['id', 'at', 'moderator', 'action', 'tab', 'key', 'field', 'old_value', 'new_value', 'reason', 'undone_at', 'undone_by'],
@@ -1913,6 +1923,126 @@ function Core_consentSender(request, master, officers, removals) {
   return { who: who, memberEmail: memberEmail, memberName: member ? Core_str(member.name) : '', warnings: warnings, removal: removal };
 }
 
+/**
+ * Release 3 (owner, 18 Nov 2026): who acts as each club's President, Secretary and Executive Secretary in a Rotary year.
+ * Per club and role the latest year up to `year` that has a row decides, so until this year's holder is told the
+ * previous known holder carries on. A role ended in that year has nobody acting; next year's rows count from 1 July.
+ * Returns { club_id: { role: the officer row, with acting_year and carried } }.
+ */
+function Core_actingOfficers(officers, year) {
+  var best = {};
+  (officers || []).forEach(function (o) {
+    var y = Core_str(o.rotary_year);
+    var role = Core_str(o.role);
+    var club = Core_str(o.club_id);
+    if (!y || y > year || !club || CORE_CLUB_ROLES.indexOf(role) < 0 || Core_isTrue(o.is_sample) || Core_isPractice(o)) return;
+    var key = club + '|' + role;
+    if (best[key] && best[key].year > y) return;
+    if (!best[key] || best[key].year < y) best[key] = { year: y, row: null };
+    if (!Core_str(o.ended_on)) best[key].row = o; // the last open row of that year (Sheet order) holds the role
+  });
+  var out = {};
+  Object.keys(best).forEach(function (key) {
+    var b = best[key];
+    if (!b.row) return;
+    var club = key.split('|')[0];
+    out[club] = out[club] || {};
+    out[club][Core_str(b.row.role)] = Object.assign({}, b.row, { acting_year: b.year, carried: b.year !== year });
+  });
+  return out;
+}
+
+/** "off", "watch" or "on" from a settings value (yes/true count as on; anything else unknown is off). */
+function Core_settingMode(v, modes) {
+  var s = Core_str(v).trim().toLowerCase();
+  if (s === 'yes' || s === 'true') s = 'on';
+  return (modes || ['off', 'watch', 'on']).indexOf(s) >= 0 ? s : 'off';
+}
+
+/**
+ * Release 3: may this Google account send forms for this club? 'officer' when it is the email on file of one of the
+ * club's acting office bearers, 'moderator' for an active moderator, 'other' otherwise, and 'unknown' when it cannot be
+ * told (club not recognised, or none of its office bearers has an email on file), so a gap in the records refuses nobody.
+ * Matched by the sender's Google account only: a typed RI ID or mobile could be anyone's.
+ */
+function Core_clubSender(email, clubId, acting, master, moderatorRows) {
+  var lower = function (v) { return Core_str(v).trim().toLowerCase(); };
+  var sender = lower(email);
+  var roles = (acting && acting[Core_str(clubId)]) || {};
+  var emails = {};
+  (master || []).forEach(function (m) {
+    if (Core_str(m.status || 'active').toLowerCase() === 'active' && !Core_isTrue(m.is_sample)) emails[Core_str(m.member_id)] = lower(m.email);
+  });
+  var known = CORE_CLUB_ROLES.filter(function (r) { return roles[r]; });
+  var reachable = known.filter(function (r) { return CORE_EMAIL_RE.test(emails[Core_str(roles[r].member_id)] || ''); });
+  var held = known.filter(function (r) { return sender && emails[Core_str(roles[r].member_id)] === sender; });
+  var out = { roles: known, held: held };
+  if (held.length) out.who = 'officer';
+  else if (sender && CORE_MODERATOR_TYPES.some(function (t) { return Core_moderatorEmails(moderatorRows || [], t).indexOf(sender) >= 0; })) out.who = 'moderator';
+  else if (!Core_str(clubId) || !reachable.length) out.who = 'unknown';
+  else out.who = 'other';
+  return out;
+}
+
+/** The weekday (0 Sunday … 6 Saturday) a club's weekly email goes on: fixed per club, spread over the week. */
+function Core_clubWeekday(clubId) {
+  var s = Core_str(clubId);
+  var n = 0;
+  for (var i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) % 7919;
+  return n % 7;
+}
+
+/** Is a club's weekly email due today? On its weekday, unless sent in the last 6 days; or late, when the last one is 8 days old. */
+function Core_clubWeeklyDue(clubId, today, lastSent) {
+  var last = Core_isoDate(lastSent);
+  if (last && last > Core_addDays(today, -7)) return false;
+  if (new Date(today + 'T00:00:00Z').getUTCDay() === Core_clubWeekday(clubId)) return true;
+  return !!last && last <= Core_addDays(today, -8);
+}
+
+/**
+ * Release 3: the weekly email to a club's office bearers, or null when nothing happened. `d` holds the club's rows
+ * decided in the week: activities and events published, club details and public services approved, club changes
+ * approved, and members who chose to show their details (a member's removal stays private). The office bearers on
+ * record close the email, so a club sees when they are out of date.
+ */
+function Core_clubWeeklyEmail(club, d, siteUrl) {
+  var site = Core_str(siteUrl).replace(/\/?$/, '/');
+  var name = Core_str(club.display_name) || Core_str(club.club_name);
+  var parts = [];
+  var list = function (title, lines) { if (lines.length) parts.push(title + '\n' + lines.map(function (l) { return '- ' + l; }).join('\n')); };
+  list('Activities published on the website', (d.activities || []).map(function (a) {
+    return Core_str(a.title) + (Core_isoDate(a.date) ? ' (' + Core_dateLabel(Core_isoDate(a.date)) + ')' : '');
+  }));
+  list('Events published', (d.events || []).map(function (e) {
+    return Core_str(e.title) + (Core_isoDate(e.start_date) ? ' (' + Core_dateLabel(Core_isoDate(e.start_date)) + ')' : '');
+  }));
+  list('Club details', (d.profiles || []).length ? ['Your club\'s details on the website were updated'] : []);
+  list('Public services', (d.services || []).map(function (s) { return Core_str(s.name); }));
+  var said = { joined: 'joined', left: 'left', moved: 'moved to another club', deceased: 'passed away' };
+  list('Members and roles', (d.changes || []).map(function (c) {
+    var ch = Core_str(c.change);
+    if (said[ch]) return Core_str(c.name) + ' ' + said[ch];
+    return Core_str(c.name) + ': ' + Core_str(c.role) + (Core_str(c.rotary_year) ? ' (' + Core_str(c.rotary_year) + ')' : '');
+  }));
+  list('Members who chose to show their details on the website', (d.shown || []).map(function (m) { return Core_str(m.name); }));
+  if (!parts.length) return null;
+  var roles = d.officers || {};
+  var onRecord = CORE_CLUB_ROLES.filter(function (r) { return roles[r]; }).map(function (r) {
+    var o = roles[r];
+    return r + ': ' + Core_str(o.name) + (o.carried ? ' (from ' + Core_str(o.acting_year) + ', until this year\'s is told)' : '');
+  });
+  var clubUrl = Core_str(club.slug) ? site + 'clubs/' + Core_str(club.slug) + '/' : site + 'clubs/';
+  return {
+    subject: 'Your club this week on the district website – ' + name,
+    text: 'Dear office bearers of ' + name + ',\n\nThis is what the district approved for your club in the last week.\n\n' + parts.join('\n\n') +
+      '\n\nYour club\'s page: ' + clubUrl + '\n\nOffice bearers the district has on record for your club:\n' +
+      (onRecord.length ? onRecord.map(function (l) { return '- ' + l; }).join('\n') : '- none yet') +
+      '\nIf this is out of date, please send the Club updates form (members and roles)' + (d.formUrl ? ': ' + d.formUrl : '') +
+      '.\n\nRotary District 3110 website team',
+  };
+}
+
 /** An error as callers of the web app see it: the first line, without long IDs (Drive files, Sheets), at most 300 characters. */
 function Core_safeError(err) {
   return String((err && err.message) || err).split(/\r?\n/)[0].replace(/[A-Za-z0-9_-]{25,}/g, '…').slice(0, 300);
@@ -2041,6 +2171,8 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl, Core_isPractice: Core_isPractice,
     Core_moderatorZones: Core_moderatorZones, Core_activityChecks: Core_activityChecks, Core_memberCounts: Core_memberCounts,
     CORE_NEW_CLUB_DAYS: CORE_NEW_CLUB_DAYS, CORE_CLUB_ROLES: CORE_CLUB_ROLES,
+    Core_actingOfficers: Core_actingOfficers, Core_settingMode: Core_settingMode, Core_clubSender: Core_clubSender,
+    Core_clubWeekday: Core_clubWeekday, Core_clubWeeklyDue: Core_clubWeeklyDue, Core_clubWeeklyEmail: Core_clubWeeklyEmail,
   };
 }
 
@@ -2197,6 +2329,9 @@ var DEFAULT_SETTINGS = [
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
   ['last_backup_at', '', 'Filled in by the weekly backup (Sunday 3 am); copies are in the private Backups folder next to the Sheets'],
   ['summary_emails', '', 'The weekly summary (Monday 8 am) goes here. Blank: the district account that owns the Sheet'],
+  ['club_senders_only', 'off', 'Release 3: off, watch or on. On: the activity and Club updates forms are accepted only from the club\'s President, Secretary or Executive Secretary (this year\'s, or the last known until this year\'s is told), sent from their email on file; watch: nobody is refused, each row says who sent it'],
+  ['weekly_club_email', 'off', 'Release 3: off, test or on. On: each club\'s office bearers get one email a week, on the club\'s own weekday, with what was approved for the club (none when nothing happened); test: the day\'s club emails all go to weekly_club_email_test_to'],
+  ['weekly_club_email_test_to', '', 'Where the weekly club emails go while weekly_club_email is test. Blank: the district account that owns the Sheet'],
   ['not_posting_emails', 'not-posting@example.com', 'Older setting (a dummy address): used only while the moderators tab names no Club engagement moderator'],
 ];
 
@@ -2245,10 +2380,10 @@ function addValidation_(main, priv) {
     if (idx >= 0) sh.getRange(2, idx + 1, sh.getMaxRows() - 1, 1).setDataValidation(rule);
   }
   ['events', 'club_profile_requests', 'public_services'].forEach(function (t) {
-    apply(main, t, 'status', listRule_(['pending', 'approved', 'rejected']));
+    apply(main, t, 'status', listRule_(['pending', 'approved', 'rejected', 'not_accepted']));
   });
   // hidden: taken off the website by a moderator after it was published (Release 1)
-  apply(main, 'activities', 'status', listRule_(['pending', 'approved', 'rejected', 'hidden']));
+  apply(main, 'activities', 'status', listRule_(['pending', 'approved', 'rejected', 'hidden', 'not_accepted']));
   // a business listing is replaced when the member sends a newer one, removed when they ask through the removal form
   apply(main, 'businesses', 'status', listRule_(['pending', 'approved', 'rejected', 'replaced', 'removed']));
   apply(main, 'businesses', 'trade', listRule_(CORE_TRADES));
@@ -2270,9 +2405,11 @@ function addValidation_(main, priv) {
   apply(main, 'activities', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
   apply(main, 'events', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
   apply(main, 'events', 'registration_status', listRule_(CORE_REG_STATUSES));
-  ['consent_requests', 'removal_requests', 'club_change_requests'].forEach(function (t) {
+  ['consent_requests', 'removal_requests'].forEach(function (t) {
     apply(priv, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
+  // not_accepted (Release 3): sent by someone who is not an office bearer of the club, until a moderator lets it through
+  apply(priv, 'club_change_requests', 'status', listRule_(['pending', 'approved', 'rejected', 'not_accepted']));
   apply(priv, 'members_master', 'status', listRule_(['active', 'deceased', 'left']));
   apply(priv, 'contact_messages', 'status', listRule_(['new', 'answered', 'spam']));
   apply(priv, 'couples', 'status', listRule_(['active', 'awaiting_spouse', 'check_dates', 'withdrawn']));
@@ -3264,8 +3401,7 @@ function fileActivityOrEvent_(a, meta) {
       registration_close_date: Core_str(a[Q.eRegClose]), fee: fee, moderator_note: eventNotes.join('; '),
       open_to_all: Core_str(a[Q.eOpen]) ? yes_(a[Q.eOpen]) : '',
     });
-    appendRow_(ss, 'events', ev);
-    alertContent_('events', ev);
+    fileGated_(ss, 'events', ev, clubIdByName_(clubName), function () { alertContent_('events', ev); });
     return;
   }
   var activities = readTab_(ss, 'activities');
@@ -3309,8 +3445,7 @@ function fileActivityOrEvent_(a, meta) {
   if ((row.photo_files || row.before_photo || row.after_photo) && !row.photo_consent) notes.push('Photo consent not ticked');
   textNotes_([row.press_paper], notes);
   row.moderator_note = notes.join('; ');
-  appendRow_(ss, 'activities', row);
-  alertContent_('activities', row);
+  fileGated_(ss, 'activities', row, row.club_id, function () { alertContent_('activities', row); });
 }
 
 // The "District" mark puts an item first on the home page and in the bulletin, so a moderator checks it (owner, 17 Nov 2026)
@@ -3385,8 +3520,7 @@ function fileClubProfile_(a, meta) {
     meeting_day_place: ans(Q.pMeeting), permanent_projects: projects, regular_services: services, status: 'pending',
     meeting_day: Core_str(a[Q.pMeetingDay]), moderator_note: notes.join('; '),
   };
-  appendRow_(ss, 'club_profile_requests', req);
-  alertContent_('club_profile_requests', req);
+  fileGated_(ss, 'club_profile_requests', req, req.club_id, function () { alertContent_('club_profile_requests', req); });
 }
 
 /** A facility the public can use: filed as pending, with notes on anything the moderator should check. */
@@ -3405,8 +3539,7 @@ function filePublicService_(a, meta) {
     timings: Core_str(a[Q.sTimings]), phone: phone, address: Core_str(a[Q.sAddress]), city: Core_str(a[Q.sCity]),
     map_link: link_(a[Q.sMap]), about: Core_str(a[Q.sAbout]), status: 'pending', moderator_note: notes.join('; '),
   };
-  appendRow_(ss, 'public_services', service);
-  alertContent_('public_services', service);
+  fileGated_(ss, 'public_services', service, service.club_id, function () { alertContent_('public_services', service); });
 }
 
 /**
@@ -3586,7 +3719,7 @@ function noticeMember_(ps, req) {
 
 /**
  * A club change (17 Nov 2026): kept in the private Sheet as pending; nothing changes until a Members moderator approves.
- * Anyone may send it, so no check of the sender; the moderator sees what the members list holds for the ID.
+ * The sender check (Release 3) applies as to the club's other updates; the moderator sees what the members list holds for the ID.
  */
 function fileClubChange_(a, meta) {
   var ps = privateSs_();
@@ -3613,8 +3746,7 @@ function fileClubChange_(a, meta) {
   else if (change === 'moved' && !req.new_club_id) notes.push('New club not recognised: ' + newClub);
   textNotes_([req.note], notes);
   req.moderator_note = notes.join('; ');
-  appendRow_(ps, 'club_change_requests', req);
-  alertMembers_('change', req);
+  fileGated_(ps, 'club_change_requests', req, req.club_id, function () { alertMembers_('change', req); });
 }
 
 function fileRemoval_(a, meta) {
@@ -4185,12 +4317,14 @@ var CONSENT_SENDERS = { member: "The member's own email", officer: 'An office be
 
 /**
  * Safeguards against a consent form sent for someone without their agreement (1 Nov 2026): who sent it, judged
- * against the members list and this year's office bearers. Returns a function of one consent request.
+ * against the members list and the club's acting office bearers (Release 3: this year's, or the last known). Returns a
+ * function of one consent request.
  */
 function consentChecker_(ps, master) {
   master = master || readTab_(ps, 'members_master');
-  var year = Core_str(settings_().current_rotary_year);
-  var officers = readTab_(mainSs_(), 'officers').filter(function (o) { return !year || Core_str(o.rotary_year) === year; });
+  var acting = actingOfficers_();
+  var officers = [];
+  Object.keys(acting).forEach(function (id) { Object.keys(acting[id]).forEach(function (r) { officers.push(acting[id][r]); }); });
   var removals = readTab_(ps, 'removal_requests');
   return function (req) { return Core_consentSender(req, master, officers, removals); };
 }
@@ -4767,6 +4901,8 @@ function desk_(req) {
   if (fn === 'clubadd') return deskClubAdd_(me, req.fields || {}, req.reason);
   if (fn === 'clubsave') return deskClubSave_(me, req.club_id, req.fields || {}, req.reason);
   if (fn === 'clubclose') return deskClubClose_(me, req.club_id, req.move_to, req.reason);
+  // Release 3 (18 Nov 2026): a form refused by the sender check (Clubs.js)
+  if (fn === 'letthrough') return deskLetThrough_(me, req.tab, req.id);
   if (fn === 'modsave') return deskModeratorSave_(me, req.row, req.fields || {}, req.reason);
   throw new Error('unknown request');
 }
@@ -4991,6 +5127,7 @@ function deskCard_(tab, r) {
     block: approveBlock_(tab, r), done_by: deskName_(r.approved_by), done_at: Core_isoTimestamp(r.approved_at),
     edit: {}, zone: deskClubZone_(r.club_id),
   };
+  if (Core_str(r.sender_check)) lines.push(['Sender', Core_str(r.sender_check)]);
   // an activity with nothing to check is "clean": Approve all clean takes it in one tap (Release 1)
   card.checks = tab === 'activities' ? Core_activityChecks(r) : card.notes.slice();
   card.clean = tab === 'activities' && !card.checks.length && !card.block;
@@ -5234,21 +5371,22 @@ function deskDeceased_(me, memberId) {
 
 /* ---------- Club engagement ---------- */
 
-/** Emails of each club's President and Secretary this Rotary year, from the private members list. */
+/** Emails of each club's acting office bearers (Release 3: this year's, or the last known until this year's is told). */
 function deskOfficerEmails_() {
-  var year = Core_str(settings_().current_rotary_year);
   var email = {};
   readTab_(privateSs_(), 'members_master').forEach(function (m) {
     var e = Core_str(m.email);
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) && Core_str(m.status || 'active') === 'active' && !Core_isTrue(m.is_sample)) email[Core_str(m.member_id)] = e;
   });
+  var acting = actingOfficers_();
   var out = {};
-  readTab_(mainSs_(), 'officers').forEach(function (o) {
-    var e = email[Core_str(o.member_id)];
-    if (!e || Core_str(o.rotary_year) !== year || !/^(president|secretary)$/i.test(Core_str(o.role))) return;
-    var id = Core_str(o.club_id);
-    out[id] = out[id] || [];
-    if (out[id].indexOf(e) < 0) out[id].push(e);
+  Object.keys(acting).forEach(function (id) {
+    CORE_CLUB_ROLES.forEach(function (role) {
+      var e = acting[id][role] && email[Core_str(acting[id][role].member_id)];
+      if (!e) return;
+      out[id] = out[id] || [];
+      if (out[id].indexOf(e) < 0) out[id].push(e);
+    });
   });
   return out;
 }
@@ -5370,7 +5508,10 @@ function deskList_(me) {
   var out = { me: me };
   if (me.views.content) out.content = deskContent_();
   if (me.views.members) out.members = memberRequests_(false);
-  if (me.views.members || me.views.content) out.roles = { checks: me.views.members ? deskRoleChecks_() : [] };
+  if (me.views.members || me.views.content) {
+    out.roles = { checks: me.views.members ? deskRoleChecks_() : [], officers: deskOfficerYear_() };
+    out.held = deskNotAccepted_(me);
+  }
   if (me.views.clubs) out.clubs = deskClubs_(me);
   if (me.views.office) out.office = deskOffice_();
   if (me.views.admin) out.admin = { clubs: clubs_().map(deskClubRow_), moderators: deskModerators_() };
@@ -5749,9 +5890,12 @@ function renameMemberId_(ps, from, to) {
 
 /* ---------- Roles: club office bearers (Content or Members) and district roles (Members) ---------- */
 
-function deskRoleRow_(tab, r) {
+function deskRoleRow_(tab, r, acting) {
   var club = deskClubName_(r.club_id);
-  return { tab: tab, row: r._row, rotary_year: Core_str(r.rotary_year), role: Core_str(r.role), name: Core_str(r.name), member_id: Core_str(r.member_id),
+  var holder = tab === 'officers' && acting && (acting[Core_str(r.club_id)] || {})[Core_str(r.role)];
+  // Release 3: which officer rows act now: this year's, or the last known until this year's is told
+  var acts = holder && holder._row === r._row ? (holder.carried ? 'carried over' : 'this year') : '';
+  return { acts: acts, tab: tab, row: r._row, rotary_year: Core_str(r.rotary_year), role: Core_str(r.role), name: Core_str(r.name), member_id: Core_str(r.member_id),
     club: club || '', section: Core_str(r.section), committee: Core_str(r.committee), ended_on: Core_isoDate(r.ended_on) || Core_str(r.ended_on),
     ag: tab === 'functionaries' && /assistant governor/i.test(Core_str(r.role)), ag_clubs: Core_str(r.ag_clubs), zone: Core_str(r.zone) };
 }
@@ -5764,12 +5908,13 @@ function deskRoles_(me, q) {
   if (want.length < 3 && !/^\d{3,}$/.test(text)) throw deskError_('Type at least three letters of a name or club, or an RI member ID.');
   var main = mainSs_();
   var tabs = me.views.members ? ['officers', 'functionaries'] : ['officers'];
+  var acting = actingOfficers_();
   var out = [];
   tabs.forEach(function (tab) {
     readTab_(main, tab).forEach(function (r) {
       if (!Core_str(r.name) && !Core_str(r.member_id)) return;
       var hit = Core_str(r.member_id) === text || (want.length >= 3 && (Core_plainName(r.name).indexOf(want) >= 0 || Core_plainName(deskClubName_(r.club_id)).indexOf(want) >= 0));
-      if (hit) out.push(deskRoleRow_(tab, r));
+      if (hit) out.push(deskRoleRow_(tab, r, acting));
     });
   });
   out.sort(function (a, b) { return b.rotary_year.localeCompare(a.rotary_year) || a.club.localeCompare(b.club) || a.role.localeCompare(b.role); });
@@ -6122,11 +6267,244 @@ function deskLists_() {
 }
 
 
+// ===== Clubs.js =====
+/**
+ * Release 3 (owner, 18 Nov 2026): a club's President, Secretary and Executive Secretary speak for the club.
+ * Until this year's holder of a role is told, the previous known holder carries on (Core_actingOfficers).
+ * - club_senders_only (off / watch / on): the activity and Club updates forms are accepted only from those office
+ *   bearers' own email; in watch nobody is refused and each row only says who sent it.
+ * - weekly_club_email (off / test / on): one email a week to each club's office bearers, each club on its own weekday,
+ *   with what the district approved for the club; in test every club's email goes, together, to one test address.
+ */
+
+var SENDER_CHECKS = {
+  officer: 'An office bearer of the club',
+  moderator: 'A district moderator',
+  unknown: 'Not checked: no office bearer of the club has an email on file',
+  noclub: 'Not checked: club not recognised',
+  other: 'Not an office bearer of the club on file',
+};
+var NOT_ACCEPTED = 'not_accepted';
+// tabs a refused form can land in, with what the refusal email and the desk call the item
+var GATED = { activities: 'activity', events: 'event', club_profile_requests: 'club details update', public_services: 'public service',
+  club_change_requests: 'members and roles update' };
+
+/** Each club's acting office bearers in the Rotary year of today's date (not the year the website shows). */
+function actingOfficers_() {
+  return Core_actingOfficers(readTab_(mainSs_(), 'officers'), Core_rotaryYearOf(today_()));
+}
+
+/** Who sent a form for a club, judged by the sender's Google account: the Core_clubSender result. */
+function clubSender_(clubId, email, acting, master) {
+  var owner = Core_str(email).toLowerCase() === deskOwner_();
+  var check = Core_clubSender(email, clubId, acting || actingOfficers_(), master || readTab_(privateSs_(), 'members_master'), deskModeratorRows_());
+  if (owner && check.who !== 'officer') check.who = 'moderator'; // the district account counts as an Administrator
+  if (check.who === 'unknown' && !Core_str(clubId)) check.who = 'noclub';
+  return check;
+}
+
+/**
+ * Files a club's form row through the sender check. Off: as before. Watch: filed as before, with sender_check saying
+ * who sent it. On: a sender who is not an office bearer (or a moderator) gets a polite email and the row waits as
+ * not_accepted, out of the moderators' lists, until a moderator lets it through on the desk.
+ */
+function fileGated_(ss, tab, row, clubId, alert) {
+  var mode = Core_settingMode(settings_().club_senders_only);
+  var refused = false;
+  if (mode !== 'off') {
+    var check = clubSender_(clubId, row.submitter_email);
+    row.sender_check = SENDER_CHECKS[check.who];
+    if (check.who === 'other' && mode === 'on') {
+      refused = true;
+      row.status = NOT_ACCEPTED;
+      row.moderator_note = ['Not accepted: sent from ' + (Core_str(row.submitter_email) || 'no Google account') +
+        ', not an office bearer of the club on file. Let it through on the desk if it should be', Core_str(row.moderator_note)].filter(String).join('; ');
+    } else if (check.who === 'other') {
+      row.sender_check += ' (would not be accepted once club_senders_only is on)';
+    }
+  }
+  appendRow_(ss, tab, row);
+  if (refused) notAcceptedEmail_(tab, row, clubId, check);
+  else alert();
+}
+
+function notAcceptedEmail_(tab, row, clubId, check) {
+  var to = Core_str(row.submitter_email);
+  if (!to || Core_isTrue(row.is_sample)) return;
+  var club = clubNameById_(clubId) || Core_str(row.club_name) || 'your club';
+  var s = settings_();
+  var form = Core_str(s.form_club_change_url) || Core_str(s.form_club_updates_url) || Core_str(s.site_url);
+  var roles = check.roles.length ? check.roles.join(', ').replace(/, ([^,]*)$/, ' and $1') : '';
+  var body = 'Thank you for sending the ' + GATED[tab] + (Core_str(row.title || row.name) && tab !== 'club_change_requests' ? ' "' + Core_str(row.title || row.name) + '"' : '') +
+    ' for ' + club + '.\n\nThe district accepts a club\'s activities and club updates from its President, Secretary or Executive Secretary, sent from the email ' +
+    'the district has for them. This was sent from ' + to + ', which is not one of them, so it has not gone to the moderators.\n\n' +
+    (roles ? 'The district has on record for ' + club + ': the ' + roles + '. Please ask one of them to send it. ' : '') +
+    'If your club has new office bearers this year, one of them can tell the district through the Club updates form (members and roles):\n' + form +
+    '\n\nIf you are an office bearer and this email is a mistake, reply to it: a district moderator can add your email and let this through.\n\nRotary District 3110';
+  try {
+    if (!deskQuota_(1)) { Logger.log('Not-accepted email to ' + to + ' not sent: daily email allowance nearly used'); return; }
+    MailApp.sendEmail(to, 'Not accepted: only a club\'s office bearers can send this', body, { name: 'Rotary District 3110' });
+  } catch (e) {
+    Logger.log('Email to ' + to + ' failed: ' + e.message);
+  }
+}
+
+/** Forms that were not accepted, newest first, for the desk (Content: club items; Members: club changes too). */
+function deskNotAccepted_(me) {
+  var out = [];
+  Object.keys(GATED).forEach(function (tab) {
+    if (tab === 'club_change_requests' ? !me.views.members : !me.views.content) return;
+    var ss = tab === 'club_change_requests' ? privateSs_() : mainSs_();
+    if (!ss.getSheetByName(tab)) return;
+    readTab_(ss, tab).forEach(function (r) {
+      if (Core_str(r.status) !== NOT_ACCEPTED) return;
+      out.push({ tab: tab, id: Core_str(r.id), kind: GATED[tab], club: deskClubName_(r.club_id) || Core_str(r.club_name || r.organiser),
+        title: Core_str(r.title || r.name) || (CLUB_CHANGES[Core_str(r.change)] || ''), from: Core_str(r.submitter_email),
+        sender: [Core_str(r.submitter_name), Core_str(r.submitter_role)].filter(String).join(', '), submitted: Core_isoTimestamp(r.submitted_at) });
+    });
+  });
+  return out.sort(function (a, b) { return b.submitted.localeCompare(a.submitted); }).slice(0, 50);
+}
+
+/** Let through: a not-accepted form goes to the moderators as if an office bearer had sent it. */
+function deskLetThrough_(me, tab, id) {
+  if (!GATED[tab]) throw deskError_('Unknown list.');
+  if (tab === 'club_change_requests' ? !me.views.members : !me.views.content) throw deskError_('Only ' + (tab === 'club_change_requests' ? 'Members' : 'Content') + ' moderators can do this.');
+  var ss = tab === 'club_change_requests' ? privateSs_() : mainSs_();
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var r = readTab_(ss, tab).filter(function (x) { return Core_str(x.id) === Core_str(id); })[0];
+    if (!r) throw deskError_('Not found: it may have been removed from the Sheet.');
+    if (Core_str(r.status) !== NOT_ACCEPTED) return { message: 'Already let through or decided.' };
+    var note = Core_str(r.moderator_note).split(/;\s*/).filter(function (n) { return n && n.indexOf('Not accepted:') !== 0; });
+    var fields = { status: 'pending', moderator_note: note.join('; '), sender_check: SENDER_CHECKS.other + ' (let through by ' + (deskName_(me.email) || me.email) + ')' };
+    updateRow_(ss, tab, r._row, fields);
+    deskLog_(me, 'let through', tab, r.id, '');
+    var row = Object.assign(r, fields);
+    if (tab === 'club_change_requests') alertMembers_('change', row); else alertContent_(tab, row);
+    return { message: 'Let through: it is now with the moderators' + (tab === 'club_change_requests' ? ' (Members tab).' : ' (To check).') };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** For the desk's Roles tab: how many clubs have each role told for this year, carried over, or nobody. */
+function deskOfficerYear_() {
+  var year = Core_rotaryYearOf(today_());
+  var acting = actingOfficers_();
+  var carried = [];
+  var current = 0;
+  var none = 0;
+  clubs_().forEach(function (c) {
+    if (Core_str(c.status || 'active') !== 'active' || Core_isTrue(c.is_sample)) return;
+    var roles = acting[Core_str(c.club_id)] || {};
+    if (!roles.President && !roles.Secretary) { none++; return; }
+    var old = ['President', 'Secretary'].filter(function (r) { return !roles[r] || roles[r].carried; });
+    if (old.length) carried.push(Core_str(c.display_name) || Core_str(c.club_name)); else current++;
+  });
+  return { year: year, current: current, carried: carried.sort(), none: none };
+}
+
+/* ---------- The weekly club email (C66) ---------- */
+
+/**
+ * Daily (from dailyJobs): the clubs whose weekday it is get their week's email; a club missed for want of email
+ * allowance goes the next day. Nothing is sent to a club where nothing happened.
+ */
+function weeklyClubEmails() {
+  var s = settings_();
+  var mode = Core_settingMode(s.weekly_club_email, ['off', 'test', 'on']);
+  if (mode === 'off') return 'Weekly club email is off (setting weekly_club_email).';
+  var today = today_();
+  var key = 'CLUB_WEEKLY_' + mode.toUpperCase();
+  var sent = JSON.parse(props_().getProperty(key) || '{}');
+  var main = mainSs_();
+  var ps = privateSs_();
+  var master = readTab_(ps, 'members_master');
+  var email = {};
+  master.forEach(function (m) {
+    if (Core_str(m.status || 'active') === 'active' && !Core_isTrue(m.is_sample) && CORE_EMAIL_RE.test(Core_str(m.email))) email[Core_str(m.member_id)] = Core_str(m.email).toLowerCase();
+  });
+  var acting = actingOfficers_();
+  var real = function (r) { return !Core_isPractice(r) && !Core_isTrue(r.is_sample); };
+  var decided = function (tab, ss) {
+    return (ss.getSheetByName(tab) ? readTab_(ss, tab) : []).filter(function (r) { return real(r) && Core_str(r.status) === 'approved' && Core_isoTimestamp(r.approved_at); });
+  };
+  var all = { activities: decided('activities', main), events: decided('events', main), profiles: decided('club_profile_requests', main),
+    services: decided('public_services', main), changes: decided('club_change_requests', ps), shown: decided('consent_requests', ps) };
+  var formUrl = Core_str(s.form_club_change_url) || Core_str(s.form_club_updates_url);
+  var test = [];
+  var done = 0;
+  var waiting = 0;
+  clubs_().forEach(function (c) {
+    var id = Core_str(c.club_id);
+    if (!id || Core_str(c.status || 'active') !== 'active' || Core_isTrue(c.is_sample)) return;
+    if (!Core_clubWeeklyDue(id, today, sent[id])) return;
+    var from = sent[id] ? Core_isoTimestamp(sent[id]) : Core_addDays(today, -7) + 'T00:00:00';
+    var mine = function (rows, field) {
+      return rows.filter(function (r) {
+        var at = Core_isoTimestamp(r.approved_at);
+        return at > from && (field ? Core_plainName(r[field]) === Core_plainName(c.club_name) : Core_str(r.club_id) === id);
+      });
+    };
+    var roles = acting[id] || {};
+    var mail = Core_clubWeeklyEmail(c, { activities: mine(all.activities), events: mine(all.events, 'organiser'), profiles: mine(all.profiles),
+      services: mine(all.services), changes: mine(all.changes), shown: mine(all.shown), officers: roles, formUrl: formUrl }, s.site_url);
+    var to = [];
+    CORE_CLUB_ROLES.forEach(function (r) { var e = roles[r] && email[Core_str(roles[r].member_id)]; if (e && to.indexOf(e) < 0) to.push(e); });
+    if (!mail || !to.length) { sent[id] = nowIso_(); return; } // nothing to say, or nobody to say it to: its week starts again
+    if (mode === 'test') {
+      test.push('==== ' + (Core_str(c.display_name) || Core_str(c.club_name)) + ' (would go to ' + to.length + ' office bearer' + (to.length > 1 ? 's' : '') + ')\n' +
+        'Subject: ' + mail.subject + '\n\n' + mail.text);
+      sent[id] = nowIso_();
+      return;
+    }
+    if (!deskQuota_(to.length + 20)) { waiting++; return; }
+    try {
+      MailApp.sendEmail(to.join(','), mail.subject, mail.text, { name: 'Rotary District 3110' });
+      sent[id] = nowIso_();
+      done++;
+    } catch (e) {
+      Logger.log('Weekly club email to ' + id + ' failed: ' + e.message);
+      waiting++;
+    }
+  });
+  if (mode === 'test' && test.length) {
+    var testTo = Core_str(s.weekly_club_email_test_to) || Session.getEffectiveUser().getEmail();
+    MailApp.sendEmail(testTo, 'Test: today\'s weekly club emails (' + test.length + ' club' + (test.length > 1 ? 's' : '') + ')',
+      'weekly_club_email is set to test, so these were not sent to the clubs. Each would go to the club\'s office bearers.\n\n' + test.join('\n\n'),
+      { name: 'Rotary 3110 website' });
+  }
+  props_().setProperty(key, JSON.stringify(sent));
+  var line = mode === 'test' ? 'Weekly club email (test): ' + test.length + ' club email(s) sent to the test address.'
+    : 'Weekly club email: sent to ' + done + ' club(s)' + (waiting ? '; ' + waiting + ' wait for tomorrow (email allowance)' : '') + '.';
+  Logger.log(line);
+  return line;
+}
+
+/** For the weekly summary: who sent the club forms this week, while the sender check is on or being watched. */
+function senderCheckSummary_(since) {
+  var counts = {};
+  var tally = function (r) {
+    var v = Core_str(r.sender_check);
+    if (!v || Core_isoTimestamp(r.submitted_at) < since) return;
+    var k = Core_str(r.status) === NOT_ACCEPTED ? 'Not accepted' : v.replace(/ \(.*$/, '');
+    counts[k] = (counts[k] || 0) + 1;
+  };
+  Object.keys(GATED).forEach(function (tab) {
+    var ss = tab === 'club_change_requests' ? privateSs_() : mainSs_();
+    if (ss.getSheetByName(tab)) readTab_(ss, tab).forEach(tally);
+  });
+  return Object.keys(counts).map(function (k) { return k + ': ' + counts[k]; });
+}
+
+
 // ===== Jobs.js =====
 /**
  * Daily at 7 am (India): 48-hour reminders to moderators, the monthly-nudge dashboard, the role check, new magazines,
  * the forms' lists (so a campaign drops off the activity form 30 days after it ends), and in July and August the
- * yearly check email to listed members.
+ * yearly check email to listed members. Release 3: each club's weekly email, on the club's own weekday.
  */
 
 function dailyJobs() {
@@ -6136,6 +6514,7 @@ function dailyJobs() {
   checkRoles(true);
   try { updateFormLists(true); } catch (e) { Logger.log('Form lists not updated: ' + e.message); }
   sendReminders_();
+  try { weeklyClubEmails(); } catch (e) { Logger.log('Weekly club email not sent: ' + e.message); }
   try { memberCheckEmails_(); } catch (e) { Logger.log('July member check not sent: ' + e.message); } // last: it uses what email allowance is left
 }
 
@@ -6457,6 +6836,13 @@ function weeklySummary() {
   var roleChecks = readTab_(main, 'role_checks').length;
   if (roleChecks) out.push('ROLES TO CHECK\n' + roleChecks + ' role(s) need a look (wrong or missing member ID, someone marked left or deceased). ' +
     'Members moderators fix them on the moderation desk, Roles tab.');
+
+  if (Core_settingMode(s.club_senders_only) !== 'off') {
+    var senders = senderCheckSummary_(new Date(weekAgo).toISOString());
+    var year = deskOfficerYear_();
+    out.push('WHO SENT THE CLUB FORMS (club_senders_only: ' + Core_settingMode(s.club_senders_only) + ')\n' + (senders.length ? senders.join('\n') : 'No club forms this week.') +
+      '\nOffice bearers told for ' + year.year + ': ' + year.current + ' club(s); still the last known ones: ' + year.carried.length + '; none on record: ' + year.none + '.');
+  }
 
   var due = Core_memberCheckDue(readTab_(ps, 'members_master'), today);
   if (due.length) out.push('JULY MEMBER CHECK\n' + due.length + ' listed member(s) still to be emailed; up to ' + CORE_MEMBER_CHECK_PER_DAY + ' go each morning.');

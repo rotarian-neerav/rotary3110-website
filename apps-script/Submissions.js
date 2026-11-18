@@ -104,8 +104,7 @@ function fileActivityOrEvent_(a, meta) {
       registration_close_date: Core_str(a[Q.eRegClose]), fee: fee, moderator_note: eventNotes.join('; '),
       open_to_all: Core_str(a[Q.eOpen]) ? yes_(a[Q.eOpen]) : '',
     });
-    appendRow_(ss, 'events', ev);
-    alertContent_('events', ev);
+    fileGated_(ss, 'events', ev, clubIdByName_(clubName), function () { alertContent_('events', ev); });
     return;
   }
   var activities = readTab_(ss, 'activities');
@@ -149,8 +148,7 @@ function fileActivityOrEvent_(a, meta) {
   if ((row.photo_files || row.before_photo || row.after_photo) && !row.photo_consent) notes.push('Photo consent not ticked');
   textNotes_([row.press_paper], notes);
   row.moderator_note = notes.join('; ');
-  appendRow_(ss, 'activities', row);
-  alertContent_('activities', row);
+  fileGated_(ss, 'activities', row, row.club_id, function () { alertContent_('activities', row); });
 }
 
 // The "District" mark puts an item first on the home page and in the bulletin, so a moderator checks it (owner, 17 Nov 2026)
@@ -225,8 +223,7 @@ function fileClubProfile_(a, meta) {
     meeting_day_place: ans(Q.pMeeting), permanent_projects: projects, regular_services: services, status: 'pending',
     meeting_day: Core_str(a[Q.pMeetingDay]), moderator_note: notes.join('; '),
   };
-  appendRow_(ss, 'club_profile_requests', req);
-  alertContent_('club_profile_requests', req);
+  fileGated_(ss, 'club_profile_requests', req, req.club_id, function () { alertContent_('club_profile_requests', req); });
 }
 
 /** A facility the public can use: filed as pending, with notes on anything the moderator should check. */
@@ -245,8 +242,7 @@ function filePublicService_(a, meta) {
     timings: Core_str(a[Q.sTimings]), phone: phone, address: Core_str(a[Q.sAddress]), city: Core_str(a[Q.sCity]),
     map_link: link_(a[Q.sMap]), about: Core_str(a[Q.sAbout]), status: 'pending', moderator_note: notes.join('; '),
   };
-  appendRow_(ss, 'public_services', service);
-  alertContent_('public_services', service);
+  fileGated_(ss, 'public_services', service, service.club_id, function () { alertContent_('public_services', service); });
 }
 
 /**
@@ -426,7 +422,7 @@ function noticeMember_(ps, req) {
 
 /**
  * A club change (17 Nov 2026): kept in the private Sheet as pending; nothing changes until a Members moderator approves.
- * Anyone may send it, so no check of the sender; the moderator sees what the members list holds for the ID.
+ * The sender check (Release 3) applies as to the club's other updates; the moderator sees what the members list holds for the ID.
  */
 function fileClubChange_(a, meta) {
   var ps = privateSs_();
@@ -453,8 +449,7 @@ function fileClubChange_(a, meta) {
   else if (change === 'moved' && !req.new_club_id) notes.push('New club not recognised: ' + newClub);
   textNotes_([req.note], notes);
   req.moderator_note = notes.join('; ');
-  appendRow_(ps, 'club_change_requests', req);
-  alertMembers_('change', req);
+  fileGated_(ps, 'club_change_requests', req, req.club_id, function () { alertMembers_('change', req); });
 }
 
 function fileRemoval_(a, meta) {

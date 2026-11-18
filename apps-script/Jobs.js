@@ -1,7 +1,7 @@
 /**
  * Daily at 7 am (India): 48-hour reminders to moderators, the monthly-nudge dashboard, the role check, new magazines,
  * the forms' lists (so a campaign drops off the activity form 30 days after it ends), and in July and August the
- * yearly check email to listed members.
+ * yearly check email to listed members. Release 3: each club's weekly email, on the club's own weekday.
  */
 
 function dailyJobs() {
@@ -11,6 +11,7 @@ function dailyJobs() {
   checkRoles(true);
   try { updateFormLists(true); } catch (e) { Logger.log('Form lists not updated: ' + e.message); }
   sendReminders_();
+  try { weeklyClubEmails(); } catch (e) { Logger.log('Weekly club email not sent: ' + e.message); }
   try { memberCheckEmails_(); } catch (e) { Logger.log('July member check not sent: ' + e.message); } // last: it uses what email allowance is left
 }
 
@@ -332,6 +333,13 @@ function weeklySummary() {
   var roleChecks = readTab_(main, 'role_checks').length;
   if (roleChecks) out.push('ROLES TO CHECK\n' + roleChecks + ' role(s) need a look (wrong or missing member ID, someone marked left or deceased). ' +
     'Members moderators fix them on the moderation desk, Roles tab.');
+
+  if (Core_settingMode(s.club_senders_only) !== 'off') {
+    var senders = senderCheckSummary_(new Date(weekAgo).toISOString());
+    var year = deskOfficerYear_();
+    out.push('WHO SENT THE CLUB FORMS (club_senders_only: ' + Core_settingMode(s.club_senders_only) + ')\n' + (senders.length ? senders.join('\n') : 'No club forms this week.') +
+      '\nOffice bearers told for ' + year.year + ': ' + year.current + ' club(s); still the last known ones: ' + year.carried.length + '; none on record: ' + year.none + '.');
+  }
 
   var due = Core_memberCheckDue(readTab_(ps, 'members_master'), today);
   if (due.length) out.push('JULY MEMBER CHECK\n' + due.length + ' listed member(s) still to be emailed; up to ' + CORE_MEMBER_CHECK_PER_DAY + ' go each morning.');

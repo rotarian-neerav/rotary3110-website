@@ -230,9 +230,12 @@ function renameMemberId_(ps, from, to) {
 
 /* ---------- Roles: club office bearers (Content or Members) and district roles (Members) ---------- */
 
-function deskRoleRow_(tab, r) {
+function deskRoleRow_(tab, r, acting) {
   var club = deskClubName_(r.club_id);
-  return { tab: tab, row: r._row, rotary_year: Core_str(r.rotary_year), role: Core_str(r.role), name: Core_str(r.name), member_id: Core_str(r.member_id),
+  var holder = tab === 'officers' && acting && (acting[Core_str(r.club_id)] || {})[Core_str(r.role)];
+  // Release 3: which officer rows act now: this year's, or the last known until this year's is told
+  var acts = holder && holder._row === r._row ? (holder.carried ? 'carried over' : 'this year') : '';
+  return { acts: acts, tab: tab, row: r._row, rotary_year: Core_str(r.rotary_year), role: Core_str(r.role), name: Core_str(r.name), member_id: Core_str(r.member_id),
     club: club || '', section: Core_str(r.section), committee: Core_str(r.committee), ended_on: Core_isoDate(r.ended_on) || Core_str(r.ended_on),
     ag: tab === 'functionaries' && /assistant governor/i.test(Core_str(r.role)), ag_clubs: Core_str(r.ag_clubs), zone: Core_str(r.zone) };
 }
@@ -245,12 +248,13 @@ function deskRoles_(me, q) {
   if (want.length < 3 && !/^\d{3,}$/.test(text)) throw deskError_('Type at least three letters of a name or club, or an RI member ID.');
   var main = mainSs_();
   var tabs = me.views.members ? ['officers', 'functionaries'] : ['officers'];
+  var acting = actingOfficers_();
   var out = [];
   tabs.forEach(function (tab) {
     readTab_(main, tab).forEach(function (r) {
       if (!Core_str(r.name) && !Core_str(r.member_id)) return;
       var hit = Core_str(r.member_id) === text || (want.length >= 3 && (Core_plainName(r.name).indexOf(want) >= 0 || Core_plainName(deskClubName_(r.club_id)).indexOf(want) >= 0));
-      if (hit) out.push(deskRoleRow_(tab, r));
+      if (hit) out.push(deskRoleRow_(tab, r, acting));
     });
   });
   out.sort(function (a, b) { return b.rotary_year.localeCompare(a.rotary_year) || a.club.localeCompare(b.club) || a.role.localeCompare(b.role); });

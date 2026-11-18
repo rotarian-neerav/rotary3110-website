@@ -1597,6 +1597,126 @@ function Core_consentSender(request, master, officers, removals) {
   return { who: who, memberEmail: memberEmail, memberName: member ? Core_str(member.name) : '', warnings: warnings, removal: removal };
 }
 
+/**
+ * Release 3 (owner, 18 Nov 2026): who acts as each club's President, Secretary and Executive Secretary in a Rotary year.
+ * Per club and role the latest year up to `year` that has a row decides, so until this year's holder is told the
+ * previous known holder carries on. A role ended in that year has nobody acting; next year's rows count from 1 July.
+ * Returns { club_id: { role: the officer row, with acting_year and carried } }.
+ */
+function Core_actingOfficers(officers, year) {
+  var best = {};
+  (officers || []).forEach(function (o) {
+    var y = Core_str(o.rotary_year);
+    var role = Core_str(o.role);
+    var club = Core_str(o.club_id);
+    if (!y || y > year || !club || CORE_CLUB_ROLES.indexOf(role) < 0 || Core_isTrue(o.is_sample) || Core_isPractice(o)) return;
+    var key = club + '|' + role;
+    if (best[key] && best[key].year > y) return;
+    if (!best[key] || best[key].year < y) best[key] = { year: y, row: null };
+    if (!Core_str(o.ended_on)) best[key].row = o; // the last open row of that year (Sheet order) holds the role
+  });
+  var out = {};
+  Object.keys(best).forEach(function (key) {
+    var b = best[key];
+    if (!b.row) return;
+    var club = key.split('|')[0];
+    out[club] = out[club] || {};
+    out[club][Core_str(b.row.role)] = Object.assign({}, b.row, { acting_year: b.year, carried: b.year !== year });
+  });
+  return out;
+}
+
+/** "off", "watch" or "on" from a settings value (yes/true count as on; anything else unknown is off). */
+function Core_settingMode(v, modes) {
+  var s = Core_str(v).trim().toLowerCase();
+  if (s === 'yes' || s === 'true') s = 'on';
+  return (modes || ['off', 'watch', 'on']).indexOf(s) >= 0 ? s : 'off';
+}
+
+/**
+ * Release 3: may this Google account send forms for this club? 'officer' when it is the email on file of one of the
+ * club's acting office bearers, 'moderator' for an active moderator, 'other' otherwise, and 'unknown' when it cannot be
+ * told (club not recognised, or none of its office bearers has an email on file), so a gap in the records refuses nobody.
+ * Matched by the sender's Google account only: a typed RI ID or mobile could be anyone's.
+ */
+function Core_clubSender(email, clubId, acting, master, moderatorRows) {
+  var lower = function (v) { return Core_str(v).trim().toLowerCase(); };
+  var sender = lower(email);
+  var roles = (acting && acting[Core_str(clubId)]) || {};
+  var emails = {};
+  (master || []).forEach(function (m) {
+    if (Core_str(m.status || 'active').toLowerCase() === 'active' && !Core_isTrue(m.is_sample)) emails[Core_str(m.member_id)] = lower(m.email);
+  });
+  var known = CORE_CLUB_ROLES.filter(function (r) { return roles[r]; });
+  var reachable = known.filter(function (r) { return CORE_EMAIL_RE.test(emails[Core_str(roles[r].member_id)] || ''); });
+  var held = known.filter(function (r) { return sender && emails[Core_str(roles[r].member_id)] === sender; });
+  var out = { roles: known, held: held };
+  if (held.length) out.who = 'officer';
+  else if (sender && CORE_MODERATOR_TYPES.some(function (t) { return Core_moderatorEmails(moderatorRows || [], t).indexOf(sender) >= 0; })) out.who = 'moderator';
+  else if (!Core_str(clubId) || !reachable.length) out.who = 'unknown';
+  else out.who = 'other';
+  return out;
+}
+
+/** The weekday (0 Sunday … 6 Saturday) a club's weekly email goes on: fixed per club, spread over the week. */
+function Core_clubWeekday(clubId) {
+  var s = Core_str(clubId);
+  var n = 0;
+  for (var i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) % 7919;
+  return n % 7;
+}
+
+/** Is a club's weekly email due today? On its weekday, unless sent in the last 6 days; or late, when the last one is 8 days old. */
+function Core_clubWeeklyDue(clubId, today, lastSent) {
+  var last = Core_isoDate(lastSent);
+  if (last && last > Core_addDays(today, -7)) return false;
+  if (new Date(today + 'T00:00:00Z').getUTCDay() === Core_clubWeekday(clubId)) return true;
+  return !!last && last <= Core_addDays(today, -8);
+}
+
+/**
+ * Release 3: the weekly email to a club's office bearers, or null when nothing happened. `d` holds the club's rows
+ * decided in the week: activities and events published, club details and public services approved, club changes
+ * approved, and members who chose to show their details (a member's removal stays private). The office bearers on
+ * record close the email, so a club sees when they are out of date.
+ */
+function Core_clubWeeklyEmail(club, d, siteUrl) {
+  var site = Core_str(siteUrl).replace(/\/?$/, '/');
+  var name = Core_str(club.display_name) || Core_str(club.club_name);
+  var parts = [];
+  var list = function (title, lines) { if (lines.length) parts.push(title + '\n' + lines.map(function (l) { return '- ' + l; }).join('\n')); };
+  list('Activities published on the website', (d.activities || []).map(function (a) {
+    return Core_str(a.title) + (Core_isoDate(a.date) ? ' (' + Core_dateLabel(Core_isoDate(a.date)) + ')' : '');
+  }));
+  list('Events published', (d.events || []).map(function (e) {
+    return Core_str(e.title) + (Core_isoDate(e.start_date) ? ' (' + Core_dateLabel(Core_isoDate(e.start_date)) + ')' : '');
+  }));
+  list('Club details', (d.profiles || []).length ? ['Your club\'s details on the website were updated'] : []);
+  list('Public services', (d.services || []).map(function (s) { return Core_str(s.name); }));
+  var said = { joined: 'joined', left: 'left', moved: 'moved to another club', deceased: 'passed away' };
+  list('Members and roles', (d.changes || []).map(function (c) {
+    var ch = Core_str(c.change);
+    if (said[ch]) return Core_str(c.name) + ' ' + said[ch];
+    return Core_str(c.name) + ': ' + Core_str(c.role) + (Core_str(c.rotary_year) ? ' (' + Core_str(c.rotary_year) + ')' : '');
+  }));
+  list('Members who chose to show their details on the website', (d.shown || []).map(function (m) { return Core_str(m.name); }));
+  if (!parts.length) return null;
+  var roles = d.officers || {};
+  var onRecord = CORE_CLUB_ROLES.filter(function (r) { return roles[r]; }).map(function (r) {
+    var o = roles[r];
+    return r + ': ' + Core_str(o.name) + (o.carried ? ' (from ' + Core_str(o.acting_year) + ', until this year\'s is told)' : '');
+  });
+  var clubUrl = Core_str(club.slug) ? site + 'clubs/' + Core_str(club.slug) + '/' : site + 'clubs/';
+  return {
+    subject: 'Your club this week on the district website – ' + name,
+    text: 'Dear office bearers of ' + name + ',\n\nThis is what the district approved for your club in the last week.\n\n' + parts.join('\n\n') +
+      '\n\nYour club\'s page: ' + clubUrl + '\n\nOffice bearers the district has on record for your club:\n' +
+      (onRecord.length ? onRecord.map(function (l) { return '- ' + l; }).join('\n') : '- none yet') +
+      '\nIf this is out of date, please send the Club updates form (members and roles)' + (d.formUrl ? ': ' + d.formUrl : '') +
+      '.\n\nRotary District 3110 website team',
+  };
+}
+
 /** An error as callers of the web app see it: the first line, without long IDs (Drive files, Sheets), at most 300 characters. */
 function Core_safeError(err) {
   return String((err && err.message) || err).split(/\r?\n/)[0].replace(/[A-Za-z0-9_-]{25,}/g, '…').slice(0, 300);
@@ -1725,5 +1845,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl, Core_isPractice: Core_isPractice,
     Core_moderatorZones: Core_moderatorZones, Core_activityChecks: Core_activityChecks, Core_memberCounts: Core_memberCounts,
     CORE_NEW_CLUB_DAYS: CORE_NEW_CLUB_DAYS, CORE_CLUB_ROLES: CORE_CLUB_ROLES,
+    Core_actingOfficers: Core_actingOfficers, Core_settingMode: Core_settingMode, Core_clubSender: Core_clubSender,
+    Core_clubWeekday: Core_clubWeekday, Core_clubWeeklyDue: Core_clubWeeklyDue, Core_clubWeeklyEmail: Core_clubWeeklyEmail,
   };
 }

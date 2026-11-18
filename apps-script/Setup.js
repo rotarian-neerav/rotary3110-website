@@ -149,6 +149,9 @@ var DEFAULT_SETTINGS = [
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
   ['last_backup_at', '', 'Filled in by the weekly backup (Sunday 3 am); copies are in the private Backups folder next to the Sheets'],
   ['summary_emails', '', 'The weekly summary (Monday 8 am) goes here. Blank: the district account that owns the Sheet'],
+  ['club_senders_only', 'off', 'Release 3: off, watch or on. On: the activity and Club updates forms are accepted only from the club\'s President, Secretary or Executive Secretary (this year\'s, or the last known until this year\'s is told), sent from their email on file; watch: nobody is refused, each row says who sent it'],
+  ['weekly_club_email', 'off', 'Release 3: off, test or on. On: each club\'s office bearers get one email a week, on the club\'s own weekday, with what was approved for the club (none when nothing happened); test: the day\'s club emails all go to weekly_club_email_test_to'],
+  ['weekly_club_email_test_to', '', 'Where the weekly club emails go while weekly_club_email is test. Blank: the district account that owns the Sheet'],
   ['not_posting_emails', 'not-posting@example.com', 'Older setting (a dummy address): used only while the moderators tab names no Club engagement moderator'],
 ];
 
@@ -197,10 +200,10 @@ function addValidation_(main, priv) {
     if (idx >= 0) sh.getRange(2, idx + 1, sh.getMaxRows() - 1, 1).setDataValidation(rule);
   }
   ['events', 'club_profile_requests', 'public_services'].forEach(function (t) {
-    apply(main, t, 'status', listRule_(['pending', 'approved', 'rejected']));
+    apply(main, t, 'status', listRule_(['pending', 'approved', 'rejected', 'not_accepted']));
   });
   // hidden: taken off the website by a moderator after it was published (Release 1)
-  apply(main, 'activities', 'status', listRule_(['pending', 'approved', 'rejected', 'hidden']));
+  apply(main, 'activities', 'status', listRule_(['pending', 'approved', 'rejected', 'hidden', 'not_accepted']));
   // a business listing is replaced when the member sends a newer one, removed when they ask through the removal form
   apply(main, 'businesses', 'status', listRule_(['pending', 'approved', 'rejected', 'replaced', 'removed']));
   apply(main, 'businesses', 'trade', listRule_(CORE_TRADES));
@@ -222,9 +225,11 @@ function addValidation_(main, priv) {
   apply(main, 'activities', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
   apply(main, 'events', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
   apply(main, 'events', 'registration_status', listRule_(CORE_REG_STATUSES));
-  ['consent_requests', 'removal_requests', 'club_change_requests'].forEach(function (t) {
+  ['consent_requests', 'removal_requests'].forEach(function (t) {
     apply(priv, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
+  // not_accepted (Release 3): sent by someone who is not an office bearer of the club, until a moderator lets it through
+  apply(priv, 'club_change_requests', 'status', listRule_(['pending', 'approved', 'rejected', 'not_accepted']));
   apply(priv, 'members_master', 'status', listRule_(['active', 'deceased', 'left']));
   apply(priv, 'contact_messages', 'status', listRule_(['new', 'answered', 'spam']));
   apply(priv, 'couples', 'status', listRule_(['active', 'awaiting_spouse', 'check_dates', 'withdrawn']));

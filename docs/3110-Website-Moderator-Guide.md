@@ -207,6 +207,34 @@ Messages from the website's contact form go to the private Sheet's **contact_mes
   left); add and change moderators and their zones. Club member counts are worked out from the members list every day,
   so nobody types them.
 
+## Club office bearers and who may send for a club
+
+A club's **President, Secretary and Executive Secretary** speak for the club. Until a club tells the district this
+year's holder of a role, the **last known holder carries on** in that role (for example the 2024-25 Secretary acts
+until the 2026-27 Secretary is reported). Next year's office bearers, reported in advance through Club updates
+(members and roles) or added on the desk, take over on 1 July. Ending a role leaves nobody in it; an older holder does
+not come back.
+
+- **Roles tab:** at the top, how many clubs have told this year's President and Secretary, how many still have last
+  year's (or older) acting, and which. In **Find a role**, a club office bearer shows *acts now* or *acts until this
+  year's is told*.
+- **Who may send (setting `club_senders_only`):** with **on**, the activity form and the Club updates form are
+  accepted for a club only from its acting office bearers, sent from the email the members list has for them, or from
+  a moderator. Anyone else gets a polite email saying who can send (roles only, no names) and how a new office bearer
+  is reported, and the form waits on the desk's **Not accepted** tab instead of reaching To check. A club where no
+  office bearer has an email on file is not checked. With **watch**, nobody is refused: each item on the desk shows
+  **Sender** (an office bearer, a moderator, or not), and the weekly summary counts them. With **off**, as before.
+- **Not accepted tab:** **Let through** sends a form to the moderators as if an office bearer had sent it (Content
+  moderators for activities, events and club details; Members moderators for members and roles). If the sender is the
+  club's new office bearer, also add them on the Roles tab, with their email on the members list (**Find a member →
+  Edit**), so their next form goes straight through.
+- **Weekly club email (setting `weekly_club_email`):** each club's acting office bearers get one email a week, on the
+  club's own weekday: activities and events published, club details and public services approved, members and roles
+  approved, and members who chose to show their details (a member's removal is never mentioned). It ends with the
+  office bearers the district has on record, so a club sees when they are out of date. No email when nothing
+  happened; a club missed for want of the daily email allowance gets it the next day. With **test**, the day's club
+  emails all go together to `weekly_club_email_test_to` instead of the clubs.
+
 ## Professions list
 
 The list grows as members ask. The My details form offers the professions in the **lists** tab (rows with `list` = `profession`) plus **Other**. When members choose Other and name something new, add it to the **lists** tab, then **Rotary → Update form lists**; you can also correct the member's `profession` in **members_master**.

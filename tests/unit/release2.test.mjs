@@ -208,5 +208,23 @@ test('the old forms: Upgrade Sheet closes them and points to the new form; they 
   assert.ok(!ids().consent);
   assert.ok(!env.triggers.some((t) => t.getTriggerSourceId() === id), 'its trigger is gone');
   assert.ok(env.priv.rows('consent_requests').some((r) => r.member_id === '7600001'), 'what it sent stays');
+
+  // Google refuses to unlink a closed old form, and refuses to delete a linked tab (18 Nov 2026): the owner unlinks it by hand
+  const removal = env.context.FormApp.create('Removal request – Rotary District 3110');
+  removal.setDestination('SPREADSHEET', 'PRIVATE');
+  const rTab = env.priv.getSheets().at(-1);
+  rTab.setName('raw_removal_form');
+  env.forms[removal.getId()].refuse = 'unlink';
+  env.props.set('FORM_IDS', JSON.stringify({ ...ids(), removal: removal.getId() }));
+  const stuck = env.run('deleteOldForms_', () => true);
+  assert.match(stuck, /^Nothing deleted yet/);
+  assert.match(stuck, /removal form \(Google said: Invalid data updating form\.\): in the private members Sheet open the tab raw_removal_form, choose Form → Unlink form/);
+  assert.ok(env.priv.getSheetByName('raw_removal_form'), 'the tab stays');
+  assert.ok(!env.trashed.includes(removal.getId()), 'the form stays out of the Bin until its tab can go');
+  assert.ok(ids().removal);
+  rTab.formUrl = null; // Form → Unlink form, by hand
+  assert.match(env.run('deleteOldForms_', () => true), /^Deleted: the removal forms/);
+  assert.equal(env.priv.getSheetByName('raw_removal_form'), null);
+  assert.ok(env.trashed.includes(removal.getId()));
   assert.equal(env.run('deleteOldForms_', () => true), 'The old forms are already gone.');
 });

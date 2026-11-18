@@ -464,19 +464,35 @@ function deleteOldForms_(confirm) {
   if (!old.length) return 'The old forms are already gone.';
   if (!confirm(old.map(function (k) { return '• ' + k.replace('_', ' ') + ' form, tab ' + OLD_FORMS[k].raw; }))) return 'Nothing deleted.';
   var done = [];
+  var byHand = [];
   old.forEach(function (key) {
     var o = OLD_FORMS[key];
-    try { FormApp.openById(ids[key]).removeDestination(); } catch (e) { /* already unlinked */ }
-    ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getTriggerSourceId && t.getTriggerSourceId() === ids[key]) ScriptApp.deleteTrigger(t); });
-    try { DriveApp.getFileById(ids[key]).setTrashed(true); } catch (e) { Logger.log('Form ' + key + ' not moved to the Bin: ' + e.message); }
+    var name = key.replace('_', ' ');
+    // Google keeps a tab linked to its form until the form lets go, and refuses to delete a linked tab (18 Nov 2026);
+    // a closed old form may refuse to unlink, so the tab is unlinked by hand from the Sheet and this is run again
+    var why = '';
+    try { FormApp.openById(ids[key]).removeDestination(); } catch (e) { why = e.message; }
+    SpreadsheetApp.flush();
     var ss = o.sheet === 'main' ? mainSs_() : privateSs_();
     var tab = ss.getSheetByName(o.raw);
-    if (tab) ss.deleteSheet(tab);
+    if (tab) {
+      try {
+        ss.deleteSheet(tab);
+      } catch (e) {
+        byHand.push('• ' + name + ' form' + (why ? ' (Google said: ' + why + ')' : '') + ': in the ' + (o.sheet === 'main' ? 'main' : 'private members') +
+          ' Sheet open the tab ' + o.raw + ', choose Form → Unlink form, then run this again');
+        return;
+      }
+    }
+    ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getTriggerSourceId && t.getTriggerSourceId() === ids[key]) ScriptApp.deleteTrigger(t); });
+    try { DriveApp.getFileById(ids[key]).setTrashed(true); } catch (e) { Logger.log('Form ' + key + ' not moved to the Bin: ' + e.message); }
     delete ids[key];
     props_().setProperty('FORM_IDS', JSON.stringify(ids));
-    done.push(key.replace('_', ' '));
+    done.push(name);
   });
-  return 'Deleted: the ' + done.join(', ') + ' forms (in the Bin for 30 days) and their answer tabs.';
+  var out = done.length ? 'Deleted: the ' + done.join(', ') + ' forms (in the Bin for 30 days) and their answer tabs.' : 'Nothing deleted yet.';
+  if (byHand.length) out += '\n\nGoogle would not unlink these forms from their answer tabs. Please:\n' + byHand.join('\n');
+  return out;
 }
 
 /** Google creates new forms in My Drive; move one into the folder that holds the main Sheet (testing or production). */

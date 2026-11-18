@@ -201,7 +201,11 @@ class FakeSpreadsheet {
   getSheetByName(n) { return this.sheets.find((s) => s.name === n) || null; }
   getSheets() { return this.sheets; }
   insertSheet(n) { const s = new FakeSheet(n); this.sheets.push(s); return s; }
-  deleteSheet(s) { this.sheets = this.sheets.filter((x) => x !== s); }
+  deleteSheet(s) {
+    // like Google (18 Nov 2026): a tab that a form still sends answers to cannot be deleted
+    if (s.formUrl) throw new Error('You cannot delete a sheet with a linked form. Please unlink the form first.');
+    this.sheets = this.sheets.filter((x) => x !== s);
+  }
   /** test helper: rows of a tab as objects */
   rows(n) {
     const sh = this.getSheetByName(n);
@@ -397,7 +401,11 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
             form.closedMessage = m; return form.proxy;
           },
           getCustomClosedFormMessage: () => form.closedMessage || '',
-          removeDestination: () => { form.destination = null; return form.proxy; },
+          removeDestination: () => {
+            if (form.refuse === 'unlink') throw new Error('Invalid data updating form.');
+            for (const ss of [main, priv]) for (const sh of ss.sheets) if (sh.formUrl && sh.formUrl.includes(`/${id}/`)) sh.formUrl = null;
+            form.destination = null; return form.proxy;
+          },
           moveItem: (from, to) => { const [it] = form.items.splice(from, 1); form.items.splice(to, 0, it); return it; },
         });
         form.proxy = fluent(form);

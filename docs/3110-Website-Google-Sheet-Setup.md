@@ -116,7 +116,7 @@ The desk (`…/desk/` on the website) lets moderators approve, reject and follow
 right section, and closes the six old forms. (On 18 Nov 2026 Google refused every "has moved" message on the old forms, even plain text; they show Google's own closed note, and Upgrade Sheet lists them until the old forms are deleted.) Then add the three photo questions
 to the My details form (section 3), send one test of each section, and run **Administrator → Delete the old forms and
 their answer tabs…**: the old forms go to Drive's Bin (30 days) and their `raw_…` tabs are deleted; what they sent stays
-in the working tabs. A member's own update (from the email the members list has for them) is applied by itself.
+in the working tabs. If Google will not unlink an old form, the menu lists it: open that `raw_…` tab, choose **Form → Unlink form**, and run the menu item again. A member's own update (from the email the members list has for them) is applied by itself.
 
 **Release 1 (18 Nov 2026):** paste the new `Code.gs` and `Sidebar.html`, deploy a new version, then run **Administrator → Upgrade Sheet**. It adds the columns `charter_date` and `merged_into` (clubs), `ended_on` (officers, functionaries), `hidden_by` and `hidden_at` (activities), `zone` (moderators), the setting `content_changed_at`, and the private **change_log** tab, where every correction made on the desk is kept. Nothing is deleted. From then on, approvals reach the website at the next of four daily updates (about 9 am, 1 pm, 6 pm, 10 pm).
 

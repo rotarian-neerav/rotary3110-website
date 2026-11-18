@@ -5025,7 +5025,13 @@ function deskSendCodeNow_(email) {
 function deskSignIn_(req) {
   var email;
   if (req.token) {
-    email = deskRead_(req.token, ['in']).email;
+    var link = deskRead_(req.token, ['in']);
+    // security audit S10 (owner, 18 Nov 2026): the emailed Sign in button works once, like the code
+    var used = 'deskused:' + Core_str(req.token).split('~')[5];
+    var cache = CacheService.getScriptCache();
+    if (cache.get(used)) throw deskError_('This sign-in link was already used. Ask for a new code.');
+    cache.put(used, '1', Math.max(1, Math.ceil((link.expires - Date.now()) / 1000)));
+    email = link.email;
   } else {
     email = Core_str(req.email).toLowerCase();
     // one guess at a time, so many guesses sent together still count towards the five allowed

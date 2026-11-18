@@ -9,7 +9,7 @@ Moderators check everything before it appears on the website. Any Content modera
 **Approve from the email.** Each new activity, event, club profile update or public service sends every Content moderator an email with the title, club, text, photos, links and anything to check. It has two big buttons, **Approve** and **Reject**. They open the desk, where one more tap confirms (**Yes, approve**, or a reason for **Reject**). That extra tap is on purpose: some email programs open links by themselves to scan them, and must not approve anything. The buttons are personal to you and work for 7 days, **only on a phone where you are signed in to the desk**: anywhere else the desk first asks for your sign-in code, then opens the item. So a forwarded email is of no use to anyone else; still, please do not forward these emails. If another moderator got there first, the desk says so ("Already approved by …").
 
 **The desk itself** is at `…/desk/`. Open it from the **Open the moderation desk** button in any moderator email; after that, your phone remembers it.
-- **Signing in:** type your email (the one in the moderators tab). You get an email with a 6-digit code and a **Sign in** button; either works for 15 minutes. You stay signed in for 7 days on that phone. **Sign out** when using someone else's phone.
+- **Signing in:** type your email (the one in the moderators tab). You get an email with a 6-digit code and a **Sign in** button; either works once, within 15 minutes. You stay signed in for 7 days on that phone. **Sign out** when using someone else's phone.
 - **What you see depends on your type:**
 
 | Type | On the desk |

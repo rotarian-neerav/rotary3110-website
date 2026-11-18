@@ -183,7 +183,7 @@ desk.
 ### The moderation desk (made for phones)
 
 Open it from **Open the moderation desk** in any moderator email; your phone remembers it. **Sign in** with the
-email on the moderators list: a 6-digit code is emailed to you (valid 15 minutes) and you stay signed in for 7 days.
+email on the moderators list: a 6-digit code and a Sign in button are emailed to you (each works once, within 15 minutes) and you stay signed in for 7 days.
 **Sign out** on someone else's phone. **English / हिन्दी** switches the desk's own words. The **Guide** button opens
 a short guide for each type.
 

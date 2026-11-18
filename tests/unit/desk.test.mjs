@@ -112,6 +112,7 @@ test('signing in: a code only for active moderators, wrong codes refused, a 12-h
   assert.ok(Math.abs(expiry - Date.now() - 7 * 86400000) < 60000, '7 days');
   // the sign-in link works too
   assert.equal(env.post({ fn: 'signin', token: signinToken }).me.email, 'asha@example.com');
+  assert.equal(env.post({ fn: 'signin', token: signinToken }).error, 'This sign-in link was already used. Ask for a new code.', 'the link works once, like the code');
 
   // a forged or altered session is refused
   const forged = ok.session.replace('asha@example.com', 'meera@example.com');

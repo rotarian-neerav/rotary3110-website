@@ -420,11 +420,25 @@ function closeOldForms_(ids, report) {
     if (!ids[key]) return;
     var form;
     try { form = FormApp.openById(ids[key]); } catch (e) { return; }
-    if (!form.isAcceptingResponses()) return;
     var now = OLD_FORMS[key].now === 'club_updates' ? 'Club updates' : 'My details on the website';
-    form.setAcceptingResponses(false)
-      .setCustomClosedFormMessage('This form has moved. Please use the "' + now + '" form instead: ' + sectionLink_(OLD_FORMS[key].now, OLD_FORMS[key].kind));
-    report.push('Closed the old ' + key.replace('_', ' ') + ' form (it points to the ' + now + ' form)');
+    var name = key.replace('_', ' ');
+    // Google refused this message with the new form's prefilled link in it ("Invalid data updating form", 18 Nov 2026),
+    // so it names the form and the website instead; the website's links already open the new form at the right section
+    var message = 'This form has moved. Please use the "' + now + '" form, linked on the district website.';
+    if (form.isAcceptingResponses()) {
+      try {
+        form.setAcceptingResponses(false);
+      } catch (e) {
+        report.push('Could not close the old ' + name + ' form (Google said: ' + e.message + '). Close it by hand: open the form, Responses, turn off Accepting responses');
+        return;
+      }
+      report.push('Closed the old ' + name + ' form (it points to the ' + now + ' form)');
+    }
+    try {
+      if (form.getCustomClosedFormMessage() !== message) form.setCustomClosedFormMessage(message);
+    } catch (e) {
+      report.push('The old ' + name + ' form is closed, but Google refused its "has moved" message (' + e.message + '); it shows Google\'s own closed message');
+    }
   });
 }
 

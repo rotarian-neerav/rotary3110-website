@@ -390,8 +390,13 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
           setDescription: (d) => { form.description = d; return form.proxy; },
           getDescription: () => form.description,
           isAcceptingResponses: () => form.accepting !== false,
-          setAcceptingResponses: (v) => { form.accepting = v; return form.proxy; },
-          setCustomClosedFormMessage: (m) => { form.closedMessage = m; return form.proxy; },
+          setAcceptingResponses: (v) => { if (form.refuse === 'close') throw new Error('Invalid data updating form.'); form.accepting = v; return form.proxy; },
+          // Google refused a closed message carrying a long prefilled form link (18 Nov 2026); a test can also make a form refuse
+          setCustomClosedFormMessage: (m) => {
+            if (form.refuse === 'message' || /https?:\/\/\S{120,}/.test(m)) throw new Error('Invalid data updating form.');
+            form.closedMessage = m; return form.proxy;
+          },
+          getCustomClosedFormMessage: () => form.closedMessage || '',
           removeDestination: () => { form.destination = null; return form.proxy; },
           moveItem: (from, to) => { const [it] = form.items.splice(from, 1); form.items.splice(to, 0, it); return it; },
         });

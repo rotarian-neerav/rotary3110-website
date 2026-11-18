@@ -171,8 +171,29 @@ test('the old forms: Upgrade Sheet closes them and points to the new form; they 
   assert.ok(report.some((l) => /Closed the old consent form/.test(l)), report.join('\n'));
   assert.equal(env.forms[id].accepting, false);
   assert.match(env.forms[id].closedMessage, /has moved.*My details on the website/);
-  assert.ok(env.forms[id].closedMessage.includes(ids().my_details));
+  assert.ok(!/https?:/.test(env.forms[id].closedMessage), 'no link: Google refused the long prefilled one (18 Nov 2026)');
   assert.ok(!env.run('upgradeSheet').some((l) => /Closed the old consent form/.test(l)), 'once');
+  // Google refuses a form's update: Upgrade Sheet still finishes and says what to do by hand
+  const refusing = (title, raw, refuse) => {
+    const f = env.context.FormApp.create(title);
+    f.setDestination('SPREADSHEET', 'MAIN');
+    env.main.getSheets().at(-1).setName(raw);
+    env.forms[f.getId()].refuse = refuse;
+    return f.getId();
+  };
+  const profile = refusing('Club profile – Rotary District 3110', 'raw_club_profile_form', 'message');
+  const service = refusing('Public service – Rotary District 3110', 'raw_public_service_form', 'close');
+  env.props.set('FORM_IDS', JSON.stringify({ ...ids(), club_profile: profile, public_service: service }));
+  const again = env.run('upgradeSheet');
+  assert.equal(env.forms[profile].accepting, false, 'closed even though its message was refused');
+  assert.ok(again.some((l) => /club profile form is closed, but Google refused/.test(l)), again.join('\n'));
+  assert.ok(again.some((l) => /Could not close the old public service form.*Accepting responses/.test(l)), again.join('\n'));
+  // once Google accepts it, the next run puts the message on the form that was closed without one
+  env.forms[profile].refuse = null;
+  env.run('upgradeSheet');
+  assert.match(env.forms[profile].closedMessage, /has moved.*Club updates/);
+  env.forms[service].refuse = null;
+  env.props.set('FORM_IDS', JSON.stringify({ ...ids(), club_profile: null, public_service: null }));
   // an answer already on its way when the form closed is still filed
   addMember('7600001', { name: 'Rtn Late Sender', email: 'late@example.com' });
   env.submit('consent', { ...page1({ [Q.cMemberId]: '7600001', [Q.cName]: 'Rtn Late Sender' }), ...consent }, 'secretary@example.com', new Date());

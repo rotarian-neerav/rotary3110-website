@@ -5560,6 +5560,7 @@ function deskEmailText_(card, intro, buttons, how) {
   if (card.sender) out.push('', 'Sent by ' + card.sender + (card.sender_mobile ? ' (+' + card.sender_mobile + ')' : ''));
   out.push('');
   buttons.forEach(function (b) { out.push(b[0] + ': ' + b[1]); });
+  if (buttons.length) out.push('', 'These links are personal to you and work for ' + DESK_LINK_DAYS + ' days. Please do not forward this email: anyone who has it can use them as you.');
   if (how) out.push(how);
   out.push('', 'Rotary District 3110 website');
   return out.join('\n');
@@ -5583,7 +5584,7 @@ function deskEmailHtml_(card, intro, buttons, how, imageIds) {
   }
   if (card.sender) h += '<p style="color:#5b6573;font-size:13px">Sent by ' + e(card.sender) + (card.sender_mobile ? ' · <a href="tel:+' + card.sender_mobile + '">+' + card.sender_mobile + '</a>' : '') + '</p>';
   h += '<p>' + buttons.map(function (b) { return deskButton_(b[0], b[1], b[2]); }).join('') + '</p>';
-  if (buttons.length) h += '<p style="color:#5b6573;font-size:13px">Approve and Reject open the moderation desk, where one more tap confirms. These links are personal to you and work for ' + DESK_LINK_DAYS + ' days.</p>';
+  if (buttons.length) h += '<p style="color:#5b6573;font-size:13px">Approve and Reject open the moderation desk, where one more tap confirms. These links are personal to you and work for ' + DESK_LINK_DAYS + ' days. <strong>Please do not forward this email</strong>: anyone who has it can use these buttons as you.</p>';
   if (how) h += '<p>' + e(how) + '</p>';
   return h + '</div>';
 }

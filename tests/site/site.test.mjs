@@ -178,6 +178,11 @@ test('robots.txt blocks AI crawlers and image search of member photos, not norma
   if (process.env.HIDE_FROM_SEARCH !== 'true') assert.doesNotMatch(robots, /User-agent: \*\nDisallow: \/\n/);
 });
 
+test("the moderation desk refuses to run inside another site's frame (GitHub Pages cannot send the header that forbids it)", () => {
+  const js = read(join(SITE, 'assets/js/desk.js'));
+  assert.match(js, /if \(window\.top !== window\.self\) \{[^}]*target="_top"[^}]*return;\s*\}/);
+});
+
 test('the moderation desk carries only the fingerprint the Sheet sent (or none with sample data), never a script address', () => {
   const desk = parse(page('desk')).querySelector('[data-desk]');
   const fp = desk.getAttribute('data-api-fp');

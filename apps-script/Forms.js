@@ -5,8 +5,8 @@
  * so keep titles in Q unchanged. The activity form sends answers to the main Sheet; the other three to the private
  * Sheet. Each form's raw answers stay untouched in a "raw_…" tab; the script copies them into the working tabs.
  *
- * The six older forms (club profile, public service, club changes, consent, removal, business) still file their
- * answers while they exist; Upgrade Sheet closes them, and Administrator → Delete the old forms removes them.
+ * The six older forms (club profile, public service, club changes, consent, removal, business) were deleted on
+ * 18 Nov 2026; their settings now hold links that open Club updates or My details at the matching section.
  */
 
 var Q = {

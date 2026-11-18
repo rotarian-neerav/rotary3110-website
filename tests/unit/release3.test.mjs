@@ -172,6 +172,9 @@ test('watch: nobody is refused; each row says who sent it, and the weekly summar
   const s = signIn('asha@example.com');
   const card = env.post({ fn: 'list', session: s }).content.pending.find((c) => c.id === a.id);
   assert.ok(card.lines.some(([k, v]) => k === 'Sender' && /would not be accepted/.test(v)));
+  assert.equal(card.not_bearer, true, 'the Clean list flags it too, though it stays in Clean');
+  assert.equal(card.clean, true);
+  assert.equal(env.post({ fn: 'list', session: s }).content.pending.find((c) => c.id === b.id).not_bearer, false);
   env.run('weeklySummary');
   const summary = env.mails.at(-1).body;
   assert.match(summary, /WHO SENT THE CLUB FORMS \(club_senders_only: watch\)/);

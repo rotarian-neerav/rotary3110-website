@@ -1,7 +1,7 @@
 // Release 2 (owner, 18 Nov 2026): eight forms become four. Club updates (club details, members and roles, a public
 // service) and My details on the website (show, remove, business listing) have sections chosen on page 1; a member's
-// own update from their own email goes live by itself; a new member's mobile and email come with "joined"; the old
-// forms are closed by Upgrade Sheet and deleted, with their answer tabs, by Administrator → Delete the old forms.
+// own update from their own email goes live by itself; a new member's mobile and email come with "joined". The old
+// forms were deleted on 18 Nov 2026, with their answer tabs, and the code that did it went with them.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -107,10 +107,6 @@ test("Club updates files each section where the old forms did; a new member's mo
   env.submit('club_updates', { ...sender, [Q.uKind]: U.member, [Q.gMemberId]: '7400002', [Q.rName]: 'Rtn Other', [Q.gChange]: env.context.CLUB_CHANGES.joined,
     [Q.gJoined]: '2026-11-01', [Q.gMobile]: '12345' });
   assert.match(env.priv.rows('club_change_requests').at(-1).moderator_note, /not a 10-digit mobile/);
-  // a club role says Executive Secretary now; the old form's wording is still understood
-  env.submit('club_updates', { ...sender, [Q.uKind]: U.member, [Q.gMemberId]: '7400001', [Q.rName]: 'Rtn New Member', [Q.gChange]: 'A club role: President or Secretary',
-    [Q.gClubYear]: '2026-27', [Q.gClubRole]: 'Secretary' });
-  assert.equal(env.priv.rows('club_change_requests').at(-1).change, 'club_role');
 });
 
 test("Core: a member is found by RI ID, then by the sender's own email when the name agrees; never by a typed mobile", () => {

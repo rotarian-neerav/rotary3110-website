@@ -427,7 +427,6 @@ function noticeMember_(ps, req) {
 function fileClubChange_(a, meta) {
   var ps = privateSs_();
   var said = Core_str(a[Q.gChange]);
-  if (said === 'A club role: President or Secretary') said = CLUB_CHANGES.club_role; // the old form's wording
   var change = Object.keys(CLUB_CHANGES).filter(function (k) { return CLUB_CHANGES[k] === said; })[0] || '';
   var date = { joined: Q.gJoined, left: Q.gLeft, moved: Q.gMoved, deceased: Q.gDied }[change];
   var newClub = Core_str(a[Q.gNewClub]);

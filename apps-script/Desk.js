@@ -304,6 +304,7 @@ function deskCard_(tab, r) {
     edit: {}, zone: deskClubZone_(r.club_id),
   };
   if (Core_str(r.sender_check)) lines.push(['Sender', Core_str(r.sender_check)]);
+  card.not_bearer = /^Not an office bearer/.test(Core_str(r.sender_check)); // shown in the Clean list too (watch)
   // an activity with nothing to check is "clean": Approve all clean takes it in one tap (Release 1)
   card.checks = tab === 'activities' ? Core_activityChecks(r) : card.notes.slice();
   card.clean = tab === 'activities' && !card.checks.length && !card.block;

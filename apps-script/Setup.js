@@ -149,8 +149,8 @@ var DEFAULT_SETTINGS = [
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
   ['last_backup_at', '', 'Filled in by the weekly backup (Sunday 3 am); copies are in the private Backups folder next to the Sheets'],
   ['summary_emails', '', 'The weekly summary (Monday 8 am) goes here. Blank: the district account that owns the Sheet'],
-  ['club_senders_only', 'off', 'Release 3: off, watch or on. On: the activity and Club updates forms are accepted only from the club\'s President, Secretary or Executive Secretary (this year\'s, or the last known until this year\'s is told), sent from their email on file; watch: nobody is refused, each row says who sent it'],
-  ['weekly_club_email', 'off', 'Release 3: off, test or on. On: each club\'s office bearers get one email a week, on the club\'s own weekday, with what was approved for the club (none when nothing happened); test: the day\'s club emails all go to weekly_club_email_test_to'],
+  ['club_senders_only', 'off', 'Club office bearers: off, watch or on. On: the activity and Club updates forms are accepted only from the club\'s President, Secretary or Executive Secretary (this year\'s, or the last known until this year\'s is told), sent from their email on file; watch: nobody is refused, each row says who sent it'],
+  ['weekly_club_email', 'off', 'Club office bearers: off, test or on. On: each club\'s office bearers get one email a week, on the club\'s own weekday, with what was approved for the club (none when nothing happened); test: the day\'s club emails all go to weekly_club_email_test_to'],
   ['weekly_club_email_test_to', '', 'Where the weekly club emails go while weekly_club_email is test. Blank: the district account that owns the Sheet'],
   ['not_posting_emails', 'not-posting@example.com', 'Older setting (a dummy address): used only while the moderators tab names no Club engagement moderator'],
 ];

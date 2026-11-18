@@ -1552,7 +1552,7 @@ function Core_matchMember(request, master) {
 
 /**
  * Who sent a consent form, judged by the sender's Google account: 'member' when it is the member's own email on file,
- * 'officer' when it is the email on file of one of the club's office bearers (officers: this year's rows), otherwise
+ * 'officer' when it is the email on file of one of the club's office bearers (officers: the acting ones), otherwise
  * 'other'. Also the warnings for the moderator, and any removal request the member sent after this form.
  */
 function Core_consentSender(request, master, officers, removals) {

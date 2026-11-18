@@ -91,7 +91,7 @@ the bulletin preview on Saturday at 6 pm and the message on Sunday at 8 am; the 
 summary on Monday at 8 am; the clubs-not-posting email on the 1st at 9 am; and every 2 hours, a check that a
 **Rebuild site now** was not missed. With the 7 am jobs, the weekly club emails, when switched on (below).
 
-**Club office bearers (Release 3), three settings** in the settings tab, all **off** after Upgrade Sheet:
+**Club office bearers: three settings** in the settings tab, all **off** after Upgrade Sheet:
 - `club_senders_only`: **off**, **watch** or **on** (who may send the activity and Club updates forms for a club; the
   moderator guide explains it). Start with **watch** for a week or two and read the weekly summary's "Who sent the club
   forms"; switch to **on** when most clubs have told this year's office bearers.

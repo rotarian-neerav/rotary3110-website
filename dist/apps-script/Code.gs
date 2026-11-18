@@ -1878,7 +1878,7 @@ function Core_matchMember(request, master) {
 
 /**
  * Who sent a consent form, judged by the sender's Google account: 'member' when it is the member's own email on file,
- * 'officer' when it is the email on file of one of the club's office bearers (officers: this year's rows), otherwise
+ * 'officer' when it is the email on file of one of the club's office bearers (officers: the acting ones), otherwise
  * 'other'. Also the warnings for the moderator, and any removal request the member sent after this form.
  */
 function Core_consentSender(request, master, officers, removals) {
@@ -2329,8 +2329,8 @@ var DEFAULT_SETTINGS = [
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
   ['last_backup_at', '', 'Filled in by the weekly backup (Sunday 3 am); copies are in the private Backups folder next to the Sheets'],
   ['summary_emails', '', 'The weekly summary (Monday 8 am) goes here. Blank: the district account that owns the Sheet'],
-  ['club_senders_only', 'off', 'Release 3: off, watch or on. On: the activity and Club updates forms are accepted only from the club\'s President, Secretary or Executive Secretary (this year\'s, or the last known until this year\'s is told), sent from their email on file; watch: nobody is refused, each row says who sent it'],
-  ['weekly_club_email', 'off', 'Release 3: off, test or on. On: each club\'s office bearers get one email a week, on the club\'s own weekday, with what was approved for the club (none when nothing happened); test: the day\'s club emails all go to weekly_club_email_test_to'],
+  ['club_senders_only', 'off', 'Club office bearers: off, watch or on. On: the activity and Club updates forms are accepted only from the club\'s President, Secretary or Executive Secretary (this year\'s, or the last known until this year\'s is told), sent from their email on file; watch: nobody is refused, each row says who sent it'],
+  ['weekly_club_email', 'off', 'Club office bearers: off, test or on. On: each club\'s office bearers get one email a week, on the club\'s own weekday, with what was approved for the club (none when nothing happened); test: the day\'s club emails all go to weekly_club_email_test_to'],
   ['weekly_club_email_test_to', '', 'Where the weekly club emails go while weekly_club_email is test. Blank: the district account that owns the Sheet'],
   ['not_posting_emails', 'not-posting@example.com', 'Older setting (a dummy address): used only while the moderators tab names no Club engagement moderator'],
 ];
@@ -2523,8 +2523,8 @@ function tidyBlankRows_(ss, report) {
  * so keep titles in Q unchanged. The activity form sends answers to the main Sheet; the other three to the private
  * Sheet. Each form's raw answers stay untouched in a "raw_…" tab; the script copies them into the working tabs.
  *
- * The six older forms (club profile, public service, club changes, consent, removal, business) still file their
- * answers while they exist; Upgrade Sheet closes them, and Administrator → Delete the old forms removes them.
+ * The six older forms (club profile, public service, club changes, consent, removal, business) were deleted on
+ * 18 Nov 2026; their settings now hold links that open Club updates or My details at the matching section.
  */
 
 var Q = {
@@ -3724,7 +3724,6 @@ function noticeMember_(ps, req) {
 function fileClubChange_(a, meta) {
   var ps = privateSs_();
   var said = Core_str(a[Q.gChange]);
-  if (said === 'A club role: President or Secretary') said = CLUB_CHANGES.club_role; // the old form's wording
   var change = Object.keys(CLUB_CHANGES).filter(function (k) { return CLUB_CHANGES[k] === said; })[0] || '';
   var date = { joined: Q.gJoined, left: Q.gLeft, moved: Q.gMoved, deceased: Q.gDied }[change];
   var newClub = Core_str(a[Q.gNewClub]);
@@ -5128,6 +5127,7 @@ function deskCard_(tab, r) {
     edit: {}, zone: deskClubZone_(r.club_id),
   };
   if (Core_str(r.sender_check)) lines.push(['Sender', Core_str(r.sender_check)]);
+  card.not_bearer = /^Not an office bearer/.test(Core_str(r.sender_check)); // shown in the Clean list too (watch)
   // an activity with nothing to check is "clean": Approve all clean takes it in one tap (Release 1)
   card.checks = tab === 'activities' ? Core_activityChecks(r) : card.notes.slice();
   card.clean = tab === 'activities' && !card.checks.length && !card.block;

@@ -18,7 +18,7 @@
   var T = {
     en: {
       // Release 1 (18 Nov 2026)
-      tabHeld: 'Not accepted', heldIntro: 'Sent by someone who is not an office bearer of the club on file; they were told by email. Let one through if it should be (a new office bearer? Add them on the Roles tab too).', letThrough: 'Let through', from: 'from',
+      notBearer: 'Sent by someone who is not an office bearer of the club', tabHeld: 'Not accepted', heldIntro: 'Sent by someone who is not an office bearer of the club on file; they were told by email. Let one through if it should be (a new office bearer? Add them on the Roles tab too).', letThrough: 'Let through', from: 'from',
       officersYear: 'Club office bearers, {year}', officersTold: "Clubs that have told this year's President and Secretary: {n}", officersCarried: "Clubs where last year's (or older) still act: {n}", officersNone: 'Clubs with none on record: {n}', actsNow: 'acts now', carriedOver: "acts until this year's is told",
       tabRoles: 'Roles', tabAdmin: 'Admin', subClean: 'Clean', subLook: 'Needs a look', otherZones: 'Other areas',
       cleanIntro: 'Nothing to check was found in these. Glance at each, untick any that look wrong (it moves to Needs a look), then approve the rest.',
@@ -61,7 +61,7 @@
         regular_services: 'Regular services', name: 'Name', timings: 'Timings', phone: 'Phone (shown on the website)', address: 'Address', about: 'About' },
     },
     hi: {
-      tabHeld: 'स्वीकार नहीं', heldIntro: 'इन्हें किसी ऐसे व्यक्ति ने भेजा जो रिकॉर्ड में क्लब का पदाधिकारी नहीं है; उन्हें ईमेल से बता दिया गया। ठीक हो तो आगे भेजें (नए पदाधिकारी? उन्हें पद टैब में भी जोड़ें)।', letThrough: 'आगे भेजें', from: 'से',
+      notBearer: 'भेजने वाले रिकॉर्ड में क्लब के पदाधिकारी नहीं हैं', tabHeld: 'स्वीकार नहीं', heldIntro: 'इन्हें किसी ऐसे व्यक्ति ने भेजा जो रिकॉर्ड में क्लब का पदाधिकारी नहीं है; उन्हें ईमेल से बता दिया गया। ठीक हो तो आगे भेजें (नए पदाधिकारी? उन्हें पद टैब में भी जोड़ें)।', letThrough: 'आगे भेजें', from: 'से',
       officersYear: 'क्लब पदाधिकारी, {year}', officersTold: 'जिन क्लबों ने इस वर्ष के अध्यक्ष और सचिव बताए: {n}', officersCarried: 'जहाँ पिछले (या पुराने) पदाधिकारी अभी काम कर रहे हैं: {n}', officersNone: 'जिनका कोई रिकॉर्ड नहीं: {n}', actsNow: 'अभी पद पर', carriedOver: 'इस वर्ष के बताए जाने तक पद पर',
       tabRoles: 'पद', tabAdmin: 'प्रशासन', subClean: 'साफ़', subLook: 'देखना ज़रूरी', otherZones: 'दूसरे क्षेत्र',
       cleanIntro: 'इनमें जाँचने लायक कुछ नहीं मिला। हर एक पर नज़र डालें, जो ठीक न लगे उसका टिक हटाएँ (वह "देखना ज़रूरी" में चला जाएगा), फिर बाकी स्वीकृत करें।',
@@ -526,6 +526,7 @@
     var row = function (c) {
       return '<li class="desk-row desk-clean"><label class="desk-tick"><input type="checkbox" data-pick="' + esc(c.id) + '" checked></label>' +
         '<div class="desk-clean-text"><strong>' + esc(c.title) + '</strong><br><span class="small muted">' + esc([c.club, day(c.date)].filter(Boolean).join(' · ')) + '</span>' +
+        (c.not_bearer ? '<br><span class="small desk-bad">' + esc(t('notBearer')) + '</span>' : '') +
         (c.text ? '<br><span class="small">' + esc(c.text.length > 160 ? c.text.slice(0, 160) + '…' : c.text) + '</span>' : '') + '</div>' +
         photosHtml(c.photos.slice(0, 3)).replace(/<p class="small muted">[^<]*<\/p>$/, '') + '</li>';
     };

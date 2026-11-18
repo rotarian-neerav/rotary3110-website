@@ -223,7 +223,9 @@ not come back.
   a moderator. Anyone else gets a polite email saying who can send (roles only, no names) and how a new office bearer
   is reported, and the form waits on the desk's **Not accepted** tab instead of reaching To check. A club where no
   office bearer has an email on file is not checked. With **watch**, nobody is refused: each item on the desk shows
-  **Sender** (an office bearer, a moderator, or not), and the weekly summary counts them. With **off**, as before.
+  **Sender** (an office bearer, a moderator, or not), an activity in the **Clean** list says in red when it was sent
+  by someone who is not an office bearer (it stays in Clean), and the weekly summary counts them. With **off**, as
+  before.
 - **Not accepted tab:** **Let through** sends a form to the moderators as if an office bearer had sent it (Content
   moderators for activities, events and club details; Members moderators for members and roles). If the sender is the
   club's new office bearer, also add them on the Roles tab, with their email on the members list (**Find a member →

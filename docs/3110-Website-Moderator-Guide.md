@@ -25,6 +25,32 @@ Moderators check everything before it appears on the website. Any Content modera
 - **Who can sign in:** only active rows of the moderators tab (and the district account). Setting someone's `active` to **FALSE** locks them out of the desk at once.
 - **Member requests** are never approved from an email button, only on the signed-in desk. Their alert email shows just the name and club.
 
+## Release 1: moderators keep the records up to date (18 Nov 2026)
+
+Corrections are made on the moderation desk, not in the Sheet and not by one-off scripts. Every correction asks for
+a reason and is written to the private **change_log** tab (who, when, the old and new value, why); **Recent changes**
+on the desk shows them, and **Undo** puts the old values back while nobody has changed them again since. The main
+Sheet's moderator_log names only the action and the row.
+
+- **The website updates four times a day** (about 9 am, 1 pm, 6 pm and 10 pm India time), taking everything approved,
+  hidden, removed or corrected since the last update. Removals and deaths also wait for the next update. **Rotary →
+  Rebuild site now** stays for an emergency (within about 30 minutes).
+- **Content moderators:** To check is split into **Clean** (nothing found by the checks: glance, untick anything
+  wrong, **Approve the ticked**) and **Needs a look** (a card with the reason first). A District mark, a campaign count,
+  photos without the consent tick, an unknown club, a possible duplicate or any other note always needs a look.
+  **Hide** takes a published activity off the website with a reason; **Put back** returns it. A Content moderator
+  given zones (the moderators tab's zone column, or Admin → Moderators) is emailed only about those zones' clubs.
+- **Members moderators:** **Find a member** by name, RI member ID, email or mobile; **Edit** the name, RI member ID,
+  club, status (also to undo a mistaken "left" or "deceased"), mobile or email. A passing away sent through the club
+  changes form needs **I have confirmed this with the club** ticked before Approve (desk and Sheet sidebar).
+- **Roles tab:** the daily role check's findings (Members moderators) with **Open**; **Change** who holds a role or an
+  Assistant Governor's clubs and zone; **End role** (the website stops showing it, the row stays with ended_on);
+  **Add an office bearer** (President, Secretary or Executive Secretary, one of each per club and year). Content
+  moderators may do this for club office bearers; district roles are for Members moderators.
+- **Administrators (Admin tab):** add, rename and close clubs (members move to the club it merged into, or are marked
+  left); add and change moderators and their zones. Club member counts are worked out from the members list every day,
+  so nobody types them.
+
 ## Practice round (before the website opens)
 
 **Rotary → Administrator → Practice round: start…** (the Administrator) gives every active moderator practice items made for them on the desk, titled "Practice: …", with the same emails a real item sends and one email listing what to try:
@@ -74,7 +100,7 @@ Until a type has a real email, its emails go where they went before: the older s
    - Every activity needs **at least one photo or a link** to the club's post.
 3. Click any cell in the row (or select several rows) → **Rotary → ✔ Approve selected row(s)**. The script fills in `approved_by` and `approved_at` and emails the club.
 4. To refuse: **Rotary → ✖ Reject selected row(s)…** and type the reason. The club gets the reason by email.
-5. Approved items appear at the next update (**every Sunday**). For something urgent: **Rotary → Rebuild site now** (about 30 minutes).
+5. Approved items appear at the next website update (about 9 am, 1 pm, 6 pm or 10 pm). For something urgent: **Rotary → Rebuild site now** (about 30 minutes).
 
 **Linking an event to its report:** when an approved activity reports on a calendar event, type the event's ID (e.g. `EVT-2026-0004`) in the activity's `event_id` column. The calendar entry then links to the report.
 
@@ -141,7 +167,7 @@ Messages from the website's contact form go to the private Sheet's **contact_mes
   - **Not the member or a club office bearer:** the member is emailed in the same way, but you must check with the member (or their club President or Secretary), for example by phone from the district office, and tick **"I have confirmed this with the member"** before **Approve** works, even after 3 days.
   - Warnings to read: the form says *the member* but came from another email; it says *club secretary* but the sender is not an office bearer; the member ID matches but the name differs; no email on file, so nobody could tell the member. If the member sent a removal request after the form, it cannot be approved: reject it.
   - **Member:** says whether the member was emailed. If a member replies to that email to object, the reply reaches the district account: reject the form.
-- **Removal:** **Remove now**. Removals must be done **within two days**; the site updates within about 30 minutes, and removed photos are deleted from Drive.
+- **Removal:** **Remove now**. Removals must be done **within two days**; the website drops the details at its next update, and removed photos are deleted from Drive.
 - **Confirmation emails:** whoever sent the form gets an email when you approve the listing (with the removal form's link), when the details are removed, or when you reject it (with your reason). Write the reason so the member can read it.
 - **Club changes:** sent by anyone through the **club changes form** (`form_club_change_url` in the settings tab): a member who joined, left, moved to another club or passed away, or a club role (President, Secretary) or district role. Each shows the member ID and what was sent, and beside it what the private members list holds for that ID now ("Not in the members list" if nothing). Nothing changes until you approve. **Approve** does this:
   - *Joined:* adds the member (active, nothing shown on the website until they send the consent form) and a **club_history** row from the date joined. Someone already in another club is moved instead.
@@ -159,7 +185,7 @@ The list grows as members ask. The consent form offers the professions in the **
 
 ## When a member or spouse passes away
 
-**Rotary → Mark as deceased…** → enter their ID (from the private members list). Birthday and anniversary greetings stop **immediately** (the site rebuilds within about 30 minutes). On the website they then have no member card and are removed from the club's member list, the directory and this year's office bearer and team lists. Their past roles and any past Member Spotlight story stay on record, showing the name only.
+**Rotary → Mark as deceased…** → enter their ID (from the private members list). Birthday and anniversary greetings stop **immediately** (the website follows at its next update). On the website they then have no member card and are removed from the club's member list, the directory and this year's office bearer and team lists. Their past roles and any past Member Spotlight story stay on record, showing the name only.
 
 Someone who **leaves Rotary** is treated the same way: approve the club's club change, or set `status` to `left` in **members_master** (private Sheet), then **Rotary → Refresh public members**.
 

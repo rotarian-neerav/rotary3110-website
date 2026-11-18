@@ -43,3 +43,16 @@
 .desk-toggle { font: inherit; font-size: .85rem; padding: 5px 12px; margin: 4px 6px 0 0; border-radius: 999px; border: 2px solid var(--line); background: #fff; cursor: pointer; }
 .desk-toggle[aria-pressed="true"] { border-color: var(--gold); background: #fff4dc; font-weight: 600; }
 .desk-empty { font-size: 1.1rem; padding: 24px 0; color: #1e7d32; }
+/* Release 1: Clean list, small forms, panels inside a row */
+.desk-subtabs button { font-size: .9rem; padding: 6px 12px; border-width: 1px; }
+.desk-clean { align-items: flex-start; flex-wrap: nowrap; }
+.desk-clean .desk-tick input { width: 22px; height: 22px; margin-top: 2px; }
+.desk-clean-text { flex: 1; min-width: 0; }
+.desk-clean .desk-photos { margin-top: 0; flex-wrap: nowrap; }
+.desk-clean .desk-photo { width: 64px; height: 64px; }
+.desk-row > .desk-panel { flex-basis: 100%; }
+.desk-panel:empty { display: none; }
+.desk-zones { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; margin: 0 0 10px; }
+.desk-inline { display: inline-flex; gap: 6px; align-items: center; margin-right: 12px; font-weight: normal; }
+details > summary.btn-small { display: inline-block; cursor: pointer; margin: 0 0 8px; list-style: none; }
+@media (max-width: 520px) { .desk-clean { flex-wrap: wrap; } .desk-clean .desk-photos { flex-basis: 100%; padding-left: 32px; } }

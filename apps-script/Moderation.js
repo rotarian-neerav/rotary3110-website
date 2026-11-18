@@ -69,7 +69,7 @@ function approveSelected() {
     approveRow_(sel.tab, r, who);
     done.push(r.id);
   });
-  ui.alert((done.length ? 'Approved: ' + done.join(', ') + '.\nIt will appear on the website at the next update (Sunday), or press "Rebuild site now".' : 'Nothing approved.') +
+  ui.alert((done.length ? 'Approved: ' + done.join(', ') + '.\nIt will appear on the website ' + NEXT_UPDATE + '.' : 'Nothing approved.') +
     (refused.length ? '\n\nNot approved: ' + refused.join('; ') : ''));
 }
 
@@ -118,6 +118,7 @@ function approveRow_(tab, r, who) {
   updateRow_(mainSs_(), tab, r._row, { status: 'approved', approved_by: who, approved_at: nowIso_() });
   if (tab === 'club_profile_requests' && !Core_isPractice(r)) applyClubProfile_(r);
   if (tab === 'businesses' && !Core_isPractice(r)) applyBusiness_(r);
+  if (!Core_isPractice(r)) contentChanged_();
   notifySubmitter_(tab, r, true, '');
 }
 
@@ -165,7 +166,7 @@ function notifySubmitter_(tab, r, approved, reason) {
     : tab === 'events' ? site + 'events/' + Core_str(r.id).toLowerCase() + '/' : tab === 'public_services' ? site + 'services/'
     : tab === 'businesses' ? site + 'rmb/' : site + 'clubs/';
   var body = approved
-    ? 'Thank you! Your ' + what + ' has been approved by a district moderator.\n\nIt will appear on the district website at the next update (every Sunday):\n' + link +
+    ? 'Thank you! Your ' + what + ' has been approved by a district moderator.\n\nIt will appear on the district website ' + NEXT_UPDATE + ':\n' + link +
       '\n\nPlease share it in your club\'s WhatsApp group once it is live.\n\nRotary District 3110'
     : 'Thank you for sending your ' + what + '. A district moderator could not publish it this time.\n\nReason: ' + reason +
       '\n\nYou are welcome to send it again with the changes.\n\nRotary District 3110';
@@ -219,7 +220,15 @@ function applyModerators() {
   return plan;
 }
 
-/** Asks the website to rebuild within about 30 minutes, instead of waiting for Sunday. */
+/**
+ * Something approved, hidden, removed or changed: the website takes it at its next scheduled update (9 am, 1 pm,
+ * 6 pm, 10 pm India time), together with everything else changed since the last one (owner, 18 Nov 2026).
+ */
+function contentChanged_() {
+  setSetting_('content_changed_at', nowIso_());
+}
+
+/** Rotary -> Rebuild site now: for an emergency, the website rebuilds within about 30 minutes instead of at the next update. */
 function requestRebuild() {
   setSetting_('rebuild_requested_at', nowIso_());
   try {

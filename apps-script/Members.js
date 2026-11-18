@@ -142,7 +142,7 @@ function clubChangeCard_(r, master) {
   add('Team', r.section);
   add('Committee', r.committee);
   return {
-    id: Core_str(r.id), submitted: Core_isoTimestamp(r.submitted_at), name: Core_str(r.name), club: club(r.club_id),
+    id: Core_str(r.id), submitted: Core_isoTimestamp(r.submitted_at), name: Core_str(r.name), club: club(r.club_id), kind: Core_str(r.change),
     change: CLUB_CHANGES[r.change] || Core_str(r.change), lines: lines, note: Core_str(r.note), sentFrom: Core_str(r.submitter_email),
     now: m ? 'Members list: ' + Core_str(m.name) + ', ' + club(m.club_id) + ', ' + (Core_str(m.status) || 'active') : 'Not in the members list',
     warnings: Core_str(r.moderator_note) ? Core_str(r.moderator_note).split('; ') : [],
@@ -155,8 +155,8 @@ function clubChangeMember_(r, master) {
 }
 
 /** Called by the sidebar: approve a club change. */
-function approveClubChange(requestId) {
-  return approveClubChange_(requestId, moderatorEmail_());
+function approveClubChange(requestId, confirmed) {
+  return approveClubChange_(requestId, moderatorEmail_(), confirmed === true);
 }
 
 /**
@@ -164,7 +164,7 @@ function approveClubChange(requestId) {
  * (passing away goes through markDeceased_), or a new officers or functionaries row for a role. Then the public members
  * list and the role check are refreshed, a rebuild is asked for, and the sender is told.
  */
-function approveClubChange_(requestId, who) {
+function approveClubChange_(requestId, who, confirmed) {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
@@ -177,6 +177,10 @@ function approveClubChange_(requestId, who) {
       return 'Practice: approved. Nothing was changed.';
     }
     var change = Core_str(req.change);
+    // anyone can send the form, and the club cannot undo a passing away: the moderator confirms first (Release 1)
+    if (change === 'deceased' && confirmed !== true) {
+      throw new Error('Please confirm with the club that this member has passed away, tick "I have confirmed this with the club", then approve.');
+    }
     var id = Core_str(req.member_id);
     if (!id) throw new Error('The request has no Rotary member ID: fill in member_id on the request, or reject it.');
     var m = clubChangeMember_(req, readTab_(ps, 'members_master'));
@@ -230,12 +234,13 @@ function approveClubChange_(requestId, who) {
     }
     updateRow_(ps, 'club_change_requests', req._row, done);
     refreshPublicMembers(true);
+    refreshMemberCounts_();
     try { checkRoles(true); } catch (e) { Logger.log('Role check not run: ' + e.message); }
-    setSetting_('rebuild_requested_at', nowIso_());
+    contentChanged_();
     notifyMember_(req, 'Approved: ' + (CLUB_CHANGES[change] || 'club change') + ' – ' + Core_str(req.name),
       'Thank you. The change you sent to the district (' + (CLUB_CHANGES[change] || change).toLowerCase() + ': ' + Core_str(req.name) +
-      ') has been approved by a district moderator.\n\nThe website updates within about 30 minutes.');
-    return 'Approved ' + requestId + '. ' + message + ' The website updates within about 30 minutes.';
+      ') has been approved by a district moderator.\n\nThe website shows it ' + NEXT_UPDATE + '.');
+    return 'Approved ' + requestId + '. ' + message + ' The website shows it ' + NEXT_UPDATE + '.';
   } finally {
     lock.releaseLock();
   }
@@ -342,8 +347,9 @@ function approveConsent_(requestId, who, confirmed) {
     if (confirmed) done.moderator_note = 'Confirmed with the member or their club by ' + who;
     updateRow_(ps, 'consent_requests', req._row, done);
     refreshPublicMembers(true);
+    contentChanged_();
     notifyMember_(req, 'Listed: ' + member.name, 'Thank you. The listing for ' + member.name + ' on the Rotary District 3110 website has been approved, ' +
-      'with only the details that were ticked on the form.\n\nIt will appear at the next website update (every Sunday):\n' + siteUrl_() + 'directory/' +
+      'with only the details that were ticked on the form.\n\nIt will appear ' + NEXT_UPDATE + ':\n' + siteUrl_() + 'directory/' +
       removalLine_());
     return 'Approved ' + requestId + ' for ' + member.name;
   } finally {
@@ -503,11 +509,11 @@ function approveRemoval_(requestId, who) {
     }
     updateRow_(ps, 'removal_requests', req._row, { status: 'approved', matched_member_id: m.member_id, approved_by: who, approved_at: nowIso_() });
     refreshPublicMembers(true);
-    setSetting_('rebuild_requested_at', nowIso_()); // removals should not wait for Sunday
+    contentChanged_(); // removals go in the next of the four daily updates (owner, 18 Nov 2026)
     notifyMember_(req, 'Removed: ' + m.name, 'The details you asked us to remove for ' + m.name + ' (' + Core_str(req.remove_items) + ') have been removed ' +
-      'from the Rotary District 3110 website records.\n\nThe website updates within about 30 minutes. Search engines may take a few days ' +
+      'from the Rotary District 3110 website records.\n\nThe website drops them ' + NEXT_UPDATE + '. Search engines may take a few days ' +
       'longer to forget a page they had already seen.');
-    return 'Removed for ' + m.name + '. The website updates within about 30 minutes.';
+    return 'Removed for ' + m.name + '. The website drops them ' + NEXT_UPDATE + '.';
   } finally {
     lock.releaseLock();
   }
@@ -573,7 +579,7 @@ function markDeceased() {
   if (!m) { ui.alert('No one with ID ' + id + ' in the private members list.'); return; }
   if (ui.alert('Confirm', 'Mark ' + m.name + ' as deceased? Birthday and anniversary greetings for them stop at once.', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
   markDeceased_(m, moderatorEmail_());
-  requestRebuild();
+  ui.alert(m.name + ' is marked as deceased. Greetings stop at once; the website shows it ' + NEXT_UPDATE + '.');
 }
 
 /** Stops greetings for one members_master row at once; shared by the menu and the moderation desk. */
@@ -585,4 +591,32 @@ function markDeceased_(m, who) {
     if (Core_str(h.member_id) === id && !Core_str(h.to_date)) updateRow_(ps, 'club_history', h._row, { to_date: today_(), reason: 'deceased' });
   });
   refreshPublicMembers(true);
+  refreshMemberCounts_();
+  contentChanged_();
+}
+
+/**
+ * Each club's member count: the active Rotarians in the private members list (Release 1), so nobody types it. Clubs
+ * with no one in the list keep the count they have. One write for the whole column.
+ */
+function refreshMemberCounts_() {
+  var ss = mainSs_();
+  var sh = ss.getSheetByName('clubs');
+  var headers = headers_(ss, 'clubs');
+  var col = headers.indexOf('member_count');
+  var idCol = headers.indexOf('club_id');
+  if (!sh || col < 0 || idCol < 0 || sh.getLastRow() < 2) return 0;
+  var counts = Core_memberCounts(readTab_(privateSs_(), 'members_master'));
+  var range = sh.getRange(2, col + 1, sh.getLastRow() - 1, 1);
+  var ids = sh.getRange(2, idCol + 1, sh.getLastRow() - 1, 1).getValues();
+  var values = range.getValues();
+  var changed = 0;
+  var next = values.map(function (v, i) {
+    var n = counts[Core_str(ids[i][0])];
+    if (n == null || Number(v[0]) === n) return [v[0]];
+    changed++;
+    return [n];
+  });
+  if (changed) range.setValues(next);
+  return changed;
 }

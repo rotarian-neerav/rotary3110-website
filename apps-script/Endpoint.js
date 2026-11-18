@@ -3,7 +3,7 @@
  * Without the right token it returns nothing. It only ever returns approved rows and public fields,
  * and refuses to answer if the privacy check fails.
  *
- *   ?mode=status&token=…        when a rebuild was last requested
+ *   ?mode=status&token=…        when a rebuild was last requested, and when anything was last approved or changed
  *   ?mode=data&token=…          the public website data
  *   ?mode=file&id=…&token=…     one approved photo (base64)
  *   ?mode=thumb&id=…&token=…    the first-page picture of a magazine PDF
@@ -17,7 +17,10 @@ function doGet(e) {
     var expected = props_().getProperty('DATA_TOKEN');
     if (!expected || p.token !== expected) return json_({ ok: false, error: 'not allowed' });
     rememberWebAppUrl_(); // the moderation desk's links need the /exec address
-    if (p.mode === 'status') return json_({ ok: true, rebuild_requested_at: Core_isoTimestamp(settings_().rebuild_requested_at) });
+    if (p.mode === 'status') {
+      var st = settings_();
+      return json_({ ok: true, rebuild_requested_at: Core_isoTimestamp(st.rebuild_requested_at), content_changed_at: Core_isoTimestamp(st.content_changed_at) });
+    }
     if (p.mode === 'data') {
       var data = publicData_();
       data.desk_api_fp = deskApiFingerprint_();

@@ -33,6 +33,10 @@
     var tick = document.getElementById('ok-' + id);
     act('approveConsent', [id, !!(tick && tick.checked)]);
   }
+  function approveChange(id) {
+    var tick = document.getElementById('okc-' + id);
+    act('approveClubChange', [id, !!(tick && tick.checked)]);
+  }
   function reject(kind, id) {
     var reason = prompt('Reason for rejecting ' + id + ' (kept in the Sheet):');
     if (reason !== null) act('rejectRequest', [kind, id, reason]);
@@ -71,7 +75,8 @@
         '<div class="muted">' + esc(r.now) + '</div>' + (r.sentFrom ? '<div class="muted">Sent from ' + esc(r.sentFrom) + '</div>' : '') +
         r.warnings.map(function (w) { return '<div class="warn">⚠ ' + esc(w) + '</div>'; }).join('') +
         (r.note ? '<div class="muted">“' + esc(r.note) + '”</div>' : '') +
-        '<div><button class="ok" onclick="act(\'approveClubChange\', [\'' + r.id + '\'])">Approve</button><button onclick="reject(\'change\', \'' + r.id + '\')">Reject</button></div></div>';
+        (r.kind === 'deceased' ? '<label><input type="checkbox" id="okc-' + esc(r.id) + '"> I have confirmed this with the club</label>' : '') +
+        '<div><button class="ok" onclick="approveChange(\'' + r.id + '\')">Approve</button><button onclick="reject(\'change\', \'' + r.id + '\')">Reject</button></div></div>';
     });
     h += '<h2>Couples waiting (' + d.waiting.length + ')</h2>';
     if (!d.waiting.length) h += '<p class="muted">None.</p>';

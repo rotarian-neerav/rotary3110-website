@@ -6,6 +6,7 @@
 
 function dailyJobs() {
   scanMagazines_();
+  try { refreshMemberCounts_(); } catch (e) { Logger.log('Member counts not refreshed: ' + e.message); }
   refreshDashboard();
   checkRoles(true);
   try { updateFormLists(true); } catch (e) { Logger.log('Form lists not updated: ' + e.message); }
@@ -328,6 +329,10 @@ function weeklySummary() {
   out.push('QUIET CLUBS\n' + (quiet.length ? quiet.length + ' club(s) with no activity dated in the last ' + CORE_QUIET_DAYS + ' days, for example: ' +
     quiet.slice(0, 8).map(function (c) { return c.club_name; }).join(', ') + (quiet.length > 8 ? '…' : '') + '.' : 'Every active club posted in the last ' + CORE_QUIET_DAYS + ' days.'));
 
+  var roleChecks = readTab_(main, 'role_checks').length;
+  if (roleChecks) out.push('ROLES TO CHECK\n' + roleChecks + ' role(s) need a look (wrong or missing member ID, someone marked left or deceased). ' +
+    'Members moderators fix them on the moderation desk, Roles tab.');
+
   var due = Core_memberCheckDue(readTab_(ps, 'members_master'), today);
   if (due.length) out.push('JULY MEMBER CHECK\n' + due.length + ' listed member(s) still to be emailed; up to ' + CORE_MEMBER_CHECK_PER_DAY + ' go each morning.');
 
@@ -417,8 +422,13 @@ function backupNow() {
  */
 function checkRebuild() {
   var s = settings_();
+  // "Rebuild site now" should be done within 3 hours; approvals wait for the next of the four daily updates, at most
+  // 11 hours apart (10 pm to 9 am), so they get 13 hours
   var asked = Core_isoTimestamp(s.rebuild_requested_at);
-  if (!asked || Date.now() - new Date(asked).getTime() < 3 * 3600000) return 'nothing to check';
+  var changed = Core_isoTimestamp(s.content_changed_at);
+  if (!asked || Date.now() - new Date(asked).getTime() < 3 * 3600000) asked = '';
+  if (changed && Date.now() - new Date(changed).getTime() >= 13 * 3600000 && changed > asked) asked = changed;
+  if (!asked) return 'nothing to check';
   var props = props_();
   if (props.getProperty('REBUILD_ALERTED') === asked) return 'already told';
   var built = '';
@@ -427,8 +437,9 @@ function checkRebuild() {
   } catch (e) { built = ''; }
   if (built && built >= asked) return 'built';
   var to = Core_list(s.summary_emails).join(',') || Session.getEffectiveUser().getEmail();
-  MailApp.sendEmail(to, 'Rotary 3110 website: a rebuild has not happened', '"Rebuild site now" was pressed on ' + asked.slice(0, 16).replace('T', ' at ') +
-    ' UTC, more than 3 hours ago, but the website ' + (built ? 'was last built on ' + built.slice(0, 16).replace('T', ' at ') + ' UTC' : 'could not be checked') + '.\n\n' +
+  var what = asked === changed ? 'Something was approved or changed on ' + asked.slice(0, 16).replace('T', ' at ') + ' UTC, more than 13 hours ago (the website should have taken it at one of its four daily updates)'
+    : '"Rebuild site now" was pressed on ' + asked.slice(0, 16).replace('T', ' at ') + ' UTC, more than 3 hours ago';
+  MailApp.sendEmail(to, 'Rotary 3110 website: a rebuild has not happened', what + ', but the website ' + (built ?'was last built on ' + built.slice(0, 16).replace('T', ' at ') + ' UTC' : 'could not be checked') + '.\n\n' +
     'What to do: open the GitHub repository → Actions. If the latest run failed, its log says why. If nothing ran, press "Run workflow" there.\n\n' +
     'You get this email once for each rebuild request.', { name: 'Rotary 3110 website' });
   props.setProperty('REBUILD_ALERTED', asked);

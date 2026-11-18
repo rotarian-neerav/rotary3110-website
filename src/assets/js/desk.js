@@ -17,6 +17,20 @@
 
   var T = {
     en: {
+      // Release 1 (18 Nov 2026)
+      tabRoles: 'Roles', tabAdmin: 'Admin', subClean: 'Clean', subLook: 'Needs a look', otherZones: 'Other areas',
+      cleanIntro: 'Nothing to check was found in these. Glance at each, untick any that look wrong (it moves to Needs a look), then approve the rest.',
+      approveTicked: 'Approve the ticked ({n})', confirmMany: 'Approve {n} activities?', showMore: 'Show more', lookIntro: 'Each of these needs a full look: the reason is at the top.',
+      hide: 'Hide', putBackSite: 'Put back', hidden: 'Hidden from the website', hideReason: 'Why it comes off the website (kept in the log; the club is not emailed)',
+      reasonLog: 'Reason (kept in the change log)', findMember: 'Find a member', findHint: 'Name (3 letters or more), RI member ID, email or mobile',
+      edit: 'Edit', status: 'Status', active: 'active', left: 'left', deceasedS: 'deceased', club: 'Club', recentChanges: 'Recent changes', undo: 'Undo', undone: 'Undone',
+      confirmClub: 'I have confirmed this with the club', roleChecks: 'Roles to check', open: 'Open', findRole: 'Find a role', roleHint: 'Name, club or RI member ID',
+      ended: 'Ended', change: 'Change', endRole: 'End role', endReason: 'Why the role ends (resigned, replaced…)', addOfficer: 'Add an office bearer',
+      year: 'Rotary year', role: 'Role', memberId: 'RI member ID', agClubs: "Assistant Governor's clubs (names, separated by commas)", zone: 'Area',
+      clubsAdmin: 'Clubs', addClub: 'Add a club', clubId: 'RI club ID', clubName: 'Club name (e.g. RC Agra Heritage)', city: 'City', charter: 'Charter date',
+      closeClub: 'Close', moveTo: 'Its members', markLeft: 'Mark them as left', moveInto: 'Move them to ', filterClubs: 'Filter clubs', members: 'members', closed: 'closed',
+      moderatorsAdmin: 'Moderators', addModerator: 'Add a moderator', type: 'Type', name2: 'Name', email2: 'Google email', isActive: 'Active', yes: 'Yes', no: 'No', allZones: 'all areas',
+      mobile: 'Mobile', emailF: 'Email', confirmClose: 'Close {name}? Its members move or are marked as left.',
       title: 'Moderation desk', guide: 'Guide', signOut: 'Sign out', other: 'हिन्दी', loading: 'Loading…', working: 'Working…',
       noApi: 'Open the desk from the link in any moderator email. After that, this phone remembers it.',
       signInIntro: 'Type the email address that is on the moderators list. We will email you a 6-digit code.',
@@ -45,6 +59,19 @@
         regular_services: 'Regular services', name: 'Name', timings: 'Timings', phone: 'Phone (shown on the website)', address: 'Address', about: 'About' },
     },
     hi: {
+      tabRoles: 'पद', tabAdmin: 'प्रशासन', subClean: 'साफ़', subLook: 'देखना ज़रूरी', otherZones: 'दूसरे क्षेत्र',
+      cleanIntro: 'इनमें जाँचने लायक कुछ नहीं मिला। हर एक पर नज़र डालें, जो ठीक न लगे उसका टिक हटाएँ (वह "देखना ज़रूरी" में चला जाएगा), फिर बाकी स्वीकृत करें।',
+      approveTicked: 'टिक किए गए स्वीकृत करें ({n})', confirmMany: '{n} गतिविधियाँ स्वीकृत करें?', showMore: 'और दिखाएँ', lookIntro: 'इनमें से हर एक को पूरा देखना है: कारण सबसे ऊपर लिखा है।',
+      hide: 'छिपाएँ', putBackSite: 'वापस लगाएँ', hidden: 'वेबसाइट से छिपाया गया', hideReason: 'यह वेबसाइट से क्यों हट रहा है (लॉग में रहेगा; क्लब को ईमेल नहीं जाएगा)',
+      reasonLog: 'कारण (बदलाव लॉग में रहेगा)', findMember: 'सदस्य खोजें', findHint: 'नाम (कम से कम 3 अक्षर), RI सदस्य ID, ईमेल या मोबाइल',
+      edit: 'बदलें', status: 'स्थिति', active: 'सक्रिय', left: 'छोड़ गए', deceasedS: 'दिवंगत', club: 'क्लब', recentChanges: 'हाल के बदलाव', undo: 'वापस लें', undone: 'वापस लिया गया',
+      confirmClub: 'मैंने क्लब से इसकी पुष्टि कर ली है', roleChecks: 'जाँचने वाले पद', open: 'खोलें', findRole: 'पद खोजें', roleHint: 'नाम, क्लब या RI सदस्य ID',
+      ended: 'समाप्त', change: 'बदलें', endRole: 'पद समाप्त करें', endReason: 'पद क्यों समाप्त हो रहा है (इस्तीफ़ा, बदलाव…)', addOfficer: 'पदाधिकारी जोड़ें',
+      year: 'रोटरी वर्ष', role: 'पद', memberId: 'RI सदस्य ID', agClubs: 'असिस्टेंट गवर्नर के क्लब (नाम, अल्पविराम से अलग)', zone: 'क्षेत्र',
+      clubsAdmin: 'क्लब', addClub: 'क्लब जोड़ें', clubId: 'RI क्लब ID', clubName: 'क्लब का नाम (जैसे RC Agra Heritage)', city: 'शहर', charter: 'चार्टर की तारीख',
+      closeClub: 'बंद करें', moveTo: 'इसके सदस्य', markLeft: 'उन्हें "छोड़ गए" चिह्नित करें', moveInto: 'उन्हें यहाँ ले जाएँ: ', filterClubs: 'क्लब छाँटें', members: 'सदस्य', closed: 'बंद',
+      moderatorsAdmin: 'मॉडरेटर', addModerator: 'मॉडरेटर जोड़ें', type: 'प्रकार', name2: 'नाम', email2: 'Google ईमेल', isActive: 'सक्रिय', yes: 'हाँ', no: 'नहीं', allZones: 'सभी क्षेत्र',
+      mobile: 'मोबाइल', emailF: 'ईमेल', confirmClose: '{name} बंद करें? इसके सदस्य दूसरे क्लब में जाएँगे या "छोड़ गए" चिह्नित होंगे।',
       title: 'मॉडरेशन डेस्क', guide: 'गाइड', signOut: 'साइन आउट', other: 'English', loading: 'लोड हो रहा है…', working: 'काम हो रहा है…',
       noApi: 'किसी भी मॉडरेटर ईमेल में दिए गए लिंक से डेस्क खोलें। उसके बाद यह फ़ोन इसे याद रखेगा।',
       signInIntro: 'मॉडरेटर सूची में दर्ज अपना ईमेल पता लिखें। हम आपको 6 अंकों का कोड ईमेल करेंगे।',
@@ -261,7 +288,8 @@
       '<p class="desk-kind">' + esc(c.kind) + ' · ' + esc(c.id) + '</p><h2>' + esc(c.title) + '</h2>' +
       '<p class="muted">' + esc([c.club, day(c.date)].filter(Boolean).join(' · ')) + '</p>';
     if (c.block) h += '<p class="desk-bad">' + esc(t('cannot')) + ': ' + esc(c.block) + '</p>';
-    if (c.notes && c.notes.length) h += '<p class="desk-note"><strong>' + esc(t('check')) + ':</strong> ' + esc(c.notes.join('; ')) + '</p>';
+    var checks = c.checks || c.notes || [];
+    if (checks.length) h += '<p class="desk-note"><strong>' + esc(t('check')) + ':</strong> ' + esc(checks.join('; ')) + '</p>';
     if (c.text) h += '<p class="desk-text">' + esc(c.text) + '</p>';
     h += photosHtml(c.photos, token);
     if (c.lines.length || c.links.length) {
@@ -428,8 +456,10 @@
     var list = [];
     if (d.content) list.push(['check', t('tabCheck'), d.content.pending.length], ['recent', t('tabRecent'), null]);
     if (d.members) list.push(['members', t('tabMembers'), d.members.consent.length + d.members.removal.length + (d.members.change || []).length]);
+    if (d.roles) list.push(['roles', t('tabRoles'), (d.roles.checks || []).length]);
     if (d.clubs) list.push(['clubs', t('tabClubs'), d.clubs.length]);
     if (d.office) list.push(['office', t('tabOffice'), d.office.filter(function (m) { return m.status === 'new'; }).length]);
+    if (d.admin) list.push(['admin', t('tabAdmin'), null]);
     return list;
   }
 
@@ -446,13 +476,131 @@
       b.addEventListener('click', function () { state.tab = b.getAttribute('data-tab'); store.set('deskTab', state.tab); say(''); drawDesk(); });
     });
     var view = out.querySelector('[data-view]');
-    ({ check: drawCheck, recent: drawRecent, members: drawMembers, clubs: drawClubs, office: drawOffice }[state.tab] || function () {})(view);
+    ({ check: drawCheck, recent: drawRecent, members: drawMembers, roles: drawRoles, clubs: drawClubs, office: drawOffice, admin: drawAdmin }[state.tab] || function () {})(view);
+  }
+
+  // A moderator given zones sees their zones' clubs first; the others follow under "Other zones"
+  function inZone(c) {
+    var zones = (state.data.me && state.data.me.zones) || [];
+    return !zones.length || zones.indexOf(c.zone) >= 0;
+  }
+  function byZone(list) {
+    return { mine: list.filter(inZone), others: list.filter(function (c) { return !inZone(c); }) };
   }
 
   function drawCheck(view) {
     var items = state.data.content.pending;
-    view.innerHTML = items.length ? items.map(function (c) { return itemHtml(c); }).join('') : '<p class="desk-empty">' + esc(t('nothing')) + '</p>';
-    wireCards(items);
+    var clean = items.filter(function (c) { return c.clean; });
+    var look = items.filter(function (c) { return !c.clean; });
+    if (!state.sub || (state.sub === 'clean' && !clean.length && look.length)) state.sub = clean.length ? 'clean' : 'look';
+    var h = '<nav class="desk-tabs desk-subtabs" aria-label="To check">' + [['clean', t('subClean'), clean.length], ['look', t('subLook'), look.length]].map(function (x) {
+      return '<button type="button" data-sub="' + x[0] + '"' + (x[0] === state.sub ? ' aria-current="true"' : '') + '>' + esc(x[1]) + (x[2] ? ' <span class="desk-count">' + x[2] + '</span>' : '') + '</button>';
+    }).join('') + '</nav><div data-subview></div>';
+    view.innerHTML = h;
+    Array.prototype.forEach.call(view.querySelectorAll('[data-sub]'), function (b) {
+      b.addEventListener('click', function () { state.sub = b.getAttribute('data-sub'); say(''); drawCheck(view); });
+    });
+    var sub = view.querySelector('[data-subview]');
+    if (state.sub === 'clean') drawClean(sub, clean); else drawLook(sub, look);
+  }
+
+  function drawLook(view, look) {
+    if (!look.length) { view.innerHTML = '<p class="desk-empty">' + esc(t('nothing')) + '</p>'; return; }
+    var z = byZone(look);
+    view.innerHTML = '<p class="small muted">' + esc(t('lookIntro')) + '</p>' + z.mine.map(function (c) { return itemHtml(c); }).join('') +
+      (z.others.length ? '<h2>' + esc(t('otherZones')) + ' (' + z.others.length + ')</h2>' + z.others.map(function (c) { return itemHtml(c); }).join('') : '');
+    wireCards(look);
+  }
+
+  var CLEAN_PAGE = 20;
+  function drawClean(view, clean) {
+    if (!clean.length) { view.innerHTML = '<p class="desk-empty">' + esc(t('nothing')) + '</p>'; return; }
+    var z = byZone(clean);
+    var ordered = z.mine.concat(z.others);
+    var shown = ordered.slice(0, state.cleanShown || CLEAN_PAGE);
+    var row = function (c) {
+      return '<li class="desk-row desk-clean"><label class="desk-tick"><input type="checkbox" data-pick="' + esc(c.id) + '" checked></label>' +
+        '<div class="desk-clean-text"><strong>' + esc(c.title) + '</strong><br><span class="small muted">' + esc([c.club, day(c.date)].filter(Boolean).join(' · ')) + '</span>' +
+        (c.text ? '<br><span class="small">' + esc(c.text.length > 160 ? c.text.slice(0, 160) + '…' : c.text) + '</span>' : '') + '</div>' +
+        photosHtml(c.photos.slice(0, 3)).replace(/<p class="small muted">[^<]*<\/p>$/, '') + '</li>';
+    };
+    var mine = shown.filter(inZone);
+    var others = shown.filter(function (c) { return !inZone(c); });
+    view.innerHTML = '<p class="small muted">' + esc(t('cleanIntro')) + '</p>' +
+      '<ul class="desk-list">' + mine.map(row).join('') + '</ul>' +
+      (others.length ? '<h2>' + esc(t('otherZones')) + '</h2><ul class="desk-list">' + others.map(row).join('') + '</ul>' : '') +
+      (ordered.length > shown.length ? '<p><button type="button" class="btn-small" data-more>' + esc(t('showMore')) + '</button></p>' : '') +
+      '<p class="desk-actions"><button type="button" class="btn btn-go" data-approve-many></button></p>';
+    loadPhotos(view);
+    var btn = view.querySelector('[data-approve-many]');
+    var picked = function () { return Array.prototype.filter.call(view.querySelectorAll('[data-pick]'), function (x) { return x.checked; }).map(function (x) { return x.getAttribute('data-pick'); }); };
+    var label = function () { var n = picked().length; btn.textContent = t('approveTicked').replace('{n}', n); btn.disabled = !n; };
+    label();
+    Array.prototype.forEach.call(view.querySelectorAll('[data-pick]'), function (x) {
+      x.addEventListener('change', function () {
+        // unticked: it needs a full look, so it moves there
+        if (!x.checked) clean.forEach(function (c) { if (c.id === x.getAttribute('data-pick')) c.clean = false; });
+        label();
+      });
+    });
+    var more = view.querySelector('[data-more]');
+    if (more) more.addEventListener('click', function () { state.cleanShown = (state.cleanShown || CLEAN_PAGE) + CLEAN_PAGE; drawClean(view, clean); });
+    btn.addEventListener('click', function () {
+      var ids = picked();
+      if (!ids.length || !window.confirm(t('confirmMany').replace('{n}', ids.length))) return;
+      btn.disabled = true;
+      say(t('working'));
+      api({ fn: 'approveclean', ids: ids }).then(function (d) { say(d.message); state.cleanShown = 0; reload(); }).catch(function (err) { btn.disabled = false; say(err.message, true); });
+    });
+  }
+
+  // reads the desk again, keeping the message on screen
+  function reload() {
+    api({ fn: 'list' }).then(function (d) { state.data = d; drawDesk(); }).catch(function (err) { say(err.message, true); });
+  }
+
+  /* ---------- Small forms: fields plus a reason for the change log ---------- */
+
+  function optionsHtml(options, value) {
+    return options.map(function (o) {
+      var v = Array.isArray(o) ? o[0] : o;
+      var l = Array.isArray(o) ? o[1] : o;
+      return '<option value="' + esc(v) + '"' + (String(v) === String(value) ? ' selected' : '') + '>' + esc(l) + '</option>';
+    }).join('');
+  }
+  // fields: [name, label, value, kind ('text', 'date', 'select', 'zones'), options]; a reason box follows unless noReason
+  function formPanel(panel, fields, submitLabel, reasonLabel, done) {
+    panel.innerHTML = '<form class="desk-form">' + fields.map(function (f) {
+      var kind = f[3] || 'text';
+      if (kind === 'select') return '<label>' + esc(f[1]) + '<select name="' + esc(f[0]) + '">' + optionsHtml(f[4], f[2]) + '</select></label>';
+      if (kind === 'zones') {
+        var on = String(f[2] || '').split(/,\s*/);
+        return '<fieldset class="desk-zones"><legend>' + esc(f[1]) + '</legend>' + f[4].map(function (z) {
+          return '<label class="desk-inline"><input type="checkbox" name="' + esc(f[0]) + '" value="' + esc(z) + '"' + (on.indexOf(z) >= 0 ? ' checked' : '') + '> ' + esc(z) + '</label>';
+        }).join(' ') + '</fieldset>';
+      }
+      return '<label>' + esc(f[1]) + '<input name="' + esc(f[0]) + '" type="' + (kind === 'date' ? 'date' : 'text') + '" value="' + esc(f[2] == null ? '' : f[2]) + '"></label>';
+    }).join('') + (reasonLabel ? '<label>' + esc(reasonLabel) + '<textarea name="reason" rows="2" required maxlength="500"></textarea></label>' : '') +
+      '<button class="btn btn-go" type="submit">' + esc(submitLabel) + '</button> <button class="btn-small" type="button" data-cancel>' + esc(t('cancel')) + '</button></form>';
+    var form = panel.querySelector('form');
+    panel.querySelector('[data-cancel]').addEventListener('click', function () { panel.innerHTML = ''; });
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var values = {};
+      fields.forEach(function (f) {
+        if ((f[3] || 'text') === 'zones') values[f[0]] = Array.prototype.filter.call(form.querySelectorAll('[name="' + f[0] + '"]'), function (x) { return x.checked; }).map(function (x) { return x.value; }).join(', ');
+        else values[f[0]] = form[f[0]].value;
+      });
+      done(values, reasonLabel ? form.reason.value.trim() : '', form);
+    });
+  }
+  function send(payload, after) {
+    say(t('working'));
+    return api(payload).then(function (d) { say(d.message); if (after) after(d); return d; }).catch(function (err) { say(err.message, true); });
+  }
+  function clubOptions(withBlank) {
+    var list = ((state.data.lists || {}).clubs || []).map(function (c) { return [c.id, c.name]; });
+    return withBlank ? [['', withBlank]].concat(list) : list;
   }
 
   function toggle(label, on, attrs) {
@@ -462,12 +610,31 @@
   function drawRecent(view) {
     var c = state.data.content;
     var row = function (x, story) {
+      if (x.hidden) {
+        return '<li class="desk-row desk-done"><div><strong>' + esc(x.title) + '</strong><br><span class="small muted">' + esc([x.club, day(x.date), t('hidden')].filter(Boolean).join(' · ')) + '</span></div><div>' +
+          '<button type="button" class="btn-small" data-putback="' + esc(x.id) + '">' + esc(t('putBackSite')) + '</button></div></li>';
+      }
       return '<li class="desk-row"><div><strong>' + esc(x.title) + '</strong><br><span class="small muted">' + esc([x.club, day(x.date)].filter(Boolean).join(' · ')) + '</span></div><div>' +
         (story ? toggle(t('story'), x.story, 'data-flag="story_of_month" data-tab-name="' + x.tab + '" data-id="' + esc(x.id) + '"') : '') +
-        toggle(t('leaveOut'), x.left_out, 'data-flag="bulletin_exclude" data-tab-name="' + x.tab + '" data-id="' + esc(x.id) + '"') + '</div></li>';
+        toggle(t('leaveOut'), x.left_out, 'data-flag="bulletin_exclude" data-tab-name="' + x.tab + '" data-id="' + esc(x.id) + '"') +
+        (story ? '<button type="button" class="btn-small btn-no-small" data-hide="' + esc(x.id) + '">' + esc(t('hide')) + '</button>' : '') + '</div><div class="desk-panel" data-hide-panel="' + esc(x.id) + '"></div></li>';
     };
     view.innerHTML = '<h2>' + esc(t('recentActs')) + '</h2>' + (c.recent.length ? '<ul class="desk-list">' + c.recent.map(function (x) { return row(x, true); }).join('') + '</ul>' : '<p>' + esc(t('none')) + '</p>') +
       '<h2>' + esc(t('upcoming')) + '</h2>' + (c.upcoming.length ? '<ul class="desk-list">' + c.upcoming.map(function (x) { return row(x, false); }).join('') + '</ul>' : '<p>' + esc(t('none')) + '</p>');
+    Array.prototype.forEach.call(view.querySelectorAll('[data-hide]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-hide');
+        formPanel(view.querySelector('[data-hide-panel="' + id + '"]'), [], t('hide'), t('hideReason'), function (v, reason) {
+          send({ fn: 'hide', id: id, reason: reason }, function () { c.recent.forEach(function (x) { if (x.id === id) x.hidden = true; }); drawRecent(view); });
+        });
+      });
+    });
+    Array.prototype.forEach.call(view.querySelectorAll('[data-putback]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-putback');
+        send({ fn: 'putback', id: id }, function () { c.recent.forEach(function (x) { if (x.id === id) x.hidden = false; }); drawRecent(view); });
+      });
+    });
     Array.prototype.forEach.call(view.querySelectorAll('[data-flag]'), function (b) {
       b.addEventListener('click', function () {
         var on = b.getAttribute('aria-pressed') !== 'true';
@@ -520,6 +687,7 @@
         (r.sentFrom ? '<p class="small">' + esc(t('sentFrom')) + ': ' + esc(r.sentFrom) + '</p>' : '') +
         (r.warnings.length ? '<p class="desk-note">' + r.warnings.map(esc).join('<br>') + '</p>' : '') +
         (r.note ? '<p class="desk-text">' + esc(r.note) + '</p>' : '') +
+        (r.kind === 'deceased' ? '<label class="desk-confirm"><input type="checkbox" data-confirmed> ' + esc(t('confirmClub')) + '</label>' : '') +
         '<div class="desk-actions" data-actions><button type="button" class="btn btn-go" data-m="approve">' + esc(t('approve')) + '</button>' +
         '<button type="button" class="btn btn-no" data-m="reject">' + esc(t('reject')) + '</button></div><div data-panel></div></article>';
     });
@@ -528,8 +696,9 @@
         return '<li class="desk-row"><div><strong>' + esc(c.names) + '</strong><br><span class="small muted">' + esc(c.status === 'check_dates' ? t('datesDiffer') : t('waitingSpouse')) + '</span></div></li>';
       }).join('') + '</ul>';
     }
-    h += '<h2>' + esc(t('deceased')) + '</h2><form class="desk-form desk-search" data-search><label>' + esc(t('searchName')) +
-      '<input name="q" minlength="3" required></label><button class="btn-small" type="submit">' + esc(t('search')) + '</button></form><div data-people></div>';
+    h += '<h2>' + esc(t('findMember')) + '</h2><form class="desk-form desk-search" data-search><label>' + esc(t('findHint')) +
+      '<input name="q" minlength="3" required></label><button class="btn-small" type="submit">' + esc(t('search')) + '</button></form><div data-people></div>' +
+      '<h2>' + esc(t('recentChanges')) + '</h2><div data-changes><button type="button" class="btn-small" data-load-changes>' + esc(t('recentChanges')) + '</button></div>';
     view.innerHTML = h;
     loadPhotos(view);
     Array.prototype.forEach.call(view.querySelectorAll('[data-member]'), function (el) {
@@ -554,6 +723,7 @@
         });
       });
     });
+    view.querySelector('[data-load-changes]').addEventListener('click', function () { drawChanges(view.querySelector('[data-changes]')); });
     view.querySelector('[data-search]').addEventListener('submit', function (ev) {
       ev.preventDefault();
       var box = view.querySelector('[data-people]');
@@ -561,9 +731,27 @@
       api({ fn: 'search', q: ev.target.q.value }).then(function (d) {
         say('');
         box.innerHTML = d.people.length ? '<ul class="desk-list">' + d.people.map(function (p) {
-          return '<li class="desk-row"><div><strong>' + esc(p.name) + '</strong><br><span class="small muted">' + esc(p.club) + ' · ' + esc(p.member_id) + '</span></div>' +
-            '<div><button type="button" class="btn-small btn-no-small" data-dead="' + esc(p.member_id) + '" data-name="' + esc(p.name) + '">' + esc(t('deceased')) + '</button></div></li>';
+          return '<li class="desk-row' + (p.status !== 'active' ? ' desk-done' : '') + '"><div><strong>' + esc(p.name) + '</strong><br><span class="small muted">' +
+            esc([p.club, p.member_id, statusLabel(p.status)].join(' · ')) + '</span></div>' +
+            '<div><button type="button" class="btn-small" data-edit-member="' + esc(p.member_id) + '">' + esc(t('edit')) + '</button>' +
+            (p.status === 'active' ? '<button type="button" class="btn-small btn-no-small" data-dead="' + esc(p.member_id) + '" data-name="' + esc(p.name) + '">' + esc(t('deceased')) + '</button>' : '') +
+            '</div><div class="desk-panel" data-member-panel="' + esc(p.member_id) + '"></div></li>';
         }).join('') + '</ul>' : '<p>' + esc(t('noOne')) + '</p>';
+        Array.prototype.forEach.call(box.querySelectorAll('[data-edit-member]'), function (b) {
+          b.addEventListener('click', function () {
+            var p = d.people.filter(function (x) { return x.member_id === b.getAttribute('data-edit-member'); })[0];
+            // the member's own club stays a choice even when it has closed, so saving never moves them by accident
+            var clubs = clubOptions();
+            if (!clubs.some(function (o) { return o[0] === p.club_id; })) clubs.unshift([p.club_id, p.club_id ? p.club : '–']);
+            formPanel(box.querySelector('[data-member-panel="' + p.member_id + '"]'), [
+              ['name', t('name2'), p.name], ['member_id', t('memberId'), p.member_id], ['club_id', t('club'), p.club_id, 'select', clubs],
+              ['status', t('status'), p.status, 'select', [['active', t('active')], ['left', t('left')], ['deceased', t('deceasedS')]]],
+              ['mobile', t('mobile'), p.mobile], ['email', t('emailF'), p.email],
+            ], t('save'), t('reasonLog'), function (v, reason) {
+              send({ fn: 'membersave', member_id: p.member_id, fields: v, reason: reason }, function () { ev.target.dispatchEvent(new Event('submit')); });
+            });
+          });
+        });
         Array.prototype.forEach.call(box.querySelectorAll('[data-dead]'), function (b) {
           b.addEventListener('click', function () {
             if (!window.confirm(t('confirmDeceased').replace('{name}', b.getAttribute('data-name')))) return;
@@ -573,6 +761,171 @@
         });
       }).catch(function (err) { say(err.message, true); });
     });
+  }
+
+  function statusLabel(s) { return s === 'left' ? t('left') : s === 'deceased' ? t('deceasedS') : t('active'); }
+
+  // the change log: newest first, with Undo while nothing has changed since
+  function drawChanges(box) {
+    say(t('working'));
+    api({ fn: 'changes' }).then(function (d) {
+      say('');
+      box.innerHTML = d.changes.length ? '<ul class="desk-list">' + d.changes.map(function (c) {
+        return '<li class="desk-row' + (c.undone ? ' desk-done' : '') + '"><div><strong>' + esc(c.action) + ' · ' + esc(c.key) + '</strong><br><span class="small muted">' +
+          esc(day(c.at) + ' · ' + c.by + (c.reason ? ' · ' + c.reason : '')) + '</span><br><span class="small">' + c.lines.map(esc).join('<br>') + '</span></div><div>' +
+          (c.undone ? '<span class="small">' + esc(t('undone')) + '</span>' : c.can_undo ? '<button type="button" class="btn-small" data-undo="' + esc(c.id) + '">' + esc(t('undo')) + '</button>' : '') + '</div></li>';
+      }).join('') + '</ul>' : '<p>' + esc(t('none')) + '</p>';
+      Array.prototype.forEach.call(box.querySelectorAll('[data-undo]'), function (b) {
+        b.addEventListener('click', function () { send({ fn: 'undo', id: b.getAttribute('data-undo') }, function () { drawChanges(box); }); });
+      });
+    }).catch(function (err) { say(err.message, true); });
+  }
+
+  /* ---------- Roles: office bearers (Content or Members) and district roles (Members) ---------- */
+
+  function drawRoles(view) {
+    var checks = (state.data.roles && state.data.roles.checks) || [];
+    var L = state.data.lists || {};
+    var h = '';
+    if (state.data.members) {
+      h += '<h2>' + esc(t('roleChecks')) + ' (' + checks.length + ')</h2>' + (checks.length ? '<ul class="desk-list">' + checks.map(function (p, i) {
+        return '<li class="desk-row"><div><strong>' + esc(p.name || '–') + '</strong>' + (p.member_id ? ' · ' + esc(p.member_id) : '') + '<br><span class="small muted">' +
+          esc(p.tab + ' · ' + p.rotary_year) + '</span><br><span class="small">' + esc(p.problem) + '</span></div><div>' +
+          '<button type="button" class="btn-small" data-check="' + i + '">' + esc(t('open')) + '</button></div></li>';
+      }).join('') + '</ul>' : '<p>' + esc(t('none')) + '</p>');
+    }
+    h += '<h2>' + esc(t('findRole')) + '</h2><form class="desk-form desk-search" data-role-search><label>' + esc(t('roleHint')) +
+      '<input name="q" required></label><button class="btn-small" type="submit">' + esc(t('search')) + '</button></form><div data-roles></div>' +
+      '<h2>' + esc(t('addOfficer')) + '</h2><div data-add-officer></div>' +
+      '<h2>' + esc(t('recentChanges')) + '</h2><div data-changes><button type="button" class="btn-small" data-load-changes>' + esc(t('recentChanges')) + '</button></div>';
+    view.innerHTML = h;
+    var box = view.querySelector('[data-roles]');
+    var search = function (q) {
+      say(t('working'));
+      api({ fn: 'roles', q: q }).then(function (d) { say(''); drawRoleList(box, d.roles, function () { search(q); }); }).catch(function (err) { say(err.message, true); });
+    };
+    view.querySelector('[data-role-search]').addEventListener('submit', function (ev) { ev.preventDefault(); search(ev.target.q.value.trim()); });
+    Array.prototype.forEach.call(view.querySelectorAll('[data-check]'), function (b) {
+      b.addEventListener('click', function () {
+        var p = checks[+b.getAttribute('data-check')];
+        var q = p.member_id || p.name;
+        view.querySelector('[data-role-search]').q.value = q;
+        search(q);
+      });
+    });
+    formPanel(view.querySelector('[data-add-officer]'), [
+      ['club_id', t('club'), '', 'select', clubOptions('–')], ['rotary_year', t('year'), (L.years || [])[0], 'select', L.years || []],
+      ['role', t('role'), 'President', 'select', L.club_roles || []], ['member_id', t('memberId'), ''],
+    ], t('addOfficer'), t('reasonLog'), function (v, reason, form) {
+      send({ fn: 'roleadd', fields: v, reason: reason }, function () { form.reset(); });
+    });
+    view.querySelector('[data-add-officer] [data-cancel]').remove();
+    view.querySelector('[data-load-changes]').addEventListener('click', function () { drawChanges(view.querySelector('[data-changes]')); });
+  }
+
+  function drawRoleList(box, roles, again) {
+    var L = state.data.lists || {};
+    box.innerHTML = roles.length ? '<ul class="desk-list">' + roles.map(function (r, i) {
+      return '<li class="desk-row' + (r.ended_on ? ' desk-done' : '') + '"><div><strong>' + esc(r.role) + ' · ' + esc(r.rotary_year) + '</strong><br>' + esc(r.name) +
+        (r.member_id ? ' (' + esc(r.member_id) + ')' : '') + '<br><span class="small muted">' + esc([r.club, r.section, r.committee].filter(Boolean).join(' · ')) +
+        (r.ag && r.ag_clubs ? '<br>' + esc(r.ag_clubs) : '') + (r.ended_on ? ' · ' + esc(t('ended')) + ' ' + esc(day(r.ended_on)) : '') + '</span></div><div>' +
+        (r.ended_on ? '' : '<button type="button" class="btn-small" data-role-edit="' + i + '">' + esc(t('change')) + '</button>' +
+          '<button type="button" class="btn-small btn-no-small" data-role-end="' + i + '">' + esc(t('endRole')) + '</button>') +
+        '</div><div class="desk-panel" data-role-panel="' + i + '"></div></li>';
+    }).join('') + '</ul>' : '<p>' + esc(t('noOne')) + '</p>';
+    Array.prototype.forEach.call(box.querySelectorAll('[data-role-edit]'), function (b) {
+      b.addEventListener('click', function () {
+        var i = b.getAttribute('data-role-edit');
+        var r = roles[+i];
+        var fields = [['member_id', t('memberId'), r.member_id]];
+        if (r.tab === 'officers' && (L.club_roles || []).indexOf(r.role) >= 0) fields.push(['role', t('role'), r.role, 'select', L.club_roles]);
+        if (r.ag) fields.push(['ag_clubs', t('agClubs'), r.ag_clubs], ['zone', t('zone'), r.zone, 'select', [['', '–']].concat(L.zones || [])]);
+        formPanel(box.querySelector('[data-role-panel="' + i + '"]'), fields, t('save'), t('reasonLog'), function (v, reason) {
+          send({ fn: 'rolesave', tab: r.tab, row: r.row, fields: v, reason: reason }, again);
+        });
+      });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll('[data-role-end]'), function (b) {
+      b.addEventListener('click', function () {
+        var i = b.getAttribute('data-role-end');
+        var r = roles[+i];
+        formPanel(box.querySelector('[data-role-panel="' + i + '"]'), [], t('endRole'), t('endReason'), function (v, reason) {
+          send({ fn: 'roleend', tab: r.tab, row: r.row, reason: reason }, again);
+        });
+      });
+    });
+  }
+
+  /* ---------- Admin: clubs and moderators (Administrators) ---------- */
+
+  function drawAdmin(view) {
+    var a = state.data.admin;
+    var L = state.data.lists || {};
+    var h = '<h2>' + esc(t('clubsAdmin')) + '</h2><details><summary class="btn-small">' + esc(t('addClub')) + '</summary><div data-add-club></div></details>' +
+      '<form class="desk-form desk-search" data-club-filter><label>' + esc(t('filterClubs')) + '<input name="q"></label></form><div data-club-list></div>' +
+      '<h2>' + esc(t('moderatorsAdmin')) + '</h2><details><summary class="btn-small">' + esc(t('addModerator')) + '</summary><div data-add-mod></div></details><div data-mod-list></div>' +
+      '<h2>' + esc(t('recentChanges')) + '</h2><div data-changes><button type="button" class="btn-small" data-load-changes>' + esc(t('recentChanges')) + '</button></div>';
+    view.innerHTML = h;
+    formPanel(view.querySelector('[data-add-club]'), [
+      ['club_id', t('clubId'), ''], ['club_name', t('clubName'), ''], ['city', t('city'), ''], ['zone', t('zone'), '', 'select', [['', '–']].concat(L.zones || [])],
+      ['charter_date', t('charter'), '', 'date'],
+    ], t('addClub'), t('reasonLog'), function (v, reason) { send({ fn: 'clubadd', fields: v, reason: reason }, reload); });
+    var list = view.querySelector('[data-club-list]');
+    var drawList = function (q) {
+      var want = String(q || '').toLowerCase();
+      var clubs = a.clubs.filter(function (c) { return !want || (c.club_name + ' ' + c.club_id + ' ' + c.city).toLowerCase().indexOf(want) >= 0; }).slice(0, want ? 60 : 20);
+      list.innerHTML = '<ul class="desk-list">' + clubs.map(function (c) {
+        return '<li class="desk-row' + (c.status !== 'active' ? ' desk-done' : '') + '"><div><strong>' + esc(c.club_name) + '</strong><br><span class="small muted">' +
+          esc([c.club_id, c.city, c.zone, c.member_count + ' ' + t('members'), c.charter_date ? t('charter') + ' ' + day(c.charter_date) : '', c.status !== 'active' ? t('closed') + (c.merged_into ? ' → ' + c.merged_into : '') : ''].filter(Boolean).join(' · ')) +
+          '</span></div><div>' + (c.status === 'active' ? '<button type="button" class="btn-small" data-club-edit="' + esc(c.club_id) + '">' + esc(t('edit')) + '</button>' +
+          '<button type="button" class="btn-small btn-no-small" data-club-close="' + esc(c.club_id) + '">' + esc(t('closeClub')) + '</button>' : '') +
+          '</div><div class="desk-panel" data-club-panel="' + esc(c.club_id) + '"></div></li>';
+      }).join('') + '</ul>';
+      Array.prototype.forEach.call(list.querySelectorAll('[data-club-edit]'), function (b) {
+        b.addEventListener('click', function () {
+          var c = a.clubs.filter(function (x) { return x.club_id === b.getAttribute('data-club-edit'); })[0];
+          formPanel(list.querySelector('[data-club-panel="' + c.club_id + '"]'), [
+            ['club_name', t('clubName'), c.club_name], ['city', t('city'), c.city], ['zone', t('zone'), c.zone, 'select', [['', '–']].concat(L.zones || [])],
+            ['charter_date', t('charter'), c.charter_date, 'date'],
+          ], t('save'), t('reasonLog'), function (v, reason) { send({ fn: 'clubsave', club_id: c.club_id, fields: v, reason: reason }, reload); });
+        });
+      });
+      Array.prototype.forEach.call(list.querySelectorAll('[data-club-close]'), function (b) {
+        b.addEventListener('click', function () {
+          var c = a.clubs.filter(function (x) { return x.club_id === b.getAttribute('data-club-close'); })[0];
+          var others = clubOptions().filter(function (o) { return o[0] !== c.club_id; }).map(function (o) { return [o[0], t('moveInto') + o[1]]; });
+          formPanel(list.querySelector('[data-club-panel="' + c.club_id + '"]'), [['move_to', t('moveTo'), '', 'select', [['', t('markLeft')]].concat(others)]],
+            t('closeClub'), t('reasonLog'), function (v, reason) {
+              if (!window.confirm(t('confirmClose').replace('{name}', c.club_name))) return;
+              send({ fn: 'clubclose', club_id: c.club_id, move_to: v.move_to, reason: reason }, reload);
+            });
+        });
+      });
+    };
+    drawList('');
+    view.querySelector('[data-club-filter]').addEventListener('submit', function (ev) { ev.preventDefault(); });
+    view.querySelector('[data-club-filter]').q.addEventListener('input', function (ev) { drawList(ev.target.value); });
+
+    var modFields = function (m) {
+      return [['type', t('type'), m.type || 'Content', 'select', L.moderator_types || []], ['name', t('name2'), m.name || ''], ['email', t('email2'), m.email || ''],
+        ['zone', t('zone'), m.zone || '', 'zones', L.zones || []], ['active', t('isActive'), m.active === false ? 'FALSE' : 'TRUE', 'select', [['TRUE', t('yes')], ['FALSE', t('no')]]]];
+    };
+    formPanel(view.querySelector('[data-add-mod]'), modFields({}), t('addModerator'), t('reasonLog'), function (v, reason) { send({ fn: 'modsave', row: '', fields: v, reason: reason }, reload); });
+    var mods = view.querySelector('[data-mod-list]');
+    mods.innerHTML = '<ul class="desk-list">' + a.moderators.map(function (m) {
+      return '<li class="desk-row' + (m.active ? '' : ' desk-done') + '"><div><strong>' + esc(m.name) + '</strong> · ' + esc(m.type) + '<br><span class="small muted">' +
+        esc([m.email, m.type === 'Content' ? (m.zone || t('allZones')) : '', m.active ? '' : t('no') + ' ' + t('isActive').toLowerCase()].filter(Boolean).join(' · ')) + '</span></div>' +
+        '<div><button type="button" class="btn-small" data-mod-edit="' + m.row + '">' + esc(t('edit')) + '</button></div><div class="desk-panel" data-mod-panel="' + m.row + '"></div></li>';
+    }).join('') + '</ul>';
+    Array.prototype.forEach.call(mods.querySelectorAll('[data-mod-edit]'), function (b) {
+      b.addEventListener('click', function () {
+        var m = a.moderators.filter(function (x) { return String(x.row) === b.getAttribute('data-mod-edit'); })[0];
+        formPanel(mods.querySelector('[data-mod-panel="' + m.row + '"]'), modFields(m), t('save'), t('reasonLog'), function (v, reason) {
+          send({ fn: 'modsave', row: m.row, fields: v, reason: reason }, reload);
+        });
+      });
+    });
+    view.querySelector('[data-load-changes]').addEventListener('click', function () { drawChanges(view.querySelector('[data-changes]')); });
   }
 
   function drawClubs(view) {

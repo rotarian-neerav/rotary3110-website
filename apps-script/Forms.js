@@ -302,7 +302,9 @@ function formLists_() {
   if (!professions.length) professions = Core_list(s.professions);
   var teams = readTab_(mainSs_(), 'functionaries').map(function (f) { return Core_str(f.section); })
     .filter(function (x, i, a) { return x && a.indexOf(x) === i; });
-  var year = Core_str(s.current_rotary_year);
+  // role years follow today's date, not the year the website shows, so a club can report this year's and next year's
+  // office bearers (Release 1, 18 Nov 2026)
+  var year = Core_rotaryYearOf(today_());
   return {
     clubs: activeClubs.length ? activeClubs : ['(clubs not loaded yet)'],
     areas: areas.length ? areas : ['(areas not loaded yet)'],
@@ -314,7 +316,7 @@ function formLists_() {
     campaigns: [CORE_NO_CAMPAIGN].concat(Core_openCampaigns(readTab_(mainSs_(), 'campaigns'), today_()).map(Core_campaignLabel)),
     newClubs: (activeClubs.length ? activeClubs : ['(clubs not loaded yet)']).concat([CLUB_OUTSIDE]),
     teams: teams.length ? teams.slice().sort() : ["Governor's Office Team"],
-    years: year ? [year, Core_nextRotaryYear(year)] : ['(Rotary year not set)'],
+    years: [year, Core_nextRotaryYear(year)],
   };
 }
 
@@ -617,7 +619,7 @@ function makeClubChangeForm_(L) {
   form.addDateItem().setTitle(Q.gDied);
   var clubRole = form.addPageBreakItem().setTitle(CLUB_CHANGES.club_role);
   form.addListItem().setTitle(Q.gClubYear).setChoiceValues(L.years).setRequired(true);
-  form.addListItem().setTitle(Q.gClubRole).setChoiceValues(['President', 'Secretary']).setRequired(true);
+  form.addListItem().setTitle(Q.gClubRole).setChoiceValues(CORE_CLUB_ROLES.slice()).setRequired(true);
   var districtRole = form.addPageBreakItem().setTitle(CLUB_CHANGES.district_role)
     .setHelpText('The member may be from another club. Please say in the note who decided it, for example the Governor\'s letter.');
   form.addListItem().setTitle(Q.gDistYear).setChoiceValues(L.years).setRequired(true);

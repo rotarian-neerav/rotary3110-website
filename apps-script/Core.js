@@ -57,6 +57,10 @@ var CORE_CONTACT_DAILY_LIMIT = 20;
 // A club is quiet with no activity (approved or waiting) dated in this many days: the same rule for the desk's
 // Quiet clubs, the dashboard's needs_nudge and the monthly email
 var CORE_QUIET_DAYS = 30;
+// A club chartered in the last this many days is not counted as quiet yet (Release 1, 18 Nov 2026)
+var CORE_NEW_CLUB_DAYS = 60;
+// The club roles a moderator may add on the desk (Executive Secretary added 18 Nov 2026)
+var CORE_CLUB_ROLES = ['President', 'Secretary', 'Executive Secretary'];
 
 // Types of moderator (the moderators tab). What each receives is in Core_moderatorEmails' callers. A row with
 // sheet_access TRUE also edits the main Sheet, and Members and Administrator rows the private members Sheet too.
@@ -420,7 +424,49 @@ function Core_moderatorTypesOf(rows, email) {
 /** What a moderator sees on the moderation desk. The Administrator sees everything. */
 function Core_deskViews(types) {
   var has = function (t) { return (types || []).indexOf(t) >= 0 || (types || []).indexOf('Administrator') >= 0; };
-  return { content: has('Content'), members: has('Members'), clubs: has('Club engagement'), office: has('District office') };
+  return { content: has('Content'), members: has('Members'), clubs: has('Club engagement'), office: has('District office'),
+    admin: (types || []).indexOf('Administrator') >= 0 };
+}
+
+/** The zones (Agra, Bareilly, Kanpur) one email's active Content rows name; empty means every zone. */
+function Core_moderatorZones(rows, email) {
+  var e = Core_str(email).toLowerCase();
+  var out = [];
+  (rows || []).forEach(function (r) {
+    if (Core_str(r.email).toLowerCase() !== e || Core_str(r.type) !== 'Content' || !Core_moderatorActive(r)) return;
+    var zones = Core_list(r.zone);
+    if (!zones.length) out.push('*');
+    zones.forEach(function (z) { if (out.indexOf(z) < 0) out.push(z); });
+  });
+  return out.indexOf('*') >= 0 ? [] : out;
+}
+
+/**
+ * Why a waiting activity needs a moderator's full look; none means "clean", ready for Approve all clean (Release 1).
+ * The checks made when it arrived (its notes) count, and so do a District mark, a campaign, an unknown club and
+ * photos without the consent tick, which always need a person.
+ */
+function Core_activityChecks(r) {
+  var out = Core_str(r.moderator_note).split(/;\s*/).filter(String);
+  var add = function (why) { if (out.indexOf(why) < 0) out.push(why); };
+  if (Core_isTrue(r.district_level)) add('Marked as district level');
+  if (Core_str(r.campaign_id) || Core_str(r.campaign_count) !== '') add('Campaign count: it goes into the totals');
+  if (!Core_str(r.club_id)) add('Club not recognised');
+  if ((Core_str(r.photo_files) || Core_str(r.before_photo) || Core_str(r.after_photo)) && !Core_isTrue(r.photo_consent)) add('Photo consent not ticked');
+  if (!Core_str(r.photo_files) && !Core_url(r.post_link)) add('No photo or link');
+  return out;
+}
+
+/** Active Rotarians per club in the private members list: the club's member count (sample rows left out). */
+function Core_memberCounts(master) {
+  var out = {};
+  (master || []).forEach(function (m) {
+    var id = Core_str(m.club_id);
+    if (!id || Core_isTrue(m.is_sample) || Core_str(m.status || 'active').toLowerCase() !== 'active') return;
+    if (m.is_rotarian === false || Core_str(m.is_rotarian).toUpperCase() === 'FALSE') return;
+    out[id] = (out[id] || 0) + 1;
+  });
+  return out;
 }
 
 /**
@@ -437,7 +483,10 @@ function Core_quietClubs(clubs, activities, today, days) {
     var id = Core_str(a.club_id);
     if (!last[id] || d > last[id]) last[id] = d;
   });
+  var newSince = Core_addDays(today, -CORE_NEW_CLUB_DAYS);
   return (clubs || []).filter(function (c) {
+    var chartered = Core_isoDate(c.charter_date);
+    if (chartered && chartered > newSince) return false; // a new club gets time to settle before it is nudged
     return Core_str(c.club_id) && Core_str(c.status || 'active').toLowerCase() === 'active' && !(last[Core_str(c.club_id)] >= from);
   }).map(function (c) {
     return { club_id: Core_str(c.club_id), club_name: Core_str(c.club_name), zone: Core_str(c.zone), last_activity_date: last[Core_str(c.club_id)] || '' };
@@ -1019,8 +1068,9 @@ function Core_buildPublicData(tabs, nowIso, options) {
   }
 
   // Current-year roles of people who have died or left are not shown at all
+  // A role a moderator ended on the desk (ended_on) is no longer shown; its row stays in the Sheet
   function current(r) {
-    return Core_str(r.name) && !(inactiveIds[Core_str(r.member_id)] && Core_str(r.rotary_year) === rotaryYear);
+    return Core_str(r.name) && !Core_str(r.ended_on) && !(inactiveIds[Core_str(r.member_id)] && Core_str(r.rotary_year) === rotaryYear);
   }
 
   var officers = (tabs.officers || []).filter(current).map(roleRow);
@@ -1597,8 +1647,8 @@ function Core_checkRoles(officers, functionaries, master, rotaryYear) {
   var byId = {};
   (master || []).forEach(function (m) { if (Core_str(m.member_id)) byId[Core_str(m.member_id)] = m; });
   var rows = [];
-  (officers || []).forEach(function (r) { rows.push({ tab: 'officers', r: r }); });
-  (functionaries || []).forEach(function (r) { rows.push({ tab: 'functionaries', r: r }); });
+  (officers || []).forEach(function (r) { if (!Core_str(r.ended_on)) rows.push({ tab: 'officers', r: r }); });
+  (functionaries || []).forEach(function (r) { if (!Core_str(r.ended_on)) rows.push({ tab: 'functionaries', r: r }); });
 
   var namesById = {};
   var idsByName = {};
@@ -1665,5 +1715,7 @@ if (typeof module !== 'undefined' && module.exports) {
     CORE_AVENUES: CORE_AVENUES, CORE_SERVICE_TYPES: CORE_SERVICE_TYPES, CORE_TRADES: CORE_TRADES, CORE_WEEKDAYS: CORE_WEEKDAYS,
     CORE_MODERATOR_TYPES: CORE_MODERATOR_TYPES, Core_moderatorEmails: Core_moderatorEmails, Core_moderatorAccess: Core_moderatorAccess,
     Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl, Core_isPractice: Core_isPractice,
+    Core_moderatorZones: Core_moderatorZones, Core_activityChecks: Core_activityChecks, Core_memberCounts: Core_memberCounts,
+    CORE_NEW_CLUB_DAYS: CORE_NEW_CLUB_DAYS, CORE_CLUB_ROLES: CORE_CLUB_ROLES,
   };
 }

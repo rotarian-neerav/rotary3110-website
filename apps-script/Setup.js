@@ -79,7 +79,7 @@ function ensureLists_(report) {
 
 var TEXT_COLUMNS = ['from_date', 'member_id', 'chair_member_id', 'mobile', 'submitter_mobile', 'start_time', 'birthday', 'anniversary', 'value', 'person_a_id',
   'person_b_id', 'spouse_id', 'spouse_member_id', 'matched_member_id', 'public_key', 'club_id', 'rotary_year', 'term', 'issue_month', 'month',
-  'phone', 'reply_to', 'whatsapp', 'new_club_id'];
+  'phone', 'reply_to', 'whatsapp', 'new_club_id', 'key', 'old_value', 'new_value'];
 
 function ensureTabs_(ss, schema, report) {
   Object.keys(schema).forEach(function (name) {
@@ -110,7 +110,7 @@ function ensureTabs_(ss, schema, report) {
   var blank = ss.getSheetByName('Sheet1');
   if (blank && blank.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(blank);
   // Generated tabs: warn anyone who tries to type in them
-  ['members_public', 'couples_public', 'dashboard', 'role_checks', 'moderator_log'].forEach(function (n) {
+  ['members_public', 'couples_public', 'dashboard', 'role_checks', 'moderator_log', 'change_log'].forEach(function (n) {
     var sh = ss.getSheetByName(n);
     if (sh && !sh.getProtections(SpreadsheetApp.ProtectionType.SHEET).length) {
       sh.protect().setDescription('Filled in by the script – do not edit by hand').setWarningOnly(true);
@@ -129,7 +129,8 @@ var DEFAULT_SETTINGS = [
   ['form_club_profile_url', '', 'Filled in by setup'],
   ['form_consent_url', '', 'Filled in by setup'],
   ['form_removal_url', '', 'Filled in by setup'],
-  ['rebuild_requested_at', '', 'Set by "Rebuild site now" and "Mark as deceased"'],
+  ['rebuild_requested_at', '', 'Set by "Rebuild site now": the website updates within about 30 minutes'],
+  ['content_changed_at', '', 'Set by every approval, hide, removal and member change: the website takes them at its next update (9 am, 1 pm, 6 pm, 10 pm)'],
   ['inactive_keys', '', 'Filled in by "Refresh public members"; never edit by hand'],
   ['campaign_check_above', '1000', 'A campaign count above this gets a note for the moderator'],
   ['bulletin_start_date', '', 'A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week\'s bulletin'],
@@ -189,9 +190,11 @@ function addValidation_(main, priv) {
     var idx = headers_(ss, tab).indexOf(col);
     if (idx >= 0) sh.getRange(2, idx + 1, sh.getMaxRows() - 1, 1).setDataValidation(rule);
   }
-  ['activities', 'events', 'club_profile_requests', 'public_services'].forEach(function (t) {
+  ['events', 'club_profile_requests', 'public_services'].forEach(function (t) {
     apply(main, t, 'status', listRule_(['pending', 'approved', 'rejected']));
   });
+  // hidden: taken off the website by a moderator after it was published (Release 1)
+  apply(main, 'activities', 'status', listRule_(['pending', 'approved', 'rejected', 'hidden']));
   // a business listing is replaced when the member sends a newer one, removed when they ask through the removal form
   apply(main, 'businesses', 'status', listRule_(['pending', 'approved', 'rejected', 'replaced', 'removed']));
   apply(main, 'businesses', 'trade', listRule_(CORE_TRADES));

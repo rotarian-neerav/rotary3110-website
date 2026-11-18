@@ -60,8 +60,10 @@ test('the form: the club, the member and the change come first; one page per kin
   const newClub = form.items.find((i) => i.title === Q.gNewClub);
   assert.equal(newClub.choices.at(-1), 'A club outside District 3110');
   const years = form.items.find((i) => i.title === Q.gClubYear).choices;
-  const year = env.main.rows('settings').find((r) => r.key === 'current_rotary_year').value;
+  // the years around today's date, not the year the website shows (Release 1)
+  const year = env.run('Core_rotaryYearOf', new Date().toISOString().slice(0, 10));
   assert.deepEqual([...years], [year, env.run('Core_nextRotaryYear', year)]);
+  assert.deepEqual([...form.items.find((i) => i.title === Q.gClubRole).choices], ['President', 'Secretary', 'Executive Secretary']);
   assert.ok(form.items.find((i) => i.title === Q.gTeam).choices.length > 3, 'the district teams from the functionaries tab');
 });
 
@@ -97,7 +99,7 @@ test('a member joined: kept as pending, the Members moderator is told the name o
   assert.equal(done.approved_by, 'meera@example.com');
   assert.equal(env.mails.at(-1).to, 'secretary@example.com');
   assert.match(env.mails.at(-1).subject, /^Approved: A member joined the club – Rtn New Joiner/);
-  assert.ok(env.main.rows('settings').find((x) => x.key === 'rebuild_requested_at').value, 'a rebuild is asked for');
+  assert.ok(env.main.rows('settings').find((x) => x.key === 'content_changed_at').value, 'the next of the four daily updates takes it');
   assert.ok(env.main.rows('moderator_log').some((l) => l.item === req.id && l.tab === 'club_change_requests' && l.action === 'approve'));
 
   // the same person again for the same club: refused, and the request stays for a reason to be given
@@ -146,7 +148,9 @@ test('moved, moved out of the district, left and passed away', () => {
   // passed away: through Mark as deceased
   env.run('appendRow_', env.priv, 'members_master', { member_id: '7700012', name: 'Rtn Remembered', club_id: a.club_id, is_rotarian: true, status: 'active' });
   req = send('deceased', { [Q.gMemberId]: '7700012', [Q.rName]: 'Rtn Remembered' });
-  assert.match(approve(s, req.id).message, /is marked as deceased/);
+  assert.match(approve(s, req.id).error, /confirm with the club/, 'the moderator confirms a death with the club first (Release 1)');
+  assert.equal(member('7700012').status, 'active');
+  assert.match(env.post({ fn: 'member', session: s, kind: 'change', action: 'approve', id: req.id, confirmed: true }).message, /is marked as deceased/);
   assert.equal(member('7700012').status, 'deceased');
 
   // someone not in the members list cannot be marked as left

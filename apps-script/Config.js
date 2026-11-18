@@ -25,7 +25,10 @@ var PHOTO_QUESTIONS = {
   couplePhoto: 'Couple photo (optional, under 1 MB)',
 };
 
-var PRIVATE_TABS = ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests', 'club_change_requests'];
+// Approvals, hides, removals and member changes reach the website at the next of four daily builds (owner, 18 Nov 2026)
+var NEXT_UPDATE = 'at the next website update (9 am, 1 pm, 6 pm or 10 pm)';
+
+var PRIVATE_TABS = ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests', 'club_change_requests', 'change_log'];
 
 function props_() {
   return PropertiesService.getScriptProperties();

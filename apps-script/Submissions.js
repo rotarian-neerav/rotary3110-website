@@ -141,6 +141,8 @@ function fileActivityOrEvent_(a, meta) {
     notes.push('The newspaper name was a web address: it is now the newspaper link; please add the newspaper\'s name');
   } else if (row.press_link && !row.press_paper) notes.push('Press link without the newspaper\'s name: add it in press_paper');
   if (row.video_link && !Core_videoLink(row.video_link)) notes.push('Video link is not a web address');
+  if (!row.club_id) notes.push('Club not recognised: fill in club_id before approving');
+  if ((row.photo_files || row.before_photo || row.after_photo) && !row.photo_consent) notes.push('Photo consent not ticked');
   textNotes_([row.press_paper], notes);
   row.moderator_note = notes.join('; ');
   appendRow_(ss, 'activities', row);

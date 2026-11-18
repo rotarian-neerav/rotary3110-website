@@ -92,6 +92,8 @@ summary on Monday at 8 am; the clubs-not-posting email on the 1st at 9 am; and e
    - **Club engagement** gets the monthly list of quiet clubs (no activity in the last 30 days).
 2. Set `sheet_access` to **TRUE** only for people who want to work in the Sheet; leave it **FALSE** (or blank) for those who use only the moderation desk, which needs no Sheet access. The Administrator placeholder starts as TRUE.
 3. **Rotary → Administrator → Apply moderators (Sheet access)…** (as the Sheet's owner): it shows who will get access to the Sheet (and, for Members and Administrator rows, the private members Sheet) and asks before doing it.
+   - **zone** (Content rows, added 18 Nov 2026): the zones that moderator looks after, such as `Agra` or `Agra, Bareilly`. They are emailed only about those zones' clubs, which come first on their desk. Blank means every zone.
+   - Since 18 Nov 2026 an **Administrator** can also add and change moderators on the desk (**Admin → Moderators**); a moderator added there gets the desk only (`sheet_access` FALSE).
 4. When someone stops, set their `active` to **FALSE** and run **Apply moderators** again. Setting `sheet_access` to FALSE and running it removes only the Sheet; the person stays on the desk and keeps getting their emails.
 
 After the upgrade, existing rows have a blank `sheet_access`, which counts as FALSE: set TRUE for anyone who should keep the Sheet before running **Apply moderators**, which lists every removal and asks first.
@@ -104,5 +106,7 @@ The desk (`…/desk/` on the website) lets moderators approve, reject and follow
 2. Reload the Sheet and run **Administrator → Upgrade Sheet**. It adds the **moderator_log** tab.
 3. Press **Rotary → Rebuild site now** (or wait for the next update). When the website build next reads the data link, the script remembers its own web address, which the desk's email links need. Until then, emails say "open the Sheet" instead of showing desk buttons.
 4. Put a real email on at least one moderators row (your own is fine for a test), then open `…/desk/` from the **Open the moderation desk** button in the next moderator email, and sign in with the emailed code.
+
+**Release 1 (18 Nov 2026):** paste the new `Code.gs` and `Sidebar.html`, deploy a new version, then run **Administrator → Upgrade Sheet**. It adds the columns `charter_date` and `merged_into` (clubs), `ended_on` (officers, functionaries), `hidden_by` and `hidden_at` (activities), `zone` (moderators), the setting `content_changed_at`, and the private **change_log** tab, where every correction made on the desk is kept. Nothing is deleted. From then on, approvals reach the website at the next of four daily updates (about 9 am, 1 pm, 6 pm, 10 pm).
 
 The desk page on the website holds no data and no addresses. Everything comes from the script after signing in. The script's web address travels only after the `#` in the links emailed to moderators, and the page remembers it on that phone. The web app never serves a page itself, so no web page can run the script's other functions.

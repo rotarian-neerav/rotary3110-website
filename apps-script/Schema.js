@@ -10,10 +10,14 @@ var SCHEMA_MAIN = {
     'meeting_day_place', 'website', 'facebook', 'instagram', 'youtube', 'x', 'linkedin', 'profile_updated_at', 'is_sample',
     'permanent_projects', 'regular_services',
     // added in Release A (17 October 2026); new columns always go at the end
-    'meeting_day', 'activity_form_link'],
-  officers: ['rotary_year', 'club_id', 'member_id', 'name', 'role', 'contact_ok', 'contact_link', 'is_sample'],
+    'meeting_day', 'activity_form_link',
+    // added in Release 1 (18 November 2026): a new club is not nudged in its first 60 days; a closed club may name
+    // the club its members moved to
+    'charter_date', 'merged_into'],
+  // ended_on (Release 1): a moderator ended the role on the desk; the row stays, the website no longer shows it
+  officers: ['rotary_year', 'club_id', 'member_id', 'name', 'role', 'contact_ok', 'contact_link', 'is_sample', 'ended_on'],
   functionaries: ['rotary_year', 'page', 'section', 'committee', 'member_id', 'name', 'role', 'zone', 'club_id', 'term',
-    'sort_order', 'contact_ok', 'contact_link', 'is_sample', 'ag_clubs'],
+    'sort_order', 'contact_ok', 'contact_link', 'is_sample', 'ag_clubs', 'ended_on'],
   activities: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'club_id',
     'club_name', 'title', 'date', 'theme', 'description', 'photo_files', 'post_link', 'people_helped', 'amount_spent', 'partner_clubs',
     'photo_consent', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'story_of_month', 'event_id',
@@ -22,7 +26,9 @@ var SCHEMA_MAIN = {
     // added 17 November 2026: the sender marked it as district work (the moderator checks it)
     'district_level',
     // added 17 November 2026: one photo before and one after the work (shown side by side only when both are there)
-    'before_photo', 'after_photo'],
+    'before_photo', 'after_photo',
+    // added in Release 1 (18 November 2026): a published activity a moderator took off the website (status hidden)
+    'hidden_by', 'hidden_at'],
   events: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'title',
     'event_type', 'start_date', 'start_time', 'end_date', 'venue', 'city', 'organiser', 'description', 'map_link',
     'details_link', 'photo_files', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'report_activity_id', 'notified',
@@ -57,7 +63,8 @@ var SCHEMA_MAIN = {
     'activities_last_month', 'activities_this_rotary_year', 'months_posted_this_rotary_year', 'needs_nudge'],
   role_checks: ['checked_at', 'tab', 'row', 'rotary_year', 'name', 'member_id', 'problem'],
   // who moderates, by type: one row per person and type; edit a row when someone changes (never sent to the website)
-  moderators: ['type', 'name', 'email', 'active', 'from_date', 'notes', 'sheet_access'],
+  // zone (Release 1): a Content moderator's zones (Agra, Bareilly, Kanpur); blank means every zone
+  moderators: ['type', 'name', 'email', 'active', 'from_date', 'notes', 'sheet_access', 'zone'],
   // what moderators did on the moderation desk (filled in by the script; never sent to the website)
   moderator_log: ['at', 'moderator', 'action', 'tab', 'item', 'details'],
 };
@@ -90,6 +97,9 @@ var SCHEMA_PRIVATE = {
   // joined, left, moved, deceased, club_role, district_role
   club_change_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'change', 'member_id', 'name', 'date', 'new_club_id',
     'rotary_year', 'role', 'section', 'committee', 'note', 'status', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
+  // every change a moderator makes on the desk to a member, a role, a club or a moderator (Release 1, 18 November 2026):
+  // one row per field, rows of one save share an id; Undo puts old_value back while the field still holds new_value
+  change_log: ['id', 'at', 'moderator', 'action', 'tab', 'key', 'field', 'old_value', 'new_value', 'reason', 'undone_at', 'undone_by'],
 };
 
 if (typeof module !== 'undefined' && module.exports) {

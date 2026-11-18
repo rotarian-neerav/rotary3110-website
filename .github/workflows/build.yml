@@ -1,6 +1,8 @@
 # Builds and publishes the website.
 #  - every Sunday at 6:00 am India time (00:30 UTC)
-#  - within ~30 minutes (checked every 15; GitHub often runs late) when a moderator presses "Rebuild site now" in the Sheet (or marks someone deceased)
+#  - four times a day, 9 am, 1 pm, 6 pm and 10 pm India time, when anything was approved, hidden, removed or changed
+#    since the last build (owner, 18 Nov 2026; GitHub often runs schedules late)
+#  - within ~30 minutes (checked every 15) when a moderator presses "Rebuild site now" in the Sheet, for an emergency
 #  - on every change to the code, and by hand from the Actions tab ("Run workflow")
 name: Build and publish
 
@@ -8,6 +10,7 @@ on:
   schedule:
     - cron: "30 0 * * 0"
     - cron: "*/15 * * * *"
+    - cron: "30 3,7,12,16 * * *"
   push:
     branches: [main]
     paths-ignore: ["docs/**", "**.md"]
@@ -48,10 +51,15 @@ jobs:
             echo "build=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
           if [ -z "$DATA_URL" ]; then echo "build=false" >> "$GITHUB_OUTPUT"; exit 0; fi
-          requested=$(curl -sL --max-time 60 "$DATA_URL?mode=status&token=$DATA_TOKEN" | jq -r '.rebuild_requested_at // ""')
+          status=$(curl -sL --max-time 60 "$DATA_URL?mode=status&token=$DATA_TOKEN")
+          requested=$(echo "$status" | jq -r '.rebuild_requested_at // ""' 2>/dev/null || echo "")
+          changed=$(echo "$status" | jq -r '.content_changed_at // ""' 2>/dev/null || echo "")
           built=$(curl -sL --max-time 30 "${SITE_URL}${PATH_PREFIX}build-info.json" | jq -r '.generated_at // ""' 2>/dev/null || echo "")
-          echo "Rebuild requested at: ${requested:-never}; site built at: ${built:-unknown}"
+          echo "Rebuild requested at: ${requested:-never}; changed at: ${changed:-never}; site built at: ${built:-unknown}"
+          # the four daily updates take what was approved or changed; the 15-minute check only "Rebuild site now"
           if [ -n "$requested" ] && [[ "$requested" > "$built" ]]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          elif [ "$CRON" = "30 3,7,12,16 * * *" ] && [ -n "$changed" ] && [[ "$changed" > "$built" ]]; then
             echo "build=true" >> "$GITHUB_OUTPUT"
           else
             echo "build=false" >> "$GITHUB_OUTPUT"

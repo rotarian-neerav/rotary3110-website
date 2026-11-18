@@ -63,6 +63,21 @@ function desk_(req) {
   if (fn === 'nudge') return deskNudge_(me, req.club_id, req.via);
   if (fn === 'answered') return deskAnswered_(me, req.id);
   if (fn === 'reply') return deskReply_(me, req.id, req.text);
+  // Release 1 (18 Nov 2026): moderators keep the data up to date here (Admin.js)
+  if (fn === 'approveclean') return deskApproveClean_(me, req.ids);
+  if (fn === 'hide') return deskHide_(me, req.id, req.reason);
+  if (fn === 'putback') return deskPutBack_(me, req.id);
+  if (fn === 'membersave') return deskMemberSave_(me, req.member_id, req.fields || {}, req.reason);
+  if (fn === 'changes') return deskChanges_(me);
+  if (fn === 'undo') return deskUndo_(me, req.id);
+  if (fn === 'roles') return deskRoles_(me, req.q);
+  if (fn === 'rolesave') return deskRoleSave_(me, req.tab, req.row, req.fields || {}, req.reason);
+  if (fn === 'roleend') return deskRoleEnd_(me, req.tab, req.row, req.reason);
+  if (fn === 'roleadd') return deskRoleAdd_(me, req.fields || {}, req.reason);
+  if (fn === 'clubadd') return deskClubAdd_(me, req.fields || {}, req.reason);
+  if (fn === 'clubsave') return deskClubSave_(me, req.club_id, req.fields || {}, req.reason);
+  if (fn === 'clubclose') return deskClubClose_(me, req.club_id, req.move_to, req.reason);
+  if (fn === 'modsave') return deskModeratorSave_(me, req.row, req.fields || {}, req.reason);
   throw new Error('unknown request');
 }
 
@@ -129,7 +144,7 @@ function deskName_(email) {
 }
 
 function deskMe_(email, types) {
-  return { email: email, name: deskName_(email), types: types, views: Core_deskViews(types) };
+  return { email: email, name: deskName_(email), types: types, views: Core_deskViews(types), zones: Core_moderatorZones(deskModeratorRows_(), email) };
 }
 
 function deskUser_(session) {
@@ -255,12 +270,20 @@ function deskLink_(params) {
 /* ---------- One item as the desk and the emails show it ---------- */
 
 var DESK_CLUB_NAMES = null;
+var DESK_CLUB_ZONES = null;
 function deskClubName_(id) {
   if (!DESK_CLUB_NAMES) {
     DESK_CLUB_NAMES = {};
-    clubs_().forEach(function (c) { DESK_CLUB_NAMES[Core_str(c.club_id)] = Core_str(c.club_name); });
+    DESK_CLUB_ZONES = {};
+    clubs_().forEach(function (c) { DESK_CLUB_NAMES[Core_str(c.club_id)] = Core_str(c.club_name); DESK_CLUB_ZONES[Core_str(c.club_id)] = Core_str(c.zone); });
   }
   return DESK_CLUB_NAMES[Core_str(id)] || Core_str(id);
+}
+
+/** The zone of a club (Agra, Bareilly, Kanpur), for sharing the clubs out among Content moderators. */
+function deskClubZone_(id) {
+  deskClubName_(id);
+  return (DESK_CLUB_ZONES || {})[Core_str(id)] || '';
 }
 
 function deskCard_(tab, r) {
@@ -276,8 +299,11 @@ function deskCard_(tab, r) {
     sender: [Core_str(r.submitter_name), Core_str(r.submitter_role)].filter(String).join(', '),
     sender_mobile: Core_mobile(r.submitter_mobile), submitted: Core_isoTimestamp(r.submitted_at),
     block: approveBlock_(tab, r), done_by: deskName_(r.approved_by), done_at: Core_isoTimestamp(r.approved_at),
-    edit: {},
+    edit: {}, zone: deskClubZone_(r.club_id),
   };
+  // an activity with nothing to check is "clean": Approve all clean takes it in one tap (Release 1)
+  card.checks = tab === 'activities' ? Core_activityChecks(r) : card.notes.slice();
+  card.clean = tab === 'activities' && !card.checks.length && !card.block;
   (DESK_EDITABLE[tab] || []).forEach(function (k) { card.edit[k] = Core_str(r[k]); });
   if (tab === 'activities') {
     card.title = Core_str(r.title); card.club = Core_str(r.club_name); card.date = Core_isoDate(r.date); card.text = Core_str(r.description);
@@ -385,7 +411,7 @@ function deskModerate_(me, action, tab, id, reason) {
     }
     deskLog_(me, action, tab, r.id, why);
     var title = Core_str(r.title || r.name || r.club_name);
-    return { message: (action === 'approve' ? 'Approved: ' + title + '. It will be on the website at the next update (Sunday).' : 'Rejected: ' + title + '. The sender has been told why.'),
+    return { message: (action === 'approve' ? 'Approved: ' + title + '. It will be on the website ' + NEXT_UPDATE + '.' : 'Rejected: ' + title + '. The sender has been told why.'),
       item: deskCard_(tab, deskFind_(tab, id)) };
   } finally {
     lock.releaseLock();
@@ -441,10 +467,10 @@ function deskContent_() {
   pending.sort(function (a, b) { return a.submitted.localeCompare(b.submitted); });
   var from = Core_addDays(today, -30);
   var recent = readTab_(ss, 'activities').filter(function (a) {
-    return Core_str(a.status) === 'approved' && Core_isoDate(a.date) >= from && Core_isoDate(a.date) <= today;
-  }).sort(function (a, b) { return Core_isoDate(b.date).localeCompare(Core_isoDate(a.date)); }).slice(0, 40).map(function (a) {
+    return ['approved', 'hidden'].indexOf(Core_str(a.status)) >= 0 && Core_isoDate(a.date) >= from && Core_isoDate(a.date) <= today;
+  }).sort(function (a, b) { return Core_isoDate(b.date).localeCompare(Core_isoDate(a.date)); }).slice(0, 60).map(function (a) {
     return { tab: 'activities', id: Core_str(a.id), title: Core_str(a.title), club: Core_str(a.club_name), date: Core_isoDate(a.date),
-      story: Core_isTrue(a.story_of_month), left_out: Core_isTrue(a.bulletin_exclude) };
+      story: Core_isTrue(a.story_of_month), left_out: Core_isTrue(a.bulletin_exclude), hidden: Core_str(a.status) === 'hidden' };
   });
   var until = Core_addDays(today, 30);
   var upcoming = readTab_(ss, 'events').filter(function (e) {
@@ -496,7 +522,7 @@ function deskMember_(me, kind, action, id, reason, confirmed) {
   var message;
   if (action === 'approve') {
     message = kind === 'consent' ? approveConsent_(id, me.email, confirmed)
-      : kind === 'change' ? approveClubChange_(id, me.email) : approveRemoval_(id, me.email);
+      : kind === 'change' ? approveClubChange_(id, me.email, confirmed) : approveRemoval_(id, me.email);
   }
   else if (action === 'reject') {
     if (!Core_str(reason)) throw deskError_('Please write a reason. It is sent to the person who sent the form.');
@@ -506,19 +532,6 @@ function deskMember_(me, kind, action, id, reason, confirmed) {
   return { message: message };
 }
 
-function deskSearch_(me, q) {
-  if (!me.views.members) throw deskError_('Only Members moderators can do this.');
-  var want = Core_plainName(q);
-  if (want.length < 3) throw deskError_('Type at least three letters of the name.');
-  return {
-    people: readTab_(privateSs_(), 'members_master').filter(function (m) {
-      return Core_str(m.status || 'active') === 'active' && Core_plainName(m.name).indexOf(want) >= 0;
-    }).slice(0, 10).map(function (m) {
-      return { member_id: Core_str(m.member_id), name: Core_str(m.name), club: deskClubName_(m.club_id) || '–', rotarian: Core_isTrue(m.is_rotarian) };
-    }),
-  };
-}
-
 function deskDeceased_(me, memberId) {
   if (!me.views.members) throw deskError_('Only Members moderators can do this.');
   var m = readTab_(privateSs_(), 'members_master').filter(function (x) { return Core_str(x.member_id) === Core_str(memberId); })[0];
@@ -526,7 +539,7 @@ function deskDeceased_(me, memberId) {
   if (Core_str(m.status) === 'deceased') return { message: m.name + ' was already marked as deceased.' };
   markDeceased_(m, me.email);
   deskLog_(me, 'deceased', 'members_master', m.member_id, '');
-  return { message: m.name + ' is marked as deceased. Greetings stop at once; the website updates within about 30 minutes.' };
+  return { message: m.name + ' is marked as deceased. Greetings stop at once; the website shows it ' + NEXT_UPDATE + '.' };
 }
 
 /* ---------- Club engagement ---------- */
@@ -667,8 +680,11 @@ function deskList_(me) {
   var out = { me: me };
   if (me.views.content) out.content = deskContent_();
   if (me.views.members) out.members = memberRequests_(false);
+  if (me.views.members || me.views.content) out.roles = { checks: me.views.members ? deskRoleChecks_() : [] };
   if (me.views.clubs) out.clubs = deskClubs_(me);
   if (me.views.office) out.office = deskOffice_();
+  if (me.views.admin) out.admin = { clubs: clubs_().map(deskClubRow_), moderators: deskModerators_() };
+  if (me.views.members || me.views.content || me.views.admin) out.lists = deskLists_();
   return out;
 }
 
@@ -741,10 +757,14 @@ function deskEmailHtml_(card, intro, buttons, how, imageIds) {
   return h + '</div>';
 }
 
-/** A new activity, event, club profile update or public service: one email to each Content moderator, with personal Approve and Reject links. */
+/**
+ * A new activity, event, club profile update or public service: one email to each Content moderator, with personal
+ * Approve and Reject links. A moderator given zones hears only of their zones' clubs (Release 1); when nobody covers
+ * the club's zone, everyone does.
+ */
 function alertContent_(tab, row, only) {
   try {
-    var to = only || moderatorRecipients_('Content').split(',').filter(String);
+    var to = only || alertZoneFilter_(moderatorRecipients_('Content').split(',').filter(String), deskClubZone_(row.club_id));
     if (!deskQuota_(to.length)) { Logger.log('Alert for ' + row.id + ' not sent: daily email allowance nearly used'); return; }
     var card = deskCard_(tab, row);
     var images = deskInlineImages_(card.photos);
@@ -764,6 +784,16 @@ function alertContent_(tab, row, only) {
   } catch (e) {
     Logger.log('Alert not sent: ' + e.message);
   }
+}
+
+function alertZoneFilter_(emails, zone) {
+  if (!zone) return emails;
+  var rows = deskModeratorRows_();
+  var mine = emails.filter(function (e) {
+    var zones = Core_moderatorZones(rows, e);
+    return !zones.length || zones.indexOf(zone) >= 0;
+  });
+  return mine.length ? mine : emails;
 }
 
 /** A new consent, removal or club change form: the Members moderators are told to open the desk (no details in the email beyond the name). */

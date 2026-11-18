@@ -64,8 +64,8 @@ test('Core: types per email, what each type sees, quiet clubs, and a web address
   const rows = [{ type: 'Content', email: 'A@x.com' }, { type: 'Members', email: 'a@x.com' }, { type: 'Content', email: 'b@x.com', active: 'FALSE' }];
   assert.deepEqual([...core.Core_moderatorTypesOf(rows, 'a@X.com')], ['Content', 'Members']);
   assert.deepEqual([...core.Core_moderatorTypesOf(rows, 'b@x.com')], []);
-  assert.deepEqual({ ...core.Core_deskViews(['Content']) }, { content: true, members: false, clubs: false, office: false });
-  assert.deepEqual({ ...core.Core_deskViews(['Administrator']) }, { content: true, members: true, clubs: true, office: true });
+  assert.deepEqual({ ...core.Core_deskViews(['Content']) }, { content: true, members: false, clubs: false, office: false, admin: false });
+  assert.deepEqual({ ...core.Core_deskViews(['Administrator']) }, { content: true, members: true, clubs: true, office: true, admin: true });
   const clubs = [{ club_id: 'A', club_name: 'RC A', status: 'active' }, { club_id: 'B', club_name: 'RC B' }, { club_id: 'C', club_name: 'RC C' }, { club_id: 'D', club_name: 'RC D', status: 'inactive' }];
   const acts = [{ club_id: 'A', date: '2026-10-10', status: 'approved' }, { club_id: 'B', date: '2026-08-01', status: 'approved' }, { club_id: 'C', date: '2026-10-12', status: 'rejected' }];
   assert.deepEqual(core.Core_quietClubs(clubs, acts, '2026-10-18', 30).map((c) => [c.club_id, c.last_activity_date]), [['C', ''], ['B', '2026-08-01']]);
@@ -293,12 +293,14 @@ test('member requests: the Members moderator is alerted with only the name; appr
   assert.ok(env.post({ fn: 'member', session: s, kind: 'consent', action: 'reject', id: second, reason: 'Two people in the photo' }).ok);
 
   assert.match(env.post({ fn: 'search', session: s, q: 'Rt' }).error, /three letters/);
+  assert.match(env.post({ fn: 'search', session: s, q: 'zz' }).error, /RI member ID, email or mobile/);
   const found = env.post({ fn: 'search', session: s, q: 'Desk Member' }).people;
   assert.deepEqual(found.map((p) => p.name), ['Rtn Desk Member']);
   const dead = env.post({ fn: 'deceased', session: s, member_id: found[0].member_id });
   assert.match(dead.message, /is marked as deceased/);
   assert.equal(env.priv.rows('members_master').find((m) => m.member_id === found[0].member_id).status, 'deceased');
-  assert.deepEqual(env.post({ fn: 'search', session: s, q: 'Desk Member' }).people, []);
+  // the search now finds people of every status, so a mistaken "deceased" can be put right (Release 1)
+  assert.deepEqual(env.post({ fn: 'search', session: s, q: 'Desk Member' }).people.map((p) => p.status), ['deceased']);
 });
 
 test('quiet clubs: the Club engagement moderator emails the President and Secretary from the district account (hidden copy to themselves) once a week, or notes a WhatsApp reminder', () => {

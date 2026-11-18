@@ -349,7 +349,7 @@ test('removal: either spouse can withdraw the anniversary alone; "Everything" re
   assert.ok(!d.members.some((m) => m.name === 'Rtn Ravi Kumar'));
   assert.ok(!d.couples.some((c) => c.person_a_name === 'Rtn Ravi Kumar'));
   assert.ok(env.trashed.includes('1PhotoOfRaviKumar0123456789abc'), 'photo deleted from Drive');
-  assert.ok(d.rebuild_requested_at, 'removals ask for a quick rebuild');
+  assert.ok(env.main.rows('settings').find((x) => x.key === 'content_changed_at').value, 'removals go in the next of the four daily updates');
 });
 
 test('mark as deceased stops greetings at once and asks for a rebuild', () => {

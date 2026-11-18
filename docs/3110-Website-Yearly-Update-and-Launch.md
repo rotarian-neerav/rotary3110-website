@@ -1,4 +1,4 @@
-# Yearly update (July) and what is left from the launch
+# Yearly update (July) and open district items
 
 ## Every July (new Rotary year)
 

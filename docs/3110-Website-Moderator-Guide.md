@@ -25,49 +25,33 @@ Moderators check everything before it appears on the website. Any Content modera
 - **Who can sign in:** only active rows of the moderators tab (and the district account). Setting someone's `active` to **FALSE** locks them out of the desk at once.
 - **Member requests** are never approved from an email button, only on the signed-in desk. Their alert email shows just the name and club.
 
-## Release 1: moderators keep the records up to date (18 Nov 2026)
+## The forms
+
+Four forms bring everything in; their links are on the website.
+- **Club activity or event** (clubs): an activity done or an event coming up.
+- **Club updates** (clubs): the club's details, a member or a role (joined, left, moved, passed away, club or district
+  role), or a public service, each in its own section. They arrive on the desk as club profile updates and public
+  services (under To check) and club changes (under Members). A new member's mobile and email can come with "joined";
+  approving puts them in the members list (private, never published).
+- **My details on the website** (members): show my details, remove them, or list my business. Sent from the member's
+  own email (the one the members list has), it is applied by itself (`approved_by` "automatic: sent from the member's
+  own email") and the member gets the usual confirmation; nothing reaches the desk. Sent by anyone else, it comes to
+  the Members moderator, and the member is told by email. A business listing with something to check also comes to
+  the desk.
+- **Contact the district** (the public), inside the website's Contact page.
+
+## Corrections, the change log and website updates
 
 Corrections are made on the moderation desk, not in the Sheet and not by one-off scripts. Every correction asks for
 a reason and is written to the private **change_log** tab (who, when, the old and new value, why); **Recent changes**
 on the desk shows them, and **Undo** puts the old values back while nobody has changed them again since. The main
 Sheet's moderator_log names only the action and the row.
 
-- **The website updates four times a day** (about 9 am, 1 pm, 6 pm and 10 pm India time), taking everything approved,
-  hidden, removed or corrected since the last update. Removals and deaths also wait for the next update. **Rotary →
-  Rebuild site now** stays for an emergency (within about 30 minutes).
-- **Content moderators:** To check is split into **Clean** (nothing found by the checks: glance, untick anything
-  wrong, **Approve the ticked**) and **Needs a look** (a card with the reason first). A District mark, a campaign count,
-  photos without the consent tick, an unknown club, a possible duplicate or any other note always needs a look.
-  **Hide** takes a published activity off the website with a reason; **Put back** returns it. A Content moderator
-  given zones (the moderators tab's zone column, or Admin → Moderators) is emailed only about those zones' clubs.
-- **Members moderators:** **Find a member** by name, RI member ID, email or mobile; **Edit** the name, RI member ID,
-  club, status (also to undo a mistaken "left" or "deceased"), mobile or email. A passing away sent through the club
-  changes form needs **I have confirmed this with the club** ticked before Approve (desk and Sheet sidebar).
-- **Roles tab:** the daily role check's findings (Members moderators) with **Open**; **Change** who holds a role or an
-  Assistant Governor's clubs and zone; **End role** (the website stops showing it, the row stays with ended_on);
-  **Add an office bearer** (President, Secretary or Executive Secretary, one of each per club and year). Content
-  moderators may do this for club office bearers; district roles are for Members moderators.
-- **Administrators (Admin tab):** add, rename and close clubs (members move to the club it merged into, or are marked
-  left); add and change moderators and their zones. Club member counts are worked out from the members list every day,
-  so nobody types them.
+**The website updates four times a day** (about 9 am, 1 pm, 6 pm and 10 pm India time), taking everything approved,
+hidden, removed or corrected since the last update. Removals and deaths also wait for the next update. **Rotary →
+Rebuild site now** stays for an emergency (within about 30 minutes).
 
-## Release 2: four forms, and members' own updates (18 Nov 2026)
-
-- **Club updates** form (clubs): the club's details, a member or a role (joined, left, moved, passed away, club or district
-  role), or a public service, each in its own section. They arrive on the desk exactly as before (Club profile updates
-  and Public services under To check; Club changes under Members). A new member's mobile and email can come with
-  "joined"; approving puts them in the members list (private, never published).
-- **My details on the website** form (members): show my details, remove them, or list my business. **Sent from the
-  member's own email** (the one the members list has), it is applied by itself, marked `approved_by` "automatic: sent from
-  the member's own email", and the member gets the usual confirmation; nothing reaches the desk. Sent by anyone else (a
-  club secretary, another email), it comes to the Members moderator as before, and the member is told by email. A business listing with something to check (a phone number in the text, not found
-  in the members list) also comes to the desk.
-- The RI member ID is required on the My details form. A member is found by that ID, or else by the sender's own email
-  when the name on the form agrees; a typed mobile number never finds anyone (anyone could type it). A form whose member
-  is not found waits on the desk: find the member (Find a member) and put their RI ID on the request before approving,
-  so nobody gets a second card.
-
-## Practice round (before the website opens)
+## Practice round (for new moderators)
 
 **Rotary → Administrator → Practice round: start…** (the Administrator) gives every active moderator practice items made for them on the desk, titled "Practice: …", with the same emails a real item sends and one email listing what to try:
 
@@ -103,10 +87,20 @@ The **moderators** tab in the main Sheet lists who does what: one row per person
 every desk session at once; moderators sign in again with a new code. To lock out one person for good, set their
 `active` to FALSE in the moderators tab.
 
+**Zones:** a Content moderator given zones (the moderators tab's `zone` column, or the desk's **Admin → Moderators**) is
+emailed only about those zones' clubs and sees them first. Zones are never shown on the website; the desk calls them
+areas.
+
 Until a type has a real email, its emails go where they went before: the older settings (`contact_email`, `bulletin_emails`, `not_posting_emails`), then the Content moderators, then `moderator_emails`, then the district account. The placeholder rows (Moderator A–D, District office, Website administrator) are ignored until an email is filled in.
 
 ## Activities and events
 
+**On the desk,** To check is split into **Clean** (nothing found by the checks: glance, untick anything wrong,
+**Approve the ticked**) and **Needs a look** (a card with the reason first). A District mark, a campaign count, photos
+without the consent tick, an unknown club, a possible duplicate or any other note always needs a look. **Hide** takes a
+published activity off the website with a reason; **Put back** returns it.
+
+**In the Sheet:**
 1. Open the **activities** (or **events**) tab. New entries have status **pending**. Read the `moderator_note` column: it warns about possible duplicates, missing photos or future dates.
 2. Check the entry:
    - **Light fixes only:** spelling, trimming length. Edit the cell directly. Do not rewrite the club's story; the original is kept in the `raw_activity_form` tab.
@@ -136,7 +130,7 @@ Until a type has a real email, its emails go where they went before: the older s
 
 A fee is shown as typed ("₹500 per person", "Free"). If the moderator note says the fee contains payment details (UPI, IFSC, a bank account or a phone number), remove them before approving; the website leaves such a fee out anyway.
 
-## Club profile updates
+## Club details (Club updates form)
 
 New ones appear in **club_profile_requests**. Check that the links work and belong to the club, then approve. The links are copied to the club's row in **clubs**.
 
@@ -152,7 +146,7 @@ When approved, the club's list is **replaced** by the new one. A blank answer le
 
 ## Public services (blood banks, eye care, dialysis…)
 
-Clubs send one **Public service run by a club** form per facility. New ones appear in **public_services** as pending.
+Clubs send one **Club updates** form (public service section) per facility. New ones appear in **public_services** as pending.
 - Check that the facility exists and that the club runs or supports it.
 - The **phone number must be the facility's own** (reception or helpline), never a member's personal mobile. A moderator note warns when the number is a mobile; check it before approving. A number that is not a plain number cannot be approved until it is corrected.
 - Approve or reject with the Rotary menu, as for activities. Approved services appear on the **Services you can use** page, the club's page and the city's page, with a tap-to-call number and the map link.
@@ -160,7 +154,7 @@ Clubs send one **Public service run by a club** form per facility. New ones appe
 
 ## Business listings (Rotary Means Business)
 
-Members send the **Rotary Means Business** form for their own business, the topics they can speak on at club meetings, or both. New ones appear in **businesses** as pending (on the desk as "Business listing").
+Members send the **My details on the website** form (business listing section) for their own business, the topics they can speak on at club meetings, or both. New ones appear in **businesses** as pending (on the desk as "Business listing").
 - **Members only.** The script looks the sender up in the members list and fills in `member_id` and `member_name`. If the note says "Not found in the members list", find the member and type their member ID in `member_id`, or reject. A listing cannot be approved for someone who is not an active member.
 - A note says when the form did **not** come from the member's own email: check with the member first.
 - The business needs a **trade** and a **city**. The WhatsApp number must be a mobile number; it is shown only as a WhatsApp button.
@@ -176,6 +170,14 @@ Messages from the website's contact form go to the private Sheet's **contact_mes
 
 **Rotary → Member requests (consent, removal, club changes)…** opens a panel on the right; the desk's **Members** tab shows the same.
 
+- **Finding the member:** the RI member ID is required on the My details form. A member is found by that ID, or else
+  by the sender's own email when the name on the form agrees; a typed mobile number never finds anyone (anyone could
+  type it). A request whose member is not found waits: **Find a member**, put their RI ID on the request, then approve,
+  so nobody gets a second card.
+- **Find a member** (name, RI member ID, email or mobile) and **Edit** the name, RI member ID, club, status (also to
+  undo a mistaken "left" or "deceased"), mobile or email, with a reason. A passing away sent through Club updates needs
+  **I have confirmed this with the club** ticked before Approve (desk and Sheet sidebar).
+
 - **Consent:** shows the member's choices, any photo, and whether the request matches someone in the private members list. Check the photo shows the member alone and is suitable. Watch for the warnings (declaration not ticked, spouse's agreement missing). Then **Approve** or **Reject**.
 - **Who sent it** (the same on the desk). Each form shows the Google account it was sent from and what that account is:
   - **The member's own email** (the email on file from Rotary International): approve as usual.
@@ -190,10 +192,20 @@ Messages from the website's contact form go to the private Sheet's **contact_mes
   - *Left:* sets `status` to `left` and ends their **club_history** row.
   - *Moved:* ends the old club's **club_history** row, adds the new club's and changes `club_id`. Moved to a club outside the district: marked as left.
   - *Passed away:* the same as **Mark as deceased**.
-  - *Club role* or *district role:* adds a row to **officers** or **functionaries** with the name as the members list has it. The team's page and order follow the team's other rows. A role is added even if the person is not in the members list (no member card until they are). To change or remove a role later, edit the row in the Sheet.
+  - *Club role* or *district role:* adds a row to **officers** or **functionaries** with the name as the members list has it. The team's page and order follow the team's other rows. A role is added even if the person is not in the members list (no member card until they are). To change or end a role later, use the desk's **Roles** tab (below).
 
   Then the public members list and the role check are refreshed, the website is asked to rebuild, and the sender gets an "Approved" email. **Reject** sends your reason to the sender. If the member ID, club or year is wrong, correct it on the request row in the private Sheet's **club_change_requests** tab, then approve. The members list from Rotary International stays the master list: its next refresh shows any difference.
 - **Couples waiting:** anniversaries where one Rotarian spouse has not yet sent their own form, or where the two forms give different dates. Ask the club to follow up. For different dates, correct the `anniversary` in the private Sheet's **couples** tab, then set `status` to `active`.
+
+## Roles and clubs on the desk
+
+- **Roles tab:** the daily role check's findings (Members moderators) with **Open**; **Change** who holds a role or an
+  Assistant Governor's clubs and zone; **End role** (the website stops showing it, the row stays with `ended_on`);
+  **Add an office bearer** (President, Secretary or Executive Secretary, one of each per club and year). Content
+  moderators may do this for club office bearers; district roles are for Members moderators.
+- **Admin tab (Administrators):** add, rename and close clubs (members move to the club it merged into, or are marked
+  left); add and change moderators and their zones. Club member counts are worked out from the members list every day,
+  so nobody types them.
 
 ## Professions list
 

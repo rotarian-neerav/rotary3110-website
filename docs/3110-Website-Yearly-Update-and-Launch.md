@@ -4,7 +4,10 @@
 
 The July update **adds** rows; it never overwrites last year's, so history is kept.
 
-1. **officers**: add the new year's office bearers with the new `rotary_year`. Leave last year's rows.
+1. **officers**: add the new year's office bearers with the new `rotary_year`. Leave last year's rows. Clubs may already
+   have reported theirs through Club updates (members and roles) or a moderator added them on the desk; those count from
+   1 July by themselves. A club whose new office bearers are not in yet keeps its last known ones acting (who may send
+   for the club, who gets the weekly club email) until they are, so nothing stops on 1 July.
 2. **functionaries**: add the new year's teams and committees with the new `rotary_year`. Last year's teams stay visible under "Past years".
 3. **Rotary → Administrator → Start new Rotary year…** (after steps 1 and 2): it moves **settings → current_rotary_year** on by one year, adds the governor who has just finished to **past_governors**, runs the role check and the form lists, asks for a rebuild, and lists what is left (steps 4, 7 and 8). It refuses while the new year has no office bearers or team rows.
 4. **Clubs** (desk, Admin → Clubs): add new clubs, close the ones that closed (their members move or are marked left). Member counts are worked out from the members list every day; nobody types them.

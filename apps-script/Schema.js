@@ -91,12 +91,16 @@ var SCHEMA_PRIVATE = {
   // messages from the website's contact form; the reply details stay here and are never published
   contact_messages: ['id', 'submitted_at', 'name', 'reply_to', 'topic', 'city', 'message', 'status', 'forwarded_to', 'note', 'is_sample', 'replies'],
   removal_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'name', 'member_id', 'mobile', 'remove_items',
-    'reason', 'status', 'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
+    'reason', 'status', 'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample',
+    // added in Release 2 (18 November 2026): the My details form asks who is filling it
+    'filled_by'],
   // club changes sent by anyone through the club changes form (17 November 2026): a member joined, left, moved or passed
   // away, or a club or district role. Nothing changes until a Members moderator approves; change is one of
   // joined, left, moved, deceased, club_role, district_role
   club_change_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'change', 'member_id', 'name', 'date', 'new_club_id',
-    'rotary_year', 'role', 'section', 'committee', 'note', 'status', 'approved_by', 'approved_at', 'moderator_note', 'is_sample'],
+    'rotary_year', 'role', 'section', 'committee', 'note', 'status', 'approved_by', 'approved_at', 'moderator_note', 'is_sample',
+    // added in Release 2 (18 November 2026): a new member's own mobile and email, for the members list only
+    'mobile', 'email'],
   // every change a moderator makes on the desk to a member, a role, a club or a moderator (Release 1, 18 November 2026):
   // one row per field, rows of one save share an id; Undo puts old_value back while the field still holds new_value
   change_log: ['id', 'at', 'moderator', 'action', 'tab', 'key', 'field', 'old_value', 'new_value', 'reason', 'undone_at', 'undone_by'],

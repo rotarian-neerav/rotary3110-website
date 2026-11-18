@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { before, beforeEach, test } from 'node:test';
 import { createGoogleEnv } from '../helpers/google-mock.mjs';
+import { routeOldForms } from '../helpers/forms.mjs';
 import { bundleCode } from '../../tools/bundle-apps-script.mjs';
 import { core } from '../../lib/core.mjs';
 
@@ -21,6 +22,7 @@ beforeEach(() => { if (env) env.quota.left = 100; });
 before(() => {
   env = createGoogleEnv({ sampleJson: readFileSync(resolve(ROOT, 'sample/sample-data.json'), 'utf8') });
   env.load(bundleCode());
+  routeOldForms(env); // the old forms' submissions go through the two forms with sections (Release 2)
   Object.assign(Q, env.context.Q);
   env.run('setup');
   token = env.props.get('DATA_TOKEN');

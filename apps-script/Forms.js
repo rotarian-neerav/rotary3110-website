@@ -1,9 +1,12 @@
 /**
- * The eight Google Forms. Questions are found again by their titles, so keep titles in Q unchanged.
- * The activity, club profile, public service and business forms send answers to the main Sheet; the consent and removal
- * forms (members' personal details), the club changes form and the website's contact form (visitors' reply details) to the
- * private Sheet.
- * Each form's raw answers stay untouched in a "raw_…" tab; the script copies them into the working tabs.
+ * The four Google Forms (Release 2, 18 Nov 2026; there were eight): the activity form, the Club updates form (club
+ * details, members and roles, a public service, as sections), the My details on the website form (show my details,
+ * remove them, my business, as sections) and the website's contact form. Questions are found again by their titles,
+ * so keep titles in Q unchanged. The activity form sends answers to the main Sheet; the other three to the private
+ * Sheet. Each form's raw answers stay untouched in a "raw_…" tab; the script copies them into the working tabs.
+ *
+ * The six older forms (club profile, public service, club changes, consent, removal, business) still file their
+ * answers while they exist; Upgrade Sheet closes them, and Administrator → Delete the old forms removes them.
  */
 
 var Q = {
@@ -129,19 +132,47 @@ var Q = {
   gCommittee: 'Committee (if any)',
   gRole: 'Role in the team',
   gNote: 'Anything else the moderator should know? (optional)',
+  // Release 2 (18 November 2026): the two forms with sections; a new member's own mobile and email
+  uKind: 'What do you want to tell the district?',
+  mKind: 'What would you like to do?',
+  gMobile: "New member's mobile number (optional)",
+  gEmail: "New member's email (optional)",
 };
+
+// The first choice on each of the two forms with sections leads to its section
+var CLUB_UPDATE_KINDS = {
+  profile: "Our club's details: website, social pages, meeting day and place, projects and services",
+  member: 'A member or a role: joined, left, moved, passed away, President, Secretary, Executive Secretary or a district role',
+  service: 'A public service the club runs: blood bank, eye care, dialysis, ambulance…',
+};
+var MY_DETAILS_KINDS = {
+  consent: 'Show my details on the website: directory, photo, birthday, anniversary',
+  removal: 'Remove some or all of my details',
+  business: 'List my business, or the topics I can speak on (Rotary Means Business)',
+};
+// The six forms Release 2 replaced, with their answer tabs, and the new form and section each one's link now opens
+var OLD_FORMS = {
+  club_profile: { raw: 'raw_club_profile_form', sheet: 'main', now: 'club_updates', kind: 'profile' },
+  public_service: { raw: 'raw_public_service_form', sheet: 'main', now: 'club_updates', kind: 'service' },
+  club_change: { raw: 'raw_club_change_form', sheet: 'private', now: 'club_updates', kind: 'member' },
+  consent: { raw: 'raw_consent_form', sheet: 'private', now: 'my_details', kind: 'consent' },
+  removal: { raw: 'raw_removal_form', sheet: 'private', now: 'my_details', kind: 'removal' },
+  business: { raw: 'raw_business_form', sheet: 'main', now: 'my_details', kind: 'business' },
+};
+var CLUB_UPDATES_DESCRIPTION = 'Tell the district about your club: its details (website, social pages, meeting, projects and services), ' +
+  'a member who joined, left, moved or passed away, a club or district role, or a public service the club runs. ' +
+  "A district moderator checks everything before the website or the district's members list changes, and you get an email when it is decided.";
+var MY_DETAILS_DESCRIPTION = 'Your details on the district website: choose what may be shown about you, ask for something to be removed, ' +
+  'or list your business. Birthdays and anniversaries are shown as day and month only, never the year.\n\n' +
+  'Sent from your own email (the one the district has for you), it is applied at the next website update. ' +
+  'If someone else fills it in for you (for example your club secretary), we email you with what was asked, and a district moderator checks it first.';
 
 // The club changes form's choices, by the change kept in club_change_requests
 var CLUB_CHANGES = {
   joined: 'A member joined the club', left: 'A member left Rotary or the club', moved: 'A member moved to another club',
-  deceased: 'A member passed away', club_role: 'A club role: President or Secretary', district_role: 'A district role',
+  deceased: 'A member passed away', club_role: 'A club role: President, Secretary or Executive Secretary', district_role: 'A district role',
 };
 var CLUB_OUTSIDE = 'A club outside District 3110';
-var CLUB_CHANGE_DESCRIPTION = 'Tell the district about a change in your club: a member who joined, left, moved to another club or passed ' +
-  'away, or who holds a club or district role. Anyone may send it. A Members moderator checks every change before the website or the ' +
-  "district's members list is updated, and you get an email when it is decided.\n\n" +
-  "Give the member's Rotary member ID (from My Rotary or the club's records). No mobile numbers or emails, please.";
-
 var REMOVAL_ITEMS = ['Everything', 'Directory listing', 'WhatsApp / call button', 'My photo', 'Birthday', 'Anniversary', 'Couple photo',
   'Business listing (Rotary Means Business)'];
 var BUSINESS_DESCRIPTION = 'Rotary Means Business: list your own business on the district website, so Rotarians and the public can find it. ' +
@@ -236,9 +267,10 @@ function addLaterQuestions_(report) {
     report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
   });
   if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
-  if (ids.removal) {
+  ['removal', 'my_details'].forEach(function (key) {
+    if (!ids[key]) return;
     // the removal form offers each thing that can be shown, the business listing included (17 Nov 2026)
-    FormApp.openById(ids.removal).getItems().forEach(function (it) {
+    FormApp.openById(ids[key]).getItems().forEach(function (it) {
       if (it.getTitle() !== Q.rItems) return;
       var box = it.asCheckboxItem();
       var now = box.getChoices().map(function (c) { return c.getValue(); });
@@ -247,7 +279,7 @@ function addLaterQuestions_(report) {
         report.push('Updated the choices on the removal form (business listing added)');
       }
     });
-  }
+  });
   if (ids.consent) {
     var consentForm = FormApp.openById(ids.consent);
     if (consentForm.getDescription() !== CONSENT_DESCRIPTION) {
@@ -323,12 +355,9 @@ function formLists_() {
 function createForms_(report) {
   var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
   var L = formLists_();
-  var makers = { activity: makeActivityForm_, club_profile: makeClubProfileForm_, consent: makeConsentForm_, removal: makeRemovalForm_,
-    public_service: makePublicServiceForm_, contact: makeContactForm_, business: makeBusinessForm_, club_change: makeClubChangeForm_ };
-  var destinations = { activity: mainSs_().getId(), club_profile: mainSs_().getId(), consent: privateSheetId_(), removal: privateSheetId_(),
-    public_service: mainSs_().getId(), contact: privateSheetId_(), business: mainSs_().getId(), club_change: privateSheetId_() };
-  var rawNames = { activity: 'raw_activity_form', club_profile: 'raw_club_profile_form', consent: 'raw_consent_form', removal: 'raw_removal_form',
-    public_service: 'raw_public_service_form', contact: 'raw_contact_form', business: 'raw_business_form', club_change: 'raw_club_change_form' };
+  var makers = { activity: makeActivityForm_, contact: makeContactForm_, club_updates: makeClubUpdatesForm_, my_details: makeMyDetailsForm_ };
+  var destinations = { activity: mainSs_().getId(), contact: privateSheetId_(), club_updates: privateSheetId_(), my_details: privateSheetId_() };
+  var rawNames = { activity: 'raw_activity_form', contact: 'raw_contact_form', club_updates: 'raw_club_updates_form', my_details: 'raw_my_details_form' };
 
   Object.keys(makers).forEach(function (key) {
     var form = null;
@@ -347,6 +376,81 @@ function createForms_(report) {
     keepInSheetFolder_(form.getId(), 'the ' + key.replace('_', ' ') + ' form', report);
     setSetting_('form_' + key + '_url', form.getPublishedUrl());
   });
+  // the older forms' links (on the website and in emails) now open the new form at the right section
+  Object.keys(OLD_FORMS).forEach(function (key) {
+    var o = OLD_FORMS[key];
+    var url = sectionLink_(o.now, o.kind);
+    if (url) setSetting_('form_' + key + '_url', url);
+  });
+  closeOldForms_(ids, report);
+}
+
+/** A link to the Club updates or My details form with the first question already answered, so it opens at that section. */
+function sectionLink_(formKey, kind) {
+  var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
+  if (!ids[formKey]) return '';
+  var form = FormApp.openById(ids[formKey]);
+  var title = formKey === 'club_updates' ? Q.uKind : Q.mKind;
+  var text = (formKey === 'club_updates' ? CLUB_UPDATE_KINDS : MY_DETAILS_KINDS)[kind];
+  var item = form.getItems().filter(function (it) { return it.getTitle() === title; })[0];
+  if (!item) return form.getPublishedUrl();
+  try {
+    return form.createResponse().withItemResponse(item.asMultipleChoiceItem().createResponse(text)).toPrefilledUrl();
+  } catch (e) {
+    return form.getPublishedUrl();
+  }
+}
+
+/** The six older forms stop taking answers once the two new ones exist, and say where to go instead. Nothing is deleted. */
+function closeOldForms_(ids, report) {
+  if (!ids.club_updates || !ids.my_details) return;
+  Object.keys(OLD_FORMS).forEach(function (key) {
+    if (!ids[key]) return;
+    var form;
+    try { form = FormApp.openById(ids[key]); } catch (e) { return; }
+    if (!form.isAcceptingResponses()) return;
+    var now = OLD_FORMS[key].now === 'club_updates' ? 'Club updates' : 'My details on the website';
+    form.setAcceptingResponses(false)
+      .setCustomClosedFormMessage('This form has moved. Please use the "' + now + '" form instead: ' + sectionLink_(OLD_FORMS[key].now, OLD_FORMS[key].kind));
+    report.push('Closed the old ' + key.replace('_', ' ') + ' form (it points to the ' + now + ' form)');
+  });
+}
+
+/**
+ * Administrator → Delete the old forms and their answer tabs…: once the two new forms work, the six older forms go to
+ * Google Drive's Bin (deleted for good after 30 days) and their raw answer tabs are deleted (owner, 18 Nov 2026).
+ * What they filed stays in the working tabs (consent_requests, club_change_requests and so on).
+ */
+function deleteOldForms() {
+  var ui = SpreadsheetApp.getUi();
+  var out = deleteOldForms_(function (list) {
+    return ui.alert('Delete the old forms', 'These forms go to the Bin and their answer tabs are deleted:\n\n' + list.join('\n') +
+      '\n\nWhat they sent stays in the working tabs. Go ahead?', ui.ButtonSet.YES_NO) === ui.Button.YES;
+  });
+  ui.alert(out);
+  return out;
+}
+
+function deleteOldForms_(confirm) {
+  var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
+  if (!ids.club_updates || !ids.my_details) return 'The two new forms are not set up yet: run Upgrade Sheet first.';
+  var old = Object.keys(OLD_FORMS).filter(function (k) { return ids[k]; });
+  if (!old.length) return 'The old forms are already gone.';
+  if (!confirm(old.map(function (k) { return '• ' + k.replace('_', ' ') + ' form, tab ' + OLD_FORMS[k].raw; }))) return 'Nothing deleted.';
+  var done = [];
+  old.forEach(function (key) {
+    var o = OLD_FORMS[key];
+    try { FormApp.openById(ids[key]).removeDestination(); } catch (e) { /* already unlinked */ }
+    ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getTriggerSourceId && t.getTriggerSourceId() === ids[key]) ScriptApp.deleteTrigger(t); });
+    try { DriveApp.getFileById(ids[key]).setTrashed(true); } catch (e) { Logger.log('Form ' + key + ' not moved to the Bin: ' + e.message); }
+    var ss = o.sheet === 'main' ? mainSs_() : privateSs_();
+    var tab = ss.getSheetByName(o.raw);
+    if (tab) ss.deleteSheet(tab);
+    delete ids[key];
+    props_().setProperty('FORM_IDS', JSON.stringify(ids));
+    done.push(key.replace('_', ' '));
+  });
+  return 'Deleted: the ' + done.join(', ') + ' forms (in the Bin for 30 days) and their answer tabs.';
 }
 
 /** Google creates new forms in My Drive; move one into the folder that holds the main Sheet (testing or production). */
@@ -450,10 +554,17 @@ function makeActivityForm_(L) {
   return form;
 }
 
-function makeClubProfileForm_(L) {
-  var form = baseForm_("Club profile – Rotary District 3110", CLUB_PROFILE_DESCRIPTION);
+/**
+ * Club updates (Release 2): the club profile, club changes and public service forms in one, with a section each.
+ * Page 1 asks who is sending and what about; the answer leads to the section, and each section ends the form.
+ * The question titles are the old forms' own, so the same filing code reads them.
+ */
+function makeClubUpdatesForm_(L) {
+  var form = baseForm_('Club updates – Rotary District 3110', CLUB_UPDATES_DESCRIPTION);
   addSender_(form, L);
-  form.getItems()[2].asListItem().setChoiceValues(['President', 'Secretary', 'Other office bearer']);
+  var kind = form.addMultipleChoiceItem().setTitle(Q.uKind).setRequired(true);
+
+  var profile = form.addPageBreakItem().setTitle("Our club's details").setHelpText(CLUB_PROFILE_DESCRIPTION);
   [Q.pWebsite, Q.pFacebook, Q.pInstagram, Q.pYoutube, Q.pX, Q.pLinkedin].forEach(function (t) {
     form.addTextItem().setTitle(t + ' (optional)').setValidation(urlRule_());
   });
@@ -463,79 +574,66 @@ function makeClubProfileForm_(L) {
   addLaterQuestion_(form, Q.pServices, L);
   form.addCheckboxItem().setTitle(Q.pConfirm).setRequired(true)
     .setChoiceValues(['I am an office bearer of this club and these links belong to the club.']);
-  return form;
-}
 
-function makeConsentForm_(L) {
-  var form = baseForm_('Member consent – Rotary District 3110', CONSENT_DESCRIPTION);
-  form.addListItem().setTitle(Q.cClub).setChoiceValues(L.clubs).setRequired(true);
-  form.addTextItem().setTitle(Q.cName).setRequired(true);
-  form.addTextItem().setTitle(Q.cMemberId).setHelpText('Helps us find your record. Never published.')
-    .setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
-  form.addTextItem().setTitle(Q.cMobile).setRequired(true)
-    .setHelpText('Used to find your record. Shown only as a WhatsApp/call button, and only if you say Yes below.')
-    .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
-  form.addMultipleChoiceItem().setTitle(Q.cFilledBy).setChoiceValues(['The member', 'Club secretary for the member']).setRequired(true);
-
-  form.addPageBreakItem().setTitle('Professional directory');
-  form.addMultipleChoiceItem().setTitle(Q.cDirectory).setChoiceValues(YES_NO).setRequired(true);
-  form.addListItem().setTitle(Q.cProfession).setChoiceValues(L.professions).setHelpText('Only if you said Yes above');
-  form.addListItem().setTitle(Q.cArea).setChoiceValues(L.areas).setHelpText('Only if you said Yes above');
-  form.addTextItem().setTitle(Q.cWhat).setHelpText('Only if you said Yes above. About 20 words.')
-    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(150).setHelpText('Up to 150 characters').build());
-  form.addTextItem().setTitle(Q.cWebsite).setValidation(urlRule_());
-  form.addCheckboxItem().setTitle(Q.cSpotlight).setChoiceValues(["I'm happy to be considered for the monthly member spotlight."]);
-  form.addMultipleChoiceItem().setTitle(Q.cContact).setChoiceValues(YES_NO).setRequired(true);
-
-  form.addPageBreakItem().setTitle('Photo');
-  form.addMultipleChoiceItem().setTitle(Q.cPhoto).setChoiceValues(YES_NO).setRequired(true)
-    .setHelpText('If Yes, upload a head-and-shoulders photo of you alone below, or the district may use one it already has.');
-  // "My photo" upload question is added here by hand
-
-  form.addPageBreakItem().setTitle('Celebrations');
-  form.addMultipleChoiceItem().setTitle(Q.cBirthday).setChoiceValues(YES_NO).setRequired(true);
-  form.addDateItem().setTitle(Q.cBirthdayDate).setIncludesYear(false).setHelpText('Day and month only. Only if you said Yes above.');
-  form.addMultipleChoiceItem().setTitle(Q.cAnniversary).setChoiceValues(YES_NO).setRequired(true)
-    .setHelpText('Shown only if both spouses agree. If your spouse is a Rotarian, they must also send their own form.');
-  form.addMultipleChoiceItem().setTitle(Q.cSpouseRotarian).setChoiceValues(YES_NO);
-  form.addTextItem().setTitle(Q.cSpouseName).setHelpText('If your spouse is not a Rotarian, only the first name is shown.');
-  form.addListItem().setTitle(Q.cSpouseClub).setChoiceValues(L.clubs);
-  form.addTextItem().setTitle(Q.cSpouseId).setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
-  form.addCheckboxItem().setTitle(Q.cSpouseAgrees).setChoiceValues(['My spouse has also agreed to our anniversary being shown.']);
-  form.addDateItem().setTitle(Q.cAnniversaryDate).setIncludesYear(false).setHelpText('Day and month only.');
-  // "Couple photo" upload question is added here by hand
-  form.addCheckboxItem().setTitle(Q.cCoupleAgree)
-    .setChoiceValues(['I agree to the couple photo being shown on our anniversary card (and, if my spouse is not a Rotarian, my spouse agrees too).']);
-
-  form.addPageBreakItem().setTitle('Declaration');
-  form.addCheckboxItem().setTitle(Q.cDeclaration).setRequired(true)
-    .setChoiceValues(['The member has agreed to every choice above. (If filled by the club secretary: the member agreed to each item.)']);
-  return form;
-}
-
-function makeRemovalForm_(L) {
-  var form = baseForm_('Remove my details – Rotary District 3110',
-    'Ask for some or all of your details to be removed from the district website. A moderator acts within two days.');
-  form.addListItem().setTitle(Q.rClub).setChoiceValues(L.clubs).setRequired(true);
+  var member = form.addPageBreakItem().setTitle('A member or a role')
+    .setHelpText("Give the member's Rotary member ID (from My Rotary or the club's records). A Members moderator checks every change.");
+  form.addTextItem().setTitle(Q.gMemberId).setRequired(true)
+    .setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build())
+    .setHelpText("From My Rotary or the club's records. Never published.");
   form.addTextItem().setTitle(Q.rName).setRequired(true);
-  form.addTextItem().setTitle(Q.rMemberId).setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
-  form.addTextItem().setTitle(Q.rMobile).setRequired(true).setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
-  form.addCheckboxItem().setTitle(Q.rItems).setRequired(true)
-    .setChoiceValues(REMOVAL_ITEMS);
-  form.addParagraphTextItem().setTitle(Q.rReason);
+  var change = form.addMultipleChoiceItem().setTitle(Q.gChange).setRequired(true);
+  var pages = clubChangePages_(form, L);
+
+  var service = form.addPageBreakItem().setTitle('A public service the club runs')
+    .setHelpText('A lasting facility the public can use, such as a blood bank, eye hospital, dialysis unit, clinic, library, skill centre or ambulance. ' +
+      'Send one per facility.');
+  addServiceQuestions_(form, L);
+
+  kind.setChoices([kind.createChoice(CLUB_UPDATE_KINDS.profile, profile), kind.createChoice(CLUB_UPDATE_KINDS.member, member),
+    kind.createChoice(CLUB_UPDATE_KINDS.service, service)]);
+  member.setGoToPage(FormApp.PageNavigationType.SUBMIT); // the club details section ends the form
+  change.setChoices(['joined', 'left', 'moved', 'deceased', 'club_role', 'district_role'].map(function (k) { return change.createChoice(CLUB_CHANGES[k], pages[k]); }));
+  service.setGoToPage(FormApp.PageNavigationType.SUBMIT); // the member section ends with its note
+  form.setConfirmationMessage('Thank you! A district moderator will check this within 48 hours. You will get an email when it is decided.');
   return form;
 }
 
-/**
- * A blood bank, eye hospital, dialysis unit or similar that a club runs and the public can use. One per form.
- * The phone number is the facility's own; it is shown on the website with a tap-to-call link.
- */
-function makePublicServiceForm_(L) {
-  var form = baseForm_('Public service run by a club – Rotary District 3110',
-    'For club office bearers: a lasting facility the public can use, such as a blood bank, eye hospital, dialysis unit, clinic, ' +
-    'library, skill centre or ambulance. Send one form per facility. A moderator checks it before it appears on the website.');
-  addSender_(form, L);
-  form.getItems()[2].asListItem().setChoiceValues(['President', 'Secretary', 'Other office bearer']);
+/** The club changes form's pages, one per kind of change, each going on to the note (shared by both forms). */
+function clubChangePages_(form, L) {
+  var p = {};
+  p.joined = form.addPageBreakItem().setTitle(CLUB_CHANGES.joined);
+  form.addDateItem().setTitle(Q.gJoined).setRequired(true);
+  form.addTextItem().setTitle(Q.gMobile).setHelpText('Only the district sees this, to send the member the website\'s yearly check. Never published.')
+    .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
+  form.addTextItem().setTitle(Q.gEmail).setHelpText('Only the district sees this. Never published.')
+    .setValidation(FormApp.createTextValidation().requireTextIsEmail().setHelpText('Please give an email address').build());
+  p.left = form.addPageBreakItem().setTitle(CLUB_CHANGES.left);
+  form.addDateItem().setTitle(Q.gLeft).setRequired(true);
+  p.moved = form.addPageBreakItem().setTitle(CLUB_CHANGES.moved).setHelpText('The club chosen on the first page is the club the member left.');
+  form.addListItem().setTitle(Q.gNewClub).setChoiceValues(L.newClubs).setRequired(true);
+  form.addDateItem().setTitle(Q.gMoved).setRequired(true);
+  p.deceased = form.addPageBreakItem().setTitle(CLUB_CHANGES.deceased);
+  form.addDateItem().setTitle(Q.gDied);
+  p.club_role = form.addPageBreakItem().setTitle(CLUB_CHANGES.club_role);
+  form.addListItem().setTitle(Q.gClubYear).setChoiceValues(L.years).setRequired(true);
+  form.addListItem().setTitle(Q.gClubRole).setChoiceValues(CORE_CLUB_ROLES.slice()).setRequired(true);
+  p.district_role = form.addPageBreakItem().setTitle(CLUB_CHANGES.district_role)
+    .setHelpText('The member may be from another club. Please say in the note who decided it, for example the Governor\'s letter.');
+  form.addListItem().setTitle(Q.gDistYear).setChoiceValues(L.years).setRequired(true);
+  form.addListItem().setTitle(Q.gTeam).setChoiceValues(L.teams).setRequired(true);
+  form.addTextItem().setTitle(Q.gCommittee).setHelpText('As the district names it, for example District Social Media Management Committee');
+  form.addTextItem().setTitle(Q.gRole).setRequired(true).setHelpText('For example: Chairman, Co-chairman, Member, Assistant Governor')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
+  var note = form.addPageBreakItem().setTitle('Anything else');
+  form.addParagraphTextItem().setTitle(Q.gNote)
+    .setValidation(FormApp.createParagraphTextValidation().requireTextLengthLessThanOrEqualTo(500).setHelpText('Up to 500 characters').build());
+  // each kind's page goes on to the note (a page break's "go to" applies at the end of the page before it)
+  [p.left, p.moved, p.deceased, p.club_role, p.district_role].forEach(function (x) { x.setGoToPage(note); });
+  p.note = note;
+  return p;
+}
+
+function addServiceQuestions_(form, L) {
   form.addTextItem().setTitle(Q.sName).setRequired(true).setHelpText('For example: Rotary Blood Bank, Civil Lines')
     .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
   form.addListItem().setTitle(Q.sType).setChoiceValues(L.serviceTypes).setRequired(true);
@@ -552,24 +650,62 @@ function makePublicServiceForm_(L) {
     .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(200).setHelpText('Up to 200 characters').build());
   form.addCheckboxItem().setTitle(Q.sConfirm).setRequired(true)
     .setChoiceValues(["I am an office bearer of this club, the club runs or supports this facility, and the phone number is the facility's own public number."]);
-  return form;
 }
 
 /**
- * Rotary Means Business (17 Nov 2026): a member lists their own business, the topics they can speak on, or both.
- * Members only: the moderator can approve only once the sender is found in the members list. The logo or shop
- * photo question is added by hand (Google does not allow scripts to add file uploads).
+ * My details on the website (Release 2): the consent, removal and business forms in one. Page 1 finds the member
+ * (club, name, member ID, mobile, who is filling it) and asks what they want; each section ends the form. The
+ * "My photo", "Couple photo" and "Logo or shop photo (optional)" upload questions are added by hand (Google does not
+ * let scripts add uploads), in the Photo, Celebrations and Your business sections.
  */
-function makeBusinessForm_(L) {
-  var form = baseForm_('Rotary Means Business – Rotary District 3110', BUSINESS_DESCRIPTION);
-  form.addListItem().setTitle(Q.club).setChoiceValues(L.clubs).setRequired(true);
-  form.addTextItem().setTitle(Q.name).setRequired(true);
-  form.addTextItem().setTitle(Q.bMemberId).setHelpText('Helps us find you in the members list. Never published.')
+function makeMyDetailsForm_(L) {
+  var form = baseForm_('My details on the website – Rotary District 3110', MY_DETAILS_DESCRIPTION);
+  form.addListItem().setTitle(Q.cClub).setChoiceValues(L.clubs).setRequired(true);
+  form.addTextItem().setTitle(Q.cName).setRequired(true);
+  form.addTextItem().setTitle(Q.cMemberId).setHelpText('Helps us find your record. Never published.')
     .setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
-  form.addTextItem().setTitle(Q.bMobile).setRequired(true).setHelpText('Used to find you in the members list. Never published.')
+  form.addTextItem().setTitle(Q.cMobile).setRequired(true)
+    .setHelpText('Used to find your record. Shown only as a WhatsApp/call button, and only if you say Yes to it.')
     .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
+  form.addMultipleChoiceItem().setTitle(Q.cFilledBy).setChoiceValues(['The member', 'Club secretary for the member']).setRequired(true);
+  var kind = form.addMultipleChoiceItem().setTitle(Q.mKind).setRequired(true);
 
-  form.addPageBreakItem().setTitle('Your business').setHelpText('Leave this page blank if you only want to be listed as a speaker.');
+  var directory = form.addPageBreakItem().setTitle('Professional directory');
+  form.addMultipleChoiceItem().setTitle(Q.cDirectory).setChoiceValues(YES_NO).setRequired(true);
+  form.addListItem().setTitle(Q.cProfession).setChoiceValues(L.professions).setHelpText('Only if you said Yes above');
+  form.addListItem().setTitle(Q.cArea).setChoiceValues(L.areas).setHelpText('Only if you said Yes above');
+  form.addTextItem().setTitle(Q.cWhat).setHelpText('Only if you said Yes above. About 20 words.')
+    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(150).setHelpText('Up to 150 characters').build());
+  form.addTextItem().setTitle(Q.cWebsite).setValidation(urlRule_());
+  form.addCheckboxItem().setTitle(Q.cSpotlight).setChoiceValues(["I'm happy to be considered for the monthly member spotlight."]);
+  form.addMultipleChoiceItem().setTitle(Q.cContact).setChoiceValues(YES_NO).setRequired(true);
+  form.addPageBreakItem().setTitle('Photo');
+  form.addMultipleChoiceItem().setTitle(Q.cPhoto).setChoiceValues(YES_NO).setRequired(true)
+    .setHelpText('If Yes, upload a head-and-shoulders photo of you alone below, or the district may use one it already has.');
+  // "My photo" upload question is added here by hand
+  form.addPageBreakItem().setTitle('Celebrations');
+  form.addMultipleChoiceItem().setTitle(Q.cBirthday).setChoiceValues(YES_NO).setRequired(true);
+  form.addDateItem().setTitle(Q.cBirthdayDate).setIncludesYear(false).setHelpText('Day and month only. Only if you said Yes above.');
+  form.addMultipleChoiceItem().setTitle(Q.cAnniversary).setChoiceValues(YES_NO).setRequired(true)
+    .setHelpText('Shown only if both spouses agree. If your spouse is a Rotarian, they must also send their own form.');
+  form.addMultipleChoiceItem().setTitle(Q.cSpouseRotarian).setChoiceValues(YES_NO);
+  form.addTextItem().setTitle(Q.cSpouseName).setHelpText('If your spouse is not a Rotarian, only the first name is shown.');
+  form.addListItem().setTitle(Q.cSpouseClub).setChoiceValues(L.clubs);
+  form.addTextItem().setTitle(Q.cSpouseId).setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
+  form.addCheckboxItem().setTitle(Q.cSpouseAgrees).setChoiceValues(['My spouse has also agreed to our anniversary being shown.']);
+  form.addDateItem().setTitle(Q.cAnniversaryDate).setIncludesYear(false).setHelpText('Day and month only.');
+  // "Couple photo" upload question is added here by hand
+  form.addCheckboxItem().setTitle(Q.cCoupleAgree)
+    .setChoiceValues(['I agree to the couple photo being shown on our anniversary card (and, if my spouse is not a Rotarian, my spouse agrees too).']);
+  form.addPageBreakItem().setTitle('Declaration');
+  form.addCheckboxItem().setTitle(Q.cDeclaration).setRequired(true)
+    .setChoiceValues(['The member has agreed to every choice above. (If filled by the club secretary: the member agreed to each item.)']);
+
+  var removal = form.addPageBreakItem().setTitle('Remove my details');
+  form.addCheckboxItem().setTitle(Q.rItems).setRequired(true).setChoiceValues(REMOVAL_ITEMS);
+  form.addParagraphTextItem().setTitle(Q.rReason);
+
+  var business = form.addPageBreakItem().setTitle('Your business').setHelpText(BUSINESS_DESCRIPTION + '\n\nLeave this page blank if you only want to be listed as a speaker.');
   form.addTextItem().setTitle(Q.bName).setHelpText('For example: Gupta Opticals')
     .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
   form.addListItem().setTitle(Q.bTrade).setChoiceValues(L.trades);
@@ -582,60 +718,20 @@ function makeBusinessForm_(L) {
   form.addTextItem().setTitle(Q.bWhatsapp).setHelpText('Shown only as a WhatsApp button on your listing, never as a number.')
     .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
   // "Logo or shop photo (optional)" upload question is added here by hand
-
   form.addPageBreakItem().setTitle('Speaking at clubs');
   form.addParagraphTextItem().setTitle(Q.bTopics)
     .setHelpText('Clubs look for speakers for their meetings. For example: Income tax for families; First aid at home. Leave blank if not.')
     .setValidation(FormApp.createParagraphTextValidation().requireTextLengthLessThanOrEqualTo(300).setHelpText('Up to 300 characters').build());
-
   form.addPageBreakItem().setTitle('Confirmation');
   form.addCheckboxItem().setTitle(Q.bConfirm).setRequired(true)
     .setChoiceValues(['I am a member of this club, this is my own business (or one I am a partner in), and I agree to my name, club and these details being shown on the district website.']);
-  return form;
-}
 
-/**
- * Club changes (17 Nov 2026): anyone tells the district that a member joined, left, moved or passed away, or holds a
- * club or district role. The member and the change come first; each kind of change has its own page, and every page
- * ends at the note. Nothing changes until a Members moderator approves it on the desk.
- */
-function makeClubChangeForm_(L) {
-  var form = baseForm_('Club changes – Rotary District 3110', CLUB_CHANGE_DESCRIPTION);
-  var id = FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build();
-  form.addListItem().setTitle(Q.cClub).setChoiceValues(L.clubs).setRequired(true);
-  form.addTextItem().setTitle(Q.gMemberId).setRequired(true).setValidation(id)
-    .setHelpText("From My Rotary or the club's records. Never published.");
-  form.addTextItem().setTitle(Q.rName).setRequired(true);
-  var change = form.addMultipleChoiceItem().setTitle(Q.gChange).setRequired(true);
-
-  var joined = form.addPageBreakItem().setTitle(CLUB_CHANGES.joined);
-  form.addDateItem().setTitle(Q.gJoined).setRequired(true);
-  var left = form.addPageBreakItem().setTitle(CLUB_CHANGES.left);
-  form.addDateItem().setTitle(Q.gLeft).setRequired(true);
-  var moved = form.addPageBreakItem().setTitle(CLUB_CHANGES.moved).setHelpText('The club chosen on the first page is the club the member left.');
-  form.addListItem().setTitle(Q.gNewClub).setChoiceValues(L.newClubs).setRequired(true);
-  form.addDateItem().setTitle(Q.gMoved).setRequired(true);
-  var died = form.addPageBreakItem().setTitle(CLUB_CHANGES.deceased);
-  form.addDateItem().setTitle(Q.gDied);
-  var clubRole = form.addPageBreakItem().setTitle(CLUB_CHANGES.club_role);
-  form.addListItem().setTitle(Q.gClubYear).setChoiceValues(L.years).setRequired(true);
-  form.addListItem().setTitle(Q.gClubRole).setChoiceValues(CORE_CLUB_ROLES.slice()).setRequired(true);
-  var districtRole = form.addPageBreakItem().setTitle(CLUB_CHANGES.district_role)
-    .setHelpText('The member may be from another club. Please say in the note who decided it, for example the Governor\'s letter.');
-  form.addListItem().setTitle(Q.gDistYear).setChoiceValues(L.years).setRequired(true);
-  form.addListItem().setTitle(Q.gTeam).setChoiceValues(L.teams).setRequired(true);
-  form.addTextItem().setTitle(Q.gCommittee).setHelpText('As the district names it, for example District Social Media Management Committee');
-  form.addTextItem().setTitle(Q.gRole).setRequired(true).setHelpText('For example: Chairman, Co-chairman, Member, Assistant Governor')
-    .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(60).setHelpText('Up to 60 characters').build());
-  var note = form.addPageBreakItem().setTitle('Anything else');
-  form.addParagraphTextItem().setTitle(Q.gNote)
-    .setValidation(FormApp.createParagraphTextValidation().requireTextLengthLessThanOrEqualTo(500).setHelpText('Up to 500 characters').build());
-
-  change.setChoices([change.createChoice(CLUB_CHANGES.joined, joined), change.createChoice(CLUB_CHANGES.left, left),
-    change.createChoice(CLUB_CHANGES.moved, moved), change.createChoice(CLUB_CHANGES.deceased, died),
-    change.createChoice(CLUB_CHANGES.club_role, clubRole), change.createChoice(CLUB_CHANGES.district_role, districtRole)]);
-  // each kind's page goes on to the note (a page break's "go to" applies at the end of the page before it)
-  [left, moved, died, clubRole, districtRole].forEach(function (p) { p.setGoToPage(note); });
+  kind.setChoices([kind.createChoice(MY_DETAILS_KINDS.consent, directory), kind.createChoice(MY_DETAILS_KINDS.removal, removal),
+    kind.createChoice(MY_DETAILS_KINDS.business, business)]);
+  removal.setGoToPage(FormApp.PageNavigationType.SUBMIT); // the consent section ends the form
+  business.setGoToPage(FormApp.PageNavigationType.SUBMIT); // the removal section ends the form
+  form.setConfirmationMessage('Thank you! Sent from your own email, it is applied at the next website update and you get an email. ' +
+    'Otherwise a district moderator checks it first.');
   return form;
 }
 
@@ -707,6 +803,7 @@ function updateFormLists(silent) {
   lists[Q.gNewClub] = L.newClubs; lists[Q.gTeam] = L.teams; lists[Q.gClubYear] = L.years; lists[Q.gDistYear] = L.years;
   Object.keys(ids).forEach(function (k) {
     var form = FormApp.openById(ids[k]);
+    if (OLD_FORMS[k] && !form.isAcceptingResponses()) return; // a closed old form needs no fresh lists
     form.getItems().forEach(function (item) {
       var values = lists[item.getTitle()];
       if (!values) return;

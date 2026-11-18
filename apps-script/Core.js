@@ -1539,6 +1539,18 @@ function Core_matchMember(request, master) {
       if (Core_mobile(master[i].mobile) === mobile && Core_str(master[i].club_id) === Core_str(request.club_id)) return i;
     }
   }
+  // Release 2: then by email: the sender's own Google account, unless a club secretary filled it in for the member,
+  // and only when the name on the form shares a word with that member's name (someone writing for another member
+  // from their own account is not mistaken for them)
+  var email = Core_str(request.email || (/secretary/i.test(Core_str(request.filled_by)) ? '' : request.submitter_email)).toLowerCase();
+  if (/@/.test(email)) {
+    var words = function (n) { return Core_plainName(n).split(' ').filter(function (w) { return w.length > 2; }); };
+    var said = words(request.name);
+    for (i = 0; i < master.length; i++) {
+      if (Core_str(master[i].email).toLowerCase() !== email) continue;
+      if (!said.length || words(master[i].name).some(function (w) { return said.indexOf(w) >= 0; })) return i;
+    }
+  }
   return -1;
 }
 

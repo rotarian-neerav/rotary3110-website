@@ -23,12 +23,15 @@ You will need two files from this project: `dist/apps-script/Code.gs` and `dist/
 3. You will see **"Google hasn't verified this app"**. That is normal for a script you wrote yourself. Click **Advanced → Go to (project name) (unsafe)** → **Allow**.
    The script asks to manage your spreadsheets, forms and Drive files, send email as you (for moderator reminders and replies to clubs), and connect to an external service (to download the sample data from GitHub).
 4. Wait about a minute. The log at the bottom says **Setup finished** and lists what it did:
-   tabs in both Sheets, sample data loaded, eight forms created (activity, club profile, public service, Rotary Means Business, consent, removal, club changes and the website's contact form) and moved into the folder that holds the Sheet, sharing checked, daily reminders scheduled.
+   tabs in both Sheets, sample data loaded, four forms created (activity, **Club updates**, **My details on the website** and the website's contact form) and moved into the folder that holds the Sheet, sharing checked, daily reminders scheduled.
+   (Until Release 2, 18 Nov 2026, there were eight forms. Club updates has a section each for the club's details, members and roles, and a public service; My details has a section each for showing a member's details, removing them, and a business listing. The first question on page 1 leads to the section.)
 5. Go back to the Sheet and reload the page. A **Rotary** menu appears.
 
 ## 3. Add the seven photo questions by hand (8 minutes)
 
-Google does not let a script add file-upload questions, so these seven are added by hand. **The titles must match exactly** (copy them from here).
+Google does not let a script add file-upload questions, so these seven are added by hand. Release 2 (18 Nov 2026) moved the
+last three into the **My details on the website** form, in its sections: an install that already had them on the old
+consent and business forms adds them again there. **The titles must match exactly** (copy them from here).
 
 The forms are in the same folder as the Sheet (testing: **3110Website-Testing**; production: **3110Website**), or open them from the Sheet's **settings** tab (`form_…_url`; change `viewform` to `edit` in the address).
 
@@ -38,9 +41,9 @@ The forms are in the same folder as the Sheet (testing: **3110Website-Testing**;
 | Club activity or event | the **Photos** question you just added (activity page) | `Before photo (optional)` | File upload · **Image** · **1** file · **1 MB** · not required |
 | Club activity or event | **Before photo (optional)** | `After photo (optional)` | File upload · **Image** · **1** file · **1 MB** · not required |
 | Club activity or event | **Short description (optional)** (event page) | `Photos (up to 3, each under 1 MB)` | File upload · **Image** · **3** files · **1 MB** · not required |
-| Member consent | **Show my photo next to my name** | `My photo (one photo of me alone, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
-| Member consent | **Our wedding anniversary** | `Couple photo (optional, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
-| Rotary Means Business | **Business WhatsApp number (optional)** | `Logo or shop photo (optional, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
+| My details on the website | **Show my photo next to my name** (Photo section) | `My photo (one photo of me alone, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
+| My details on the website | **Our wedding anniversary** (Celebrations section) | `Couple photo (optional, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
+| My details on the website | **Business WhatsApp number (optional)** (Your business section) | `Logo or shop photo (optional, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
 
 How to add one: open the form → click the question named in the middle column → click **⊕ (Add question)** in the floating toolbar → change the type to **File upload** → Google asks to confirm that respondents will sign in and files go to your Drive → **Continue** → paste the title and set the options above.
 
@@ -106,6 +109,14 @@ The desk (`…/desk/` on the website) lets moderators approve, reject and follow
 2. Reload the Sheet and run **Administrator → Upgrade Sheet**. It adds the **moderator_log** tab.
 3. Press **Rotary → Rebuild site now** (or wait for the next update). When the website build next reads the data link, the script remembers its own web address, which the desk's email links need. Until then, emails say "open the Sheet" instead of showing desk buttons.
 4. Put a real email on at least one moderators row (your own is fine for a test), then open `…/desk/` from the **Open the moderation desk** button in the next moderator email, and sign in with the emailed code.
+
+**Release 2 (18 Nov 2026):** paste the new `Code.gs`, deploy a new version, run **Upgrade Sheet**. It creates the
+**Club updates** and **My details on the website** forms (answers to the private Sheet, tabs `raw_club_updates_form` and
+`raw_my_details_form`), points every old form link (settings `form_consent_url` and the others) to the new form at the
+right section, and closes the six old forms with a message pointing to the new one. Then add the three photo questions
+to the My details form (section 3), send one test of each section, and run **Administrator → Delete the old forms and
+their answer tabs…**: the old forms go to Drive's Bin (30 days) and their `raw_…` tabs are deleted; what they sent stays
+in the working tabs. A member's own update (from the email the members list has for them) is applied by itself.
 
 **Release 1 (18 Nov 2026):** paste the new `Code.gs` and `Sidebar.html`, deploy a new version, then run **Administrator → Upgrade Sheet**. It adds the columns `charter_date` and `merged_into` (clubs), `ended_on` (officers, functionaries), `hidden_by` and `hidden_at` (activities), `zone` (moderators), the setting `content_changed_at`, and the private **change_log** tab, where every correction made on the desk is kept. Nothing is deleted. From then on, approvals reach the website at the next of four daily updates (about 9 am, 1 pm, 6 pm, 10 pm).
 

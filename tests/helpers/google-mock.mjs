@@ -58,6 +58,12 @@ class FakeForm {
       getIndex() { return form.items.indexOf(item); },
       asListItem() { return item; },
       asCheckboxItem() { return item; },
+      asMultipleChoiceItem() { return item; },
+      // a multiple-choice answer can lead to a section (page break), like Google Forms' "go to section based on answer"
+      createChoice(value, page) { return { value, page }; },
+      setChoices(list) { this.choices = list.map((c) => c.value); this.goTo = list.map((c) => c.page); return item; },
+      // a page break's "go to" (applies at the end of the section before it)
+      setGoToPage(page) { this.goToPage = page; return item; },
       // like Google Forms: a pre-filled answer is only accepted when it is one of the choices
       createResponse(value) {
         if (this.choices.length && !this.choices.includes(value)) throw new Error('not a choice: ' + value);
@@ -381,6 +387,10 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
           getDestinationId: () => { if (!form.destination) throw new Error('The form currently has no response destination.'); return form.destination; },
           setDescription: (d) => { form.description = d; return form.proxy; },
           getDescription: () => form.description,
+          isAcceptingResponses: () => form.accepting !== false,
+          setAcceptingResponses: (v) => { form.accepting = v; return form.proxy; },
+          setCustomClosedFormMessage: (m) => { form.closedMessage = m; return form.proxy; },
+          removeDestination: () => { form.destination = null; return form.proxy; },
           moveItem: (from, to) => { const [it] = form.items.splice(from, 1); form.items.splice(to, 0, it); return it; },
         });
         form.proxy = fluent(form);

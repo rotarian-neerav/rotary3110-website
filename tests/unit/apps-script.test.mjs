@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { before, beforeEach, test } from 'node:test';
 import { createGoogleEnv } from '../helpers/google-mock.mjs';
+import { routeOldForms } from '../helpers/forms.mjs';
 import { bundleCode } from '../../tools/bundle-apps-script.mjs';
 import { core, plain } from '../../lib/core.mjs';
 
@@ -19,6 +20,7 @@ beforeEach(() => { if (env) env.quota.left = 100; });
 before(() => {
   env = createGoogleEnv({ sampleJson: readFileSync(resolve(ROOT, 'sample/sample-data.json'), 'utf8') });
   env.load(bundleCode());
+  routeOldForms(env); // the old forms' submissions go through the two forms with sections (Release 2)
   Object.assign(Q, env.context.Q);
   env.run('setup');
   token = env.props.get('DATA_TOKEN');
@@ -30,18 +32,18 @@ const data = () => {
   return r.data;
 };
 
-test('setup creates every tab, loads the sample, makes eight forms and fills their links', () => {
+test('setup creates every tab, loads the sample, makes four forms and fills their links', () => {
   for (const t of ['settings', 'clubs', 'activities', 'events', 'functionaries', 'members_public', 'couples_public', 'dashboard', 'role_checks']) assert.ok(env.main.getSheetByName(t), t);
   for (const t of ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests', 'club_change_requests']) assert.ok(env.priv.getSheetByName(t), t);
   assert.equal(env.main.getSheetByName('Sheet1'), null, 'empty default tab removed');
   assert.equal(env.main.rows('clubs').length, 70);
   assert.equal(env.main.rows('functionaries').length, 181, '176 from the Excel plus 5 sample roles from last year');
   const s = Object.fromEntries(env.main.rows('settings').map((r) => [r.key, r.value]));
-  for (const k of ['form_activity_url', 'form_club_profile_url', 'form_consent_url', 'form_removal_url', 'form_public_service_url', 'form_contact_url', 'form_business_url', 'form_club_change_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
+  for (const k of ['form_activity_url', 'form_club_updates_url', 'form_my_details_url', 'form_club_profile_url', 'form_consent_url', 'form_removal_url', 'form_public_service_url', 'form_contact_url', 'form_business_url', 'form_club_change_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
   assert.ok(env.main.getSheetByName('raw_activity_form'), 'raw answers tab for the activity form');
-  assert.ok(env.priv.getSheetByName('raw_consent_form'), 'consent answers go to the private Sheet');
-  assert.ok(env.priv.getSheetByName('raw_club_change_form'), 'club changes go to the private Sheet');
-  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 8);
+  assert.ok(env.priv.getSheetByName('raw_my_details_form'), "members' details go to the private Sheet");
+  assert.ok(env.priv.getSheetByName('raw_club_updates_form'), 'club changes go to the private Sheet');
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 4);
   assert.ok(env.triggers.some((t) => t.getHandlerFunction() === 'dailyJobs'));
   assert.ok(token && token.length >= 32);
   assert.equal(env.main.rows('dashboard').length, 69, 'one dashboard row per active club');
@@ -50,7 +52,7 @@ test('setup creates every tab, loads the sample, makes eight forms and fills the
 test('running setup again does not duplicate forms, tabs or sample rows', () => {
   env.run('setup');
   assert.equal(env.main.rows('clubs').length, 70);
-  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 8);
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 4);
 });
 
 test('data link: refuses without the token; same result as the website build on the sample', () => {
@@ -258,19 +260,19 @@ const formFor = (m, clubName, over = {}) => consent({ [Q.cClub]: clubName, [Q.cN
   [Q.cPhoto]: 'No', 'My photo (one photo of me alone, under 1 MB)': undefined, ...over });
 const consentCard = (id) => env.run('memberRequests_', false).consent.find((r) => r.id === id);
 
-test("consent safeguards: a form from the member's own email needs no wait and tells no one else", () => {
+test("consent safeguards: a form from the member's own email is applied at once (Release 2): no wait, no moderator, no notice", () => {
   const { clubName, others } = clubMembers();
   const m = others[0];
   const before = env.mails.length;
   env.submit('consent', formFor(m, clubName), m.email, new Date());
   const req = env.priv.rows('consent_requests').at(-1);
   assert.match(req.member_notice, /^Not needed/);
-  assert.ok(!env.mails.slice(before).some((x) => x.to === m.email), 'no notice to the member');
-  const card = consentCard(req.id);
-  assert.equal(card.sender, "The member's own email");
-  assert.equal(card.holdUntil, '');
-  assert.equal(card.needsConfirm, false);
-  assert.match(env.run('approveConsent', req.id), /^Approved/);
+  assert.equal(req.status, 'approved');
+  assert.equal(req.approved_by, "automatic: sent from the member's own email");
+  const mine = env.mails.slice(before);
+  assert.deepEqual(mine.filter((x) => x.to === m.email).map((x) => x.subject), ['Listed: ' + m.name], 'only the "Listed" confirmation');
+  assert.ok(!mine.some((x) => /Consent form to check/.test(x.subject)), 'no Members moderator alerted');
+  assert.equal(env.priv.rows('members_master').find((x) => x.member_id === m.member_id).listing_approved, true);
 });
 
 test('consent safeguards: from a club office bearer, the member is emailed and has 3 days to object', () => {
@@ -385,14 +387,15 @@ const BLOOD = 'Blood Donation Drive 2026-27 (blood units)';
 
 test('Upgrade Sheet: adds the new questions to the existing forms in place, once; the campaigns tab, settings, lists and weekly emails', () => {
   const ids = JSON.parse(env.props.get('FORM_IDS'));
-  const later = [Q.pProjects, Q.pServices, Q.aCampaign, Q.aCampaignCount, Q.eRegClose, Q.eFee];
-  // forms created before this change do not have the new questions
-  for (const id of [ids.activity, ids.club_profile]) env.forms[id].items = env.forms[id].items.filter((i) => !later.includes(i.title));
+  const later = [Q.aCampaign, Q.aCampaignCount, Q.eRegClose, Q.eFee];
+  // forms created before this change do not have the new questions (the Club updates form, made in Release 2, has its own)
+  env.forms[ids.activity].items = env.forms[ids.activity].items.filter((i) => !later.includes(i.title));
   env.run('upgradeSheet');
   env.run('upgradeSheet');
   const act = env.forms[ids.activity].titles();
-  const prof = env.forms[ids.club_profile].titles();
-  for (const t of later) assert.equal(act.concat(prof).filter((x) => x === t).length, 1, `${t} added once`);
+  const prof = env.forms[ids.club_updates].titles();
+  for (const t of later) assert.equal(act.filter((x) => x === t).length, 1, `${t} added once`);
+  for (const t of [Q.pProjects, Q.pServices]) assert.equal(prof.filter((x) => x === t).length, 1, t);
   assert.equal(act[act.indexOf(Q.aHelped) + 1], Q.aCampaign);
   assert.equal(act[act.indexOf(Q.aCampaign) + 1], Q.aCampaignCount);
   assert.equal(act[act.indexOf(Q.eEnd) + 1], Q.eRegClose);
@@ -402,7 +405,7 @@ test('Upgrade Sheet: adds the new questions to the existing forms in place, once
   assert.equal(campaignQ.choices[0], 'Not part of a district campaign');
   assert.ok(campaignQ.choices.includes(BLOOD), 'running campaign offered');
   assert.ok(!campaignQ.choices.some((c) => c.startsWith('School Health')), 'a campaign that ended more than 30 days ago is not offered');
-  assert.match(env.forms[ids.club_profile].description, /permanent projects and regular services/);
+  assert.match(env.forms[ids.club_updates].items.find((i) => i.title === "Our club's details").help, /permanent projects and regular services/);
   assert.ok(env.main.getSheetByName('campaigns'));
   const s = settingsMap();
   assert.equal(String(s.campaign_check_above), '1000');
@@ -516,11 +519,11 @@ test('Sunday message: waits for this week\'s bulletin page and asks for a rebuil
 
 test('Upgrade Sheet on a Sheet set up before Release A: new questions in place, once; the public service and contact forms; the monthly email; club form links', () => {
   const ids = JSON.parse(env.props.get('FORM_IDS'));
-  const later = [Q.aAvenue, Q.aVideo, Q.aPressPaper, Q.aPressDate, Q.aPressLink, Q.eOpen, Q.pMeetingDay];
-  for (const id of [ids.activity, ids.club_profile]) env.forms[id].items = env.forms[id].items.filter((i) => !later.includes(i.title));
-  // the two new forms, their settings and the monthly job did not exist yet
-  const gone = [ids.public_service, ids.contact];
-  delete ids.public_service;
+  const later = [Q.aAvenue, Q.aVideo, Q.aPressPaper, Q.aPressDate, Q.aPressLink, Q.eOpen];
+  env.forms[ids.activity].items = env.forms[ids.activity].items.filter((i) => !later.includes(i.title));
+  // the Club updates and contact forms, their settings and the monthly job did not exist yet
+  const gone = [ids.club_updates, ids.contact];
+  delete ids.club_updates;
   delete ids.contact;
   env.props.set('FORM_IDS', JSON.stringify(ids));
   for (let i = env.triggers.length - 1; i >= 0; i--) {
@@ -530,10 +533,10 @@ test('Upgrade Sheet on a Sheet set up before Release A: new questions in place, 
   env.run('upgradeSheet');
   env.run('upgradeSheet');
   const after = JSON.parse(env.props.get('FORM_IDS'));
-  assert.ok(after.public_service && after.contact, 'the two new forms were made');
+  assert.ok(after.club_updates && after.contact, 'the two new forms were made');
   const act = env.forms[after.activity].titles();
-  const prof = env.forms[after.club_profile].titles();
-  for (const t of later) assert.equal(act.concat(prof).filter((x) => x === t).length, 1, `${t} added once`);
+  const prof = env.forms[after.club_updates].titles();
+  for (const t of later) assert.equal(act.filter((x) => x === t).length, 1, `${t} added once`);
   assert.equal(act[act.indexOf(Q.aTheme) + 1], Q.aAvenue);
   assert.equal(act[act.indexOf(Q.aLink) + 1], Q.aVideo);
   assert.deepEqual(act.slice(act.indexOf(Q.aVideo), act.indexOf(Q.aVideo) + 4), [Q.aVideo, Q.aPressPaper, Q.aPressDate, Q.aPressLink]);
@@ -543,14 +546,14 @@ test('Upgrade Sheet on a Sheet set up before Release A: new questions in place, 
   assert.equal(avenue.required, true, 'the avenue is asked of every activity');
   assert.deepEqual([...avenue.choices], ['Club Service', 'Vocational Service', 'Community Service', 'International Service', 'Youth Service']);
   assert.match(env.forms[after.activity].description, /how-to-post\//, 'the form links to the posting guide');
-  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 8);
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 4);
   assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'notPostingReport').length, 1);
   const s = settingsMap();
   for (const k of ['form_public_service_url', 'form_contact_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
   assert.equal(s.not_posting_emails, 'not-posting@example.com', 'a dummy receiver until the district names one');
   assert.equal(String(s.contact_daily_limit), '20');
   assert.ok('contact_email' in s);
-  assert.ok(env.main.getSheetByName('raw_public_service_form'), 'service answers go to the main Sheet');
+  assert.ok(env.priv.getSheetByName('raw_club_updates_form'), 'club updates go to the private Sheet');
   assert.ok(env.priv.getSheetByName('raw_contact_form'), "visitors' reply details go to the private Sheet");
   const contact = env.forms[after.contact];
   assert.deepEqual(contact.titles(), [Q.kName, Q.kReply, Q.kTopic, Q.kCity, Q.kMessage]);
@@ -558,7 +561,8 @@ test('Upgrade Sheet on a Sheet set up before Release A: new questions in place, 
   assert.ok(links.length > 60 && links.every((l) => /^https:\/\/docs\.google\.com\/forms\/d\/e\/.+entry\.\d+=/.test(l)), 'every active club has its own form link');
   const agra = env.main.rows('clubs').find((c) => c.club_name === 'RC Agra');
   assert.ok(agra.activity_form_link.endsWith('=' + encodeURIComponent('RC Agra')), 'with the club already chosen');
-  assert.ok(!JSON.stringify(data()).includes('activity_form_link') && !JSON.stringify(data()).includes('entry.'), 'the links are never published');
+  // (the website's own form links may open a form at a section, Release 2; the clubs' own activity links are never published)
+  assert.ok(!JSON.stringify(data()).includes('activity_form_link') && !JSON.stringify(data()).includes(agra.activity_form_link), 'the links are never published');
 });
 
 test('an activity with its avenue, a video and press coverage; notes when the press link has no paper', () => {
@@ -800,7 +804,7 @@ test('"Clear all sample data" leaves only real rows, and the site data is still 
 
 test('new forms are moved from My Drive into the folder that holds the Sheet, and stay there on later upgrades', () => {
   const ids = JSON.parse(env.props.get('FORM_IDS'));
-  assert.equal(Object.keys(ids).length, 8);
+  assert.equal(Object.keys(ids).length, 4);
   for (const id of Object.values(ids)) assert.equal(env.moved.get(id), 'PARENT', `${id} in the Sheet's folder`);
   const before = env.moved.size;
   env.run('upgradeSheet');
@@ -952,12 +956,8 @@ test('photo consent: the activity form names children and guardians; Upgrade She
   assert.ok(env.run('upgradeSheet').some((l) => /photo consent wording/.test(l)));
   assert.deepEqual([...item.choices], [env.context.PHOTO_CONSENT_TEXT]);
   assert.ok(!env.run('upgradeSheet').some((l) => /photo consent wording/.test(l)), 'once');
-  // the consent form says that the member is emailed when someone else fills it in (1 Nov safeguards)
-  const consentForm = env.forms[JSON.parse(env.props.get('FORM_IDS')).consent];
-  consentForm.description = 'older wording';
-  assert.ok(env.run('upgradeSheet').some((l) => /consent form wording/.test(l)));
-  assert.match(consentForm.description, /we email the member at the address the district has for them/);
-  assert.ok(!env.run('upgradeSheet').some((l) => /consent form wording/.test(l)), 'once');
+  // the My details form says that the member is emailed when someone else fills it in (1 Nov safeguards)
+  assert.match(env.forms[JSON.parse(env.props.get('FORM_IDS')).my_details].description, /we email you with what was asked/);
 });
 
 test('Google briefly slow: steps safe to repeat are tried again, others are not; Apply moderators lists what it could not finish', () => {
@@ -1187,12 +1187,11 @@ test('Rotary Means Business: the sender is found in the members list; members on
       [Q.bTrade]: 'Shop / retail', [Q.bCity]: club.city, [Q.bConfirm]: ['yes'], ...answers }, email);
     return env.main.rows('businesses').at(-1);
   };
+  // from the member's own email, with nothing to check: listed at once (Release 2)
   const first = send({ [Q.bName]: 'Test Opticians', [Q.bAbout]: 'Spectacles and lenses.', [Q.bWhatsapp]: '98222 22222', [Q.bTopics]: 'Eye care at work' });
   assert.match(first.id, /^BIZ-\d{4}$/);
-  assert.deepEqual([first.status, first.member_id, first.member_name, first.moderator_note], ['pending', m.member_id, m.name, '']);
-  assert.ok(!data().businesses.some((b) => b.id === first.id), 'not public while pending');
-  env.setActive('businesses', env.main.rows('businesses').length + 1);
-  env.run('approveSelected');
+  assert.deepEqual([first.status, first.member_id, first.member_name, first.moderator_note, first.approved_by],
+    ['approved', m.member_id, m.name, '', "automatic: sent from the member's own email"]);
   assert.ok(env.mails.some((x) => /^Approved: business listing "Test Opticians"/.test(x.subject) && /\/rmb\//.test(x.body)));
   let pub = data().businesses.find((b) => b.id === first.id);
   assert.deepEqual([pub.name, pub.owner, pub.contact_link, pub.speaker_topics], ['Test Opticians', m.name, 'https://wa.me/919822222222', 'Eye care at work']);
@@ -1217,8 +1216,9 @@ test('Rotary Means Business: the sender is found in the members list; members on
   pub = data().businesses.filter((b) => b.owner === m.name);
   assert.deepEqual(pub.map((b) => [b.id, b.about]), [[update.id, 'Spectacles, lenses and eye checks.']], 'only the newer listing is shown');
 
+  // the member's own removal from their own email is done at once (Release 2)
   env.submit('removal', { [Q.rClub]: club.club_name, [Q.rName]: m.name, [Q.rMemberId]: m.member_id, [Q.rItems]: ['Business listing (Rotary Means Business)'] }, m.email);
-  env.run('approveRemoval', pendingId('removal_requests'));
+  assert.equal(env.priv.rows('removal_requests').at(-1).status, 'approved');
   assert.equal(env.main.rows('businesses').find((b) => b.id === update.id).status, 'removed');
   assert.ok(!data().businesses.some((b) => b.owner === m.name), 'off the website');
 });
@@ -1250,7 +1250,7 @@ test('the activity form asks "District level?"; a Yes is noted for the moderator
   const ids = JSON.parse(env.props.get('FORM_IDS'));
   const act = env.forms[ids.activity].titles();
   assert.equal(act[act.indexOf(Q.aAvenue) + 1], Q.aDistrict);
-  assert.ok(env.forms[ids.removal].items.find((i) => i.title === Q.rItems).choices.includes('Business listing (Rotary Means Business)'));
+  assert.ok(env.forms[ids.my_details].items.find((i) => i.title === Q.rItems).choices.includes('Business listing (Rotary Means Business)'));
   env.submit('activity', { [Q.club]: 'RC Agra', [Q.name]: 'Rtn A', [Q.role]: 'Secretary', [Q.mobile]: '9812345678', [Q.kind]: Q.kindActivity,
     [Q.aTitle]: 'Inauguration of a global grant dialysis unit', [Q.aDate]: '2026-10-01', [Q.aTheme]: 'Fighting disease', [Q.aAvenue]: 'Community Service',
     [Q.aDistrict]: 'Yes', [Q.aDesc]: 'The district inaugurated a dialysis unit funded by a global grant with partner clubs abroad. '.repeat(2),

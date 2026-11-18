@@ -194,11 +194,11 @@ function approveClubChange_(requestId, who, confirmed) {
         if (Core_str(m.club_id) === Core_str(req.club_id) && Core_str(m.status || 'active') === 'active') {
           throw new Error(m.name + ' is already an active member of this club: reject this request.');
         }
-        clubChangeMove_(ps, m, req.club_id, when, 'joined (' + note + ')', { status: 'active' });
+        clubChangeMove_(ps, m, req.club_id, when, 'joined (' + note + ')', Object.assign({ status: 'active' }, joinedContact_(req)));
         message = m.name + ' is now recorded in ' + clubNameById_(req.club_id) + '.';
       } else {
-        appendRow_(ps, 'members_master', { member_id: id, name: Core_str(req.name), club_id: Core_str(req.club_id), is_rotarian: true, status: 'active',
-          notes: 'Added from ' + note + ' (' + today_() + ')' });
+        appendRow_(ps, 'members_master', Object.assign({ member_id: id, name: Core_str(req.name), club_id: Core_str(req.club_id), is_rotarian: true, status: 'active',
+          notes: 'Added from ' + note + ' (' + today_() + ')' }, joinedContact_(req)));
         appendRow_(ps, 'club_history', { member_id: id, club_id: Core_str(req.club_id), from_date: when, reason: 'joined (' + note + ')' });
         message = Core_str(req.name) + ' is added to the members list.';
       }
@@ -244,6 +244,14 @@ function approveClubChange_(requestId, who, confirmed) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/** A new member's mobile and email from the club changes form (Release 2), when given and valid. */
+function joinedContact_(req) {
+  var out = {};
+  if (Core_mobile(req.mobile)) out.mobile = Core_str(req.mobile);
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(Core_str(req.email))) out.email = Core_str(req.email);
+  return out;
 }
 
 /** A member recorded in another club from a date: the open club history row ends, a new one starts, and club_id changes. */

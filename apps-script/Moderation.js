@@ -23,6 +23,7 @@ function onOpen() {
     .addSubMenu(SpreadsheetApp.getUi().createMenu('Administrator')
       .addItem('Show data link details', 'showDataLink')
       .addItem('Upgrade Sheet (new tabs, columns, questions)', 'upgradeSheet')
+      .addItem('Delete the old forms and their answer tabs…', 'deleteOldForms')
       .addItem('Apply moderators (Sheet access)…', 'applyModerators')
       .addItem('Sign everyone out of the desk…', 'deskSignOutAll')
       .addItem('Send bulletin preview now', 'bulletinPreview')

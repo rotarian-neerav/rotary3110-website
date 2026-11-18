@@ -49,6 +49,7 @@ function setup() {
  * forms. Safe to run more than once; a new install gets the same through setup().
  */
 function upgradeSheet() {
+  var started = Date.now();
   var main = mainSs_();
   var report = [];
   ensureTabs_(main, SCHEMA_MAIN, report);
@@ -60,7 +61,10 @@ function upgradeSheet() {
   createForms_(report); // new forms only; existing forms are kept
   addLaterQuestions_(report);
   installTriggers_(report);
-  updateFormLists(true);
+  // Apps Script stops a run after 6 minutes (18 Nov 2026: the first Release 1 upgrade did); making new forms is slow,
+  // so the form lists wait for the next run, or for the menu, when time is short
+  if (Date.now() - started < 3 * 60000) updateFormLists(true);
+  else report.push('Form lists not refreshed this time (the upgrade took long): run Rotary → Update form lists');
   var msg = 'Upgrade finished.\n\n' + (report.join('\n') || 'Everything was already up to date.');
   Logger.log(msg);
   try { SpreadsheetApp.getUi().alert(msg); } catch (e) { /* run from the editor */ }
@@ -126,18 +130,20 @@ var DEFAULT_SETTINGS = [
   ['moderator_emails', '', 'Older setting: used only while the moderators tab names no Content moderator'],
   ['site_url', 'https://rotary3110.org/', 'Used in emails to people who send activities'],
   ['form_activity_url', '', 'Filled in by setup'],
-  ['form_club_profile_url', '', 'Filled in by setup'],
-  ['form_consent_url', '', 'Filled in by setup'],
-  ['form_removal_url', '', 'Filled in by setup'],
+  ['form_club_updates_url', '', 'Filled in by setup (Club updates: club details, members and roles, a public service)'],
+  ['form_my_details_url', '', 'Filled in by setup (My details on the website: show, remove, business listing)'],
+  ['form_club_profile_url', '', 'Filled in by setup: the Club updates form, opening at the club details section'],
+  ['form_consent_url', '', 'Filled in by setup: the My details form, opening at "show my details"'],
+  ['form_removal_url', '', 'Filled in by setup: the My details form, opening at "remove my details"'],
   ['rebuild_requested_at', '', 'Set by "Rebuild site now": the website updates within about 30 minutes'],
   ['content_changed_at', '', 'Set by every approval, hide, removal and member change: the website takes them at its next update (9 am, 1 pm, 6 pm, 10 pm)'],
   ['inactive_keys', '', 'Filled in by "Refresh public members"; never edit by hand'],
   ['campaign_check_above', '1000', 'A campaign count above this gets a note for the moderator'],
   ['bulletin_start_date', '', 'A Sunday (YYYY-MM-DD): the weekly bulletin archive starts here. Blank: only this week\'s bulletin'],
   ['bulletin_emails', '', 'Older setting: used only while the moderators tab names no District office moderator'],
-  ['form_public_service_url', '', 'Filled in by setup'],
-  ['form_business_url', '', 'Filled in by setup (Rotary Means Business form)'],
-  ['form_club_change_url', '', 'Filled in by setup (club changes form: members joining, leaving, moving; club and district roles)'],
+  ['form_public_service_url', '', 'Filled in by setup: the Club updates form, opening at the public service section'],
+  ['form_business_url', '', 'Filled in by setup: the My details form, opening at the business listing (Rotary Means Business)'],
+  ['form_club_change_url', '', 'Filled in by setup: the Club updates form, opening at the members and roles section'],
   ['form_contact_url', '', 'Filled in by setup; shown inside the website\'s Contact page'],
   ['contact_email', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],

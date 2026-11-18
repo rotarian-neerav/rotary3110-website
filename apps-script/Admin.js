@@ -267,7 +267,7 @@ function deskRoleFind_(tab, row) {
 /** An active member of the members list, by RI member ID. */
 function deskActiveMember_(id) {
   var m = readTab_(privateSs_(), 'members_master').filter(function (x) { return Core_str(x.member_id) === Core_str(id).trim(); })[0];
-  if (!m) throw deskError_('No one with member ID ' + Core_str(id) + ' in the members list. Add them first (club changes form), or check the ID.');
+  if (!m) throw deskError_('No one with member ID ' + Core_str(id) + ' in the members list. Add them first (Club updates form), or check the ID.');
   if (Core_str(m.status || 'active') !== 'active') throw deskError_(m.name + ' is marked "' + m.status + '" in the members list.');
   return m;
 }

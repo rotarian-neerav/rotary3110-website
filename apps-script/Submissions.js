@@ -6,6 +6,7 @@
 function onAnyFormSubmit(e) {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
+  AFTER_FILING = [];
   try {
     var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
     var formId = e.source.getId();
@@ -22,10 +23,19 @@ function onAnyFormSubmit(e) {
     else if (formId === ids.contact) fileContact_(answers, meta);
     else if (formId === ids.business) fileBusiness_(answers, meta);
     else if (formId === ids.club_change) fileClubChange_(answers, meta);
+    // Release 2: the two forms with sections
+    else if (formId === ids.club_updates) fileClubUpdates_(answers, meta);
+    else if (formId === ids.my_details) fileMyDetails_(answers, meta);
   } finally {
     lock.releaseLock();
   }
+  // a member's own update is applied once the answer is filed and the lock is free (the approvals take it themselves)
+  var jobs = AFTER_FILING;
+  AFTER_FILING = [];
+  jobs.forEach(function (job) { job(); });
 }
+
+var AFTER_FILING = [];
 
 /** {question title: answer}. File uploads give an array of Drive file IDs. */
 function answersOf_(response) {
@@ -172,6 +182,38 @@ function campaignNotes_(row, activities, campaignRows, notes) {
   }
 }
 
+/** Club updates (Release 2): the first answer says which section was filled; the old forms' filing does the rest. */
+function fileClubUpdates_(a, meta) {
+  var kind = Core_str(a[Q.uKind]);
+  if (kind === CLUB_UPDATE_KINDS.profile) return fileClubProfile_(a, meta);
+  if (kind === CLUB_UPDATE_KINDS.service) return filePublicService_(a, meta);
+  var b = Object.assign({}, a);
+  b[Q.cClub] = a[Q.club]; // the club changes section takes the club from page 1
+  return fileClubChange_(b, meta);
+}
+
+/** My details on the website (Release 2): consent, removal or a business listing, with page 1's member details. */
+function fileMyDetails_(a, meta) {
+  var kind = Core_str(a[Q.mKind]);
+  var b = Object.assign({}, a);
+  if (kind === MY_DETAILS_KINDS.removal) {
+    b[Q.rName] = a[Q.cName];
+    return fileRemoval_(b, meta);
+  }
+  if (kind === MY_DETAILS_KINDS.business) {
+    b[Q.club] = a[Q.cClub]; b[Q.name] = a[Q.cName]; b[Q.bMemberId] = a[Q.cMemberId]; b[Q.bMobile] = a[Q.cMobile];
+    return fileBusiness_(b, meta);
+  }
+  return fileConsent_(a, meta);
+}
+
+/**
+ * Release 2 (owner, 18 Nov 2026): a member's own update goes live by itself when the form came from the member's own
+ * Google account, the email the members list holds for them. Sent by anyone else (or matched only by a typed mobile
+ * number, which anyone could type) it waits for a Members moderator, as before.
+ */
+var AUTO_BY = 'automatic: sent from the member\'s own email';
+
 function fileClubProfile_(a, meta) {
   var ss = mainSs_();
   var clubName = Core_str(a[Q.club]);
@@ -230,7 +272,8 @@ function fileBusiness_(a, meta) {
   };
   var notes = [];
   var master = readTab_(privateSs_(), 'members_master');
-  var i = Core_matchMember({ member_id: Core_str(a[Q.bMemberId]), mobile: row.submitter_mobile, club_id: row.club_id }, master);
+  var i = Core_matchMember({ member_id: Core_str(a[Q.bMemberId]), mobile: row.submitter_mobile, club_id: row.club_id,
+    filled_by: Core_str(a[Q.cFilledBy]), submitter_email: meta.submitter_email }, master);
   var m = i >= 0 ? master[i] : null;
   if (m && businessMemberActive_(m)) {
     row.member_id = Core_str(m.member_id);
@@ -250,7 +293,14 @@ function fileBusiness_(a, meta) {
   var older = businessOlder_(readTab_(ss, 'businesses'), row);
   if (older) notes.push('Updates ' + older.id + ': approving replaces it');
   row.moderator_note = notes.join('; ');
-  appendRow_(ss, 'businesses', row);
+  row._row = appendRow_(ss, 'businesses', row);
+  // the member's own listing from their own email, with nothing to check, goes live by itself (Release 2)
+  var own = m && Core_str(m.email) && Core_str(m.email).toLowerCase() === Core_str(meta.submitter_email).toLowerCase();
+  var onlyReplaces = notes.every(function (n) { return /^Updates BIZ-/.test(n); });
+  if (own && onlyReplaces && !businessBlock_(row)) {
+    approveRow_('businesses', row, AUTO_BY);
+    return;
+  }
   alertContent_('businesses', row);
 }
 
@@ -336,6 +386,19 @@ function fileConsent_(a, meta) {
   var row = appendRow_(ps, 'consent_requests', req);
   var notice = noticeMember_(ps, req);
   if (headers_(ps, 'consent_requests').indexOf('member_notice') >= 0) updateRow_(ps, 'consent_requests', row, { member_notice: notice });
+  // from the member's own email, with the declaration ticked and no removal since: applied at once (Release 2)
+  var check = consentChecker_(ps)(req);
+  if (check.who === 'member' && req.declaration && !check.removal) {
+    AFTER_FILING.push(function () {
+      try {
+        approveConsent_(req.id, AUTO_BY, false);
+      } catch (e) {
+        updateRow_(ps, 'consent_requests', row, { moderator_note: 'Not applied by itself: ' + e.message });
+        alertMembers_('consent', req);
+      }
+    });
+    return;
+  }
   alertMembers_('consent', req);
 }
 
@@ -374,6 +437,7 @@ function noticeMember_(ps, req) {
 function fileClubChange_(a, meta) {
   var ps = privateSs_();
   var said = Core_str(a[Q.gChange]);
+  if (said === 'A club role: President or Secretary') said = CLUB_CHANGES.club_role; // the old form's wording
   var change = Object.keys(CLUB_CHANGES).filter(function (k) { return CLUB_CHANGES[k] === said; })[0] || '';
   var date = { joined: Q.gJoined, left: Q.gLeft, moved: Q.gMoved, deceased: Q.gDied }[change];
   var newClub = Core_str(a[Q.gNewClub]);
@@ -384,9 +448,11 @@ function fileClubChange_(a, meta) {
     rotary_year: Core_str(a[change === 'club_role' ? Q.gClubYear : Q.gDistYear]), role: Core_str(a[change === 'club_role' ? Q.gClubRole : Q.gRole]),
     section: change === 'district_role' ? Core_str(a[Q.gTeam]) : '', committee: change === 'district_role' ? Core_str(a[Q.gCommittee]) : '',
     note: Core_str(a[Q.gNote]), status: 'pending',
+    mobile: change === 'joined' ? Core_str(a[Q.gMobile]) : '', email: change === 'joined' ? Core_str(a[Q.gEmail]).trim().toLowerCase() : '',
   };
   if (change !== 'club_role' && change !== 'district_role') { req.rotary_year = ''; req.role = ''; }
   var notes = [];
+  if (req.mobile && !Core_mobile(req.mobile)) notes.push('The new member\'s mobile is not a 10-digit mobile: it will not be saved');
   if (!change) notes.push('The kind of change was not recognised: ' + said);
   if (!req.club_id) notes.push('Club not recognised: ' + Core_str(a[Q.cClub]));
   if (change === 'moved' && newClub === CLUB_OUTSIDE) notes.push('Moved to a club outside District 3110: approving marks the member as left');
@@ -403,7 +469,22 @@ function fileRemoval_(a, meta) {
     id: nextId_(readTab_(ps, 'removal_requests'), 'REM-'), submitted_at: meta.submitted_at, submitter_email: meta.submitter_email,
     club_id: clubIdByName_(a[Q.rClub]), name: Core_str(a[Q.rName]), member_id: Core_str(a[Q.rMemberId]),
     mobile: Core_str(a[Q.rMobile]), remove_items: (a[Q.rItems] || []).join(', '), reason: Core_str(a[Q.rReason]), status: 'pending',
+    filled_by: Core_str(a[Q.cFilledBy]),
   };
   appendRow_(ps, 'removal_requests', req);
+  // the member's own request from their own email is done at once (Release 2)
+  var master = readTab_(ps, 'members_master');
+  var i = Core_matchMember(req, master);
+  if (i >= 0 && Core_str(master[i].email) && Core_str(master[i].email).toLowerCase() === Core_str(meta.submitter_email).toLowerCase()) {
+    AFTER_FILING.push(function () {
+      try {
+        approveRemoval_(req.id, AUTO_BY);
+      } catch (e) {
+        Logger.log('Removal ' + req.id + ' not done by itself: ' + e.message);
+        alertMembers_('removal', req);
+      }
+    });
+    return;
+  }
   alertMembers_('removal', req);
 }

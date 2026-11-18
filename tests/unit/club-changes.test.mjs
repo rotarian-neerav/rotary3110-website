@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { before, beforeEach, test } from 'node:test';
 import { createGoogleEnv } from '../helpers/google-mock.mjs';
+import { routeOldForms } from '../helpers/forms.mjs';
 import { bundleCode } from '../../tools/bundle-apps-script.mjs';
 
 const ROOT = resolve(import.meta.dirname, '../..');
@@ -18,6 +19,7 @@ beforeEach(() => { if (env) env.quota.left = 100; });
 before(() => {
   env = createGoogleEnv({ sampleJson: readFileSync(resolve(ROOT, 'sample/sample-data.json'), 'utf8') });
   env.load(bundleCode());
+  routeOldForms(env); // the old forms' submissions go through the two forms with sections (Release 2)
   Object.assign(Q, env.context.Q);
   C = env.context.CLUB_CHANGES;
   env.run('setup');
@@ -47,16 +49,18 @@ const send = (change, extra = {}, email = 'secretary@example.com') => {
 };
 const approve = (s, id) => env.post({ fn: 'member', session: s, kind: 'change', action: 'approve', id });
 
-test('the form: the club, the member and the change come first; one page per kind of change; answers go to the private Sheet', () => {
+test("the form: the Club updates form's members section (Release 2): the member and the change, one page per kind of change; answers go to the private Sheet", () => {
   const ids = JSON.parse(env.props.get('FORM_IDS'));
-  const form = env.forms[ids.club_change];
-  assert.equal(form.title, 'Club changes – Rotary District 3110');
+  const form = env.forms[ids.club_updates];
+  assert.equal(form.title, 'Club updates – Rotary District 3110');
   const titles = form.items.map((i) => i.title);
-  assert.deepEqual(titles.slice(0, 4), [Q.cClub, Q.gMemberId, Q.rName, Q.gChange]);
+  const at = titles.indexOf(Q.gMemberId);
+  assert.deepEqual(titles.slice(at, at + 3), [Q.gMemberId, Q.rName, Q.gChange]);
   for (const k of ['joined', 'left', 'moved', 'deceased', 'club_role', 'district_role']) assert.ok(titles.includes(C[k]), C[k] + ' page');
-  assert.equal(titles.at(-1), Q.gNote);
-  assert.ok(!titles.some((t) => /mobile|email/i.test(t)), 'no mobile or email asked');
-  assert.ok(env.priv.getSheetByName('raw_club_change_form'));
+  assert.equal(titles[titles.indexOf(Q.gNote) - 1], 'Anything else');
+  // a new member's own mobile and email, asked only on the "joined" page (Release 2)
+  assert.deepEqual(titles.slice(titles.indexOf(Q.gJoined), titles.indexOf(Q.gJoined) + 3), [Q.gJoined, Q.gMobile, Q.gEmail]);
+  assert.ok(env.priv.getSheetByName('raw_club_updates_form'));
   const newClub = form.items.find((i) => i.title === Q.gNewClub);
   assert.equal(newClub.choices.at(-1), 'A club outside District 3110');
   const years = form.items.find((i) => i.title === Q.gClubYear).choices;
@@ -221,7 +225,7 @@ test('reminders after 48 hours and the weekly summary count club changes; a phon
 
 test('Update form lists keeps the new-club, team and year lists current', () => {
   const ids = JSON.parse(env.props.get('FORM_IDS'));
-  const form = env.forms[ids.club_change];
+  const form = env.forms[ids.club_updates];
   form.items.find((i) => i.title === Q.gNewClub).choices = ['old'];
   form.items.find((i) => i.title === Q.gTeam).choices = ['old'];
   env.run('updateFormLists', true);

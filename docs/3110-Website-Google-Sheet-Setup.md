@@ -113,7 +113,7 @@ The desk (`…/desk/` on the website) lets moderators approve, reject and follow
 **Release 2 (18 Nov 2026):** paste the new `Code.gs`, deploy a new version, run **Upgrade Sheet**. It creates the
 **Club updates** and **My details on the website** forms (answers to the private Sheet, tabs `raw_club_updates_form` and
 `raw_my_details_form`), points every old form link (settings `form_consent_url` and the others) to the new form at the
-right section, and closes the six old forms with a message pointing to the new one. Then add the three photo questions
+right section, and closes the six old forms. (On 18 Nov 2026 Google refused every "has moved" message on the old forms, even plain text; they show Google's own closed note, and Upgrade Sheet lists them until the old forms are deleted.) Then add the three photo questions
 to the My details form (section 3), send one test of each section, and run **Administrator → Delete the old forms and
 their answer tabs…**: the old forms go to Drive's Bin (30 days) and their `raw_…` tabs are deleted; what they sent stays
 in the working tabs. A member's own update (from the email the members list has for them) is applied by itself.

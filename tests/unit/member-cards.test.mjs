@@ -180,3 +180,18 @@ test('pages with nothing on them yet are flagged so the menu can leave them out;
   assert.ok(d.profiles.some((p) => p.role !== 'District Governor'), 'sample still sends an RI President profile');
   assert.deepEqual(full.profiles.map((p) => p.role), ['District Governor']);
 });
+
+test('Call button: its own choice since 23 Nov 2026; data from the older Sheet script keeps it with the WhatsApp button', () => {
+  const data = build();
+  const m = data.members.find((x) => x.directory_ok && x.person_ref);
+  assert.ok(m, 'a listed member in the sample');
+  Object.assign(m, { sample: false, contact_ok: true, contact_link: 'https://wa.me/919811100081' });
+  const card = (d) => derive(d, media, '2026-10-13').cards.find((c) => c.memberKey === m.public_key);
+  Object.assign(m, { call_ok: false, call_link: '' });
+  assert.deepEqual([card(data).wa, card(data).call], ['https://wa.me/919811100081', ''], 'WhatsApp only');
+  Object.assign(m, { call_ok: true, call_link: 'https://wa.me/919811100082' });
+  assert.equal(card(data).call, 'https://wa.me/919811100082');
+  delete m.call_ok;
+  delete m.call_link;
+  assert.equal(card(data).call, 'https://wa.me/919811100081', 'older data: the WhatsApp choice gave both buttons');
+});

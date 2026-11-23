@@ -1,7 +1,7 @@
 # Rotary District 3110 website: user manual
 
 *For everyone who uses the district website at rotary3110.org: visitors, clubs, members, moderators and the
-district's administrators. Updated 18 November 2026.*
+district's administrators. Updated 23 November 2026.*
 
 The fuller guides for each group are in this folder: the **Moderator guide** (every desk and Sheet task), the
 **Google Sheet setup** guide (installing and changing the script), and the **Yearly update** guide (July). This
@@ -50,7 +50,7 @@ in the Sheet; the website updates within about 30 minutes.
 - **A+** at the top makes the text larger; the phone remembers it.
 - **Calendar:** the Events page offers a calendar file (`/events/calendar.ics`) that phones and Outlook can subscribe to.
 - **Short links** for sharing in WhatsApp: `/submit/`, `/club-profile/`, `/club-changes/`, `/public-service/`,
-  `/consent/`, `/remove/`, `/list-business/`. Each opens the right form.
+  `/consent/` (Show my details), `/update/` (Update my details), `/remove/`, `/list-business/`. Each opens the right form.
 
 ### Writing to the district
 
@@ -193,7 +193,7 @@ a short guide for each type.
 |---|---|
 | **To check** | **Clean**: activities where the checks found nothing; glance, untick anything wrong, then **Approve the ticked**. **Needs a look**: each item as a card with the reason first; **Approve**, **Reject** (with ready reasons, sent to the sender) or **Correct** (fix spelling, remove a phone number). |
 | **Recent** | Approved activities of the last 30 days and coming events: **Story of the month**, **Leave out of the bulletin**, **Hide** (takes it off the website, with a reason) and **Put back**. |
-| **Members** | Consent, removal and club change requests with who sent them; **Approve**, **Reject**, **Remove now**. **Find a member** (name, RI ID, email or mobile) and **Edit** with a reason; **Mark as deceased**. |
+| **Members** | Show my details and Update my details forms a club filled in for a member, old removal requests and club changes, with who sent them; **Approve**, **Reject**, **Remove now**. **Find a member** (name, RI ID, email, second email or mobile) and **Edit** with a reason (the RI ID never changes; an email another member uses is refused); **Mark as deceased**. |
 | **Not accepted** | Forms refused because the sender is not an office bearer of the club (only when that check is on). **Let through** sends one to the moderators as usual. |
 | **Roles** | How many clubs have told this year's office bearers; roles to check; **Find a role**, **Change**, **End role**, **Add an office bearer**; **Recent changes** with **Undo**. |
 | **Quiet clubs** | Clubs with no activity in 30 days; **Email the office bearers** or **WhatsApp**. |

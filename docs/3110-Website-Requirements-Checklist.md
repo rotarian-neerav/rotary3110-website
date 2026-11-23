@@ -121,7 +121,7 @@ A = `tests/unit/release-a.test.mjs`, SA = `tests/site/release-a.test.mjs`, U(sim
 | A17 | Activity pages marked as news articles for Google | NewsArticle JSON-LD | SA: every activity page | ✅ |
 | A18 | Monthly private email of quiet clubs (dummy receiver until Club engagement moderators are named) | `notPostingReport`, `Core_quietClubs` | A: 30-day rule; U(sim): email | 🟡 installed; to try live |
 | A19 | Site search | Pagefind, `search.njk` | SA: only listable pages indexed; browser: results | ✅ |
-| A20 | Zones off the website; Assistant Governors with their clubs; bulletin rotates by city | `Core_buildPublicData`, `Core_validatePublic`, `leadership.njk` | A: no zone in the data, check refuses one; SA: no zone on any page; M: city rotation | ✅ (sample `ag_clubs`) |
+| A20 | Zones off the website; Assistant Governors with their clubs; bulletin rotates by city | `Core_buildPublicData`, `Core_validatePublic`, `leadership.njk` | A: no zone in the data, check refuses one; SA: no district zone on any page, while Rotary International's zones ("Zone 6") may appear (23 Nov 2026); M: city rotation | ✅ (sample `ag_clubs`) |
 
 **18 October changes**
 

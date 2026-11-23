@@ -28,6 +28,7 @@ Every awkward case the site must handle, and how many sample rows cover it. Gene
 | Couple with mismatched dates | 1 |
 | Couple withdrawn by a spouse | 1 |
 | Couple photos | 2 |
+| Member text naming a Rotary International zone (allowed) | 1 |
 | People marked deceased | 2 |
 | Roles from last Rotary year (member card history) | 15 |
 | This year's role held by someone marked deceased (must not show) | 1 |

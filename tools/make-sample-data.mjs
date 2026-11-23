@@ -197,6 +197,8 @@ rotarians.forEach((m, i) => {
     m.profession = pick(PROFESSIONS);
     m.area = clubById[m.club_id].city;
     m.description = PROFESSION_LINES[m.profession];
+    // Rotary International's zones may appear in what members write; only the district's own zones never show (23 Nov 2026)
+    if (i === 3) m.description += ' Served as Rotary Zone 6 coordinator for public image.';
     if (i % 6 === 0) m.website = `https://example.com/${m.name.replace(/^Rtn /, '').toLowerCase().replace(/\s+/g, '-')}`;
     m.spotlight_ok = i % 5 === 0;
   }
@@ -939,6 +941,7 @@ function writeReport() {
     ['Couple with mismatched dates', couples.filter((c) => c.status === 'check_dates').length],
     ['Couple withdrawn by a spouse', couples.filter((c) => c.status === 'withdrawn').length],
     ['Couple photos', couples.filter((c) => c.couple_photo_file).length],
+    ['Member text naming a Rotary International zone (allowed)', master.filter((m) => /Zone 6/.test(m.description || '')).length],
     ['People marked deceased', master.filter((m) => m.status === 'deceased').length],
     ['Roles from last Rotary year (member card history)', officers.filter((o) => o.rotary_year === PAST_YEAR).length + functionaries.filter((f) => f.rotary_year === PAST_YEAR).length],
     ['This year\'s role held by someone marked deceased (must not show)', officers.filter((o) => o.rotary_year === ROTARY_YEAR && o.member_id === deceasedMember.member_id).length],

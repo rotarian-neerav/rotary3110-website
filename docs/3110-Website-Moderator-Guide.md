@@ -329,6 +329,6 @@ Every page has a preview card. If you change a photo after a link was already sh
 
 - Never type in **members_public**, **couples_public**, **dashboard** or **role_checks**: the script fills them in.
 - Never put a phone number, email or bank/UPI details in a club's services or projects, an event fee, or a campaign's description or chair. The only phone numbers on the website are approved public services' own numbers and the WhatsApp buttons members agreed to.
-- Never put zones on the website: they are the district's internal grouping (the `zone` columns stay in the Sheet for the district's own use).
+- Never put the district's zones (Agra, Bareilly, Kanpur) on the website: they are the district's internal grouping (the `zone` columns stay in the Sheet for the district's own use). Rotary International's zones, such as "Zone 6" or an RI Zone Coordinator role, may appear (owner, 23 Nov 2026).
 - Never share the private members Sheet or make the Drive folders public (except 3110Magazines).
 - The district never asks for money over WhatsApp. If someone reports such a message, it is a scam.

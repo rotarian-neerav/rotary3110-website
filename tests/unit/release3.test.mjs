@@ -258,7 +258,7 @@ test('the Roles tab shows which office bearers act now and how many clubs still 
 /* ---------- The weekly club email (weekly_club_email) ---------- */
 
 test('weekly club email: off sends nothing; test sends the day\'s club emails together to the test address; on emails the office bearers once a week', () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = core.Core_isoDate(new Date()); // the script's today, in India time (UTC's date differs from midnight to 5:30 am IST)
   const wd = new Date(today + 'T00:00:00Z').getUTCDay();
   // a real club whose weekday is today, with an office bearer and an activity approved today
   const club = env.main.rows('clubs').find((c) => core.Core_clubWeekday(c.club_id) === wd && c.club_id !== 'S-004');

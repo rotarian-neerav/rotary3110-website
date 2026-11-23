@@ -40,14 +40,27 @@ test('the new pages exist', () => {
   for (const f of ['manifest.webmanifest', 'sw.js', 'events/calendar.ics', 'pagefind/pagefind.js', 'pagefind/pagefind-ui.js']) assert.ok(existsSync(join(SITE, f)), f);
 });
 
-test('zones are nowhere on the website (except in what clubs write, or a role title the district itself gives, such as "CDS Bareilly Zone")', () => {
+// The district's own zones (decision 78: internal, may change). Rotary International's zones ("Zone 6", "Zones 4-8",
+// an RI Zone Coordinator) are another thing and may appear, for example in a member's own text (owner, 23 Nov 2026).
+// Rename here if the district renames its zones.
+const DISTRICT_ZONES = ['Agra', 'Bareilly', 'Kanpur'];
+const names = DISTRICT_ZONES.join('|');
+const districtZone = new RegExp(`\\b(${names})\\s+zones?\\b|\\bzones?\\s*[:(-]?\\s*(${names})\\b|\\bzones?\\s*:`, 'i');
+
+test('the district\'s zones are nowhere on the website (except in what clubs write, or a role title the district itself gives, such as "CDS Bareilly Zone"); Rotary International\'s zones may be', () => {
+  for (const bad of ['Agra Zone', 'Bareilly zones', 'Zone: Kanpur', 'zone - Agra', 'Zone:']) assert.match(bad, districtZone, bad);
+  for (const ok of ['Rotary Zone 6 coordinator', 'Zones 4-8', 'RI Zone Coordinator', 'out of my comfort zone']) assert.doesNotMatch(ok, districtZone, ok);
   const titles = [...data.events.flatMap((e) => [e.title, e.description]), ...data.activities.flatMap((a) => [a.title, a.description]),
     ...data.functionaries.map((f) => f.role)].filter((t) => t && /zone/i.test(t));
+  let international = 0;
   for (const f of htmlFiles) {
     let text = parse(read(f)).querySelector('main')?.text || '';
     for (const t of titles) text = text.split(t).join('');
-    assert.ok(!/\bzones?\b/i.test(text), `"zone" in ${relative(SITE, f)}`);
+    const found = text.match(districtZone);
+    assert.ok(!found, `"${found && found[0]}" (a district zone) in ${relative(SITE, f)}`);
+    if (/\bZone 6\b/.test(text)) international++;
   }
+  if (data.members.some((m) => /Zone 6/.test(m.description || '') && m.directory_ok)) assert.ok(international, "a member's text naming Rotary International's Zone 6 builds and shows");
   for (const f of ['data/people.json', 'data/directory.json']) assert.ok(!/"zones?"\s*:/.test(read(join(SITE, f))), `no zone field in ${f}`);
 });
 

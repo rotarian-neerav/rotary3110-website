@@ -492,7 +492,6 @@ function applyShow_(ps, m, req, who) {
     photo_ok: on('photo_ok'), birthday_ok: on('birthday_ok'), anniversary_ok: on('anniversary_ok'), spotlight_ok: on('spotlight_ok'),
     listing_approved: true, listing_approved_by: who, listing_approved_at: nowIso_(), consent_source: Core_str(req.filled_by), consent_updated_at: nowIso_(),
   };
-  if (!f.photo_ok && Core_str(m.photo_file)) { trashRef_(m.photo_file); f.photo_file = ''; f.photo_approved = false; }
   updateRow_(ps, 'members_master', m._row, f);
   if (!f.anniversary_ok) {
     withdrawCouples_(ps, m.member_id, 'Anniversary: Do not list (' + req.id + ')');
@@ -509,7 +508,6 @@ function applyShow_(ps, m, req, who) {
     var u = {};
     u[isA ? 'a_consent' : 'b_consent'] = true;
     u[isA ? 'couple_photo_ok_a' : 'couple_photo_ok_b'] = photoOk;
-    if (!photoOk && Core_str(c.couple_photo_file)) { trashRef_(c.couple_photo_file); u.couple_photo_file = ''; }
     var other = Core_isTrue(isA ? c.b_consent : c.a_consent);
     // two Rotarian spouses who each gave a date: they must agree before the anniversary shows
     var dates = [byId(c.person_a_id), byId(c.person_b_id)].filter(function (p) { return Core_isTrue(p.is_rotarian) && Core_dayMonth(p.marriage_date); })
@@ -642,13 +640,15 @@ function linkCouple_(ps, member, req, consent) {
 function withdrawCouples_(ps, memberId, note) {
   readTab_(ps, 'couples').forEach(function (c) {
     if ([Core_str(c.person_a_id), Core_str(c.person_b_id)].indexOf(Core_str(memberId)) >= 0 && Core_str(c.status) !== 'withdrawn') {
-      if (Core_str(c.couple_photo_file)) trashRef_(c.couple_photo_file);
-      updateRow_(ps, 'couples', c._row, { status: 'withdrawn', couple_photo_file: '', couple_photo_ok_a: false, couple_photo_ok_b: false, notes: note });
+      updateRow_(ps, 'couples', c._row, { status: 'withdrawn', couple_photo_ok_a: false, couple_photo_ok_b: false, notes: note });
     }
   });
 }
 
-/** Removed photos are moved to Google Drive's bin (deleted for good after 30 days). Sample photos are left alone. */
+/**
+ * A photo replaced by a newer one goes to Google Drive's bin (deleted for good after 30 days). A photo that is only
+ * no longer listed stays in Drive, so listing it again needs no new upload (owner, 23 Nov 2026). Sample photos are left alone.
+ */
 function trashRef_(ref) {
   var id = Core_str(ref).replace(/^drive:/, '').split(',')[0].trim();
   if (!id || Core_str(ref).indexOf('sample:') === 0) return;
@@ -680,7 +680,7 @@ function approveRemoval_(requestId, who) {
     var f = {};
     if (all || items.indexOf('directory') >= 0) { f.directory_ok = false; f.contact_ok = false; f.profession = ''; f.description = ''; f.website = ''; f.spotlight_ok = false; }
     if (all || items.indexOf('whatsapp') >= 0) f.contact_ok = false;
-    if (all || items.indexOf('my photo') >= 0) { f.photo_ok = false; if (Core_str(m.photo_file)) trashRef_(m.photo_file); f.photo_file = ''; f.photo_approved = false; }
+    if (all || items.indexOf('my photo') >= 0) f.photo_ok = false; // the photo stays in Drive, not shown
     if (all || items.indexOf('birthday') >= 0) f.birthday_ok = false;
     if (all || items.indexOf('business') >= 0) removeBusinesses_(m.member_id, requestId);
     if (all) { f.listing_approved = false; f.anniversary_ok = false; }
@@ -693,8 +693,7 @@ function approveRemoval_(requestId, who) {
     } else if (items.indexOf('couple photo') >= 0) {
       readTab_(ps, 'couples').forEach(function (c) {
         if ([Core_str(c.person_a_id), Core_str(c.person_b_id)].indexOf(Core_str(m.member_id)) >= 0 && Core_str(c.couple_photo_file)) {
-          trashRef_(c.couple_photo_file);
-          updateRow_(ps, 'couples', c._row, { couple_photo_file: '', couple_photo_ok_a: false, couple_photo_ok_b: false });
+          updateRow_(ps, 'couples', c._row, { couple_photo_ok_a: false, couple_photo_ok_b: false });
         }
       });
     }
@@ -715,8 +714,7 @@ function removeBusinesses_(memberId, requestId) {
   var ss = mainSs_();
   readTab_(ss, 'businesses').forEach(function (b) {
     if (Core_str(b.member_id) !== Core_str(memberId) || ['approved', 'pending'].indexOf(Core_str(b.status)) < 0) return;
-    if (Core_str(b.photo_files)) trashRef_(b.photo_files);
-    updateRow_(ss, 'businesses', b._row, { status: 'removed', photo_files: '',
+    updateRow_(ss, 'businesses', b._row, { status: 'removed',
       moderator_note: (Core_str(b.moderator_note) + '; Removed at the member\'s request (' + requestId + ')').replace(/^; /, '') });
   });
 }

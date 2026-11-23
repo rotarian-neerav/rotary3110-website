@@ -385,8 +385,15 @@ test('Do not list: either spouse can withdraw the anniversary alone; nothing lis
   const d = data();
   assert.ok(!d.members.some((m) => m.name === 'Rtn Ravi Kumar'));
   assert.ok(!d.couples.some((c) => c.person_a_name === 'Rtn Ravi Kumar'));
-  assert.ok(env.trashed.includes('1PhotoOfRaviKumar0123456789abc'), 'photo deleted from Drive');
+  assert.ok(!env.trashed.includes('1PhotoOfRaviKumar0123456789abc'), 'a photo no longer listed stays in Drive (owner, 23 Nov 2026)');
+  assert.ok(!d.members.some((m) => /PhotoOfRaviKumar/.test(JSON.stringify(m))), 'and is not in the public data');
   assert.ok(env.main.rows('settings').find((x) => x.key === 'content_changed_at').value, 'removals go in the next of the four daily updates');
+
+  // listed again later: the same photo shows, with no new upload
+  env.submit('show_details', show(['directory', 'photo']), 'ravi@example.com', new Date());
+  const again = data().members.find((m) => m.name === 'Rtn Ravi Kumar');
+  assert.ok(again && again.photo_ok && again.photo, 'the kept photo shows again');
+  env.submit('show_details', show([]), 'ravi@example.com', new Date());
 });
 
 test('mark as deceased stops greetings at once and asks for a rebuild', () => {

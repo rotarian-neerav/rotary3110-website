@@ -78,7 +78,9 @@ test('WhatsApp links appear only for members who agreed', () => {
 
 test('Call buttons only for members who chose them (23 Nov 2026); the footer links to Show and Update my details', () => {
   const dir = JSON.parse(read(join(SITE, 'data/directory.json')));
-  const consented = new Set(data.members.filter((m) => m.call_ok && m.directory_ok).map((m) => m.call_link));
+  // data from a Sheet script older than 23 Nov 2026 has no Call choice: there the WhatsApp choice gave both buttons
+  const consented = new Set(data.members.filter((m) => m.directory_ok && ('call_ok' in m ? m.call_ok : m.contact_ok))
+    .map((m) => ('call_ok' in m ? m.call_link : m.contact_link)));
   for (const m of dir) if (m.call) assert.ok(consented.has(m.call), `unconsented call link for ${m.name}`);
   const home = page('');
   assert.ok(home.includes('href="' + PREFIX + '/consent/">Show my details<'));

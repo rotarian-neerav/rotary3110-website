@@ -749,6 +749,7 @@ const settings = [
   ['form_club_profile_url', '', 'Filled in by the setup script'],
   ['form_consent_url', '', 'Filled in by the setup script'],
   ['form_removal_url', '', 'Filled in by the setup script'],
+  ['form_update_url', '', 'Filled in by the setup script'],
   ['rebuild_requested_at', '', 'Set by "Rebuild site now" and "Mark as deceased"'],
   ['inactive_keys', pub.inactiveKeys.join(', '), 'Filled in by "Refresh public members"; never edit by hand'],
   ['campaign_check_above', '1000', 'A campaign count above this gets a note for the moderator'],

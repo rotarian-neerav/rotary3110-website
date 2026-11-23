@@ -21,7 +21,9 @@ eleventyComputed:
         {%- if p.club %}<p class="club"><a href="{{ p.club.url }}">{{ p.club.name }}</a></p>{% endif %}
         {%- if p.profession %}<p class="role">{{ p.profession }}{% if p.area %} · {{ p.area }}{% endif %}</p>{% endif %}
         <p class="dir-actions">
-          {%- if p.wa %}<a class="btn-small wa" href="{{ p.wa | waHello }}" target="_blank" rel="noopener">WhatsApp</a><a class="btn-small" href="{{ p.wa | tel }}">Call</a>
+          {%- if p.wa %}<a class="btn-small wa" href="{{ p.wa | waHello }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
+          {%- if p.call %}<a class="btn-small" href="{{ p.call | tel }}">Call</a>{% endif %}
+          {%- if p.wa or p.call %}
           {%- elif p.sampleContact %}<span class="small muted">Sample entry – WhatsApp and call buttons are switched off</span>
           {%- elif p.officialContact %}<a class="btn-small wa" href="{{ p.officialContact | waHello }}" target="_blank" rel="noopener">Contact</a>{% endif %}
           {%- if p.website %}<a class="btn-small" href="{{ p.website }}" target="_blank" rel="noopener">Website ↗</a>{% endif %}
@@ -49,5 +51,5 @@ eleventyComputed:
     {%- endfor %}
     {%- endif %}
   </article>
-  <p class="small muted">{% if p.listed %}Shown with this member's consent.{% else %}Name, club and roles only. Members can choose to add their profession, photo and contact through the <a href="/consent/">My details form</a>.{% endif %} To correct or remove details, use the same form: <a href="/remove/">Remove my details</a>.</p>
+  <p class="small muted">{% if p.listed %}Shown with this member's consent.{% else %}Name, club and roles only. Members can choose to add their profession, photo and Call or WhatsApp buttons on the <a href="/consent/">Show my details form</a>.{% endif %} To correct details: <a href="/update/">Update my details</a>. To stop showing them: <a href="/remove/">Show my details</a>, with Do not list.</p>
 </div>

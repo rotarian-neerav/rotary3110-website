@@ -15,7 +15,7 @@ Moderators check everything before it appears on the website. Any Content modera
 | Type | On the desk |
 |---|---|
 | Content | **To check**: every waiting item as a card, with photos (tap to enlarge), notes, and **Approve**, **Reject** (with ready-made reasons to tap) and **Correct** (fix spelling or remove a phone number before approving). **Recent**: approved activities of the last 30 days and coming events, with **★ Story of the month** and **Leave out of bulletin** buttons |
-| Members | Consent and removal requests (from the My details form) with the member's choices and photo, who sent the form and whether the member was told; **Approve** (with **"I have confirmed this with the member"** where asked) / **Remove now** / **Reject**; club changes (members joining, leaving, moving, passing away; club and district roles) beside what the members list holds; couples waiting; **Mark as deceased** (search by name, then confirm) |
+| Members | Show my details and Update my details forms filled in by a club for a member (the member's own go in by themselves), with the choices or the changes (old → new) and any photo, who sent the form and whether the member was told; **Approve** (with **"I have confirmed this with the member"** where asked) / **Reject**; removal requests from the old form; club changes (members joining, leaving, passing away; club and district roles) beside what the members list holds; couples waiting; **Mark as deceased** (search by name, then confirm) |
 | Club engagement | **Quiet clubs**: active clubs with no activity in 30 days, the last activity date and who reminded them last. **Email the office bearers** (the club's acting President, Secretary and Executive Secretary: this year's, or the last known until this year's is told; their emails from the private members list; sent from the district account and signed "Rotary District 3110 website team"; a hidden copy comes to you; replies go to the district account; once a week at most) or **WhatsApp** (opens WhatsApp with a ready message and the club's own form link; you choose the person) |
 | District office | **Messages** from the contact form. **Reply**: type the answer and tap **Send**; it goes from the district account, signed "Rotary District 3110", so the person never sees your name or email, and the message is marked answered. Please never press Reply on the email alert. Someone who gave only a mobile number: call or WhatsApp from the **district office phone**, not your personal phone, then **Mark answered** |
 | Administrator | Everything above |
@@ -27,17 +27,26 @@ Moderators check everything before it appears on the website. Any Content modera
 
 ## The forms
 
-Four forms bring everything in; their links are on the website.
+Five forms bring everything in; their links are on the website.
 - **Club activity or event** (clubs): an activity done or an event coming up.
-- **Club updates** (clubs): the club's details, a member or a role (joined, left, moved, passed away, club or district
-  role), or a public service, each in its own section. They arrive on the desk as club profile updates and public
-  services (under To check) and club changes (under Members). A new member's mobile and email can come with "joined";
-  approving puts them in the members list (private, never published).
-- **My details on the website** (members): show my details, remove them, or list my business. Sent from the member's
-  own email (the one the members list has), it is applied by itself (`approved_by` "automatic: sent from the member's
-  own email") and the member gets the usual confirmation; nothing reaches the desk. Sent by anyone else, it comes to
-  the Members moderator, and the member is told by email. A business listing with something to check also comes to
-  the desk.
+- **Club updates** (clubs): the club's details, a member or a role (joined, left, passed away, club or district role),
+  or a public service, each in its own section. A member who moves: the old club sends "left", the new club "joined".
+  They arrive on the desk as club profile updates and public services (under To check) and club changes (under
+  Members). A new member's mobile and email can come with "joined"; approving puts them in the members list (private,
+  never published).
+- **Show my details** (members, 23 Nov 2026): what the website may show, **List** or **Do not list** for each item:
+  directory listing (name and club), profession lines, photo, birthday, anniversary, couple photo, Call button,
+  WhatsApp button, member spotlight. The email is never shown. Doing it again with Do not list takes things off.
+- **Update my details** (members): the details themselves (profession, area, what I do, website, the Call and
+  WhatsApp numbers, a second email, birthday, anniversary and spouse, photos) and the business listing or its removal.
+  A blank answer changes nothing.
+- **Both My details forms:** sent by the member from their own email (the one the members list has, or their second
+  email), it goes in by itself (`approved_by` "automatic: sent from the member's own email") and they get an email;
+  nothing reaches the desk. From an email nobody has (or one two members share), nothing is applied and the sender is
+  told to ask their club to add the email as their second email. Filled in by the club's President, Secretary or
+  Executive Secretary, it gives the member's Rotary member ID, comes to the Members moderator, and the member is told
+  by email. A business listing with something to check also comes to the desk. The old My details on the website form
+  was closed on 23 Nov 2026; anything it sent before still waits on the desk and is approved as before.
 - **Contact the district** (the public), inside the website's Contact page.
 
 ## Corrections, the change log and website updates
@@ -154,13 +163,13 @@ Clubs send one **Club updates** form (public service section) per facility. New 
 
 ## Business listings (Rotary Means Business)
 
-Members send the **My details on the website** form (business listing section) for their own business, the topics they can speak on at club meetings, or both. New ones appear in **businesses** as pending (on the desk as "Business listing").
+Members send the **Update my details** form (its last question, Rotary Means Business) for their own business, the topics they can speak on at club meetings, or both. New ones appear in **businesses** as pending (on the desk as "Business listing").
 - **Members only.** The script looks the sender up in the members list and fills in `member_id` and `member_name`. If the note says "Not found in the members list", find the member and type their member ID in `member_id`, or reject. A listing cannot be approved for someone who is not an active member.
 - A note says when the form did **not** come from the member's own email: check with the member first.
 - The business needs a **trade** and a **city**. The WhatsApp number must be a mobile number; it is shown only as a WhatsApp button.
 - No phone numbers or emails in the text; the website leaves such text out anyway. Light fixes (spelling, length) are fine.
 - "Updates BIZ-…" means the member sent the same business again: approving replaces the older listing.
-- To take a listing off: the member uses the My details form (**Remove**, then **Business listing**), or set its status to **removed**.
+- To take a listing off: the member chooses **Remove my business listing** on the Update my details form, or set its status to **removed**.
 
 ## Contact messages
 
@@ -170,27 +179,31 @@ Messages from the website's contact form go to the private Sheet's **contact_mes
 
 **Rotary → Member requests (consent, removal, club changes)…** opens a panel on the right; the desk's **Members** tab shows the same.
 
-- **Finding the member:** the RI member ID is required on the My details form. A member is found by that ID, or else
-  by the sender's own email when the name on the form agrees; a typed mobile number never finds anyone (anyone could
-  type it). A request whose member is not found waits: **Find a member**, put their RI ID on the request, then approve,
-  so nobody gets a second card.
-- **Find a member** (name, RI member ID, email or mobile) and **Edit** the name, RI member ID, club, status (also to
-  undo a mistaken "left" or "deceased"), mobile or email, with a reason. A passing away sent through Club updates needs
-  **I have confirmed this with the club** ticked before Approve (desk and Sheet sidebar).
+- **Finding the member (owner, 23 Nov 2026):** a member's own form only by the Google account it came from (their
+  email or second email, and only when exactly one member has it); a form the club filled in only by the Rotary member
+  ID it gives. A name or mobile never finds anyone. The card says who it matched, with the name on file beside the
+  name typed: a different name usually means a wrong ID, so reject it. **A form never makes a new member**: new
+  members come from the club's "A member joined" or the Rotary International list; a form for an ID nobody has is
+  rejected.
+- **Find a member** (name, RI member ID, email, second email or mobile) and **Edit** the name, club, status (also to
+  undo a mistaken "left" or "deceased"), mobile, email, second email and the Call and WhatsApp button numbers, with a
+  reason. The **RI member ID is never changed**. An email that is already another member's (as email or second email)
+  is refused: every email belongs to one member. A passing away sent through Club updates needs **I have confirmed
+  this with the club** ticked before Approve (desk and Sheet sidebar).
 
-- **Consent:** shows the member's choices, any photo, and whether the request matches someone in the private members list. Check the photo shows the member alone and is suitable. Watch for the warnings (declaration not ticked, spouse's agreement missing). Then **Approve** or **Reject**.
+- **Show my details / Update my details:** the card says which form, the choices (List or Do not list for each) or the changes (new, with what the list had), any photo, and who it matched. Check the photo shows the member alone and is suitable. Watch for the warnings (declaration not ticked, a second email another member uses, a spouse's member ID not found). Then **Approve** or **Reject**. Approving a Show my details form takes off what says Do not list (a photo no longer listed is deleted from Drive).
 - **Who sent it** (the same on the desk). Each form shows the Google account it was sent from and what that account is:
   - **The member's own email** (the email on file from Rotary International): approve as usual.
-  - **An office bearer of the club** (this year's President or Secretary in the **officers** tab, by their email on file): the member is emailed at their own address, told who sent the form and what it asks to show, and has **3 days** to object. Approve after that, or sooner if you have checked with the member.
+  - **An office bearer of the club** (the member's club's acting President, Secretary or Executive Secretary in the **officers** tab, by their email on file; one who has moved to another club no longer counts for the old one): the member is emailed at every email they have, told who sent the form and what it asks, and has **3 days** to object; the sender gets a receipt. Approve after that, or sooner if you have checked with the member.
   - **Not the member or a club office bearer:** the member is emailed in the same way, but you must check with the member (or their club President or Secretary), for example by phone from the district office, and tick **"I have confirmed this with the member"** before **Approve** works, even after 3 days.
-  - Warnings to read: the form says *the member* but came from another email; it says *club secretary* but the sender is not an office bearer; the member ID matches but the name differs; no email on file, so nobody could tell the member. If the member sent a removal request after the form, it cannot be approved: reject it.
+  - Warnings to read: it says a club office bearer filled it but the sender is not one for that member's club; the member ID matches but the name differs; no Rotary member ID matched; no email on file, so nobody could tell the member. If the member sent their own Show my details form (or a removal request) after it, it cannot be approved: reject it.
   - **Member:** says whether the member was emailed. If a member replies to that email to object, the reply reaches the district account: reject the form.
-- **Removal:** **Remove now**. Removals must be done **within two days**; the website drops the details at its next update, and removed photos are deleted from Drive.
-- **Confirmation emails:** whoever sent the form gets an email when you approve the listing (with the link to remove details), when the details are removed, or when you reject it (with your reason). Write the reason so the member can read it.
-- **Club changes:** sent by anyone through the **Club updates** form, members and roles section (`/club-changes/` on the website; `form_club_change_url` in the settings tab): a member who joined, left, moved to another club or passed away, or a club role (President, Secretary) or district role. Each shows the member ID and what was sent, and beside it what the private members list holds for that ID now ("Not in the members list" if nothing). Nothing changes until you approve. **Approve** does this:
-  - *Joined:* adds the member (active, nothing shown on the website until they send the My details form) and a **club_history** row from the date joined. Someone already in another club is moved instead.
-  - *Left:* sets `status` to `left` and ends their **club_history** row.
-  - *Moved:* ends the old club's **club_history** row, adds the new club's and changes `club_id`. Moved to a club outside the district: marked as left.
+- **Removal** (requests sent on the old form before 23 Nov 2026): **Remove now**. Removals must be done **within two days**; the website drops the details at its next update, and removed photos are deleted from Drive.
+- **Confirmation emails:** when you approve, both the sender and the member (at every email they have) get an email listing what was approved, with the link to change it; when you reject, the sender gets your reason. Write the reason so they can read it.
+- **Club changes:** sent by anyone through the **Club updates** form, members and roles section (`/club-changes/` on the website; `form_club_change_url` in the settings tab): a member who joined, left or passed away, or a club role (President, Secretary, Executive Secretary) or district role. Each shows the member ID and what was sent, and beside it what the private members list holds for that ID now ("Not in the members list" if nothing). Nothing changes until you approve. **Approve** does this:
+  - *Joined:* adds the member (active, nothing shown on the website until they send Show my details) and a **club_history** row from the date joined. Someone who left earlier is made active in the new club. **Someone still active in another club is not moved:** the card says "Still a member of RC …"; approve only after that club's "left" for them has been approved (owner, 23 Nov 2026). A new member's email that another member already uses is not saved (the card names that member).
+  - *Left:* sets `status` to `left` and ends their **club_history** row. Only from the club the member is in now: a "left" from another club (for example after the member already joined their new club) is refused, so it never takes them out of their new club.
+  - *Moved* (no longer offered; moves sent before 23 Nov 2026 can still be approved): ends the old club's **club_history** row, adds the new club's and changes `club_id`. Moved to a club outside the district: marked as left.
   - *Passed away:* the same as **Mark as deceased**.
   - *Club role* or *district role:* adds a row to **officers** or **functionaries** with the name as the members list has it. The team's page and order follow the team's other rows. A role is added even if the person is not in the members list (no member card until they are). To change or end a role later, use the desk's **Roles** tab (below).
 
@@ -239,7 +252,7 @@ not come back.
 
 ## Professions list
 
-The list grows as members ask. The My details form offers the professions in the **lists** tab (rows with `list` = `profession`) plus **Other**. When members choose Other and name something new, add it to the **lists** tab, then **Rotary → Update form lists**; you can also correct the member's `profession` in **members_master**.
+The list grows as members ask. The Update my details form offers the professions in the **lists** tab (rows with `list` = `profession`) plus **Other**. When members choose Other and name something new, add it to the **lists** tab, then **Rotary → Update form lists**; you can also correct the member's `profession` in **members_master**.
 
 ## When a member or spouse passes away
 
@@ -302,7 +315,7 @@ Type them into the **messages** tab: name, position, message, date. Tick `featur
 
 ## Member spotlight
 
-Each month, choose a member who ticked "member spotlight" on the My details form. In **spotlights**, add the month (`2026-11`), the member's `public_key` (from **members_public**), a headline and the story.
+Each month, choose a member who chose List for "member spotlight" on the Show my details form. In **spotlights**, add the month (`2026-11`), the member's `public_key` (from **members_public**), a headline and the story.
 
 ## Quiet clubs
 

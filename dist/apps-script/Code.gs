@@ -250,7 +250,9 @@ var SCHEMA_MAIN = {
   messages: ['id', 'name', 'position', 'photo', 'message', 'date', 'featured', 'is_sample'],
   spotlights: ['month', 'public_key', 'member_name', 'headline', 'story', 'is_sample'],
   members_public: ['public_key', 'member_id', 'name', 'club_id', 'directory_ok', 'profession', 'area', 'description',
-    'website', 'contact_ok', 'contact_link', 'photo_ok', 'photo_file', 'birthday_ok', 'birthday', 'spotlight_ok', 'is_sample'],
+    'website', 'contact_ok', 'contact_link', 'photo_ok', 'photo_file', 'birthday_ok', 'birthday', 'spotlight_ok', 'is_sample',
+    // added 23 November 2026: the Call button has its own choice and number (a wa.me link; the page makes the tel: link)
+    'call_ok', 'call_link'],
   couples_public: ['couple_key', 'person_a_key', 'person_a_name', 'person_a_club_id', 'person_b_key', 'person_b_name',
     'person_b_club_id', 'anniversary', 'both_consented', 'couple_photo_file', 'is_sample'],
   // lasting facilities the public can use (blood banks, eye care, dialysis…), sent through the public service form
@@ -287,7 +289,11 @@ var SCHEMA_PRIVATE = {
     // added 29 October 2026 with the real member list; private, never sent to the website
     'gender',
     // added 16 November 2026: when this year's July check email went to the member
-    'member_check_sent_at'],
+    'member_check_sent_at',
+    // added 23 November 2026 (My details split): kept by the district, never overwritten by an RI refresh. A second
+    // email for a member whose RI email is old; the numbers for the Call and WhatsApp buttons (blank: the RI mobile);
+    // separate consent for the profession lines and the Call button (blank: as directory_ok and contact_ok)
+    'email2', 'call_number', 'whatsapp_number', 'profession_ok', 'call_ok'],
   club_history: ['member_id', 'club_id', 'from_date', 'to_date', 'reason', 'is_sample'],
   couples: ['couple_id', 'person_a_id', 'person_b_id', 'anniversary', 'a_consent', 'b_consent', 'couple_photo_ok_a',
     'couple_photo_ok_b', 'couple_photo_file', 'couple_photo_approved', 'status', 'notes', 'is_sample'],
@@ -297,7 +303,9 @@ var SCHEMA_PRIVATE = {
     'spouse_agrees', 'anniversary', 'couple_photo_file', 'couple_photo_spouse_agrees', 'declaration', 'status',
     'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample',
     // added 1 November 2026: whether the member was told at their email on file
-    'member_notice'],
+    'member_notice',
+    // added 23 November 2026 (My details split): which form (show or update), the new consents and details
+    'form', 'profession_ok', 'call_ok', 'couple_photo_ok', 'email2', 'call_number', 'whatsapp_number', 'remove_business'],
   // messages from the website's contact form; the reply details stay here and are never published
   contact_messages: ['id', 'submitted_at', 'name', 'reply_to', 'topic', 'city', 'message', 'status', 'forwarded_to', 'note', 'is_sample', 'replies'],
   removal_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'name', 'member_id', 'mobile', 'remove_items',
@@ -1084,6 +1092,16 @@ function Core_sampleRows(tabs) {
   return n;
 }
 
+/**
+ * The number behind a member's Call or WhatsApp button: the one the member gave for it, else the other one they gave,
+ * else the mobile from the RI list: 91 and the 10 digits, or '' when none is a mobile.
+ */
+function Core_memberNumber(m, kind) {
+  var order = kind === 'whatsapp' ? [m.whatsapp_number, m.call_number, m.mobile] : [m.call_number, m.whatsapp_number, m.mobile];
+  for (var i = 0; i < order.length; i++) if (Core_mobile(order[i])) return Core_mobile(order[i]);
+  return '';
+}
+
 /** The Rotary year after the given one: "2024-25" -> "2025-26", "2099-00" -> "2100-01". Empty if not a Rotary year. */
 function Core_nextRotaryYear(year) {
   var m = /^(\d{4})-(\d{2})$/.exec(Core_str(year));
@@ -1099,9 +1117,16 @@ function Core_nextRotaryYear(year) {
  */
 function Core_memberShows(m) {
   var directory = Core_isTrue(m.directory_ok);
+  var sample = Core_isTrue(m.is_sample);
+  // My details split (23 Nov 2026): the profession lines and the Call button have their own choice; a member who
+  // has not made it yet keeps what the directory and WhatsApp choices gave them
+  var said = function (v, before) { return Core_str(v) === '' ? before : Core_isTrue(v); };
+  var whatsapp = directory && Core_isTrue(m.contact_ok);
   return {
     directory: directory,
-    contact: directory && Core_isTrue(m.contact_ok) && (Core_isTrue(m.is_sample) || !!Core_mobile(m.mobile)),
+    profession: directory && said(m.profession_ok, true),
+    contact: whatsapp && (sample || !!Core_memberNumber(m, 'whatsapp')),
+    call: directory && said(m.call_ok, whatsapp) && (sample || !!Core_memberNumber(m, 'call')),
     photo: Core_isTrue(m.photo_ok) && Core_isTrue(m.photo_approved) && !!Core_str(m.photo_file),
     birthday: Core_isTrue(m.birthday_ok) && !!Core_dayMonth(m.dob),
   };
@@ -1145,13 +1170,16 @@ function Core_memberCheckEmail(m, clubName, siteUrl, forms) {
   var lines = ['• Club: ' + (Core_str(clubName) || Core_str(m.club_id))];
   if (s.directory) {
     lines.push('• In the member directory: yes');
-    [['Profession', m.profession], ['Area', m.area], ['About you', m.description], ['Website', m.website]].forEach(function (f) {
-      if (Core_str(f[1])) lines.push('    ' + f[0] + ': ' + Core_str(f[1]));
-    });
+    if (s.profession) {
+      [['Profession', m.profession], ['Area', m.area], ['About you', m.description], ['Website', m.website]].forEach(function (f) {
+        if (Core_str(f[1])) lines.push('    ' + f[0] + ': ' + Core_str(f[1]));
+      });
+    }
   } else {
     lines.push('• In the member directory: no');
   }
   lines.push('• Your photo: ' + yes(s.photo));
+  lines.push('• A Call button: ' + yes(s.call));
   lines.push('• A WhatsApp button, so people can message you: ' + yes(s.contact));
   lines.push('• A birthday greeting on the Celebrations page: ' + (s.birthday ? 'yes (' + birthday(Core_dayMonth(m.dob)) + ', without the year)' : 'no'));
   var site = Core_str(siteUrl).replace(/\/?$/, '/');
@@ -1159,8 +1187,8 @@ function Core_memberCheckEmail(m, clubName, siteUrl, forms) {
     'Once a year, in July, we check with every member listed on the Rotary District 3110 website (' + site + ') ' +
     'that it still shows what you want. This is what it shows about you:\n\n' + lines.join('\n') + '\n\n' +
     'Nothing to do if this is right.\n\n' +
-    'To change any of it, send the My details on the website form again' + (forms && forms.consent ? ':\n' + forms.consent : ' (linked from the website\'s Privacy page).') + '\n\n' +
-    'To remove any of it, or your whole listing' + (forms && forms.removal ? ', use the same form:\n' + forms.removal : ', use the same form and choose "Remove" (linked from the website\'s Privacy page).') + '\n\n' +
+    'To show or stop showing any of it, send the Show my details form' + (forms && forms.consent ? ':\n' + forms.consent : ' (linked from the website\'s Privacy page).') + '\n\n' +
+    'To correct your profession, photo, birthday or numbers, send the Update my details form' + (forms && forms.update ? ':\n' + forms.update : ' (linked from the website\'s Privacy page).') + '\n\n' +
     'Your mobile number and email address are never shown on the website.\n\nRotary District 3110';
   return { subject: 'Your listing on the Rotary District 3110 website: still right?', body: body };
 }
@@ -1205,6 +1233,7 @@ function Core_buildMembersPublic(master, couples, makeKey) {
     var directory = shows.directory;
     var sample = Core_isTrue(m.is_sample);
     var contact = shows.contact;
+    var call = shows.call;
     var photo = shows.photo;
     var birthday = shows.birthday;
     if (!directory && !photo && !birthday) return;
@@ -1215,12 +1244,14 @@ function Core_buildMembersPublic(master, couples, makeKey) {
       name: Core_str(m.name),
       club_id: Core_str(m.club_id),
       directory_ok: directory,
-      profession: directory ? Core_str(m.profession) : '',
-      area: directory ? Core_str(m.area) : '',
-      description: directory ? Core_str(m.description) : '',
-      website: directory ? Core_url(m.website) : '',
+      profession: shows.profession ? Core_str(m.profession) : '',
+      area: shows.profession ? Core_str(m.area) : '',
+      description: shows.profession ? Core_str(m.description) : '',
+      website: shows.profession ? Core_url(m.website) : '',
       contact_ok: contact,
-      contact_link: contact && !sample ? 'https://wa.me/' + Core_mobile(m.mobile) : '',
+      contact_link: contact && !sample ? 'https://wa.me/' + Core_memberNumber(m, 'whatsapp') : '',
+      call_ok: call,
+      call_link: call && !sample ? 'https://wa.me/' + Core_memberNumber(m, 'call') : '',
       photo_ok: photo,
       photo_file: photo ? Core_str(m.photo_file) : '',
       birthday_ok: birthday,
@@ -1354,6 +1385,9 @@ function Core_buildPublicData(tabs, nowIso, options) {
       website: Core_url(m.website),
       contact_ok: Core_isTrue(m.contact_ok),
       contact_link: Core_str(m.contact_link),
+      // a public row made before 23 Nov 2026 has no Call choice yet: its WhatsApp choice gave both buttons
+      call_ok: Core_str(m.call_ok) === '' ? Core_isTrue(m.contact_ok) : Core_isTrue(m.call_ok),
+      call_link: Core_str(m.call_ok) === '' ? Core_str(m.contact_link) : Core_str(m.call_link),
       photo_ok: Core_isTrue(m.photo_ok),
       photo: Core_photoRefs(m.photo_file)[0] || '',
       birthday_ok: Core_isTrue(m.birthday_ok),
@@ -1688,6 +1722,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
       contact: Core_url(settings.form_contact_url),
       business: Core_url(settings.form_business_url),
       club_change: Core_url(settings.form_club_change_url),
+      update: Core_url(settings.form_update_url),
     },
     lists: {
       themes: CORE_THEMES.slice(),
@@ -1752,6 +1787,8 @@ function Core_validatePublic(data) {
     if (!m.directory_ok && (m.profession || m.area || m.description || m.website)) err(w, 'directory details without directory consent');
     if (m.contact_link && !(m.contact_ok && m.directory_ok)) err(w, 'contact link without consent');
     if (m.contact_link && !CORE_WA_LINK_RE.test(m.contact_link)) err(w, 'contact link is not a WhatsApp link');
+    if (m.call_link && !(m.call_ok && m.directory_ok)) err(w, 'call link without consent');
+    if (m.call_link && !CORE_WA_LINK_RE.test(m.call_link)) err(w, 'call link is not a number link');
     if (m.photo && !m.photo_ok) err(w, 'photo without photo consent');
     if (m.birthday && !m.birthday_ok) err(w, 'birthday without consent');
     if (m.birthday && !/^\d{2}-\d{2}$/.test(m.birthday)) err(w, 'birthday must be day and month only, got "' + m.birthday + '"');
@@ -1853,10 +1890,22 @@ function Core_walk(node, path, fn) {
 /* Helpers used by the Sheet script                                    */
 /* ------------------------------------------------------------------ */
 
-/** Finds the member a consent or removal request refers to: member ID first, then mobile + club. */
+/**
+ * Finds the member a request refers to. The two My details forms (owner, 23 Nov 2026; requests with a "form"): a
+ * member's own request only by the Google account it came from, the member's email or second email, and only when
+ * exactly one member has it; one filled by a club office bearer only by the Rotary member ID. Older requests, club
+ * changes and spouses: member ID first, then the sender's email when the name agrees.
+ */
 function Core_matchMember(request, master) {
   var id = Core_str(request.member_id);
   var i;
+  if (Core_str(request.form)) {
+    if (Core_filledByClub(request.filled_by)) {
+      for (i = 0; id && i < master.length; i++) if (Core_str(master[i].member_id) === id) return i;
+      return -1;
+    }
+    return Core_findByEmail(request.submitter_email, master).index;
+  }
   if (id) {
     for (i = 0; i < master.length; i++) if (Core_str(master[i].member_id) === id) return i;
   }
@@ -1876,6 +1925,44 @@ function Core_matchMember(request, master) {
   return -1;
 }
 
+/** Why a form for a member can no longer be approved: what the member sent since (a removal, or their own choices). */
+function Core_removalSince(id) {
+  return /^CON-/.test(Core_str(id)) ? 'The member sent their own choices after this form (' + id + ')'
+    : 'The member asked to remove their details after this form was sent (' + id + ')';
+}
+
+/** Filled in by a club's President, Secretary or Executive Secretary for a member (not by the member). */
+function Core_filledByClub(filledBy) {
+  return /secretary|president/i.test(Core_str(filledBy));
+}
+
+/** A member's emails: the one from RI and the second one the district keeps, lower case, without blanks or repeats. */
+function Core_memberEmails(m) {
+  var out = [];
+  [m && m.email, m && m.email2].forEach(function (e) {
+    var v = Core_str(e).trim().toLowerCase();
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) && out.indexOf(v) < 0) out.push(v);
+  });
+  return out;
+}
+
+/** The members with this email or second email: { index (only when exactly one), count }. */
+function Core_findByEmail(email, master) {
+  var want = Core_str(email).trim().toLowerCase();
+  var found = [];
+  if (/@/.test(want)) (master || []).forEach(function (m, i) { if (Core_memberEmails(m).indexOf(want) >= 0) found.push(i); });
+  return { index: found.length === 1 ? found[0] : -1, count: found.length };
+}
+
+/** Other members (not memberId) who already use this email as their email or second email: every email is one member's. */
+function Core_emailOwners(email, master, memberId) {
+  var want = Core_str(email).trim().toLowerCase();
+  if (!want) return [];
+  return (master || []).filter(function (m) {
+    return Core_str(m.member_id) !== Core_str(memberId) && Core_memberEmails(m).indexOf(want) >= 0;
+  });
+}
+
 /**
  * Who sent a consent form, judged by the sender's Google account: 'member' when it is the member's own email on file,
  * 'officer' when it is the email on file of one of the club's office bearers (officers: the acting ones), otherwise
@@ -1886,21 +1973,25 @@ function Core_consentSender(request, master, officers, removals) {
   var i = Core_matchMember(request, master);
   var member = i >= 0 ? master[i] : null;
   var sender = lower(request.submitter_email);
-  var memberEmail = member ? lower(member.email) : '';
+  var emails = member ? Core_memberEmails(member) : [];
+  var memberEmail = emails[0] || '';
   var clubs = [Core_str(request.club_id), member ? Core_str(member.club_id) : ''].filter(String);
   var byId = {};
   master.forEach(function (m) { byId[Core_str(m.member_id)] = m; });
   var officer = !!sender && (officers || []).some(function (o) {
     var m = byId[Core_str(o.member_id)];
-    return m && clubs.indexOf(Core_str(o.club_id)) >= 0 && lower(m.email) === sender;
+    return m && clubs.indexOf(Core_str(o.club_id)) >= 0 && Core_memberEmails(m).indexOf(sender) >= 0;
   });
-  var who = sender && sender === memberEmail ? 'member' : officer ? 'officer' : 'other';
-  var saysSecretary = /secretary/i.test(Core_str(request.filled_by));
+  var who = sender && emails.indexOf(sender) >= 0 ? 'member' : officer ? 'officer' : 'other';
+  var saysSecretary = Core_filledByClub(request.filled_by);
   var warnings = [];
   if (!saysSecretary && who !== 'member' && memberEmail) {
     warnings.push("Says the member filled it, but it was sent from " + (sender || 'no Google account') + ", not the member's email on file");
   }
-  if (saysSecretary && who === 'other') warnings.push('Says the club secretary filled it, but ' + (sender || 'the sender') + ' is not an office bearer of the club on file');
+  if (saysSecretary && who === 'other') {
+    warnings.push('Says a club office bearer filled it, but ' + (sender || 'the sender') + ' is not the President, Secretary or Executive Secretary of ' +
+      (member ? "this member's club" : 'the club') + ' on file');
+  }
   if (member && Core_str(request.member_id) && Core_str(request.member_id) === Core_str(member.member_id)) {
     var words = function (n) { return Core_plainName(n).split(' ').filter(function (w) { return w.length > 2; }); };
     var known = words(member.name);
@@ -1919,8 +2010,8 @@ function Core_consentSender(request, master, officers, removals) {
       if (Core_matchMember(r, master) === i && (new Date(r.submitted_at).getTime() || 0) >= sent) removal = Core_str(r.id) || 'a removal request';
     });
   }
-  if (removal) warnings.unshift('The member asked to remove their details after this form was sent (' + removal + '): reject this form');
-  return { who: who, memberEmail: memberEmail, memberName: member ? Core_str(member.name) : '', warnings: warnings, removal: removal };
+  if (removal) warnings.unshift(Core_removalSince(removal) + ': reject this form');
+  return { who: who, memberEmail: memberEmail, memberEmails: emails, memberName: member ? Core_str(member.name) : '', warnings: warnings, removal: removal };
 }
 
 /**
@@ -1928,9 +2019,17 @@ function Core_consentSender(request, master, officers, removals) {
  * Per club and role the latest year up to `year` that has a row decides, so until this year's holder is told the
  * previous known holder carries on. A role ended in that year has nobody acting; next year's rows count from 1 July.
  * Returns { club_id: { role: the officer row, with acting_year and carried } }.
+ * master (the members list, optional): an office bearer counts only for the club they are in now (owner, 23 Nov 2026);
+ * one who left or moved to another club leaves the role empty until the club tells the new holder.
  */
-function Core_actingOfficers(officers, year) {
+function Core_actingOfficers(officers, year, master) {
   var best = {};
+  var byId = {};
+  (master || []).forEach(function (m) { if (Core_str(m.member_id)) byId[Core_str(m.member_id)] = m; });
+  var moved = function (o) {
+    var m = byId[Core_str(o.member_id)];
+    return !!m && (Core_str(m.status || 'active').toLowerCase() !== 'active' || Core_str(m.club_id) !== Core_str(o.club_id));
+  };
   (officers || []).forEach(function (o) {
     var y = Core_str(o.rotary_year);
     var role = Core_str(o.role);
@@ -1944,7 +2043,7 @@ function Core_actingOfficers(officers, year) {
   var out = {};
   Object.keys(best).forEach(function (key) {
     var b = best[key];
-    if (!b.row) return;
+    if (!b.row || moved(b.row)) return;
     var club = key.split('|')[0];
     out[club] = out[club] || {};
     out[club][Core_str(b.row.role)] = Object.assign({}, b.row, { acting_year: b.year, carried: b.year !== year });
@@ -1971,11 +2070,11 @@ function Core_clubSender(email, clubId, acting, master, moderatorRows) {
   var roles = (acting && acting[Core_str(clubId)]) || {};
   var emails = {};
   (master || []).forEach(function (m) {
-    if (Core_str(m.status || 'active').toLowerCase() === 'active' && !Core_isTrue(m.is_sample)) emails[Core_str(m.member_id)] = lower(m.email);
+    if (Core_str(m.status || 'active').toLowerCase() === 'active' && !Core_isTrue(m.is_sample)) emails[Core_str(m.member_id)] = Core_memberEmails(m);
   });
   var known = CORE_CLUB_ROLES.filter(function (r) { return roles[r]; });
-  var reachable = known.filter(function (r) { return CORE_EMAIL_RE.test(emails[Core_str(roles[r].member_id)] || ''); });
-  var held = known.filter(function (r) { return sender && emails[Core_str(roles[r].member_id)] === sender; });
+  var reachable = known.filter(function (r) { return (emails[Core_str(roles[r].member_id)] || []).length > 0; });
+  var held = known.filter(function (r) { return sender && (emails[Core_str(roles[r].member_id)] || []).indexOf(sender) >= 0; });
   var out = { roles: known, held: held };
   if (held.length) out.who = 'officer';
   else if (sender && CORE_MODERATOR_TYPES.some(function (t) { return Core_moderatorEmails(moderatorRows || [], t).indexOf(sender) >= 0; })) out.who = 'moderator';
@@ -2155,7 +2254,8 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
     Core_memberShows: Core_memberShows, Core_sampleRows: Core_sampleRows, Core_nextRotaryYear: Core_nextRotaryYear, Core_memberCheckDue: Core_memberCheckDue, Core_memberCheckEmail: Core_memberCheckEmail,
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
-    Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
+    Core_matchMember: Core_matchMember, Core_findByEmail: Core_findByEmail, Core_emailOwners: Core_emailOwners, Core_memberEmails: Core_memberEmails,
+    Core_filledByClub: Core_filledByClub, Core_memberNumber: Core_memberNumber, Core_removalSince: Core_removalSince, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
     Core_checkRoles: Core_checkRoles, Core_plainName: Core_plainName, Core_unsafeText: Core_unsafeText,
     Core_uniqueRows: Core_uniqueRows, Core_cleanLines: Core_cleanLines, Core_lineParts: Core_lineParts, Core_isDistrictEvent: Core_isDistrictEvent,
@@ -2311,10 +2411,13 @@ var DEFAULT_SETTINGS = [
   ['site_url', 'https://rotary3110.org/', 'Used in emails to people who send activities'],
   ['form_activity_url', '', 'Filled in by setup'],
   ['form_club_updates_url', '', 'Filled in by setup (Club updates: club details, members and roles, a public service)'],
-  ['form_my_details_url', '', 'Filled in by setup (My details on the website: show, remove, business listing)'],
+  ['form_my_details_url', '', 'My details on the website: closed 23 Nov 2026 (Show my details and Update my details replace it)'],
+  ['form_show_details_url', '', 'Filled in by setup (Show my details: List or Do not list for each item)'],
+  ['form_update_details_url', '', 'Filled in by setup (Update my details: the details, numbers, second email, business listing)'],
   ['form_club_profile_url', '', 'Filled in by setup: the Club updates form, opening at the club details section'],
-  ['form_consent_url', '', 'Filled in by setup: the My details form, opening at "show my details"'],
-  ['form_removal_url', '', 'Filled in by setup: the My details form, opening at "remove my details"'],
+  ['form_consent_url', '', 'Filled in by setup: the Show my details form'],
+  ['form_removal_url', '', 'Filled in by setup: the Show my details form (Do not list takes things off)'],
+  ['form_update_url', '', 'Filled in by setup: the Update my details form'],
   ['rebuild_requested_at', '', 'Set by "Rebuild site now": the website updates within about 30 minutes'],
   ['content_changed_at', '', 'Set by every approval, hide, removal and member change: the website takes them at its next update (9 am, 1 pm, 6 pm, 10 pm)'],
   ['inactive_keys', '', 'Filled in by "Refresh public members"; never edit by hand'],
@@ -2405,9 +2508,9 @@ function addValidation_(main, priv) {
   apply(main, 'activities', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
   apply(main, 'events', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
   apply(main, 'events', 'registration_status', listRule_(CORE_REG_STATUSES));
-  ['consent_requests', 'removal_requests'].forEach(function (t) {
-    apply(priv, t, 'status', listRule_(['pending', 'approved', 'rejected']));
-  });
+  apply(priv, 'removal_requests', 'status', listRule_(['pending', 'approved', 'rejected']));
+  // not_matched (23 Nov 2026): a member's own My details form whose email is not on file; nothing was applied
+  apply(priv, 'consent_requests', 'status', listRule_(['pending', 'approved', 'rejected', 'not_matched']));
   // not_accepted (Release 3): sent by someone who is not an office bearer of the club, until a moderator lets it through
   apply(priv, 'club_change_requests', 'status', listRule_(['pending', 'approved', 'rejected', 'not_accepted']));
   apply(priv, 'members_master', 'status', listRule_(['active', 'deceased', 'left']));
@@ -2517,14 +2620,15 @@ function tidyBlankRows_(ss, report) {
 
 // ===== Forms.js =====
 /**
- * The four Google Forms (Release 2, 18 Nov 2026; there were eight): the activity form, the Club updates form (club
- * details, members and roles, a public service, as sections), the My details on the website form (show my details,
- * remove them, my business, as sections) and the website's contact form. Questions are found again by their titles,
- * so keep titles in Q unchanged. The activity form sends answers to the main Sheet; the other three to the private
- * Sheet. Each form's raw answers stay untouched in a "raw_…" tab; the script copies them into the working tabs.
+ * The Google Forms: the activity form, the Club updates form (club details, members and roles, a public service, as
+ * sections), the two My details forms (owner, 23 Nov 2026: Show my details, the consent alone; Update my details, the
+ * details and the business listing) and the website's contact form. Questions are found again by their titles, so
+ * keep titles in Q unchanged. The activity form sends answers to the main Sheet; the others to the private Sheet.
+ * Each form's raw answers stay untouched in a "raw_…" tab; the script copies them into the working tabs.
  *
  * The six older forms (club profile, public service, club changes, consent, removal, business) were deleted on
- * 18 Nov 2026; their settings now hold links that open Club updates or My details at the matching section.
+ * 18 Nov 2026; the My details on the website form that replaced three of them was closed on 23 Nov 2026 (its answers
+ * still sent are filed as before). Their settings now hold links that open the forms that took their place.
  */
 
 var Q = {
@@ -2655,40 +2759,82 @@ var Q = {
   mKind: 'What would you like to do?',
   gMobile: "New member's mobile number (optional)",
   gEmail: "New member's email (optional)",
+  // the two My details forms (23 November 2026)
+  showGrid: 'What may the website show?',
+  uCall: 'Number for the Call button',
+  uWhatsapp: 'Number for the WhatsApp button',
+  uEmail2: 'Second email address',
+  uBusiness: 'Rotary Means Business',
 };
 
 // The first choice on each of the two forms with sections leads to its section
 var CLUB_UPDATE_KINDS = {
   profile: "Our club's details: website, social pages, meeting day and place, projects and services",
-  member: 'A member or a role: joined, left, moved, passed away, President, Secretary, Executive Secretary or a district role',
+  member: 'A member or a role: joined, left, passed away, President, Secretary, Executive Secretary or a district role',
   service: 'A public service the club runs: blood bank, eye care, dialysis, ambulance…',
 };
+// The member's choice before 23 Nov 2026 ("moved" became the old club's "left" and the new club's "joined")
+var CLUB_UPDATE_MEMBER_BEFORE = 'A member or a role: joined, left, moved, passed away, President, Secretary, Executive Secretary or a district role';
 var MY_DETAILS_KINDS = {
   consent: 'Show my details on the website: directory, photo, birthday, anniversary',
   removal: 'Remove some or all of my details',
   business: 'List my business, or the topics I can speak on (Rotary Means Business)',
 };
-// The links named after the six forms Release 2 replaced (website, emails) open the new form at the right section.
-// The old forms themselves were closed and deleted on 18 Nov 2026.
+// The links named after the forms that were replaced (website, emails) open the form that does it now, at the right
+// section where there is one. The six old forms were deleted on 18 Nov 2026; My details was closed on 23 Nov 2026.
 var SECTION_LINKS = {
   club_profile: { now: 'club_updates', kind: 'profile' },
   public_service: { now: 'club_updates', kind: 'service' },
   club_change: { now: 'club_updates', kind: 'member' },
-  consent: { now: 'my_details', kind: 'consent' },
-  removal: { now: 'my_details', kind: 'removal' },
-  business: { now: 'my_details', kind: 'business' },
+  consent: { now: 'show_details' },
+  removal: { now: 'show_details' },
+  business: { now: 'update_details' },
+  update: { now: 'update_details' },
 };
-// The member's RI ID is required on the My details form: with the sender's own email, it is how the member is found (owner, 18 Nov 2026)
-var MY_DETAILS_ID_HELP = "Your Rotary member ID, from My Rotary or your club's records. It is how we find your record. Never published.";
-var CLUB_UPDATES_DESCRIPTION = 'Tell the district about your club: its details (website, social pages, meeting, projects and services), ' +
-  'a member who joined, left, moved or passed away, a club or district role, or a public service the club runs. ' +
-  "A district moderator checks everything before the website or the district's members list changes, and you get an email when it is decided.";
-var MY_DETAILS_DESCRIPTION = 'Your details on the district website: choose what may be shown about you, ask for something to be removed, ' +
-  'or list your business. Birthdays and anniversaries are shown as day and month only, never the year.\n\n' +
-  'Sent from your own email (the one the district has for you), it is applied at the next website update. ' +
-  'If someone else fills it in for you (for example your club secretary), we email you with what was asked, and a district moderator checks it first.';
 
-// The club changes form's choices, by the change kept in club_change_requests
+/**
+ * The two My details forms (owner, 23 Nov 2026). The member's own form is matched only by the Google account it comes
+ * from (their email or second email) and goes in at the next website update; one filled by the club's President,
+ * Secretary or Executive Secretary is matched only by the Rotary member ID and waits for a Members moderator.
+ */
+var FILLED_BY = { member: 'The member', club: 'Club President, Secretary or Executive Secretary for the member' };
+// Show my details: one row per thing the website can show, each answered List or Do not list
+var SHOW_ITEMS = {
+  directory: 'Directory listing: my name and club',
+  profession: 'Profession, area, what I do and website',
+  photo: 'Photo',
+  birthday: 'Birthday (day and month only)',
+  anniversary: 'Wedding anniversary (day and month only)',
+  couple_photo: 'Couple photo on our anniversary',
+  call: 'Call button',
+  whatsapp: 'WhatsApp button',
+  spotlight: 'Member spotlight (the district may feature me)',
+};
+var SHOW_COLUMNS = ['List', 'Do not list'];
+var BUSINESS_CHOICES = {
+  none: 'Nothing about a business',
+  list: 'List or update my business, or the topics I can speak on',
+  remove: 'Remove my business listing',
+};
+var SHOW_DETAILS_DESCRIPTION = 'Choose what the district website may show about you. Answer List or Do not list for each item; ' +
+  'send the form again any time to change your mind. Birthdays and anniversaries are shown as day and month only, never the year. ' +
+  'Your email is never shown, and your numbers only as Call and WhatsApp buttons.\n\n' +
+  'Sent from your own email (the one the district has for you), it goes in at the next website update and you get an email. ' +
+  "A club's President, Secretary or Executive Secretary can fill it in for a member: we email the member, and a district moderator checks it first.\n\n" +
+  'The details themselves (profession, photo, birthday, numbers) come from the Update my details form.';
+var UPDATE_DETAILS_DESCRIPTION = 'Correct or add your details for the district: profession, photo, birthday, anniversary, the numbers for your ' +
+  'Call and WhatsApp buttons, a second email address, and your business listing. Fill in only what should change.\n\n' +
+  'What the website shows is your choice on the Show my details form.\n\n' +
+  'Sent from your own email (the one the district has for you), it goes in at the next website update and you get an email. ' +
+  "A club's President, Secretary or Executive Secretary can fill it in for a member: we email both of you, and a district moderator checks it first.";
+var MEMBER_PAGE_HELP = "The member's Rotary member ID (from My Rotary or the club's records) is how we find their record. Never published.";
+var CLUB_UPDATES_DESCRIPTION = 'Tell the district about your club: its details (website, social pages, meeting, projects and services), ' +
+  'a member who joined, left or passed away, a club or district role, or a public service the club runs. ' +
+  "A district moderator checks everything before the website or the district's members list changes, and you get an email when it is decided.";
+
+// The club changes form's choices, by the change kept in club_change_requests. "moved" is no longer offered
+// (owner, 23 Nov 2026: the old club sends "left", the new club "joined"); moves already sent are still approved.
+var CLUB_CHANGE_CHOICES = ['joined', 'left', 'deceased', 'club_role', 'district_role'];
 var CLUB_CHANGES = {
   joined: 'A member joined the club', left: 'A member left Rotary or the club', moved: 'A member moved to another club',
   deceased: 'A member passed away', club_role: 'A club role: President, Secretary or Executive Secretary', district_role: 'A district role',
@@ -2788,17 +2934,8 @@ function addLaterQuestions_(report) {
     report.push('Added the question "' + q.title + '" to the ' + q.form.replace('_', ' ') + ' form' + (anchor < 0 ? ' (at the end: please move it)' : ''));
   });
   if (ids.club_profile) FormApp.openById(ids.club_profile).setDescription(CLUB_PROFILE_DESCRIPTION);
-  if (ids.my_details) {
-    // the RI member ID became required on the My details form (owner, 18 Nov 2026)
-    FormApp.openById(ids.my_details).getItems().forEach(function (it) {
-      if (it.getTitle() !== Q.cMemberId) return;
-      var text = it.asTextItem();
-      if (text.isRequired()) return;
-      text.setRequired(true).setHelpText(MY_DETAILS_ID_HELP);
-      report.push('The RI member ID is now required on the My details form');
-    });
-  }
-  ['removal', 'my_details'].forEach(function (key) {
+  if (ids.club_updates) dropMovedSection_(FormApp.openById(ids.club_updates), report);
+  ['removal'].forEach(function (key) {
     if (!ids[key]) return;
     // the removal form offers each thing that can be shown, the business listing included (17 Nov 2026)
     FormApp.openById(ids[key]).getItems().forEach(function (it) {
@@ -2886,9 +3023,12 @@ function formLists_() {
 function createForms_(report) {
   var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
   var L = formLists_();
-  var makers = { activity: makeActivityForm_, contact: makeContactForm_, club_updates: makeClubUpdatesForm_, my_details: makeMyDetailsForm_ };
-  var destinations = { activity: mainSs_().getId(), contact: privateSheetId_(), club_updates: privateSheetId_(), my_details: privateSheetId_() };
-  var rawNames = { activity: 'raw_activity_form', contact: 'raw_contact_form', club_updates: 'raw_club_updates_form', my_details: 'raw_my_details_form' };
+  var makers = { activity: makeActivityForm_, contact: makeContactForm_, club_updates: makeClubUpdatesForm_,
+    show_details: makeShowDetailsForm_, update_details: makeUpdateDetailsForm_ };
+  var destinations = { activity: mainSs_().getId(), contact: privateSheetId_(), club_updates: privateSheetId_(),
+    show_details: privateSheetId_(), update_details: privateSheetId_() };
+  var rawNames = { activity: 'raw_activity_form', contact: 'raw_contact_form', club_updates: 'raw_club_updates_form',
+    show_details: 'raw_show_details_form', update_details: 'raw_update_details_form' };
 
   Object.keys(makers).forEach(function (key) {
     var form = null;
@@ -2913,6 +3053,18 @@ function createForms_(report) {
     var url = sectionLink_(o.now, o.kind);
     if (url) setSetting_('form_' + key + '_url', url);
   });
+  // the two My details forms replace My details on the website (23 Nov 2026): it stops taking answers
+  if (ids.my_details) {
+    try {
+      var old = FormApp.openById(ids.my_details);
+      if (old.isAcceptingResponses()) {
+        old.setAcceptingResponses(false);
+        report.push('Closed the old My details on the website form (Show my details and Update my details replace it)');
+      }
+    } catch (e) {
+      report.push('Could not close the old My details on the website form (' + e.message + '): close it by hand (Responses → Accepting responses off)');
+    }
+  }
 }
 
 /** A link to the Club updates or My details form with the first question already answered, so it opens at that section. */
@@ -2920,6 +3072,7 @@ function sectionLink_(formKey, kind) {
   var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
   if (!ids[formKey]) return '';
   var form = FormApp.openById(ids[formKey]);
+  if (!kind) return form.getPublishedUrl();
   var title = formKey === 'club_updates' ? Q.uKind : Q.mKind;
   var text = (formKey === 'club_updates' ? CLUB_UPDATE_KINDS : MY_DETAILS_KINDS)[kind];
   var item = form.getItems().filter(function (it) { return it.getTitle() === title; })[0];
@@ -3070,7 +3223,7 @@ function makeClubUpdatesForm_(L) {
   kind.setChoices([kind.createChoice(CLUB_UPDATE_KINDS.profile, profile), kind.createChoice(CLUB_UPDATE_KINDS.member, member),
     kind.createChoice(CLUB_UPDATE_KINDS.service, service)]);
   member.setGoToPage(FormApp.PageNavigationType.SUBMIT); // the club details section ends the form
-  change.setChoices(['joined', 'left', 'moved', 'deceased', 'club_role', 'district_role'].map(function (k) { return change.createChoice(CLUB_CHANGES[k], pages[k]); }));
+  change.setChoices(CLUB_CHANGE_CHOICES.map(function (k) { return change.createChoice(CLUB_CHANGES[k], pages[k]); }));
   service.setGoToPage(FormApp.PageNavigationType.SUBMIT); // the member section ends with its note
   form.setConfirmationMessage('Thank you! A district moderator will check this within 48 hours. You will get an email when it is decided.');
   return form;
@@ -3087,9 +3240,6 @@ function clubChangePages_(form, L) {
     .setValidation(FormApp.createTextValidation().requireTextIsEmail().setHelpText('Please give an email address').build());
   p.left = form.addPageBreakItem().setTitle(CLUB_CHANGES.left);
   form.addDateItem().setTitle(Q.gLeft).setRequired(true);
-  p.moved = form.addPageBreakItem().setTitle(CLUB_CHANGES.moved).setHelpText('The club chosen on the first page is the club the member left.');
-  form.addListItem().setTitle(Q.gNewClub).setChoiceValues(L.newClubs).setRequired(true);
-  form.addDateItem().setTitle(Q.gMoved).setRequired(true);
   p.deceased = form.addPageBreakItem().setTitle(CLUB_CHANGES.deceased);
   form.addDateItem().setTitle(Q.gDied);
   p.club_role = form.addPageBreakItem().setTitle(CLUB_CHANGES.club_role);
@@ -3106,7 +3256,7 @@ function clubChangePages_(form, L) {
   form.addParagraphTextItem().setTitle(Q.gNote)
     .setValidation(FormApp.createParagraphTextValidation().requireTextLengthLessThanOrEqualTo(500).setHelpText('Up to 500 characters').build());
   // each kind's page goes on to the note (a page break's "go to" applies at the end of the page before it)
-  [p.left, p.moved, p.deceased, p.club_role, p.district_role].forEach(function (x) { x.setGoToPage(note); });
+  [p.left, p.deceased, p.club_role, p.district_role].forEach(function (x) { x.setGoToPage(note); });
   p.note = note;
   return p;
 }
@@ -3131,59 +3281,74 @@ function addServiceQuestions_(form, L) {
 }
 
 /**
- * My details on the website (Release 2): the consent, removal and business forms in one. Page 1 finds the member
- * (club, name, member ID, mobile, who is filling it) and asks what they want; each section ends the form. The
- * "My photo", "Couple photo" and "Logo or shop photo (optional)" upload questions are added by hand (Google does not
- * let scripts add uploads), in the Photo, Celebrations and Your business sections.
+ * Show my details on the website (owner, 23 Nov 2026): only what the website may show, List or Do not list for each.
+ * Page 1 asks who is filling it; the club's office bearers first give the member's Rotary member ID and name.
  */
-function makeMyDetailsForm_(L) {
-  var form = baseForm_('My details on the website – Rotary District 3110', MY_DETAILS_DESCRIPTION);
-  form.addListItem().setTitle(Q.cClub).setChoiceValues(L.clubs).setRequired(true);
-  form.addTextItem().setTitle(Q.cName).setRequired(true);
-  form.addTextItem().setTitle(Q.cMemberId).setRequired(true).setHelpText(MY_DETAILS_ID_HELP)
-    .setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
-  form.addTextItem().setTitle(Q.cMobile).setRequired(true)
-    .setHelpText('Shown only as a WhatsApp/call button, and only if you say Yes to it. Never shown otherwise.')
-    .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
-  form.addMultipleChoiceItem().setTitle(Q.cFilledBy).setChoiceValues(['The member', 'Club secretary for the member']).setRequired(true);
-  var kind = form.addMultipleChoiceItem().setTitle(Q.mKind).setRequired(true);
+function makeShowDetailsForm_(L) {
+  var form = baseForm_('Show my details on the website – Rotary District 3110', SHOW_DETAILS_DESCRIPTION);
+  var who = form.addMultipleChoiceItem().setTitle(Q.cFilledBy).setRequired(true);
+  var member = addMemberPage_(form);
+  var choices = form.addPageBreakItem().setTitle('What the website may show');
+  form.addGridItem().setTitle(Q.showGrid).setRequired(true).setRows(Object.keys(SHOW_ITEMS).map(function (k) { return SHOW_ITEMS[k]; }))
+    .setColumns(SHOW_COLUMNS)
+    .setHelpText('List or Do not list for every item. A listed item shows once the district has it: your photo, birthday or numbers ' +
+      'come from the Update my details form. The anniversary and couple photo show only when your spouse agrees too.');
+  form.addCheckboxItem().setTitle(Q.cDeclaration).setRequired(true)
+    .setChoiceValues(['These are my choices. (Filled in by the club: the member agreed to each of them.)']);
+  who.setChoices([who.createChoice(FILLED_BY.member, choices), who.createChoice(FILLED_BY.club, member)]);
+  form.setConfirmationMessage('Thank you! Sent from your own email, it goes in at the next website update and you get an email. ' +
+    'Filled in by the club: the member is told, and a district moderator checks it first.');
+  return form;
+}
 
-  var directory = form.addPageBreakItem().setTitle('Professional directory');
-  form.addMultipleChoiceItem().setTitle(Q.cDirectory).setChoiceValues(YES_NO).setRequired(true);
-  form.addListItem().setTitle(Q.cProfession).setChoiceValues(L.professions).setHelpText('Only if you said Yes above');
-  form.addListItem().setTitle(Q.cArea).setChoiceValues(L.areas).setHelpText('Only if you said Yes above');
-  form.addTextItem().setTitle(Q.cWhat).setHelpText('Only if you said Yes above. About 20 words.')
+/** The page where a club office bearer says which member the form is for: the Rotary member ID finds them. */
+function addMemberPage_(form) {
+  var page = form.addPageBreakItem().setTitle('The member').setHelpText(MEMBER_PAGE_HELP);
+  form.addTextItem().setTitle(Q.gMemberId).setRequired(true)
+    .setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
+  form.addTextItem().setTitle(Q.rName).setRequired(true).setHelpText('So the moderator can see it is the right person.');
+  return page;
+}
+
+/**
+ * Update my details (owner, 23 Nov 2026): the details themselves, all optional (blank: no change), and the business
+ * listing. The "My photo", "Couple photo" and "Logo or shop photo (optional)" upload questions are added by hand
+ * (Google does not let scripts add uploads), in the details page and the business page.
+ */
+function makeUpdateDetailsForm_(L) {
+  var form = baseForm_('Update my details – Rotary District 3110', UPDATE_DETAILS_DESCRIPTION);
+  var who = form.addMultipleChoiceItem().setTitle(Q.cFilledBy).setRequired(true);
+  var member = addMemberPage_(form);
+  var details = form.addPageBreakItem().setTitle('The details').setHelpText('Fill in only what should change; leave the rest blank.');
+  form.addListItem().setTitle(Q.cProfession).setChoiceValues(L.professions);
+  form.addListItem().setTitle(Q.cArea).setChoiceValues(L.areas);
+  form.addTextItem().setTitle(Q.cWhat).setHelpText('About 20 words. No phone numbers or email addresses.')
     .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(150).setHelpText('Up to 150 characters').build());
   form.addTextItem().setTitle(Q.cWebsite).setValidation(urlRule_());
-  form.addCheckboxItem().setTitle(Q.cSpotlight).setChoiceValues(["I'm happy to be considered for the monthly member spotlight."]);
-  form.addMultipleChoiceItem().setTitle(Q.cContact).setChoiceValues(YES_NO).setRequired(true);
-  form.addPageBreakItem().setTitle('Photo');
-  form.addMultipleChoiceItem().setTitle(Q.cPhoto).setChoiceValues(YES_NO).setRequired(true)
-    .setHelpText('If Yes, upload a head-and-shoulders photo of you alone below, or the district may use one it already has.');
+  form.addTextItem().setTitle(Q.uCall).setHelpText('Shown only as a Call button, and only if you chose to list it. Leave blank to use the mobile Rotary has for you.')
+    .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
+  form.addTextItem().setTitle(Q.uWhatsapp).setHelpText('Shown only as a WhatsApp button, and only if you chose to list it. Leave blank to use the Call number.')
+    .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
+  form.addTextItem().setTitle(Q.uEmail2)
+    .setHelpText('If the email Rotary has for you is old or you cannot open it, give the one you use. You can then send these forms from it. Never shown.')
+    .setValidation(FormApp.createTextValidation().requireTextIsEmail().setHelpText('Please give an email address').build());
+  form.addDateItem().setTitle(Q.cBirthdayDate).setIncludesYear(false).setHelpText('Day and month only.');
   // "My photo" upload question is added here by hand
-  form.addPageBreakItem().setTitle('Celebrations');
-  form.addMultipleChoiceItem().setTitle(Q.cBirthday).setChoiceValues(YES_NO).setRequired(true);
-  form.addDateItem().setTitle(Q.cBirthdayDate).setIncludesYear(false).setHelpText('Day and month only. Only if you said Yes above.');
-  form.addMultipleChoiceItem().setTitle(Q.cAnniversary).setChoiceValues(YES_NO).setRequired(true)
-    .setHelpText('Shown only if both spouses agree. If your spouse is a Rotarian, they must also send their own form.');
+  form.addDateItem().setTitle(Q.cAnniversaryDate).setIncludesYear(false).setHelpText('Day and month only.');
   form.addMultipleChoiceItem().setTitle(Q.cSpouseRotarian).setChoiceValues(YES_NO);
   form.addTextItem().setTitle(Q.cSpouseName).setHelpText('If your spouse is not a Rotarian, only the first name is shown.');
   form.addListItem().setTitle(Q.cSpouseClub).setChoiceValues(L.clubs);
-  form.addTextItem().setTitle(Q.cSpouseId).setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
-  form.addCheckboxItem().setTitle(Q.cSpouseAgrees).setChoiceValues(['My spouse has also agreed to our anniversary being shown.']);
-  form.addDateItem().setTitle(Q.cAnniversaryDate).setIncludesYear(false).setHelpText('Day and month only.');
+  form.addTextItem().setTitle(Q.cSpouseId).setHelpText('Needed if your spouse is a Rotarian: it is how we find them. They choose for themselves on the Show my details form.')
+    .setValidation(FormApp.createTextValidation().requireWholeNumber().setHelpText('Numbers only').build());
+  form.addCheckboxItem().setTitle(Q.cSpouseAgrees).setChoiceValues(['My spouse (not a Rotarian) agrees to our anniversary being shown.']);
   // "Couple photo" upload question is added here by hand
   form.addCheckboxItem().setTitle(Q.cCoupleAgree)
-    .setChoiceValues(['I agree to the couple photo being shown on our anniversary card (and, if my spouse is not a Rotarian, my spouse agrees too).']);
-  form.addPageBreakItem().setTitle('Declaration');
+    .setChoiceValues(['My spouse agrees to the couple photo being shown on our anniversary card.']);
   form.addCheckboxItem().setTitle(Q.cDeclaration).setRequired(true)
-    .setChoiceValues(['The member has agreed to every choice above. (If filled by the club secretary: the member agreed to each item.)']);
+    .setChoiceValues(['These details are correct. (Filled in by the club: the member asked for these changes.)']);
+  var business = form.addMultipleChoiceItem().setTitle(Q.uBusiness).setRequired(true);
 
-  var removal = form.addPageBreakItem().setTitle('Remove my details');
-  form.addCheckboxItem().setTitle(Q.rItems).setRequired(true).setChoiceValues(REMOVAL_ITEMS);
-  form.addParagraphTextItem().setTitle(Q.rReason);
-
-  var business = form.addPageBreakItem().setTitle('Your business').setHelpText(BUSINESS_DESCRIPTION + '\n\nLeave this page blank if you only want to be listed as a speaker.');
+  var page = form.addPageBreakItem().setTitle('Your business').setHelpText(BUSINESS_DESCRIPTION + '\n\nLeave this page blank if you only want to be listed as a speaker.');
   form.addTextItem().setTitle(Q.bName).setHelpText('For example: Gupta Opticals')
     .setValidation(FormApp.createTextValidation().requireTextLengthLessThanOrEqualTo(80).setHelpText('Up to 80 characters').build());
   form.addListItem().setTitle(Q.bTrade).setChoiceValues(L.trades);
@@ -3196,21 +3361,53 @@ function makeMyDetailsForm_(L) {
   form.addTextItem().setTitle(Q.bWhatsapp).setHelpText('Shown only as a WhatsApp button on your listing, never as a number.')
     .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number'));
   // "Logo or shop photo (optional)" upload question is added here by hand
-  form.addPageBreakItem().setTitle('Speaking at clubs');
   form.addParagraphTextItem().setTitle(Q.bTopics)
     .setHelpText('Clubs look for speakers for their meetings. For example: Income tax for families; First aid at home. Leave blank if not.')
     .setValidation(FormApp.createParagraphTextValidation().requireTextLengthLessThanOrEqualTo(300).setHelpText('Up to 300 characters').build());
-  form.addPageBreakItem().setTitle('Confirmation');
   form.addCheckboxItem().setTitle(Q.bConfirm).setRequired(true)
     .setChoiceValues(['I am a member of this club, this is my own business (or one I am a partner in), and I agree to my name, club and these details being shown on the district website.']);
 
-  kind.setChoices([kind.createChoice(MY_DETAILS_KINDS.consent, directory), kind.createChoice(MY_DETAILS_KINDS.removal, removal),
-    kind.createChoice(MY_DETAILS_KINDS.business, business)]);
-  removal.setGoToPage(FormApp.PageNavigationType.SUBMIT); // the consent section ends the form
-  business.setGoToPage(FormApp.PageNavigationType.SUBMIT); // the removal section ends the form
-  form.setConfirmationMessage('Thank you! Sent from your own email, it is applied at the next website update and you get an email. ' +
-    'Otherwise a district moderator checks it first.');
+  who.setChoices([who.createChoice(FILLED_BY.member, details), who.createChoice(FILLED_BY.club, member)]);
+  business.setChoices([business.createChoice(BUSINESS_CHOICES.none, FormApp.PageNavigationType.SUBMIT),
+    business.createChoice(BUSINESS_CHOICES.list, page), business.createChoice(BUSINESS_CHOICES.remove, FormApp.PageNavigationType.SUBMIT)]);
+  form.setConfirmationMessage('Thank you! Sent from your own email, it goes in at the next website update and you get an email. ' +
+    'Filled in by the club: the member is told, and a district moderator checks it first.');
   return form;
+}
+
+/**
+ * Upgrade Sheet (23 Nov 2026): the Club updates form no longer offers "A member moved to another club" (the old club
+ * sends "left", the new club "joined"), and its first choice no longer says "moved". Google refuses some form changes,
+ * so a refusal is reported and the rest of the upgrade goes on.
+ */
+function dropMovedSection_(form, report) {
+  try {
+    var items = form.getItems();
+    var pages = {};
+    items.forEach(function (it) { if (it.getType() === FormApp.ItemType.PAGE_BREAK) pages[it.getTitle()] = it.asPageBreakItem(); });
+    var change = items.filter(function (it) { return it.getTitle() === Q.gChange; })[0];
+    var kind = items.filter(function (it) { return it.getTitle() === Q.uKind; })[0];
+    if (kind) {
+      var k = kind.asMultipleChoiceItem();
+      if (k.getChoices().some(function (c) { return c.getValue() === CLUB_UPDATE_MEMBER_BEFORE; })) {
+        k.setChoices([k.createChoice(CLUB_UPDATE_KINDS.profile, pages["Our club's details"]), k.createChoice(CLUB_UPDATE_KINDS.member, pages['A member or a role']),
+          k.createChoice(CLUB_UPDATE_KINDS.service, pages['A public service the club runs'])]);
+        report.push('Club updates: the members and roles choice no longer says "moved"');
+      }
+    }
+    if (form.getDescription() !== CLUB_UPDATES_DESCRIPTION) form.setDescription(CLUB_UPDATES_DESCRIPTION);
+    if (!change) return;
+    var c = change.asMultipleChoiceItem();
+    var offered = c.getChoices().some(function (x) { return x.getValue() === CLUB_CHANGES.moved; });
+    var left = items.filter(function (it) { return [Q.gMoved, Q.gNewClub, CLUB_CHANGES.moved].indexOf(it.getTitle()) >= 0; });
+    if (!offered && !left.length) return;
+    // first nothing leads to the page any more, then the page and its questions go (a refusal here is tried again next time)
+    if (offered) c.setChoices(CLUB_CHANGE_CHOICES.map(function (key) { return c.createChoice(CLUB_CHANGES[key], pages[CLUB_CHANGES[key]]); }));
+    left.forEach(function (it) { form.deleteItem(it); });
+    report.push('Club updates: "A member moved to another club" removed (the old club sends "left", the new club "joined")');
+  } catch (e) {
+    report.push('Club updates: could not remove the "moved" section (' + e.message + '); remove it by hand, or leave it: moves sent are still approved');
+  }
 }
 
 /**
@@ -3316,7 +3513,9 @@ function onAnyFormSubmit(e) {
     else if (formId === ids.contact) fileContact_(answers, meta);
     // the two forms with sections (Release 2): each section is filed by the code its old form used
     else if (formId === ids.club_updates) fileClubUpdates_(answers, meta);
-    else if (formId === ids.my_details) fileMyDetails_(answers, meta);
+    else if (ids.my_details && formId === ids.my_details) fileMyDetails_(answers, meta); // closed 23 Nov 2026; any answer still sent is filed as before
+    else if (formId === ids.show_details) fileShowDetails_(answers, meta);
+    else if (formId === ids.update_details) fileUpdateDetails_(answers, meta);
   } finally {
     lock.releaseLock();
   }
@@ -3481,7 +3680,7 @@ function fileClubUpdates_(a, meta) {
   return fileClubChange_(b, meta);
 }
 
-/** My details on the website (Release 2): consent, removal or a business listing, with page 1's member details. */
+/** My details on the website (Release 2, closed 23 Nov 2026): consent, removal or a business listing, with page 1's member details. */
 function fileMyDetails_(a, meta) {
   var kind = Core_str(a[Q.mKind]);
   var b = Object.assign({}, a);
@@ -3494,6 +3693,156 @@ function fileMyDetails_(a, meta) {
     return fileBusiness_(b, meta);
   }
   return fileConsent_(a, meta);
+}
+
+/* ---------- The two My details forms (owner, 23 Nov 2026) ---------- */
+
+/** Show my details: List or Do not list for each thing the website can show. */
+function fileShowDetails_(a, meta) {
+  var grid = a[Q.showGrid] || [];
+  var said = {};
+  Object.keys(SHOW_ITEMS).forEach(function (k, i) {
+    var v = Core_str(Array.isArray(grid) ? grid[i] : '');
+    said[k] = v === SHOW_COLUMNS[0] ? true : v === SHOW_COLUMNS[1] ? false : '';
+  });
+  var req = detailsRequest_(a, meta, 'show');
+  Object.assign(req, {
+    directory_ok: said.directory, profession_ok: said.profession, photo_ok: said.photo, birthday_ok: said.birthday,
+    anniversary_ok: said.anniversary, couple_photo_ok: said.couple_photo, call_ok: said.call, contact_ok: said.whatsapp,
+    spotlight_ok: said.spotlight,
+  });
+  var notes = [];
+  if (Object.keys(said).some(function (k) { return said[k] === ''; })) notes.push('Not every item was answered: the unanswered ones are taken as Do not list');
+  fileDetails_(req, notes);
+}
+
+/** Update my details: the details themselves (blank: no change), and the business listing. */
+function fileUpdateDetails_(a, meta) {
+  var spouseRotarian = yes_(a[Q.cSpouseRotarian]);
+  var req = detailsRequest_(a, meta, 'update');
+  Object.assign(req, {
+    profession: Core_str(a[Q.cProfession]), area: Core_str(a[Q.cArea]), description: Core_str(a[Q.cWhat]), website: link_(a[Q.cWebsite]),
+    call_number: Core_str(a[Q.uCall]), whatsapp_number: Core_str(a[Q.uWhatsapp]), email2: Core_str(a[Q.uEmail2]).trim().toLowerCase(),
+    birthday: dayMonthAnswer_(a[Q.cBirthdayDate]), photo_file: fileIds_(firstStartingWith_(a, 'My photo')),
+    anniversary: dayMonthAnswer_(a[Q.cAnniversaryDate]), spouse_is_rotarian: spouseRotarian ? 'Yes' : (Core_str(a[Q.cSpouseRotarian]) ? 'No' : ''),
+    spouse_name: Core_str(a[Q.cSpouseName]), spouse_club_id: spouseRotarian ? clubIdByName_(a[Q.cSpouseClub]) : '',
+    spouse_member_id: Core_str(a[Q.cSpouseId]), spouse_agrees: checked_(a[Q.cSpouseAgrees]),
+    couple_photo_file: fileIds_(firstStartingWith_(a, 'Couple photo')), couple_photo_spouse_agrees: checked_(a[Q.cCoupleAgree]),
+    remove_business: Core_str(a[Q.uBusiness]) === BUSINESS_CHOICES.remove,
+  });
+  var notes = [];
+  if (req.call_number && !Core_mobile(req.call_number)) notes.push('The Call number is not a 10-digit mobile: it will not be saved');
+  if (req.whatsapp_number && !Core_mobile(req.whatsapp_number)) notes.push('The WhatsApp number is not a 10-digit mobile: it will not be saved');
+  if (req.anniversary && spouseRotarian && !Core_str(req.spouse_member_id)) notes.push("The spouse is a Rotarian but no member ID was given: the anniversary cannot be linked");
+  textNotes_([req.description], notes);
+  var hasDetails = ['profession', 'area', 'description', 'website', 'call_number', 'whatsapp_number', 'email2', 'birthday', 'photo_file',
+    'anniversary', 'spouse_name', 'couple_photo_file'].some(function (k) { return Core_str(req[k]); }) || req.remove_business;
+  var business = Core_str(a[Q.uBusiness]) === BUSINESS_CHOICES.list;
+  var found = detailsMatch_(req);
+  var lost = !found.club && !found.member; // the member's own form that finds nobody is not applied, business included
+  if (hasDetails || !business || lost) found = fileDetails_(req, notes);
+  if (!business || lost) return;
+  var b = Object.assign({}, a);
+  b[Q.club] = found && found.member ? clubNameById_(found.member.club_id) : '';
+  b[Q.name] = found && found.member ? Core_str(found.member.name) : Core_str(req.name);
+  fileBusiness_(b, meta, found || { member: null, own: false });
+}
+
+/** The parts both My details forms share: who filled it, and for a club office bearer, which member. */
+function detailsRequest_(a, meta, form) {
+  var club = Core_filledByClub(a[Q.cFilledBy]);
+  return {
+    id: '', submitted_at: meta.submitted_at, submitter_email: Core_str(meta.submitter_email).toLowerCase(), form: form,
+    filled_by: Core_str(a[Q.cFilledBy]) || FILLED_BY.member, club_id: '', name: club ? Core_str(a[Q.rName]) : '',
+    member_id: club ? Core_str(a[Q.gMemberId]).trim() : '', declaration: checked_(a[Q.cDeclaration]), status: 'pending',
+  };
+}
+
+/** The member a My details request is for: { member, own (sent from the member's own email), count (members with that email) }. */
+function detailsMatch_(req) {
+  var master = readTab_(privateSs_(), 'members_master');
+  var club = Core_filledByClub(req.filled_by);
+  var i = Core_matchMember(req, master);
+  return { member: i >= 0 ? master[i] : null, own: !club && i >= 0, club: club,
+    count: club ? (i >= 0 ? 1 : 0) : Core_findByEmail(req.submitter_email, master).count };
+}
+
+/**
+ * Files a My details request. The member's own (found by their email): applied at once after filing; not found: kept
+ * as not_matched, nothing applied, and the sender is told why (owner, 23 Nov 2026: dropped, no moderator). Filled in by
+ * the club: the member is told at every email they have, the sender gets a receipt, and a Members moderator decides.
+ */
+function fileDetails_(req, notes) {
+  var ps = privateSs_();
+  var found = detailsMatch_(req);
+  var m = found.member;
+  req.id = nextId_(readTab_(ps, 'consent_requests'), 'CON-');
+  if (m) {
+    req.matched_member_id = Core_str(m.member_id);
+    req.club_id = Core_str(m.club_id);
+    if (!found.club) req.name = Core_str(m.name);
+    if (req.email2 && Core_emailOwners(req.email2, readTab_(ps, 'members_master'), m.member_id).length) {
+      notes.push('The second email is already used by another member: it will not be saved');
+    }
+  }
+  if (!found.club && !m) {
+    req.status = 'not_matched';
+    req.moderator_note = found.count > 1 ? 'This email belongs to more than one member: not applied' : 'No member has this email on file: not applied';
+    appendRow_(ps, 'consent_requests', req);
+    detailsNotFound_(req, found.count);
+    return found;
+  }
+  if (found.club && !m) notes.push('No member has this Rotary member ID: reject, and ask the club to check the ID');
+  req.moderator_note = notes.join('; ');
+  var row = appendRow_(ps, 'consent_requests', req);
+  if (found.own) {
+    updateRow_(ps, 'consent_requests', row, { member_notice: "Not needed: sent from the member's own email" });
+    AFTER_FILING.push(function () {
+      try {
+        approveConsent_(req.id, AUTO_BY, false);
+      } catch (e) {
+        updateRow_(ps, 'consent_requests', row, { moderator_note: (req.moderator_note ? req.moderator_note + '; ' : '') + 'Not applied by itself: ' + e.message });
+        alertMembers_('consent', req);
+      }
+    });
+    return found;
+  }
+  updateRow_(ps, 'consent_requests', row, { member_notice: noticeMember_(ps, req) });
+  detailsReceipt_(req, m);
+  alertMembers_('consent', req);
+  return found;
+}
+
+/** The member's own form found nobody: they are told which email was used and how to be found (nothing is kept pending). */
+function detailsNotFound_(req, count) {
+  var to = Core_str(req.submitter_email);
+  if (!to || !deskQuota_(1)) return;
+  var why = count > 1 ? 'The email ' + to + ' belongs to more than one member in the district\'s list, so we cannot tell which member you are.'
+    : 'We could not find a member with the email ' + to + ' in the district\'s list.';
+  try {
+    MailApp.sendEmail(to, 'Your form to the Rotary District 3110 website was not applied',
+      'Thank you for your form.\n\n' + why + ' Nothing was changed.\n\n' +
+      "Please ask your club's President, Secretary or Executive Secretary to give this email as your second email on the Update my details form" +
+      (Core_str(settings_().form_update_url) ? ' (' + Core_str(settings_().form_update_url) + ')' : '') +
+      '. Once that is done, send your form again from this email.\n\nRotary District 3110', { name: 'Rotary District 3110' });
+  } catch (e) {
+    Logger.log('Not-found email failed: ' + e.message);
+  }
+}
+
+/** A receipt to the club office bearer who filled in a My details form for a member. */
+function detailsReceipt_(req, m) {
+  var to = Core_str(req.submitter_email);
+  if (!to || !deskQuota_(1)) return;
+  try {
+    MailApp.sendEmail(to, 'Received: ' + (req.form === 'show' ? 'Show my details' : 'Update my details') + ' for ' + (m ? m.name : req.name),
+      'Thank you. We received the form you filled in for ' + (m ? m.name + ' (' + m.member_id + ')' : req.name + ' (member ID ' + req.member_id + ', not found in the list)') +
+      '.\n\nIt asks:\n' + detailsLines_(req).map(function (l) { return '- ' + l; }).join('\n') +
+      '\n\nThe member is told by email, and a district moderator checks it before anything changes. You get an email when it is decided.' +
+      '\n\nRotary District 3110', { name: 'Rotary District 3110' });
+  } catch (e) {
+    Logger.log('Receipt failed: ' + e.message);
+  }
 }
 
 /**
@@ -3546,7 +3895,7 @@ function filePublicService_(a, meta) {
  * Rotary Means Business: a member's own business, the topics they can speak on, or both. The sender is looked up
  * in the private members list now, so the moderator sees who it is; approving needs an active member (members only).
  */
-function fileBusiness_(a, meta) {
+function fileBusiness_(a, meta, found) {
   var ss = mainSs_();
   var clubName = Core_str(a[Q.club]);
   var whatsapp = Core_str(a[Q.bWhatsapp]);
@@ -3558,17 +3907,23 @@ function fileBusiness_(a, meta) {
     photo_files: fileIds_(firstStartingWith_(a, 'Logo')), speaker_topics: Core_str(a[Q.bTopics]), status: 'pending',
   };
   var notes = [];
-  var master = readTab_(privateSs_(), 'members_master');
-  var i = Core_matchMember({ member_id: Core_str(a[Q.bMemberId]), mobile: row.submitter_mobile, club_id: row.club_id,
-    filled_by: Core_str(a[Q.cFilledBy]), submitter_email: meta.submitter_email }, master);
-  var m = i >= 0 ? master[i] : null;
+  var m;
+  if (found) {
+    // Update my details (23 Nov 2026): the member was found by their own email, or by the ID the club gave
+    m = found.member;
+  } else {
+    var master = readTab_(privateSs_(), 'members_master');
+    var i = Core_matchMember({ member_id: Core_str(a[Q.bMemberId]), mobile: row.submitter_mobile, club_id: row.club_id,
+      filled_by: Core_str(a[Q.cFilledBy]), submitter_email: meta.submitter_email }, master);
+    m = i >= 0 ? master[i] : null;
+  }
+  var own = !!m && Core_memberEmails(m).indexOf(Core_str(meta.submitter_email).toLowerCase()) >= 0;
   if (m && businessMemberActive_(m)) {
     row.member_id = Core_str(m.member_id);
     row.member_name = Core_str(m.name);
     row.club_id = Core_str(m.club_id) || row.club_id;
-    if (Core_str(m.email) && Core_str(m.email).toLowerCase() !== Core_str(meta.submitter_email).toLowerCase()) {
-      notes.push("Not sent from the member's own email: check with the member before approving");
-    }
+    row.club_name = clubNameById_(row.club_id) || row.club_name;
+    if (!own) notes.push("Not sent from the member's own email: check with the member before approving");
   } else {
     notes.push(m ? 'The member is not active in the members list: members only' :
       'Not found in the members list: fill in member_id (and member_name) before approving, or reject (members only)');
@@ -3582,7 +3937,6 @@ function fileBusiness_(a, meta) {
   row.moderator_note = notes.join('; ');
   row._row = appendRow_(ss, 'businesses', row);
   // the member's own listing from their own email, with nothing to check, goes live by itself (Release 2)
-  var own = m && Core_str(m.email) && Core_str(m.email).toLowerCase() === Core_str(meta.submitter_email).toLowerCase();
   var onlyReplaces = notes.every(function (n) { return /^Updates BIZ-/.test(n); });
   if (own && onlyReplaces && !businessBlock_(row)) {
     approveRow_('businesses', row, AUTO_BY);
@@ -3696,19 +4050,21 @@ function fileConsent_(a, meta) {
 function noticeMember_(ps, req) {
   var check = consentChecker_(ps)(req);
   if (check.who === 'member') return "Not needed: sent from the member's own email";
-  if (!check.memberEmail) return 'Not told: no email on file';
+  var to = (check.memberEmails || []).join(',');
+  if (!to) return 'Not told: no email on file';
   if (!deskQuota_(1)) return 'Not told: the daily email limit was reached';
-  var choices = [
+  var choices = req.form ? detailsLines_(req).map(function (l) { return '- ' + l; }) : [
     [req.directory_ok, 'a listing in the members directory'], [req.contact_ok, 'a WhatsApp button'], [req.photo_ok, 'your photo'],
     [req.birthday_ok, 'birthday greetings'], [req.anniversary_ok, 'anniversary greetings'],
   ].filter(function (c) { return c[0]; }).map(function (c) { return '- ' + c[1]; });
   var until = Core_dateLabel(Core_isoDate(new Date(consentHoldUntil_(req, check))));
+  var asks = req.form === 'update' ? 'A request to change your details for the district website' : 'A request to show your details on the district website';
   try {
-    MailApp.sendEmail(check.memberEmail, 'Your details were sent to the Rotary District 3110 website',
-      'Dear ' + (check.memberName || req.name) + ',\n\nA request to show your details on the district website was sent for you by ' + req.submitter_email +
-      (req.filled_by ? ' (as "' + req.filled_by + '")' : '') + '.\n\nIt asks to show:\n' + (choices.join('\n') || '- nothing') +
+    MailApp.sendEmail(to, 'Your details were sent to the Rotary District 3110 website',
+      'Dear ' + (check.memberName || req.name) + ',\n\n' + asks + ' was sent for you by ' + req.submitter_email +
+      (req.filled_by ? ' (as "' + req.filled_by + '")' : '') + '.\n\nIt asks:\n' + (choices.join('\n') || '- nothing') +
       '\n\nIf you or your club sent it, there is nothing to do. A district moderator checks every form, and nothing is shown before ' + until + '.' +
-      '\n\nIf you did not agree to this, reply to this email or use the My details form to remove them, and nothing will be shown.' + removalLine_() +
+      '\n\nIf you did not agree to this, reply to this email, and nothing will be changed.' + removalLine_() +
       '\n\nRotary District 3110', { name: 'Rotary District 3110' });
     return 'Told by email ' + today_();
   } catch (e) {
@@ -3743,6 +4099,7 @@ function fileClubChange_(a, meta) {
   if (!req.club_id) notes.push('Club not recognised: ' + Core_str(a[Q.cClub]));
   if (change === 'moved' && newClub === CLUB_OUTSIDE) notes.push('Moved to a club outside District 3110: approving marks the member as left');
   else if (change === 'moved' && !req.new_club_id) notes.push('New club not recognised: ' + newClub);
+  notes = notes.concat(clubChangeNotes_(req, readTab_(ps, 'members_master')));
   textNotes_([req.note], notes);
   req.moderator_note = notes.join('; ');
   fileGated_(ps, 'club_change_requests', req, req.club_id, function () { alertMembers_('change', req); });
@@ -4109,8 +4466,8 @@ function memberRequests_(withThumbs) {
   var master = readTab_(ps, 'members_master');
   var clubName = function (id) { return clubNameById_(id) || id || '–'; };
   var describe = function (r) {
-    var i = Core_matchMember(r, master);
-    return i >= 0 ? 'Matches ' + master[i].name + ' (' + master[i].member_id + ')' : 'No matching member – a new record will be created';
+    var m = requestMember_(r, master);
+    return m ? 'Matches ' + m.name + ' (' + m.member_id + '), ' + clubName(m.club_id) : 'No member matches: reject (no new record is made from a form)';
   };
   var thumb = function (ref) {
     if (!withThumbs) return '';
@@ -4127,9 +4484,10 @@ function memberRequests_(withThumbs) {
     var hold = consentHoldUntil_(r, check);
     return {
       id: r.id, name: r.name, club: clubName(r.club_id), filledBy: r.filled_by, match: describe(r), submitted: Core_isoTimestamp(r.submitted_at),
+      form: r.form === 'show' ? 'Show my details' : r.form === 'update' ? 'Update my details' : '',
       sentFrom: Core_str(r.submitter_email), sender: CONSENT_SENDERS[check.who], memberNotice: Core_str(r.member_notice),
       holdUntil: hold > Date.now() ? new Date(hold).toISOString() : '', needsConfirm: check.who === 'other', blocked: !!check.removal,
-      choices: [
+      choices: r.form ? detailsLines_(r, requestMember_(r, master)) : [
         r.directory_ok ? 'Directory: ' + [r.profession, r.area].filter(String).join(', ') : '',
         r.contact_ok ? 'WhatsApp button' : '',
         r.photo_ok ? 'Photo' : '',
@@ -4138,10 +4496,10 @@ function memberRequests_(withThumbs) {
       ].filter(String),
       description: r.description, website: r.website, photo: thumb(r.photo_file), couplePhoto: thumb(r.couple_photo_file),
       photoRef: Core_str(r.photo_file).split(',')[0].trim(), couplePhotoRef: Core_str(r.couple_photo_file).split(',')[0].trim(),
-      warnings: check.warnings.concat([
+      warnings: check.warnings.concat(Core_str(r.moderator_note) ? Core_str(r.moderator_note).split('; ') : []).concat([
         r.declaration ? '' : 'Declaration not ticked',
         r.anniversary_ok && r.spouse_is_rotarian !== 'Yes' && !r.spouse_agrees ? 'Spouse agreement not ticked' : '',
-        r.directory_ok && !r.profession ? 'No profession given' : '',
+        r.directory_ok && !r.profession && !r.form ? 'No profession given' : '',
       ]).filter(String),
     };
   });
@@ -4222,21 +4580,34 @@ function approveClubChange_(requestId, who, confirmed) {
     if (change === 'joined') {
       if (!Core_str(req.club_id)) throw new Error('The club was not recognised: fill in club_id on the request, or reject it.');
       if (m && Core_str(m.status) === 'deceased') throw new Error(m.name + ' is marked as deceased in the members list: check the member ID.');
+      var contact = joinedContact_(req, readTab_(ps, 'members_master'), id);
       if (m) {
-        if (Core_str(m.club_id) === Core_str(req.club_id) && Core_str(m.status || 'active') === 'active') {
+        var active = Core_str(m.status || 'active') === 'active';
+        if (Core_str(m.club_id) === Core_str(req.club_id) && active) {
           throw new Error(m.name + ' is already an active member of this club: reject this request.');
         }
-        clubChangeMove_(ps, m, req.club_id, when, 'joined (' + note + ')', Object.assign({ status: 'active' }, joinedContact_(req)));
+        // still in another club: that club's "left" comes first (owner, 23 Nov 2026)
+        if (active && Core_str(m.club_id)) {
+          throw new Error(m.name + ' is still a member of ' + (clubNameById_(m.club_id) || m.club_id) + '. Approve this after that club\'s "left" for ' +
+            'this member has been approved.');
+        }
+        clubChangeMove_(ps, m, req.club_id, when, 'joined (' + note + ')', Object.assign({ status: 'active' }, contact.fields));
         message = m.name + ' is now recorded in ' + clubNameById_(req.club_id) + '.';
       } else {
         appendRow_(ps, 'members_master', Object.assign({ member_id: id, name: Core_str(req.name), club_id: Core_str(req.club_id), is_rotarian: true, status: 'active',
-          notes: 'Added from ' + note + ' (' + today_() + ')' }, joinedContact_(req)));
+          notes: 'Added from ' + note + ' (' + today_() + ')' }, contact.fields));
         appendRow_(ps, 'club_history', { member_id: id, club_id: Core_str(req.club_id), from_date: when, reason: 'joined (' + note + ')' });
         message = Core_str(req.name) + ' is added to the members list.';
       }
+      if (contact.skipped) message += ' ' + contact.skipped;
     } else if (change === 'left' || change === 'moved' || change === 'deceased') {
       if (!m) throw new Error('No one with member ID ' + id + ' in the members list: check the ID, or reject this request.');
       if (Core_str(m.status) === 'deceased') throw new Error(m.name + ' is already marked as deceased.');
+      // "left" only from the club the member is in now: after a move it would take them out of their new club (owner, 23 Nov 2026)
+      if (change === 'left' && Core_str(m.club_id) !== Core_str(req.club_id)) {
+        throw new Error(m.name + ' is recorded in ' + (clubNameById_(m.club_id) || m.club_id || 'no club') + ', not this club; nothing to do: reject this request.');
+      }
+      if (change === 'left' && Core_str(m.status || 'active') !== 'active') throw new Error(m.name + ' is already marked as ' + m.status + ': reject this request.');
       if (change === 'deceased') {
         markDeceased_(m, who);
         message = m.name + ' is marked as deceased. Greetings stop at once.';
@@ -4278,12 +4649,43 @@ function approveClubChange_(requestId, who, confirmed) {
   }
 }
 
-/** A new member's mobile and email from the club changes form (Release 2), when given and valid. */
-function joinedContact_(req) {
+/**
+ * A new member's mobile and email from the club changes form (Release 2), when given and valid. An email another
+ * member already uses is not saved (owner, 23 Nov 2026: every email is one member's): { fields, skipped }.
+ */
+function joinedContact_(req, master, memberId) {
   var out = {};
+  var skipped = '';
   if (Core_mobile(req.mobile)) out.mobile = Core_str(req.mobile);
-  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(Core_str(req.email))) out.email = Core_str(req.email);
-  return out;
+  var email = Core_str(req.email).trim().toLowerCase();
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    var owners = Core_emailOwners(email, master, memberId);
+    if (owners.length) skipped = 'The email was not saved: member ' + owners[0].member_id + ' already uses it.';
+    else out.email = email;
+  }
+  return { fields: out, skipped: skipped };
+}
+
+/** Notes for a moderator on a club change as it is filed: a "joined" for someone still in another club, a used email, a "left" from another club. */
+function clubChangeNotes_(req, master) {
+  var notes = [];
+  var m = clubChangeMember_(req, master);
+  var club = function (id) { return clubNameById_(id) || Core_str(id) || 'no club'; };
+  var active = m && Core_str(m.status || 'active') === 'active';
+  if (req.change === 'joined' && active && Core_str(m.club_id) !== Core_str(req.club_id)) {
+    notes.push('Still a member of ' + club(m.club_id) + ': approve after that club\'s "left" for this member is approved');
+  }
+  if (req.change === 'joined' && Core_str(req.email)) {
+    var owners = Core_emailOwners(req.email, master, req.member_id);
+    if (owners.length) {
+      var o = owners[0];
+      notes.push('The email is already used by member ' + o.member_id + ' (' + club(o.club_id) + ', ' + (Core_str(o.status) || 'active') + '): it will not be saved');
+    }
+  }
+  if (req.change === 'left' && m && Core_str(m.club_id) !== Core_str(req.club_id)) {
+    notes.push('Recorded in ' + club(m.club_id) + ', not this club: reject');
+  }
+  return notes;
 }
 
 /** A member recorded in another club from a date: the open club history row ends, a new one starts, and club_id changes. */
@@ -4321,10 +4723,13 @@ var CONSENT_SENDERS = { member: "The member's own email", officer: 'An office be
  */
 function consentChecker_(ps, master) {
   master = master || readTab_(ps, 'members_master');
-  var acting = actingOfficers_();
+  var acting = actingOfficers_(master);
   var officers = [];
   Object.keys(acting).forEach(function (id) { Object.keys(acting[id]).forEach(function (r) { officers.push(acting[id][r]); }); });
-  var removals = readTab_(ps, 'removal_requests');
+  // a removal the member asked for, or their own Show my details choices (23 Nov 2026), sent after a form for them
+  var removals = readTab_(ps, 'removal_requests').concat(readTab_(ps, 'consent_requests').filter(function (r) {
+    return Core_str(r.form) === 'show' && !Core_filledByClub(r.filled_by) && Core_str(r.status) === 'approved';
+  }));
   return function (req) { return Core_consentSender(req, master, officers, removals); };
 }
 
@@ -4353,7 +4758,7 @@ function approveConsent_(requestId, who, confirmed) {
       return 'Practice: approved. Nothing was changed in the members list.';
     }
     var check = consentChecker_(ps)(req);
-    if (check.removal) throw new Error('The member asked to remove their details after this form was sent (' + check.removal + '); reject this form.');
+    if (check.removal) throw new Error(Core_removalSince(check.removal) + '; reject this form.');
     if (check.who === 'other' && !confirmed) {
       throw new Error('This form did not come from the member or an office bearer of their club. Check with the member (or their club President ' +
         'or Secretary) first, then tick "I have confirmed this with the member" and approve.');
@@ -4363,7 +4768,8 @@ function approveConsent_(requestId, who, confirmed) {
       throw new Error('The member has until ' + Core_dateLabel(Core_isoDate(new Date(hold))) + ' to object to this form. Approve after that, ' +
         'or check with the member now and tick "I have confirmed this with the member".');
     }
-    var member = findOrCreateMember_(ps, req, 'Created from consent request ' + requestId);
+    if (req.form) return approveDetails_(ps, req, who, confirmed, check);
+    var member = findMember_(ps, req);
     var fields = {
       directory_ok: Core_isTrue(req.directory_ok), contact_ok: Core_isTrue(req.contact_ok), photo_ok: Core_isTrue(req.photo_ok),
       birthday_ok: Core_isTrue(req.birthday_ok), anniversary_ok: Core_isTrue(req.anniversary_ok), spotlight_ok: Core_isTrue(req.spotlight_ok),
@@ -4399,23 +4805,164 @@ function approveConsent_(requestId, who, confirmed) {
   }
 }
 
-function findOrCreateMember_(ps, req, note) {
-  var master = readTab_(ps, 'members_master');
+/**
+ * The member a request is for. A form never makes a new member (owner, 23 Nov 2026): new members come from the club's
+ * "A member joined" or the RI list; a request that finds nobody is rejected.
+ */
+function findMember_(ps, req) {
+  var m = requestMember_(req, readTab_(ps, 'members_master'));
+  if (!m) throw new Error('No member matches this request (a form never makes a new member): reject it, and ask the club to check the Rotary member ID.');
+  return m;
+}
+
+/** The member a request was matched to when it was filed, else as it matches now. */
+function requestMember_(req, master) {
+  var id = Core_str(req.matched_member_id);
+  if (id) return master.filter(function (m) { return Core_str(m.member_id) === id; })[0] || null;
   var i = Core_matchMember(req, master);
-  if (i >= 0) return master[i];
-  var id = Core_str(req.member_id) || nextId_(master, 'TM-');
-  var row = appendRow_(ps, 'members_master', {
-    member_id: id, name: req.name, club_id: req.club_id, is_rotarian: true, status: 'active', mobile: req.mobile, notes: note,
+  return i >= 0 ? master[i] : null;
+}
+
+/** What a My details request asks, in plain lines (the desk card, the member's notice, the receipts). */
+function detailsLines_(req, m) {
+  var lines = [];
+  if (req.form === 'show') {
+    var said = { directory: req.directory_ok, profession: req.profession_ok, photo: req.photo_ok, birthday: req.birthday_ok,
+      anniversary: req.anniversary_ok, couple_photo: req.couple_photo_ok, call: req.call_ok, whatsapp: req.contact_ok, spotlight: req.spotlight_ok };
+    Object.keys(SHOW_ITEMS).forEach(function (k) { lines.push(SHOW_ITEMS[k] + ': ' + (Core_isTrue(said[k]) ? SHOW_COLUMNS[0] : SHOW_COLUMNS[1])); });
+    return lines;
+  }
+  var was = function (k) { return m && Core_str(m[k]) ? ' (was ' + Core_str(m[k]) + ')' : ''; };
+  [['Profession', 'profession'], ['Area', 'area'], ['What I do', 'description'], ['Website', 'website'], ['Call number', 'call_number'],
+    ['WhatsApp number', 'whatsapp_number'], ['Second email', 'email2']].forEach(function (f) {
+    if (Core_str(req[f[1]])) lines.push(f[0] + ': ' + Core_str(req[f[1]]) + was(f[1]));
   });
-  appendRow_(ps, 'club_history', { member_id: id, club_id: req.club_id, from_date: today_(), reason: 'recorded from consent form' });
-  return readTab_(ps, 'members_master').filter(function (m) { return m._row === row; })[0];
+  if (Core_str(req.birthday)) lines.push('Birthday: ' + req.birthday + (m && Core_dayMonth(m.dob) ? ' (was ' + m.dob + ')' : ''));
+  if (Core_str(req.photo_file)) lines.push('A new photo');
+  if (Core_str(req.anniversary) || Core_str(req.spouse_name)) {
+    lines.push('Anniversary ' + (Core_str(req.anniversary) || '?') + ' with ' + (Core_str(req.spouse_name) || '?') +
+      (req.spouse_is_rotarian === 'Yes' ? ' (Rotarian, member ID ' + (Core_str(req.spouse_member_id) || '?') + ')' : ''));
+  }
+  if (Core_str(req.couple_photo_file)) lines.push('A couple photo');
+  if (Core_isTrue(req.remove_business)) lines.push('Remove the business listing');
+  return lines.length ? lines : ['Nothing to change'];
+}
+
+/** Approves one of the two My details requests (owner, 23 Nov 2026). The checks before it are approveConsent_'s. */
+function approveDetails_(ps, req, who, confirmed, check) {
+  var m = findMember_(ps, req);
+  if (!Core_isTrue(m.is_rotarian) || Core_str(m.status || 'active').toLowerCase() !== 'active') {
+    throw new Error(m.name + ' is not an active member in the members list: reject this request.');
+  }
+  var note = req.form === 'show' ? applyShow_(ps, m, req, who) : applyUpdate_(ps, m, req);
+  var done = { status: 'approved', matched_member_id: m.member_id, approved_by: who, approved_at: nowIso_() };
+  var notes = [confirmed ? 'Confirmed with the member or their club by ' + who : '', note].filter(String);
+  if (notes.length) done.moderator_note = notes.join('; ');
+  updateRow_(ps, 'consent_requests', req._row, done);
+  refreshPublicMembers(true);
+  contentChanged_();
+  var what = req.form === 'show' ? 'What the website shows about ' + m.name : 'The details of ' + m.name;
+  var body = 'Thank you. ' + what + ' on the Rotary District 3110 website ' + (who === AUTO_BY ? 'have been updated' : 'have been approved by a district moderator') +
+    ':\n\n' + detailsLines_(req).map(function (l) { return '- ' + l; }).join('\n') + (note ? '\n\nNote: ' + note : '') +
+    '\n\nThe website shows it ' + NEXT_UPDATE + '.' + removalLine_() + '\n\nRotary District 3110';
+  if (Core_isTrue(req.is_sample)) return 'Approved ' + req.id + ' for ' + m.name + '.';
+  // the sender, and the member at every email they have now (a changed second email: the old one too)
+  var fresh = readTab_(ps, 'members_master').filter(function (x) { return x._row === m._row; })[0] || m;
+  var to = [Core_str(req.submitter_email)].concat(Core_memberEmails(fresh), req._oldEmail2 ? [req._oldEmail2] : []);
+  notifyEmails_(to, (req.form === 'show' ? 'Your choices: ' : 'Your details: ') + m.name, body);
+  return 'Approved ' + req.id + ' for ' + m.name + '. The website shows it ' + NEXT_UPDATE + '.';
+}
+
+/** Show my details: each choice as answered; what is no longer shown is taken off (a photo also leaves Drive). */
+function applyShow_(ps, m, req, who) {
+  var on = function (k) { return Core_isTrue(req[k]); };
+  var f = {
+    directory_ok: on('directory_ok'), profession_ok: on('profession_ok'), contact_ok: on('contact_ok'), call_ok: on('call_ok'),
+    photo_ok: on('photo_ok'), birthday_ok: on('birthday_ok'), anniversary_ok: on('anniversary_ok'), spotlight_ok: on('spotlight_ok'),
+    listing_approved: true, listing_approved_by: who, listing_approved_at: nowIso_(), consent_source: Core_str(req.filled_by), consent_updated_at: nowIso_(),
+  };
+  if (!f.photo_ok && Core_str(m.photo_file)) { trashRef_(m.photo_file); f.photo_file = ''; f.photo_approved = false; }
+  updateRow_(ps, 'members_master', m._row, f);
+  if (!f.anniversary_ok) {
+    withdrawCouples_(ps, m.member_id, 'Anniversary: Do not list (' + req.id + ')');
+    return '';
+  }
+  var photoOk = on('couple_photo_ok');
+  var linked = 0;
+  var master = readTab_(ps, 'members_master');
+  var byId = function (id) { return master.filter(function (x) { return Core_str(x.member_id) === Core_str(id); })[0] || {}; };
+  readTab_(ps, 'couples').forEach(function (c) {
+    var isA = Core_str(c.person_a_id) === Core_str(m.member_id);
+    if (!isA && Core_str(c.person_b_id) !== Core_str(m.member_id)) return;
+    linked++;
+    var u = {};
+    u[isA ? 'a_consent' : 'b_consent'] = true;
+    u[isA ? 'couple_photo_ok_a' : 'couple_photo_ok_b'] = photoOk;
+    if (!photoOk && Core_str(c.couple_photo_file)) { trashRef_(c.couple_photo_file); u.couple_photo_file = ''; }
+    var other = Core_isTrue(isA ? c.b_consent : c.a_consent);
+    // two Rotarian spouses who each gave a date: they must agree before the anniversary shows
+    var dates = [byId(c.person_a_id), byId(c.person_b_id)].filter(function (p) { return Core_isTrue(p.is_rotarian) && Core_dayMonth(p.marriage_date); })
+      .map(function (p) { return Core_dayMonth(p.marriage_date); });
+    var differ = dates.length === 2 && dates[0] !== dates[1];
+    u.status = !other ? 'awaiting_spouse' : differ ? 'check_dates' : 'active';
+    u.notes = !other ? "Waiting for the spouse's agreement" : differ ? 'The two spouses gave different dates; please check' : '';
+    updateRow_(ps, 'couples', c._row, u);
+  });
+  return linked ? '' : 'Anniversary listed, but the district has no anniversary for this member yet: send it on the Update my details form';
+}
+
+/** Update my details: what was given replaces what the district had; blanks change nothing. Returns a note, or ''. */
+function applyUpdate_(ps, m, req) {
+  var master = readTab_(ps, 'members_master');
+  var f = {};
+  var notes = [];
+  ['profession', 'area', 'description', 'website'].forEach(function (k) { if (Core_str(req[k])) f[k] = Core_str(req[k]); });
+  ['call_number', 'whatsapp_number'].forEach(function (k) { if (Core_mobile(req[k])) f[k] = Core_str(req[k]); });
+  var email2 = Core_str(req.email2).trim().toLowerCase();
+  if (email2) {
+    var owners = Core_emailOwners(email2, master, m.member_id);
+    if (owners.length) {
+      notes.push('Second email not saved: ' + email2 + ' is already used by member ' + owners[0].member_id);
+    } else if (email2 !== Core_str(m.email).toLowerCase() && email2 !== Core_str(m.email2).toLowerCase()) {
+      if (Core_str(m.email2)) req._oldEmail2 = Core_str(m.email2).toLowerCase();
+      f.email2 = email2;
+    }
+  }
+  if (Core_dayMonth(req.birthday)) f.dob = req.birthday;
+  if (Core_str(req.photo_file)) {
+    if (Core_str(m.photo_file) && m.photo_file !== req.photo_file) trashRef_(m.photo_file); // a newer photo replaces the old
+    f.photo_file = Core_str(req.photo_file).split(',')[0].trim();
+    f.photo_approved = true;
+  }
+  if (Core_str(req.anniversary)) f.marriage_date = req.anniversary;
+  if (Object.keys(f).length) updateRow_(ps, 'members_master', m._row, f);
+  if (Core_str(req.anniversary) || Core_str(req.couple_photo_file)) {
+    var fresh = readTab_(ps, 'members_master').filter(function (x) { return x._row === m._row; })[0];
+    var n = linkCouple_(ps, fresh, req, Core_isTrue(fresh.anniversary_ok));
+    if (n) notes.push(n);
+  }
+  if (Core_isTrue(req.remove_business)) removeBusinesses_(m.member_id, req.id);
+  return notes.join('; ');
+}
+
+/** Emails to everyone given (blanks and repeats left out), within the daily allowance. */
+function notifyEmails_(list, subject, body) {
+  var seen = {};
+  list.forEach(function (e) {
+    var to = Core_str(e).trim().toLowerCase();
+    if (!/@/.test(to) || seen[to]) return;
+    seen[to] = true;
+    if (!deskQuota_(1)) return;
+    try { MailApp.sendEmail(to, subject, body, { name: 'Rotary District 3110' }); } catch (e2) { Logger.log('Email to ' + to + ' failed: ' + e2.message); }
+  });
 }
 
 /** Creates or updates the couple record for an anniversary request. */
-function linkCouple_(ps, member, req) {
+function linkCouple_(ps, member, req, consent) {
   var couples = readTab_(ps, 'couples');
   var master = readTab_(ps, 'members_master');
   var anniversary = req.anniversary;
+  if (consent === undefined) consent = true; // forms before 23 Nov 2026 gave the anniversary and the choice together
 
   if (Core_str(req.spouse_is_rotarian) !== 'Yes') {
     // Spouse is not a Rotarian: the member's tick records the spouse's agreement
@@ -4432,8 +4979,9 @@ function linkCouple_(ps, member, req) {
     var photoAgreed = Core_isTrue(req.couple_photo_spouse_agrees) && !!Core_str(req.couple_photo_file);
     var fields = {
       couple_id: existing ? existing.couple_id : nextId_(couples.map(function (c) { return { id: c.couple_id }; }), 'C-'),
-      person_a_id: member.member_id, person_b_id: spouseId, anniversary: anniversary, a_consent: true, b_consent: agrees,
-      status: agrees ? 'active' : 'awaiting_spouse', notes: agrees ? '' : "Spouse's agreement not ticked",
+      person_a_id: member.member_id, person_b_id: spouseId, anniversary: anniversary || (existing ? existing.anniversary : ''), a_consent: consent, b_consent: agrees,
+      status: !consent ? 'withdrawn' : agrees ? 'active' : 'awaiting_spouse',
+      notes: !consent ? 'Waiting for the member to list the anniversary on Show my details' : agrees ? '' : "Spouse's agreement not ticked",
     };
     if (Core_str(req.couple_photo_file)) {
       if (existing && Core_str(existing.couple_photo_file)) trashRef_(existing.couple_photo_file);
@@ -4441,32 +4989,21 @@ function linkCouple_(ps, member, req) {
       fields.couple_photo_ok_a = photoAgreed; fields.couple_photo_ok_b = photoAgreed; fields.couple_photo_approved = true;
     }
     if (existing) updateRow_(ps, 'couples', existing._row, fields); else appendRow_(ps, 'couples', fields);
-    return;
+    return '';
   }
 
-  // Spouse is a Rotarian: each must agree on their own form
-  var spouseReq = { member_id: req.spouse_member_id, club_id: req.spouse_club_id, mobile: '' };
-  var si = Core_matchMember(spouseReq, master);
-  if (si < 0) {
-    var target = Core_str(req.spouse_name).toLowerCase().replace(/^(rtn|dr)\.?\s+/g, '').replace(/[^a-z]/g, '');
-    master.forEach(function (m, idx) {
-      if (si < 0 && Core_str(m.club_id) === Core_str(req.spouse_club_id) &&
-        Core_str(m.name).toLowerCase().replace(/^(rtn|dr)\.?\s+/g, '').replace(/[^a-z]/g, '') === target) si = idx;
-    });
-  }
-  var spouse = si >= 0 ? master[si] : null;
-  if (!spouse) {
-    var newId = Core_str(req.spouse_member_id) || nextId_(master, 'TM-');
-    appendRow_(ps, 'members_master', { member_id: newId, name: req.spouse_name, club_id: req.spouse_club_id, is_rotarian: true, status: 'active', notes: 'Spouse of ' + member.name + ' – recorded from a consent form; please check' });
-    spouse = { member_id: newId, name: req.spouse_name };
-  }
+  // Spouse is a Rotarian: each must agree on their own form; found only by the member ID given (owner, 23 Nov 2026:
+  // a form never makes a member record)
+  var spouseId = Core_str(req.spouse_member_id);
+  var spouse = spouseId ? master.filter(function (x) { return Core_str(x.member_id) === spouseId && Core_isTrue(x.is_rotarian); })[0] : null;
+  if (!spouse) return "Anniversary not linked: no Rotarian with the spouse's member ID " + (spouseId || '(none given)');
   var couple = couples.filter(function (c) {
     var ids = [Core_str(c.person_a_id), Core_str(c.person_b_id)];
     return ids.indexOf(Core_str(member.member_id)) >= 0 && ids.indexOf(Core_str(spouse.member_id)) >= 0;
   })[0];
   var memberIsA = !couple || Core_str(couple.person_a_id) === Core_str(member.member_id);
   var update = {};
-  update[memberIsA ? 'a_consent' : 'b_consent'] = true;
+  update[memberIsA ? 'a_consent' : 'b_consent'] = consent;
   update[memberIsA ? 'couple_photo_ok_a' : 'couple_photo_ok_b'] = Core_isTrue(req.couple_photo_spouse_agrees);
   if (Core_str(req.couple_photo_file)) {
     update.couple_photo_file = Core_str(req.couple_photo_file).split(',')[0].trim();
@@ -4478,16 +5015,17 @@ function linkCouple_(ps, member, req) {
     update.person_b_id = spouse.member_id;
     update.anniversary = anniversary;
     update.b_consent = false;
-    update.status = 'awaiting_spouse';
+    update.status = consent ? 'awaiting_spouse' : 'withdrawn';
     update.notes = "Waiting for the spouse's own consent form";
     appendRow_(ps, 'couples', update);
-    return;
+    return '';
   }
   var otherConsent = Core_isTrue(memberIsA ? couple.b_consent : couple.a_consent);
-  var sameDate = Core_dayMonth(couple.anniversary) === Core_dayMonth(anniversary);
-  update.status = !otherConsent ? 'awaiting_spouse' : sameDate ? 'active' : 'check_dates';
+  var sameDate = !anniversary || Core_dayMonth(couple.anniversary) === Core_dayMonth(anniversary);
+  update.status = !consent ? 'withdrawn' : !otherConsent ? 'awaiting_spouse' : sameDate ? 'active' : 'check_dates';
   update.notes = update.status === 'check_dates' ? 'The two forms give different dates (' + couple.anniversary + ' and ' + anniversary + '); please check' : '';
   updateRow_(ps, 'couples', couple._row, update);
+  return '';
 }
 
 function withdrawCouples_(ps, memberId, note) {
@@ -5687,7 +6225,8 @@ function deskSignOutAll() {
  * The moderator_log tab in the main Sheet gets only the action and the row, never members' details.
  */
 
-var DESK_MEMBER_FIELDS = ['member_id', 'name', 'club_id', 'status', 'mobile', 'email'];
+// The Rotary member ID is never changed (owner, 23 Nov 2026): it is how a member is found
+var DESK_MEMBER_FIELDS = ['name', 'club_id', 'status', 'mobile', 'email', 'email2', 'call_number', 'whatsapp_number'];
 var DESK_MEMBER_STATUSES = ['active', 'left', 'deceased'];
 var DESK_CLEAN_MAX = 50; // activities approved in one tap at most (well inside Apps Script's 6 minutes)
 // An addition is taken back another way (end the role, close the club, set the moderator inactive), not by Undo
@@ -5799,7 +6338,8 @@ function deskRowRevert_(me, tab, row, fields, why) {
 /** One member as the desk shows it to a Members moderator (the private Sheet's details stay on the desk). */
 function deskPerson_(m) {
   return { member_id: Core_str(m.member_id), name: Core_str(m.name), club_id: Core_str(m.club_id), club: deskClubName_(m.club_id) || '–',
-    status: Core_str(m.status || 'active'), mobile: Core_str(m.mobile), email: Core_str(m.email), rotarian: Core_isTrue(m.is_rotarian) };
+    status: Core_str(m.status || 'active'), mobile: Core_str(m.mobile), email: Core_str(m.email), email2: Core_str(m.email2),
+    call_number: Core_str(m.call_number), whatsapp_number: Core_str(m.whatsapp_number), rotarian: Core_isTrue(m.is_rotarian) };
 }
 
 /** A name (3 letters or more), or exactly an RI member ID, an email or a mobile number. */
@@ -5810,7 +6350,8 @@ function deskSearch_(me, q) {
   var mobile = Core_mobile(text);
   var email = text.toLowerCase();
   var exact = master.filter(function (m) {
-    return Core_str(m.member_id) === text || (/@/.test(email) && Core_str(m.email).toLowerCase() === email) || (mobile && Core_mobile(m.mobile) === mobile);
+    return Core_str(m.member_id) === text || (/@/.test(email) && Core_memberEmails(m).indexOf(email) >= 0) ||
+      (mobile && [m.mobile, m.call_number, m.whatsapp_number].some(function (n) { return Core_mobile(n) === mobile; }));
   });
   if (exact.length) return { people: exact.slice(0, 10).map(deskPerson_) };
   var want = Core_plainName(text);
@@ -5819,8 +6360,9 @@ function deskSearch_(me, q) {
 }
 
 /**
- * A Members moderator corrects a member: name, RI member ID, club, status (active, left, deceased: also the way back
- * from a mistaken "left" or "deceased"), mobile and email. The club history follows the club and status.
+ * A Members moderator corrects a member: name, club, status (active, left, deceased: also the way back from a mistaken
+ * "left" or "deceased"), mobile, email, second email and the Call and WhatsApp numbers. The club history follows the
+ * club and status. The RI member ID is not changed here, and an email another member uses is refused.
  */
 function deskMemberSave_(me, memberId, fields, reason) {
   deskAllow_(me, 'members_master');
@@ -5841,11 +6383,6 @@ function deskMemberSave_(me, memberId, fields, reason) {
     });
     if (!Object.keys(changes).length) return { message: 'Nothing changed.', person: deskPerson_(m) };
     if (changes.name && !changes.name[1]) throw deskError_('The name cannot be blank.');
-    if (changes.member_id) {
-      var nid = changes.member_id[1];
-      if (!/^[A-Za-z0-9-]{3,20}$/.test(nid)) throw deskError_('An RI member ID has only digits (and letters for internal IDs).');
-      if (master.some(function (x) { return Core_str(x.member_id) === nid; })) throw deskError_('Member ID ' + nid + ' is already in the members list (another card).');
-    }
     if (changes.club_id && !clubNameById_(changes.club_id[1])) throw deskError_('Choose a club from the list.');
     var endStatus = changes.status ? changes.status[1] : Core_str(m.status || 'active');
     var endClub = clubs_().filter(function (c) { return Core_str(c.club_id) === (changes.club_id ? changes.club_id[1] : Core_str(m.club_id)); })[0];
@@ -5854,12 +6391,23 @@ function deskMemberSave_(me, memberId, fields, reason) {
     }
     if (changes.status && DESK_MEMBER_STATUSES.indexOf(changes.status[1]) < 0) throw deskError_('Status is active, left or deceased.');
     if (changes.mobile && changes.mobile[1] && !Core_mobile(changes.mobile[1])) throw deskError_('The mobile number is not a 10-digit Indian mobile.');
-    if (changes.email && changes.email[1] && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(changes.email[1])) throw deskError_('The email address is not complete.');
+    ['call_number', 'whatsapp_number'].forEach(function (k) {
+      if (changes[k] && changes[k][1] && !Core_mobile(changes[k][1])) throw deskError_('The ' + (k === 'call_number' ? 'Call' : 'WhatsApp') + ' number is not a 10-digit Indian mobile.');
+    });
+    ['email', 'email2'].forEach(function (k) {
+      if (!changes[k] || !changes[k][1]) return;
+      var e = changes[k][1] = changes[k][1].toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) throw deskError_('The email address is not complete.');
+      var owners = Core_emailOwners(e, master, m.member_id);
+      if (owners.length) throw deskError_(e + ' is already the email of member ' + owners[0].member_id + ' (' + owners[0].name + '): every email belongs to one member.');
+    });
+    if (changes.email2 && changes.email2[1] && changes.email2[1] === Core_str(changes.email ? changes.email[1] : m.email).toLowerCase()) {
+      throw deskError_('The second email is the same as the email.');
+    }
 
-    var id = changes.member_id ? changes.member_id[1] : Core_str(m.member_id);
-    if (changes.member_id) renameMemberId_(ps, changes.member_id[0], id);
+    var id = Core_str(m.member_id);
     var simple = {};
-    ['name', 'mobile', 'email'].forEach(function (k) { if (changes[k]) simple[k] = changes[k][1]; });
+    ['name', 'mobile', 'email', 'email2', 'call_number', 'whatsapp_number'].forEach(function (k) { if (changes[k]) simple[k] = changes[k][1]; });
     if (Object.keys(simple).length) updateRow_(ps, 'members_master', m._row, simple);
     var fresh = function () { return readTab_(ps, 'members_master').filter(function (x) { return Core_str(x.member_id) === id; })[0]; };
     var st0 = Core_str(m.status || 'active');
@@ -5886,24 +6434,10 @@ function deskMemberSave_(me, memberId, fields, reason) {
     refreshMemberCounts_();
     try { checkRoles(true); } catch (e) { Logger.log('Role check not run: ' + e.message); }
     contentChanged_();
-    var roles = changes.member_id ? ' Roles under the old ID ' + changes.member_id[0] + ' are unchanged: correct them on the Roles tab if they belong to this person.' : '';
-    return { message: 'Saved: ' + Object.keys(changes).join(', ') + '. The website shows it ' + NEXT_UPDATE + '.' + roles, person: deskPerson_(fresh()) };
+    return { message: 'Saved: ' + Object.keys(changes).join(', ') + '. The website shows it ' + NEXT_UPDATE + '.', person: deskPerson_(fresh()) };
   } finally {
     lock.releaseLock();
   }
-}
-
-/** A corrected RI member ID follows the member into the club history, couples and spouse links. */
-function renameMemberId_(ps, from, to) {
-  readTab_(ps, 'members_master').forEach(function (x) {
-    if (Core_str(x.member_id) === from) updateRow_(ps, 'members_master', x._row, { member_id: to });
-    if (Core_str(x.spouse_id) === from) updateRow_(ps, 'members_master', x._row, { spouse_id: to });
-  });
-  readTab_(ps, 'club_history').forEach(function (h) { if (Core_str(h.member_id) === from) updateRow_(ps, 'club_history', h._row, { member_id: to }); });
-  readTab_(ps, 'couples').forEach(function (c) {
-    if (Core_str(c.person_a_id) === from) updateRow_(ps, 'couples', c._row, { person_a_id: to });
-    if (Core_str(c.person_b_id) === from) updateRow_(ps, 'couples', c._row, { person_b_id: to });
-  });
 }
 
 /* ---------- Roles: club office bearers (Content or Members) and district roles (Members) ---------- */
@@ -6307,15 +6841,19 @@ var NOT_ACCEPTED = 'not_accepted';
 var GATED = { activities: 'activity', events: 'event', club_profile_requests: 'club details update', public_services: 'public service',
   club_change_requests: 'members and roles update' };
 
-/** Each club's acting office bearers in the Rotary year of today's date (not the year the website shows). */
-function actingOfficers_() {
-  return Core_actingOfficers(readTab_(mainSs_(), 'officers'), Core_rotaryYearOf(today_()));
+/**
+ * Each club's acting office bearers in the Rotary year of today's date (not the year the website shows); one who left
+ * or moved to another club no longer counts for the old club (owner, 23 Nov 2026).
+ */
+function actingOfficers_(master) {
+  return Core_actingOfficers(readTab_(mainSs_(), 'officers'), Core_rotaryYearOf(today_()), master || readTab_(privateSs_(), 'members_master'));
 }
 
 /** Who sent a form for a club, judged by the sender's Google account: the Core_clubSender result. */
 function clubSender_(clubId, email, acting, master) {
   var owner = Core_str(email).toLowerCase() === deskOwner_();
-  var check = Core_clubSender(email, clubId, acting || actingOfficers_(), master || readTab_(privateSs_(), 'members_master'), deskModeratorRows_());
+  master = master || readTab_(privateSs_(), 'members_master');
+  var check = Core_clubSender(email, clubId, acting || actingOfficers_(master), master, deskModeratorRows_());
   if (owner && check.who !== 'officer') check.who = 'moderator'; // the district account counts as an Administrator
   if (check.who === 'unknown' && !Core_str(clubId)) check.who = 'noclub';
   return check;
@@ -6760,7 +7298,7 @@ function memberCheckEmails_(today) {
   if (!due.length) return 0;
   var room = Math.min(CORE_MEMBER_CHECK_PER_DAY, MailApp.getRemainingDailyQuota() - 20);
   var s = settings_();
-  var forms = { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url) };
+  var forms = { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url), update: Core_str(s.form_update_url) };
   var sent = 0;
   due.slice(0, Math.max(0, room)).forEach(function (m) {
     var mail = Core_memberCheckEmail(m, clubNameById_(m.club_id), s.site_url, forms);
@@ -6785,7 +7323,7 @@ function sendMemberCheckSample() {
     msg = 'No listed member with an email to make a sample from.';
   } else {
     var s = settings_();
-    var mail = Core_memberCheckEmail(m, clubNameById_(m.club_id), s.site_url, { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url) });
+    var mail = Core_memberCheckEmail(m, clubNameById_(m.club_id), s.site_url, { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url), update: Core_str(s.form_update_url) });
     MailApp.sendEmail(me, 'SAMPLE – ' + mail.subject, 'This is a sample of the July email, made from member ' + m.member_id +
       '. It was sent only to you.\n\n----------\n\n' + mail.body, { name: 'Rotary District 3110' });
     msg = 'A sample of the July member email was sent to ' + me + '.';

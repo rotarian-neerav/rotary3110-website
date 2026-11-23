@@ -76,6 +76,16 @@ test('WhatsApp links appear only for members who agreed', () => {
   }
 });
 
+test('Call buttons only for members who chose them (23 Nov 2026); the footer links to Show and Update my details', () => {
+  const dir = JSON.parse(read(join(SITE, 'data/directory.json')));
+  const consented = new Set(data.members.filter((m) => m.call_ok && m.directory_ok).map((m) => m.call_link));
+  for (const m of dir) if (m.call) assert.ok(consented.has(m.call), `unconsented call link for ${m.name}`);
+  const home = page('');
+  assert.ok(home.includes('href="' + PREFIX + '/consent/">Show my details<'));
+  assert.ok(home.includes('href="' + PREFIX + '/update/">Update my details<'));
+  assert.match(page('update'), /Update my details/);
+});
+
 test('celebrations and directory data carry no years', () => {
   for (const f of ['data/celebrations.json', 'data/directory.json']) {
     const s = read(join(SITE, f));

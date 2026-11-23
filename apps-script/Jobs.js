@@ -239,7 +239,7 @@ function memberCheckEmails_(today) {
   if (!due.length) return 0;
   var room = Math.min(CORE_MEMBER_CHECK_PER_DAY, MailApp.getRemainingDailyQuota() - 20);
   var s = settings_();
-  var forms = { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url) };
+  var forms = { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url), update: Core_str(s.form_update_url) };
   var sent = 0;
   due.slice(0, Math.max(0, room)).forEach(function (m) {
     var mail = Core_memberCheckEmail(m, clubNameById_(m.club_id), s.site_url, forms);
@@ -264,7 +264,7 @@ function sendMemberCheckSample() {
     msg = 'No listed member with an email to make a sample from.';
   } else {
     var s = settings_();
-    var mail = Core_memberCheckEmail(m, clubNameById_(m.club_id), s.site_url, { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url) });
+    var mail = Core_memberCheckEmail(m, clubNameById_(m.club_id), s.site_url, { consent: Core_str(s.form_consent_url), removal: Core_str(s.form_removal_url), update: Core_str(s.form_update_url) });
     MailApp.sendEmail(me, 'SAMPLE – ' + mail.subject, 'This is a sample of the July email, made from member ' + m.member_id +
       '. It was sent only to you.\n\n----------\n\n' + mail.body, { name: 'Rotary District 3110' });
     msg = 'A sample of the July member email was sent to ' + me + '.';

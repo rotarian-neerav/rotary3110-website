@@ -9,7 +9,8 @@
  * The moderator_log tab in the main Sheet gets only the action and the row, never members' details.
  */
 
-var DESK_MEMBER_FIELDS = ['member_id', 'name', 'club_id', 'status', 'mobile', 'email'];
+// The Rotary member ID is never changed (owner, 23 Nov 2026): it is how a member is found
+var DESK_MEMBER_FIELDS = ['name', 'club_id', 'status', 'mobile', 'email', 'email2', 'call_number', 'whatsapp_number'];
 var DESK_MEMBER_STATUSES = ['active', 'left', 'deceased'];
 var DESK_CLEAN_MAX = 50; // activities approved in one tap at most (well inside Apps Script's 6 minutes)
 // An addition is taken back another way (end the role, close the club, set the moderator inactive), not by Undo
@@ -121,7 +122,8 @@ function deskRowRevert_(me, tab, row, fields, why) {
 /** One member as the desk shows it to a Members moderator (the private Sheet's details stay on the desk). */
 function deskPerson_(m) {
   return { member_id: Core_str(m.member_id), name: Core_str(m.name), club_id: Core_str(m.club_id), club: deskClubName_(m.club_id) || '–',
-    status: Core_str(m.status || 'active'), mobile: Core_str(m.mobile), email: Core_str(m.email), rotarian: Core_isTrue(m.is_rotarian) };
+    status: Core_str(m.status || 'active'), mobile: Core_str(m.mobile), email: Core_str(m.email), email2: Core_str(m.email2),
+    call_number: Core_str(m.call_number), whatsapp_number: Core_str(m.whatsapp_number), rotarian: Core_isTrue(m.is_rotarian) };
 }
 
 /** A name (3 letters or more), or exactly an RI member ID, an email or a mobile number. */
@@ -132,7 +134,8 @@ function deskSearch_(me, q) {
   var mobile = Core_mobile(text);
   var email = text.toLowerCase();
   var exact = master.filter(function (m) {
-    return Core_str(m.member_id) === text || (/@/.test(email) && Core_str(m.email).toLowerCase() === email) || (mobile && Core_mobile(m.mobile) === mobile);
+    return Core_str(m.member_id) === text || (/@/.test(email) && Core_memberEmails(m).indexOf(email) >= 0) ||
+      (mobile && [m.mobile, m.call_number, m.whatsapp_number].some(function (n) { return Core_mobile(n) === mobile; }));
   });
   if (exact.length) return { people: exact.slice(0, 10).map(deskPerson_) };
   var want = Core_plainName(text);
@@ -141,8 +144,9 @@ function deskSearch_(me, q) {
 }
 
 /**
- * A Members moderator corrects a member: name, RI member ID, club, status (active, left, deceased: also the way back
- * from a mistaken "left" or "deceased"), mobile and email. The club history follows the club and status.
+ * A Members moderator corrects a member: name, club, status (active, left, deceased: also the way back from a mistaken
+ * "left" or "deceased"), mobile, email, second email and the Call and WhatsApp numbers. The club history follows the
+ * club and status. The RI member ID is not changed here, and an email another member uses is refused.
  */
 function deskMemberSave_(me, memberId, fields, reason) {
   deskAllow_(me, 'members_master');
@@ -163,11 +167,6 @@ function deskMemberSave_(me, memberId, fields, reason) {
     });
     if (!Object.keys(changes).length) return { message: 'Nothing changed.', person: deskPerson_(m) };
     if (changes.name && !changes.name[1]) throw deskError_('The name cannot be blank.');
-    if (changes.member_id) {
-      var nid = changes.member_id[1];
-      if (!/^[A-Za-z0-9-]{3,20}$/.test(nid)) throw deskError_('An RI member ID has only digits (and letters for internal IDs).');
-      if (master.some(function (x) { return Core_str(x.member_id) === nid; })) throw deskError_('Member ID ' + nid + ' is already in the members list (another card).');
-    }
     if (changes.club_id && !clubNameById_(changes.club_id[1])) throw deskError_('Choose a club from the list.');
     var endStatus = changes.status ? changes.status[1] : Core_str(m.status || 'active');
     var endClub = clubs_().filter(function (c) { return Core_str(c.club_id) === (changes.club_id ? changes.club_id[1] : Core_str(m.club_id)); })[0];
@@ -176,12 +175,23 @@ function deskMemberSave_(me, memberId, fields, reason) {
     }
     if (changes.status && DESK_MEMBER_STATUSES.indexOf(changes.status[1]) < 0) throw deskError_('Status is active, left or deceased.');
     if (changes.mobile && changes.mobile[1] && !Core_mobile(changes.mobile[1])) throw deskError_('The mobile number is not a 10-digit Indian mobile.');
-    if (changes.email && changes.email[1] && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(changes.email[1])) throw deskError_('The email address is not complete.');
+    ['call_number', 'whatsapp_number'].forEach(function (k) {
+      if (changes[k] && changes[k][1] && !Core_mobile(changes[k][1])) throw deskError_('The ' + (k === 'call_number' ? 'Call' : 'WhatsApp') + ' number is not a 10-digit Indian mobile.');
+    });
+    ['email', 'email2'].forEach(function (k) {
+      if (!changes[k] || !changes[k][1]) return;
+      var e = changes[k][1] = changes[k][1].toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) throw deskError_('The email address is not complete.');
+      var owners = Core_emailOwners(e, master, m.member_id);
+      if (owners.length) throw deskError_(e + ' is already the email of member ' + owners[0].member_id + ' (' + owners[0].name + '): every email belongs to one member.');
+    });
+    if (changes.email2 && changes.email2[1] && changes.email2[1] === Core_str(changes.email ? changes.email[1] : m.email).toLowerCase()) {
+      throw deskError_('The second email is the same as the email.');
+    }
 
-    var id = changes.member_id ? changes.member_id[1] : Core_str(m.member_id);
-    if (changes.member_id) renameMemberId_(ps, changes.member_id[0], id);
+    var id = Core_str(m.member_id);
     var simple = {};
-    ['name', 'mobile', 'email'].forEach(function (k) { if (changes[k]) simple[k] = changes[k][1]; });
+    ['name', 'mobile', 'email', 'email2', 'call_number', 'whatsapp_number'].forEach(function (k) { if (changes[k]) simple[k] = changes[k][1]; });
     if (Object.keys(simple).length) updateRow_(ps, 'members_master', m._row, simple);
     var fresh = function () { return readTab_(ps, 'members_master').filter(function (x) { return Core_str(x.member_id) === id; })[0]; };
     var st0 = Core_str(m.status || 'active');
@@ -208,24 +218,10 @@ function deskMemberSave_(me, memberId, fields, reason) {
     refreshMemberCounts_();
     try { checkRoles(true); } catch (e) { Logger.log('Role check not run: ' + e.message); }
     contentChanged_();
-    var roles = changes.member_id ? ' Roles under the old ID ' + changes.member_id[0] + ' are unchanged: correct them on the Roles tab if they belong to this person.' : '';
-    return { message: 'Saved: ' + Object.keys(changes).join(', ') + '. The website shows it ' + NEXT_UPDATE + '.' + roles, person: deskPerson_(fresh()) };
+    return { message: 'Saved: ' + Object.keys(changes).join(', ') + '. The website shows it ' + NEXT_UPDATE + '.', person: deskPerson_(fresh()) };
   } finally {
     lock.releaseLock();
   }
-}
-
-/** A corrected RI member ID follows the member into the club history, couples and spouse links. */
-function renameMemberId_(ps, from, to) {
-  readTab_(ps, 'members_master').forEach(function (x) {
-    if (Core_str(x.member_id) === from) updateRow_(ps, 'members_master', x._row, { member_id: to });
-    if (Core_str(x.spouse_id) === from) updateRow_(ps, 'members_master', x._row, { spouse_id: to });
-  });
-  readTab_(ps, 'club_history').forEach(function (h) { if (Core_str(h.member_id) === from) updateRow_(ps, 'club_history', h._row, { member_id: to }); });
-  readTab_(ps, 'couples').forEach(function (c) {
-    if (Core_str(c.person_a_id) === from) updateRow_(ps, 'couples', c._row, { person_a_id: to });
-    if (Core_str(c.person_b_id) === from) updateRow_(ps, 'couples', c._row, { person_b_id: to });
-  });
 }
 
 /* ---------- Roles: club office bearers (Content or Members) and district roles (Members) ---------- */

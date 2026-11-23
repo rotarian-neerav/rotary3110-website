@@ -60,7 +60,7 @@ and are never shown on the website. The office replies from the district account
 ### Privacy, in short
 
 The website never shows members' phone numbers or email addresses. A member's details appear only when the member
-agreed through the My details form. People helped by clubs (beneficiaries) are never named. The **Privacy** page
+chose List on the Show my details form. People helped by clubs (beneficiaries) are never named. The **Privacy** page
 explains it fully.
 
 ---
@@ -111,7 +111,7 @@ Page 1 asks your club and who you are, then what you are updating:
 | Section | Use it for | What happens |
 |---|---|---|
 | **Club details** | Website, social media links, meeting day and place, permanent projects, regular services | A moderator checks it; approved details replace what the club page shows. A blank answer keeps what is there; "none" clears a list. |
-| **A member or a role** | A member joined, left, moved to another club or passed away; a President, Secretary or Executive Secretary; a district role | A Members moderator checks it against the member list. A new member's mobile and email may be given with "joined"; they stay private. |
+| **A member or a role** | A member joined, left or passed away; a President, Secretary or Executive Secretary; a district role. A member who moves: the old club sends "left", the new club "joined" (the "joined" waits until the "left" is in). | A Members moderator checks it against the member list. A new member's mobile and email may be given with "joined"; they stay private, and an email another member already uses is not saved. |
 | **A public service** | A lasting facility the public can use: blood bank, eye care, dialysis, ambulance… (one form per facility) | A moderator checks the facility's own phone number (never a member's mobile) and publishes it under Public services. |
 
 ### The weekly club email
@@ -131,19 +131,21 @@ email to the office bearers or on WhatsApp, with the club's own form link.
 
 ## 4. For members
 
-### My details on the website (one form, three sections)
+### Your details: two forms (since 23 November 2026)
 
-Page 1 asks your club, name, **RI member ID** (required) and mobile, and who is filling the form. Then:
-
-| Section | What you choose |
+| Form | What it is for |
 |---|---|
-| **Show my details** | A directory listing (profession, area, a few lines, website), a WhatsApp button, a photo, birthday and anniversary greetings (day and month only, never the year), member spotlight |
-| **Remove my details** | Remove some or all of what is shown. Removals are handled within two days. |
-| **List my business** | Rotary Means Business: your business (trade, city, about, an offer for Rotarians, website, WhatsApp button, photos) and/or the topics you can speak on |
+| **Show my details** | What the website may show about you: **List** or **Do not list** for each of directory listing (your name and club), profession lines (profession, area, what you do, website), photo, birthday, wedding anniversary, couple photo, Call button, WhatsApp button and member spotlight. Birthdays and anniversaries show as day and month only. Your email is never shown, and your numbers only as the buttons you chose. To take something off, send it again with Do not list. |
+| **Update my details** | The details themselves; fill in only what should change: profession, area, what you do, website, the numbers for your Call and WhatsApp buttons (blank: the mobile Rotary has), a **second email** (if the one Rotary has is old), birthday, anniversary and spouse, photo and couple photo. At the end, list or update your business and the topics you can speak on (Rotary Means Business), or remove your business listing. |
 
-**Sent from your own Google account** (the email the district has for you), your update is applied by itself and you
-get a confirmation email. **Sent by someone else** (for example your club secretary), a Members moderator checks it
-first and you are told by email, so you can object.
+**Sent from your own Google account** (the email the district has for you, or your second email), it goes in at the
+next website update and you get an email. You are found **only by that email**: if the district does not have it,
+nothing is applied and you are told to ask your club to add it as your second email.
+
+**Your club's President, Secretary or Executive Secretary** can fill in either form for you. They give your **Rotary
+member ID** (that is how you are found), a Members moderator checks it first, and you are told at every email the
+district has for you, so you can object. Neither form ever creates a new member: new members come from the club's
+"A member joined" or Rotary International's member list.
 
 ### Member cards
 
@@ -299,7 +301,8 @@ update** guide has every step.
 | My activity is not on the website | Was it approved (you got an email)? It shows at the next update (9 am, 1 pm, 6 pm, 10 pm). Not approved after two days: ask the district office. |
 | "Not accepted: only a club's office bearers can send this" | Ask your President, Secretary or Executive Secretary to send it, or tell the district who your new office bearers are (Club updates, members and roles). |
 | Something must come off the website now | A moderator **hides** it on the desk, or an administrator uses **Rebuild site now** after removing it. |
-| A member's details are wrong | The member sends My details again, or a Members moderator corrects it on the desk (**Find a member → Edit**). |
+| A member's details are wrong | The member sends Update my details, or a Members moderator corrects it on the desk (**Find a member → Edit**; the Rotary member ID never changes). |
+| "Your form was not applied": the member's email is not on file | The club adds it as the member's second email on Update my details (a moderator approves it); then the member sends the form again from that email. |
 | A photo does not show | It must be a normal photo file under 1 MB; HEIC photos from iPhones usually work but can be slow. Send it again if it is missing after the next update. |
 | I cannot sign in to the desk | Your email must be an **active** row of the moderators tab. Codes last 15 minutes; ask for a new one. |
 | The website has not updated | Updates run four times a day; GitHub sometimes starts them 15 to 60 minutes late. |

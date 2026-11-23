@@ -60,6 +60,13 @@ class FakeForm {
       asCheckboxItem() { return item; },
       asMultipleChoiceItem() { return item; },
       asTextItem() { return item; },
+      asPageBreakItem() { return item; },
+      asGridItem() { return item; },
+      // a grid (one choice per row), like Google Forms' "Multiple choice grid"
+      setRows(r) { this.rows = r; return item; },
+      setColumns(c) { this.columns = c; return item; },
+      getRows() { return this.rows; },
+      getColumns() { return this.columns; },
       isRequired() { return this.required; },
       // a multiple-choice answer can lead to a section (page break), like Google Forms' "go to section based on answer"
       createChoice(value, page) { return { value, page }; },
@@ -87,7 +94,7 @@ class FakeForm {
   }
 }
 for (const [method, type] of Object.entries({ addListItem: 'LIST', addCheckboxItem: 'CHECKBOX', addTextItem: 'TEXT', addParagraphTextItem: 'PARAGRAPH_TEXT',
-  addDateItem: 'DATE', addTimeItem: 'TIME', addMultipleChoiceItem: 'MULTIPLE_CHOICE', addPageBreakItem: 'PAGE_BREAK' })) {
+  addDateItem: 'DATE', addTimeItem: 'TIME', addMultipleChoiceItem: 'MULTIPLE_CHOICE', addPageBreakItem: 'PAGE_BREAK', addGridItem: 'GRID' })) {
   FakeForm.prototype[method] = function () { return this.add(type); };
 }
 
@@ -407,6 +414,11 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
             form.destination = null; return form.proxy;
           },
           moveItem: (from, to) => { const [it] = form.items.splice(from, 1); form.items.splice(to, 0, it); return it; },
+          deleteItem: (it) => {
+            if (form.refuse === 'delete') throw new Error('Invalid data updating form.');
+            const i = typeof it === 'number' ? it : form.items.indexOf(it);
+            if (i < 0) throw new Error('Item not on the form'); form.items.splice(i, 1);
+          },
         });
         form.proxy = fluent(form);
         return form.proxy;
@@ -416,7 +428,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
       createParagraphTextValidation: formValidation,
       DestinationType: { SPREADSHEET: 'SPREADSHEET' },
       PageNavigationType: { SUBMIT: 'SUBMIT' },
-      ItemType: { LIST: 'LIST', CHECKBOX: 'CHECKBOX' },
+      ItemType: { LIST: 'LIST', CHECKBOX: 'CHECKBOX', MULTIPLE_CHOICE: 'MULTIPLE_CHOICE', PAGE_BREAK: 'PAGE_BREAK', GRID: 'GRID', TEXT: 'TEXT' },
       Alignment: {},
     },
   };

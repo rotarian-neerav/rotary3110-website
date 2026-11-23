@@ -32,18 +32,19 @@ const data = () => {
   return r.data;
 };
 
-test('setup creates every tab, loads the sample, makes four forms and fills their links', () => {
+test('setup creates every tab, loads the sample, makes five forms and fills their links', () => {
   for (const t of ['settings', 'clubs', 'activities', 'events', 'functionaries', 'members_public', 'couples_public', 'dashboard', 'role_checks']) assert.ok(env.main.getSheetByName(t), t);
   for (const t of ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests', 'club_change_requests']) assert.ok(env.priv.getSheetByName(t), t);
   assert.equal(env.main.getSheetByName('Sheet1'), null, 'empty default tab removed');
   assert.equal(env.main.rows('clubs').length, 70);
   assert.equal(env.main.rows('functionaries').length, 181, '176 from the Excel plus 5 sample roles from last year');
   const s = Object.fromEntries(env.main.rows('settings').map((r) => [r.key, r.value]));
-  for (const k of ['form_activity_url', 'form_club_updates_url', 'form_my_details_url', 'form_club_profile_url', 'form_consent_url', 'form_removal_url', 'form_public_service_url', 'form_contact_url', 'form_business_url', 'form_club_change_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
+  for (const k of ['form_activity_url', 'form_club_updates_url', 'form_show_details_url', 'form_update_details_url', 'form_club_profile_url', 'form_consent_url',
+    'form_removal_url', 'form_update_url', 'form_public_service_url', 'form_contact_url', 'form_business_url', 'form_club_change_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
   assert.ok(env.main.getSheetByName('raw_activity_form'), 'raw answers tab for the activity form');
-  assert.ok(env.priv.getSheetByName('raw_my_details_form'), "members' details go to the private Sheet");
+  for (const t of ['raw_show_details_form', 'raw_update_details_form']) assert.ok(env.priv.getSheetByName(t), "members' details go to the private Sheet");
   assert.ok(env.priv.getSheetByName('raw_club_updates_form'), 'club changes go to the private Sheet');
-  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 4);
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 5);
   assert.ok(env.triggers.some((t) => t.getHandlerFunction() === 'dailyJobs'));
   assert.ok(token && token.length >= 32);
   assert.equal(env.main.rows('dashboard').length, 69, 'one dashboard row per active club');
@@ -52,7 +53,7 @@ test('setup creates every tab, loads the sample, makes four forms and fills thei
 test('running setup again does not duplicate forms, tabs or sample rows', () => {
   env.run('setup');
   assert.equal(env.main.rows('clubs').length, 70);
-  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 4);
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 5);
 });
 
 test('data link: refuses without the token; same result as the website build on the sample', () => {
@@ -185,58 +186,79 @@ test('club profile updates apply to the club only when approved', () => {
   assert.equal(unnao().meeting_day_place, 'Every Monday, 7 pm');
 });
 
-const consent = (over) => ({
-  [Q.cClub]: 'RC Agra North', [Q.cName]: 'Rtn Ravi Kumar', [Q.cMemberId]: '7654321', [Q.cMobile]: '9876501234', [Q.cFilledBy]: 'The member',
-  [Q.cDirectory]: 'Yes', [Q.cProfession]: 'Chartered accountant', [Q.cArea]: 'Agra', [Q.cWhat]: 'Audit and tax for small businesses.',
-  [Q.cContact]: 'Yes', [Q.cPhoto]: 'Yes', 'My photo (one photo of me alone, under 1 MB)': ['1PhotoOfRaviKumar0123456789abc'],
-  [Q.cBirthday]: 'Yes', [Q.cBirthdayDate]: '10-21', [Q.cAnniversary]: 'No', [Q.cDeclaration]: ['yes'], ...over,
-});
+// The two My details forms (owner, 23 Nov 2026): Show my details (List / Do not list) and Update my details
+const SHOW = () => env.context.SHOW_ITEMS;
+const grid = (listed) => Object.keys(SHOW()).map((k) => (listed.includes(k) ? 'List' : 'Do not list'));
+const MEMBER = 'The member';
+const CLUB = 'Club President, Secretary or Executive Secretary for the member';
+const show = (listed, over = {}) => ({ [Q.cFilledBy]: MEMBER, [Q.showGrid]: grid(listed), [Q.cDeclaration]: ['yes'], ...over });
+const update = (over = {}) => ({ [Q.cFilledBy]: MEMBER, [Q.uBusiness]: env.context.BUSINESS_CHOICES.none, [Q.cDeclaration]: ['yes'], ...over });
+const forMember = (m) => ({ [Q.cFilledBy]: CLUB, [Q.gMemberId]: m.member_id, [Q.rName]: m.name });
+const addPerson = (id, name, clubId, extra = {}) => {
+  env.run('appendRow_', env.priv, 'members_master', { member_id: id, name, club_id: clubId, is_rotarian: true, status: 'active', ...extra });
+  return env.priv.rows('members_master').find((m) => m.member_id === id);
+};
 const pendingId = (tab) => env.priv.rows(tab).at(-1).id;
+const clubId = (name) => env.main.rows('clubs').find((c) => c.club_name === name).club_id;
+const PHOTO = 'My photo (one photo of me alone, under 1 MB)';
 
-test('consent: a new member is recorded and listed with only what they ticked, day and month only', () => {
-  env.submit('consent', consent({ [Q.cAnniversary]: 'Yes', [Q.cSpouseRotarian]: 'No', [Q.cSpouseName]: 'Sunita Kumar', [Q.cSpouseAgrees]: ['yes'], [Q.cAnniversaryDate]: '11-05' }), 'ravi@example.com');
+test("My details: the member's own Update and Show forms go in at once; only what is listed shows, day and month only", () => {
+  addPerson('7654321', 'Rtn Ravi Kumar', clubId('RC Agra North'), { email: 'ravi@example.com', mobile: '9876501234' });
+  env.submit('update_details', update({ [Q.cProfession]: 'Chartered accountant', [Q.cArea]: 'Agra', [Q.cWhat]: 'Audit and tax for small businesses.',
+    [PHOTO]: ['1PhotoOfRaviKumar0123456789abc'], [Q.cBirthdayDate]: '10-21', [Q.cAnniversaryDate]: '11-05', [Q.cSpouseRotarian]: 'No',
+    [Q.cSpouseName]: 'Sunita Kumar', [Q.cSpouseAgrees]: ['yes'] }), 'ravi@example.com', new Date());
   const req = env.priv.rows('consent_requests').at(-1);
-  assert.equal(req.birthday, '21-10', 'stored as DD-MM');
-  assert.equal(req.status, 'pending');
-  env.run('approveConsent', req.id, true);
-  const m = env.priv.rows('members_master').find((x) => x.member_id === '7654321');
-  assert.ok(m && m.listing_approved === true && m.public_key);
+  assert.deepEqual([req.form, req.status, req.birthday, req.matched_member_id], ['update', 'approved', '21-10', '7654321']);
+  let m = env.priv.rows('members_master').find((x) => x.member_id === '7654321');
+  assert.deepEqual([m.profession, m.dob, m.marriage_date], ['Chartered accountant', '21-10', '05-11']);
+  assert.ok(!data().members.some((x) => x.name === 'Rtn Ravi Kumar'), 'nothing is shown until the member lists it');
+
+  env.submit('show_details', show(['directory', 'profession', 'photo', 'birthday', 'anniversary', 'whatsapp']), 'ravi@example.com', new Date());
+  assert.equal(env.priv.rows('consent_requests').at(-1).status, 'approved');
+  m = env.priv.rows('members_master').find((x) => x.member_id === '7654321');
+  assert.ok(m.listing_approved === true && m.public_key);
   const d = data();
   const pub = d.members.find((x) => x.name === 'Rtn Ravi Kumar');
   assert.equal(pub.birthday, '10-21');
   assert.equal(pub.contact_link, 'https://wa.me/919876501234');
+  assert.equal(pub.call_link, '', 'Call button: Do not list');
+  assert.equal(pub.profession, 'Chartered accountant');
   assert.equal(pub.photo, 'drive:1PhotoOfRaviKumar0123456789abc');
   const c = d.couples.find((x) => x.person_a_name === 'Rtn Ravi Kumar');
   assert.ok(c, 'anniversary with a non-member spouse who agreed');
   assert.equal(c.person_b_name, 'Sunita');
-  assert.equal(c.anniversary, '11-05');
+  assert.equal(c.anniversary, '11-05', 'month and day, as the site reads it');
   assert.ok(!JSON.stringify(d).includes('7654321'), 'member ID never public');
+  assert.ok(!JSON.stringify(d).includes('ravi@example.com'), 'email never public');
 });
 
-test('consent: Rotarian spouses in different clubs need both forms; anniversary then shows once with both clubs', () => {
-  env.submit('consent', consent({ [Q.cClub]: 'RC Kanpur', [Q.cName]: 'Rtn Amit Sood', [Q.cMemberId]: '5550001', [Q.cMobile]: '9876500001', [Q.cPhoto]: 'No', 'My photo (one photo of me alone, under 1 MB)': undefined,
-    [Q.cAnniversary]: 'Yes', [Q.cSpouseRotarian]: 'Yes', [Q.cSpouseName]: 'Rtn Neha Sood', [Q.cSpouseClub]: 'RC Kanpur Green', [Q.cSpouseId]: '5550002', [Q.cAnniversaryDate]: '12-09' }));
-  env.run('approveConsent', pendingId('consent_requests'), true);
-  const before = env.priv.rows('couples').find((c) => c.person_a_id === '5550001');
-  assert.equal(before.status, 'awaiting_spouse');
+test('My details: Rotarian spouses need both choices; the anniversary then shows once with both clubs; different dates are held', () => {
+  const amit = addPerson('5550001', 'Rtn Amit Sood', clubId('RC Kanpur'), { email: 'amit@example.com' });
+  addPerson('5550002', 'Rtn Neha Sood', clubId('RC Kanpur Green'), { email: 'neha@example.com', marriage_date: '' });
+  env.submit('update_details', update({ [Q.cAnniversaryDate]: '12-09', [Q.cSpouseRotarian]: 'Yes', [Q.cSpouseName]: 'Rtn Neha Sood',
+    [Q.cSpouseClub]: 'RC Kanpur Green', [Q.cSpouseId]: '5550002' }), amit.email, new Date());
+  env.submit('show_details', show(['directory', 'anniversary']), amit.email, new Date());
+  assert.equal(env.priv.rows('couples').find((c) => c.person_a_id === '5550001').status, 'awaiting_spouse');
   assert.ok(!data().couples.some((c) => c.person_a_name === 'Rtn Amit Sood'));
-
-  env.submit('consent', consent({ [Q.cClub]: 'RC Kanpur Green', [Q.cName]: 'Rtn Neha Sood', [Q.cMemberId]: '5550002', [Q.cMobile]: '9876500002', [Q.cPhoto]: 'No', 'My photo (one photo of me alone, under 1 MB)': undefined,
-    [Q.cAnniversary]: 'Yes', [Q.cSpouseRotarian]: 'Yes', [Q.cSpouseName]: 'Rtn Amit Sood', [Q.cSpouseClub]: 'RC Kanpur', [Q.cSpouseId]: '5550001', [Q.cAnniversaryDate]: '12-09' }));
-  env.run('approveConsent', pendingId('consent_requests'), true);
+  env.submit('show_details', show(['directory', 'anniversary']), 'neha@example.com', new Date());
   const couples = data().couples.filter((c) => [c.person_a_name, c.person_b_name].includes('Rtn Amit Sood'));
   assert.equal(couples.length, 1, 'shown once');
   assert.deepEqual([couples[0].person_a_club_id, couples[0].person_b_club_id].sort(), ['S-039', 'S-046']);
-});
 
-test('consent: different dates on the two forms are held for a moderator', () => {
-  env.submit('consent', consent({ [Q.cClub]: 'RC Aligarh', [Q.cName]: 'Rtn P One', [Q.cMemberId]: '5560001', [Q.cMobile]: '9876500003', [Q.cAnniversary]: 'Yes', [Q.cSpouseRotarian]: 'Yes', [Q.cSpouseName]: 'Rtn P Two', [Q.cSpouseClub]: 'RC Aligarh', [Q.cSpouseId]: '5560002', [Q.cAnniversaryDate]: '01-15' }));
-  env.run('approveConsent', pendingId('consent_requests'), true);
-  env.submit('consent', consent({ [Q.cClub]: 'RC Aligarh', [Q.cName]: 'Rtn P Two', [Q.cMemberId]: '5560002', [Q.cMobile]: '9876500004', [Q.cAnniversary]: 'Yes', [Q.cSpouseRotarian]: 'Yes', [Q.cSpouseName]: 'Rtn P One', [Q.cSpouseClub]: 'RC Aligarh', [Q.cSpouseId]: '5560001', [Q.cAnniversaryDate]: '01-16' }));
-  env.run('approveConsent', pendingId('consent_requests'), true);
-  const c = env.priv.rows('couples').find((x) => x.person_a_id === '5560001');
-  assert.equal(c.status, 'check_dates');
+  // two spouses who give different dates are held for a moderator
+  addPerson('5560001', 'Rtn P One', clubId('RC Aligarh'), { email: 'p.one@example.com' });
+  addPerson('5560002', 'Rtn P Two', clubId('RC Aligarh'), { email: 'p.two@example.com' });
+  env.submit('update_details', update({ [Q.cAnniversaryDate]: '01-15', [Q.cSpouseRotarian]: 'Yes', [Q.cSpouseName]: 'Rtn P Two', [Q.cSpouseId]: '5560002' }), 'p.one@example.com', new Date());
+  env.submit('update_details', update({ [Q.cAnniversaryDate]: '01-16', [Q.cSpouseRotarian]: 'Yes', [Q.cSpouseName]: 'Rtn P One', [Q.cSpouseId]: '5560001' }), 'p.two@example.com', new Date());
+  env.submit('show_details', show(['anniversary']), 'p.one@example.com', new Date());
+  env.submit('show_details', show(['anniversary']), 'p.two@example.com', new Date());
+  assert.equal(env.priv.rows('couples').find((x) => x.person_a_id === '5560001').status, 'check_dates');
   assert.ok(!data().couples.some((x) => x.person_a_name === 'Rtn P One'));
+  // a Rotarian spouse is found only by the member ID given; nobody new is made
+  const count = env.priv.rows('members_master').length;
+  env.submit('update_details', update({ [Q.cAnniversaryDate]: '02-02', [Q.cSpouseRotarian]: 'Yes', [Q.cSpouseName]: 'Rtn Nobody', [Q.cSpouseId]: '9999999' }), 'p.one@example.com', new Date());
+  assert.equal(env.priv.rows('members_master').length, count);
+  assert.match(env.priv.rows('consent_requests').at(-1).moderator_note, /Anniversary not linked: no Rotarian with the spouse's member ID 9999999/);
 });
 
 /* ---------- consent safeguards (1 Nov 2026): who sent it, the member told, a 3-day hold, a confirmation ---------- */
@@ -246,90 +268,105 @@ const clubMembers = () => {
   // members of their own, with emails on file, and a President for this Rotary year
   if (safeguardClub) return safeguardClub;
   const club = env.main.rows('clubs')[0];
-  const add = (id, name) => {
-    env.run('appendRow_', env.priv, 'members_master', { member_id: id, name, club_id: club.club_id, is_rotarian: true, status: 'active', email: id.toLowerCase() + '@example.com' });
-    return env.priv.rows('members_master').find((m) => m.member_id === id);
-  };
+  const add = (id, name) => addPerson(id, name, club.club_id, { email: id.toLowerCase() + '@example.com' });
   const president = add('SG-P', 'Rtn Guard President');
   env.run('appendRow_', env.main, 'officers', { rotary_year: '2024-25', club_id: club.club_id, member_id: 'SG-P', name: president.name, role: 'President' });
   const others = ['Asha', 'Bimal', 'Chitra', 'Dev', 'Esha', 'Farhan'].map((n, i) => add('SG-' + (i + 1), 'Rtn ' + n + ' Guard'));
   safeguardClub = { clubName: club.club_name, president, others };
   return safeguardClub;
 };
-const formFor = (m, clubName, over = {}) => consent({ [Q.cClub]: clubName, [Q.cName]: m.name, [Q.cMemberId]: m.member_id, [Q.cMobile]: '',
-  [Q.cPhoto]: 'No', 'My photo (one photo of me alone, under 1 MB)': undefined, ...over });
 const consentCard = (id) => env.run('memberRequests_', false).consent.find((r) => r.id === id);
 
-test("consent safeguards: a form from the member's own email is applied at once (Release 2): no wait, no moderator, no notice", () => {
-  const { clubName, others } = clubMembers();
+test("consent safeguards: a form from the member's own email is applied at once: no wait, no moderator, no notice", () => {
+  const { others } = clubMembers();
   const m = others[0];
   const before = env.mails.length;
-  env.submit('consent', formFor(m, clubName), m.email, new Date());
+  env.submit('show_details', show(['directory']), m.email, new Date());
   const req = env.priv.rows('consent_requests').at(-1);
   assert.match(req.member_notice, /^Not needed/);
   assert.equal(req.status, 'approved');
   assert.equal(req.approved_by, "automatic: sent from the member's own email");
   const mine = env.mails.slice(before);
-  assert.deepEqual(mine.filter((x) => x.to === m.email).map((x) => x.subject), ['Listed: ' + m.name], 'only the "Listed" confirmation');
+  assert.deepEqual(mine.filter((x) => x.to === m.email).map((x) => x.subject), ['Your choices: ' + m.name], 'only the confirmation');
   assert.ok(!mine.some((x) => /Consent form to check/.test(x.subject)), 'no Members moderator alerted');
   assert.equal(env.priv.rows('members_master').find((x) => x.member_id === m.member_id).listing_approved, true);
 });
 
-test('consent safeguards: from a club office bearer, the member is emailed and has 3 days to object', () => {
-  const { clubName, president, others } = clubMembers();
+test("consent safeguards: from the club's office bearer, by Rotary ID; the member is emailed, the sender gets a receipt, 3 days to object", () => {
+  const { president, others } = clubMembers();
   const m = others[1];
   const before = env.mails.length;
-  env.submit('consent', formFor(m, clubName, { [Q.cFilledBy]: 'Club secretary for the member' }), president.email, new Date());
+  env.submit('show_details', show(['directory', 'photo'], forMember(m)), president.email, new Date());
   const req = env.priv.rows('consent_requests').at(-1);
-  const notice = env.mails.slice(before).find((x) => x.to === m.email);
+  assert.equal(req.matched_member_id, m.member_id);
+  const sent = env.mails.slice(before);
+  const notice = sent.find((x) => x.to === m.email);
   assert.ok(notice, 'the member hears at the email on file');
   assert.equal(notice.subject, 'Your details were sent to the Rotary District 3110 website');
   assert.ok(notice.body.includes(president.email), 'names who sent it');
-  assert.match(notice.body, /a listing in the members directory/);
-  assert.match(notice.body, /docs\.google\.com\/forms/, 'with the removal form');
+  assert.match(notice.body, /Directory listing: my name and club: List/);
+  assert.match(notice.body, /Couple photo on our anniversary: Do not list/);
+  assert.match(notice.body, /docs\.google\.com\/forms/, 'with the form to change it');
+  assert.ok(sent.some((x) => x.to === president.email && /^Received: Show my details for /.test(x.subject)), 'a receipt for the sender');
   assert.match(req.member_notice, /^Told by email/);
   const card = consentCard(req.id);
+  assert.equal(card.form, 'Show my details');
   assert.equal(card.sender, 'An office bearer of the club');
   assert.ok(card.holdUntil > new Date().toISOString());
   assert.equal(card.warnings.length, 0, card.warnings.join('|'));
   assert.throws(() => env.run('approveConsent', req.id), /has until .* to object/);
+  const n = env.mails.length;
   assert.match(env.run('approveConsent', req.id, true), /^Approved/, 'unless the moderator confirmed with the member');
   assert.match(env.priv.rows('consent_requests').find((r) => r.id === req.id).moderator_note, /^Confirmed with the member or their club by /);
+  assert.deepEqual(env.mails.slice(n).map((x) => x.to).sort(), [m.email, president.email].sort(), 'both hear it was approved');
 
   // after 3 days an office bearer's form can be approved without the tick
-  env.submit('consent', formFor(others[2], clubName, { [Q.cFilledBy]: 'Club secretary for the member' }), president.email, new Date(Date.now() - 4 * 86400000));
+  env.submit('update_details', update({ ...forMember(others[2]), [Q.cProfession]: 'Doctor' }), president.email, new Date(Date.now() - 4 * 86400000));
   assert.match(env.run('approveConsent', pendingId('consent_requests')), /^Approved/);
+  assert.equal(env.priv.rows('members_master').find((x) => x.member_id === others[2].member_id).profession, 'Doctor');
 });
 
-test('consent safeguards: from anyone else, the moderator sees why and must confirm, even after the wait', () => {
-  const { clubName, others } = clubMembers();
+test('consent safeguards: a member nobody can find is told and nothing waits; anyone else must be confirmed; a later own choice blocks an older form', () => {
+  const { others } = clubMembers();
   const m = others[3];
-  env.submit('consent', formFor(m, clubName), 'someone.else@example.com', new Date(Date.now() - 5 * 86400000));
+  // the member's own form from an email not on file: dropped, the sender told, no moderator
+  const before = env.mails.length;
+  env.submit('show_details', show(['directory']), 'someone.else@example.com', new Date());
+  const lost = env.priv.rows('consent_requests').at(-1);
+  assert.deepEqual([lost.status, lost.moderator_note], ['not_matched', 'No member has this email on file: not applied']);
+  const told = env.mails.slice(before);
+  assert.deepEqual(told.map((x) => x.to), ['someone.else@example.com']);
+  assert.match(told[0].body, /second email on the Update my details form/);
+  assert.ok(!consentCard(lost.id), 'not on the desk');
+
+  // says it is the club, but is not an office bearer of the member's club, and the name differs
+  env.submit('show_details', show(['directory'], { ...forMember(m), [Q.rName]: 'Rtn Somebody Different' }), 'someone.else@example.com', new Date(Date.now() - 5 * 86400000));
   const req = env.priv.rows('consent_requests').at(-1);
   const card = consentCard(req.id);
   assert.equal(card.sender, 'Not the member or a club office bearer');
   assert.ok(card.needsConfirm);
-  assert.ok(card.warnings.some((w) => /Says the member filled it, but it was sent from someone\.else@example\.com/.test(w)), card.warnings.join('|'));
+  assert.ok(card.warnings.some((w) => /Says a club office bearer filled it, but someone\.else@example\.com is not the President, Secretary or Executive Secretary/.test(w)), card.warnings.join('|'));
+  assert.ok(card.warnings.some((w) => /Matched by member ID, but the name on the form differs/.test(w)), card.warnings.join('|'));
+  assert.match(card.match, /^Matches Rtn Dev Guard \(SG-4\)/, 'the name on file beside the name typed');
   assert.throws(() => env.run('approveConsent', req.id), /did not come from the member/);
 
-  // claims to be the club secretary, and the name does not match the member ID
-  env.submit('consent', formFor(others[4], clubName, { [Q.cFilledBy]: 'Club secretary for the member', [Q.cName]: 'Rtn Somebody Different' }), 'someone.else@example.com');
-  const warnings = consentCard(pendingId('consent_requests')).warnings;
-  assert.ok(warnings.some((w) => /Says the club secretary filled it, but someone\.else@example\.com is not an office bearer/.test(w)), warnings.join('|'));
-  assert.ok(warnings.some((w) => /Matched by member ID, but the name on the form differs/.test(w)), warnings.join('|'));
-  env.run('rejectRequest', 'consent', pendingId('consent_requests'), 'Not sent by the member');
-
-  // the member objects with the removal form: the consent form can no longer be approved
-  env.submit('removal', { [Q.rClub]: clubName, [Q.rName]: m.name, [Q.rMemberId]: m.member_id, [Q.rItems]: ['Everything'] }, m.email, new Date());
+  // the member then sends their own choices: the older form can no longer be approved
+  env.submit('show_details', show([]), m.email, new Date());
   assert.ok(consentCard(req.id).blocked);
-  assert.throws(() => env.run('approveConsent', req.id, true), /asked to remove their details after this form/);
+  assert.throws(() => env.run('approveConsent', req.id, true), /sent their own choices after this form/);
   env.run('rejectRequest', 'consent', req.id, 'The member objected');
-  env.run('rejectRequest', 'removal', pendingId('removal_requests'), 'Nothing was listed');
+
+  // a Rotary ID that is nobody's: the moderator is told to reject; nothing is created
+  env.submit('show_details', show(['directory'], { [Q.cFilledBy]: CLUB, [Q.gMemberId]: '1231231', [Q.rName]: 'Rtn Ghost' }), 'someone.else@example.com', new Date());
+  const ghost = env.priv.rows('consent_requests').at(-1);
+  assert.match(ghost.moderator_note, /No member has this Rotary member ID/);
+  assert.throws(() => env.run('approveConsent', ghost.id, true), /a form never makes a new member/);
+  env.run('rejectRequest', 'consent', ghost.id, 'Unknown ID');
 });
 
 test('consent safeguards: the 48-hour reminder leaves out forms still waiting for the member', () => {
-  const { clubName, president, others } = clubMembers();
-  env.submit('consent', formFor(others[5], clubName, { [Q.cFilledBy]: 'Club secretary for the member' }), president.email, new Date(Date.now() - 50 * 3600000));
+  const { president, others } = clubMembers();
+  env.submit('show_details', show(['directory'], forMember(others[5])), president.email, new Date(Date.now() - 50 * 3600000));
   const req = env.priv.rows('consent_requests').at(-1);
   const before = env.mails.length;
   env.run('sendReminders_');
@@ -339,17 +376,12 @@ test('consent safeguards: the 48-hour reminder leaves out forms still waiting fo
   officers.deleteRows(env.main.rows('officers').findIndex((o) => o.member_id === 'SG-P') + 2, 1);
 });
 
-test('removal: either spouse can withdraw the anniversary alone; "Everything" removes the listing and photo', () => {
-  env.submit('removal', { [Q.rClub]: 'RC Kanpur Green', [Q.rName]: 'Rtn Neha Sood', [Q.rMemberId]: '5550002', [Q.rMobile]: '9876500002', [Q.rItems]: ['Anniversary'] });
-  env.run('approveRemoval', pendingId('removal_requests'));
+test('Do not list: either spouse can withdraw the anniversary alone; nothing listed takes the member and photo off', () => {
+  env.submit('show_details', show(['directory']), 'neha@example.com', new Date());
   assert.ok(!data().couples.some((c) => [c.person_a_name, c.person_b_name].includes('Rtn Neha Sood')));
   assert.ok(data().members.some((m) => m.name === 'Rtn Amit Sood'), "the other spouse's own listing stays");
 
-  // a typed mobile no longer finds the member (owner, 18 Nov 2026): the RI member ID does
-  env.submit('removal', { [Q.rClub]: 'RC Agra North', [Q.rName]: 'Rtn Ravi Kumar', [Q.rMobile]: '9876501234', [Q.rItems]: ['Everything'] });
-  assert.throws(() => env.run('approveRemoval', pendingId('removal_requests')), /Find the member on the desk/);
-  env.submit('removal', { [Q.rClub]: 'RC Agra North', [Q.rName]: 'Rtn Ravi Kumar', [Q.rMemberId]: '7654321', [Q.rMobile]: '9876501234', [Q.rItems]: ['Everything'] });
-  env.run('approveRemoval', pendingId('removal_requests'));
+  env.submit('show_details', show([]), 'ravi@example.com', new Date());
   const d = data();
   assert.ok(!d.members.some((m) => m.name === 'Rtn Ravi Kumar'));
   assert.ok(!d.couples.some((c) => c.person_a_name === 'Rtn Ravi Kumar'));
@@ -549,7 +581,7 @@ test('Upgrade Sheet on a Sheet set up before Release A: new questions in place, 
   assert.equal(avenue.required, true, 'the avenue is asked of every activity');
   assert.deepEqual([...avenue.choices], ['Club Service', 'Vocational Service', 'Community Service', 'International Service', 'Youth Service']);
   assert.match(env.forms[after.activity].description, /how-to-post\//, 'the form links to the posting guide');
-  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 4);
+  assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'onAnyFormSubmit').length, 5);
   assert.equal(env.triggers.filter((t) => t.getHandlerFunction() === 'notPostingReport').length, 1);
   const s = settingsMap();
   for (const k of ['form_public_service_url', 'form_contact_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
@@ -807,7 +839,7 @@ test('"Clear all sample data" leaves only real rows, and the site data is still 
 
 test('new forms are moved from My Drive into the folder that holds the Sheet, and stay there on later upgrades', () => {
   const ids = JSON.parse(env.props.get('FORM_IDS'));
-  assert.equal(Object.keys(ids).length, 4);
+  assert.equal(Object.keys(ids).length, 5);
   for (const id of Object.values(ids)) assert.equal(env.moved.get(id), 'PARENT', `${id} in the Sheet's folder`);
   const before = env.moved.size;
   env.run('upgradeSheet');
@@ -927,23 +959,20 @@ test('Apply moderators: owner only; only rows with sheet_access TRUE edit the ma
   env.setUser('moderator.a@example.com');
 });
 
-test('confirmation emails: the sender hears when a listing is approved, details are removed, or a request is turned down', () => {
-  env.submit('consent', consent({ [Q.cClub]: 'RC Agra', [Q.cName]: 'Rtn Confirm Me', [Q.cMemberId]: '5570001', [Q.cMobile]: '9876507001',
-    [Q.cPhoto]: 'No', 'My photo (one photo of me alone, under 1 MB)': undefined }), 'confirm.me@example.com');
+test('confirmation emails: the sender hears when a form is approved, applied, or turned down', () => {
+  const me = addPerson('5570001', 'Rtn Confirm Me', clubId('RC Agra'), { email: 'confirm.me@example.com' });
+  env.submit('show_details', show(['directory', 'birthday'], forMember(me)), 'club.secretary@example.com', new Date());
   env.run('approveConsent', pendingId('consent_requests'), true);
-  const listed = env.mails.at(-1);
-  assert.equal(listed.to, 'confirm.me@example.com');
-  assert.match(listed.subject, /^Listed: Rtn Confirm Me/);
-  assert.match(listed.body, /\/directory\//);
-  assert.match(listed.body, /docs\.google\.com\/forms/, 'with the removal form link');
+  const done = env.mails.filter((x) => /^Your choices: Rtn Confirm Me/.test(x.subject));
+  assert.deepEqual(done.map((x) => x.to).sort(), ['club.secretary@example.com', 'confirm.me@example.com']);
+  assert.match(done[0].body, /Birthday \(day and month only\): List/);
+  assert.match(done[0].body, /docs\.google\.com\/forms/, 'with the form to change it');
 
-  env.submit('removal', { [Q.rClub]: 'RC Agra', [Q.rName]: 'Rtn Confirm Me', [Q.rMemberId]: '5570001', [Q.rMobile]: '9876507001', [Q.rItems]: ['Birthday'] }, 'confirm.me@example.com');
-  env.run('approveRemoval', pendingId('removal_requests'));
+  env.submit('show_details', show(['directory']), 'confirm.me@example.com', new Date());
   assert.equal(env.mails.at(-1).to, 'confirm.me@example.com');
-  assert.match(env.mails.at(-1).subject, /^Removed: Rtn Confirm Me/);
-  assert.match(env.mails.at(-1).body, /Birthday/);
+  assert.match(env.mails.at(-1).body, /Birthday \(day and month only\): Do not list/);
 
-  env.submit('consent', consent({ [Q.cClub]: 'RC Agra', [Q.cName]: 'Rtn Turned Down', [Q.cMobile]: '9876507002' }), 'turned.down@example.com');
+  env.submit('update_details', update({ ...forMember(me), [Q.cProfession]: 'Doctor' }), 'turned.down@example.com', new Date());
   env.run('rejectRequest', 'consent', pendingId('consent_requests'), 'The photo shows more than one person');
   assert.equal(env.mails.at(-1).to, 'turned.down@example.com');
   assert.match(env.mails.at(-1).body, /Reason: The photo shows more than one person/);
@@ -959,8 +988,8 @@ test('photo consent: the activity form names children and guardians; Upgrade She
   assert.ok(env.run('upgradeSheet').some((l) => /photo consent wording/.test(l)));
   assert.deepEqual([...item.choices], [env.context.PHOTO_CONSENT_TEXT]);
   assert.ok(!env.run('upgradeSheet').some((l) => /photo consent wording/.test(l)), 'once');
-  // the My details form says that the member is emailed when someone else fills it in (1 Nov safeguards)
-  assert.match(env.forms[JSON.parse(env.props.get('FORM_IDS')).my_details].description, /we email you with what was asked/);
+  // the Show my details form says that the member is emailed when the club fills it in (1 Nov safeguards)
+  assert.match(env.forms[JSON.parse(env.props.get('FORM_IDS')).show_details].description, /we email the member, and a district moderator checks it first/);
 });
 
 test('Google briefly slow: steps safe to repeat are tried again, others are not; Apply moderators lists what it could not finish', () => {
@@ -1242,7 +1271,7 @@ test('the activity form asks "District level?"; a Yes is noted for the moderator
   const ids = JSON.parse(env.props.get('FORM_IDS'));
   const act = env.forms[ids.activity].titles();
   assert.equal(act[act.indexOf(Q.aAvenue) + 1], Q.aDistrict);
-  assert.ok(env.forms[ids.my_details].items.find((i) => i.title === Q.rItems).choices.includes('Business listing (Rotary Means Business)'));
+  assert.ok(env.forms[ids.update_details].items.find((i) => i.title === Q.uBusiness).choices.includes(env.context.BUSINESS_CHOICES.remove));
   env.submit('activity', { [Q.club]: 'RC Agra', [Q.name]: 'Rtn A', [Q.role]: 'Secretary', [Q.mobile]: '9812345678', [Q.kind]: Q.kindActivity,
     [Q.aTitle]: 'Inauguration of a global grant dialysis unit', [Q.aDate]: '2026-10-01', [Q.aTheme]: 'Fighting disease', [Q.aAvenue]: 'Community Service',
     [Q.aDistrict]: 'Yes', [Q.aDesc]: 'The district inaugurated a dialysis unit funded by a global grant with partner clubs abroad. '.repeat(2),

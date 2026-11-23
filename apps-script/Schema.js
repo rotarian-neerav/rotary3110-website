@@ -48,7 +48,9 @@ var SCHEMA_MAIN = {
   messages: ['id', 'name', 'position', 'photo', 'message', 'date', 'featured', 'is_sample'],
   spotlights: ['month', 'public_key', 'member_name', 'headline', 'story', 'is_sample'],
   members_public: ['public_key', 'member_id', 'name', 'club_id', 'directory_ok', 'profession', 'area', 'description',
-    'website', 'contact_ok', 'contact_link', 'photo_ok', 'photo_file', 'birthday_ok', 'birthday', 'spotlight_ok', 'is_sample'],
+    'website', 'contact_ok', 'contact_link', 'photo_ok', 'photo_file', 'birthday_ok', 'birthday', 'spotlight_ok', 'is_sample',
+    // added 23 November 2026: the Call button has its own choice and number (a wa.me link; the page makes the tel: link)
+    'call_ok', 'call_link'],
   couples_public: ['couple_key', 'person_a_key', 'person_a_name', 'person_a_club_id', 'person_b_key', 'person_b_name',
     'person_b_club_id', 'anniversary', 'both_consented', 'couple_photo_file', 'is_sample'],
   // lasting facilities the public can use (blood banks, eye care, dialysis…), sent through the public service form
@@ -85,7 +87,11 @@ var SCHEMA_PRIVATE = {
     // added 29 October 2026 with the real member list; private, never sent to the website
     'gender',
     // added 16 November 2026: when this year's July check email went to the member
-    'member_check_sent_at'],
+    'member_check_sent_at',
+    // added 23 November 2026 (My details split): kept by the district, never overwritten by an RI refresh. A second
+    // email for a member whose RI email is old; the numbers for the Call and WhatsApp buttons (blank: the RI mobile);
+    // separate consent for the profession lines and the Call button (blank: as directory_ok and contact_ok)
+    'email2', 'call_number', 'whatsapp_number', 'profession_ok', 'call_ok'],
   club_history: ['member_id', 'club_id', 'from_date', 'to_date', 'reason', 'is_sample'],
   couples: ['couple_id', 'person_a_id', 'person_b_id', 'anniversary', 'a_consent', 'b_consent', 'couple_photo_ok_a',
     'couple_photo_ok_b', 'couple_photo_file', 'couple_photo_approved', 'status', 'notes', 'is_sample'],
@@ -95,7 +101,9 @@ var SCHEMA_PRIVATE = {
     'spouse_agrees', 'anniversary', 'couple_photo_file', 'couple_photo_spouse_agrees', 'declaration', 'status',
     'matched_member_id', 'approved_by', 'approved_at', 'moderator_note', 'is_sample',
     // added 1 November 2026: whether the member was told at their email on file
-    'member_notice'],
+    'member_notice',
+    // added 23 November 2026 (My details split): which form (show or update), the new consents and details
+    'form', 'profession_ok', 'call_ok', 'couple_photo_ok', 'email2', 'call_number', 'whatsapp_number', 'remove_business'],
   // messages from the website's contact form; the reply details stay here and are never published
   contact_messages: ['id', 'submitted_at', 'name', 'reply_to', 'topic', 'city', 'message', 'status', 'forwarded_to', 'note', 'is_sample', 'replies'],
   removal_requests: ['id', 'submitted_at', 'submitter_email', 'club_id', 'name', 'member_id', 'mobile', 'remove_items',

@@ -56,13 +56,13 @@ test("the form: the Club updates form's members section (Release 2): the member 
   const titles = form.items.map((i) => i.title);
   const at = titles.indexOf(Q.gMemberId);
   assert.deepEqual(titles.slice(at, at + 3), [Q.gMemberId, Q.rName, Q.gChange]);
-  for (const k of ['joined', 'left', 'moved', 'deceased', 'club_role', 'district_role']) assert.ok(titles.includes(C[k]), C[k] + ' page');
+  for (const k of ['joined', 'left', 'deceased', 'club_role', 'district_role']) assert.ok(titles.includes(C[k]), C[k] + ' page');
+  // a move is the old club's "left" and the new club's "joined" (owner, 23 Nov 2026)
+  assert.ok(!titles.includes(C.moved) && !titles.includes(Q.gNewClub) && !titles.includes(Q.gMoved), 'no "moved" page');
   assert.equal(titles[titles.indexOf(Q.gNote) - 1], 'Anything else');
   // a new member's own mobile and email, asked only on the "joined" page (Release 2)
   assert.deepEqual(titles.slice(titles.indexOf(Q.gJoined), titles.indexOf(Q.gJoined) + 3), [Q.gJoined, Q.gMobile, Q.gEmail]);
   assert.ok(env.priv.getSheetByName('raw_club_updates_form'));
-  const newClub = form.items.find((i) => i.title === Q.gNewClub);
-  assert.equal(newClub.choices.at(-1), 'A club outside District 3110');
   const years = form.items.find((i) => i.title === Q.gClubYear).choices;
   // the years around today's date, not the year the website shows (Release 1)
   const year = env.run('Core_rotaryYearOf', new Date().toISOString().slice(0, 10));
@@ -223,12 +223,10 @@ test('reminders after 48 hours and the weekly summary count club changes; a phon
   env.run('rejectRequest', 'change', req.id, 'Test over');
 });
 
-test('Update form lists keeps the new-club, team and year lists current', () => {
+test('Update form lists keeps the team and year lists current', () => {
   const ids = JSON.parse(env.props.get('FORM_IDS'));
   const form = env.forms[ids.club_updates];
-  form.items.find((i) => i.title === Q.gNewClub).choices = ['old'];
   form.items.find((i) => i.title === Q.gTeam).choices = ['old'];
   env.run('updateFormLists', true);
-  assert.equal(form.items.find((i) => i.title === Q.gNewClub).choices.at(-1), 'A club outside District 3110');
   assert.ok(form.items.find((i) => i.title === Q.gTeam).choices.length > 3);
 });

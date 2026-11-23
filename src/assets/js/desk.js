@@ -32,7 +32,7 @@
       clubsAdmin: 'Clubs', addClub: 'Add a club', clubId: 'RI club ID', clubName: 'Club name (e.g. RC Agra Heritage)', city: 'City', charter: 'Charter date',
       closeClub: 'Close', moveTo: 'Its members', markLeft: 'Mark them as left', moveInto: 'Move them to ', filterClubs: 'Filter clubs', members: 'members', closed: 'closed',
       moderatorsAdmin: 'Moderators', addModerator: 'Add a moderator', type: 'Type', name2: 'Name', email2: 'Google email', isActive: 'Active', yes: 'Yes', no: 'No', allZones: 'all areas',
-      mobile: 'Mobile', emailF: 'Email', confirmClose: 'Close {name}? Its members move or are marked as left.',
+      mobile: 'Mobile', emailF: 'Email', secondEmail: 'Second email', callNumber: 'Call button number', waNumber: 'WhatsApp button number', confirmClose: 'Close {name}? Its members move or are marked as left.',
       title: 'Moderation desk', guide: 'Guide', signOut: 'Sign out', other: 'हिन्दी', loading: 'Loading…', working: 'Working…',
       noApi: 'Open the desk from the link in any moderator email. After that, this phone remembers it.',
       signInIntro: 'Type the email address that is on the moderators list. We will email you a 6-digit code.',
@@ -75,7 +75,7 @@
       clubsAdmin: 'क्लब', addClub: 'क्लब जोड़ें', clubId: 'RI क्लब ID', clubName: 'क्लब का नाम (जैसे RC Agra Heritage)', city: 'शहर', charter: 'चार्टर की तारीख',
       closeClub: 'बंद करें', moveTo: 'इसके सदस्य', markLeft: 'उन्हें "छोड़ गए" चिह्नित करें', moveInto: 'उन्हें यहाँ ले जाएँ: ', filterClubs: 'क्लब छाँटें', members: 'सदस्य', closed: 'बंद',
       moderatorsAdmin: 'मॉडरेटर', addModerator: 'मॉडरेटर जोड़ें', type: 'प्रकार', name2: 'नाम', email2: 'Google ईमेल', isActive: 'सक्रिय', yes: 'हाँ', no: 'नहीं', allZones: 'सभी क्षेत्र',
-      mobile: 'मोबाइल', emailF: 'ईमेल', confirmClose: '{name} बंद करें? इसके सदस्य दूसरे क्लब में जाएँगे या "छोड़ गए" चिह्नित होंगे।',
+      mobile: 'मोबाइल', emailF: 'ईमेल', secondEmail: 'दूसरा ईमेल', callNumber: 'कॉल बटन का नंबर', waNumber: 'व्हाट्सऐप बटन का नंबर', confirmClose: '{name} बंद करें? इसके सदस्य दूसरे क्लब में जाएँगे या "छोड़ गए" चिह्नित होंगे।',
       title: 'मॉडरेशन डेस्क', guide: 'गाइड', signOut: 'साइन आउट', other: 'English', loading: 'लोड हो रहा है…', working: 'काम हो रहा है…',
       noApi: 'किसी भी मॉडरेटर ईमेल में दिए गए लिंक से डेस्क खोलें। उसके बाद यह फ़ोन इसे याद रखेगा।',
       signInIntro: 'मॉडरेटर सूची में दर्ज अपना ईमेल पता लिखें। हम आपको 6 अंकों का कोड ईमेल करेंगे।',
@@ -674,7 +674,7 @@
     if (!m.consent.length) h += '<p>' + esc(t('none')) + '</p>';
     m.consent.forEach(function (r) {
       h += '<article class="desk-card" data-member="consent|' + esc(r.id) + '"><p class="desk-kind">' + esc(r.id) + ' · ' + esc(day(r.submitted)) + '</p><h2>' + esc(r.name) + '</h2>' +
-        '<p class="muted">' + esc(r.club) + (r.filledBy ? ' · ' + esc(r.filledBy) : '') + '</p><p class="small">' + esc(r.match) + '</p>' +
+        '<p class="muted">' + (r.form ? esc(r.form) + ' · ' : '') + esc(r.club) + (r.filledBy ? ' · ' + esc(r.filledBy) : '') + '</p><p class="small">' + esc(r.match) + '</p>' +
         (r.sentFrom ? '<p class="small">' + esc(t('sentFrom')) + ': ' + esc(r.sentFrom) + (r.sender ? ' · ' + esc(r.sender) : '') + '</p>' : '') +
         (r.memberNotice ? '<p class="small">' + esc(t('memberTold')) + ': ' + esc(r.memberNotice) + '</p>' : '') +
         (r.warnings.length ? '<p class="desk-note">' + r.warnings.map(esc).join('<br>') + '</p>' : '') +
@@ -763,9 +763,11 @@
             var clubs = clubOptions();
             if (!clubs.some(function (o) { return o[0] === p.club_id; })) clubs.unshift([p.club_id, p.club_id ? p.club : '–']);
             formPanel(box.querySelector('[data-member-panel="' + p.member_id + '"]'), [
-              ['name', t('name2'), p.name], ['member_id', t('memberId'), p.member_id], ['club_id', t('club'), p.club_id, 'select', clubs],
+              // the RI member ID is shown in the row above and never changed (owner, 23 Nov 2026)
+              ['name', t('name2'), p.name], ['club_id', t('club'), p.club_id, 'select', clubs],
               ['status', t('status'), p.status, 'select', [['active', t('active')], ['left', t('left')], ['deceased', t('deceasedS')]]],
-              ['mobile', t('mobile'), p.mobile], ['email', t('emailF'), p.email],
+              ['mobile', t('mobile'), p.mobile], ['email', t('emailF'), p.email], ['email2', t('secondEmail'), p.email2 || ''],
+              ['call_number', t('callNumber'), p.call_number || ''], ['whatsapp_number', t('waNumber'), p.whatsapp_number || ''],
             ], t('save'), t('reasonLog'), function (v, reason) {
               send({ fn: 'membersave', member_id: p.member_id, fields: v, reason: reason }, function () { ev.target.dispatchEvent(new Event('submit')); });
             });

@@ -131,10 +131,13 @@ var DEFAULT_SETTINGS = [
   ['site_url', 'https://rotary3110.org/', 'Used in emails to people who send activities'],
   ['form_activity_url', '', 'Filled in by setup'],
   ['form_club_updates_url', '', 'Filled in by setup (Club updates: club details, members and roles, a public service)'],
-  ['form_my_details_url', '', 'Filled in by setup (My details on the website: show, remove, business listing)'],
+  ['form_my_details_url', '', 'My details on the website: closed 23 Nov 2026 (Show my details and Update my details replace it)'],
+  ['form_show_details_url', '', 'Filled in by setup (Show my details: List or Do not list for each item)'],
+  ['form_update_details_url', '', 'Filled in by setup (Update my details: the details, numbers, second email, business listing)'],
   ['form_club_profile_url', '', 'Filled in by setup: the Club updates form, opening at the club details section'],
-  ['form_consent_url', '', 'Filled in by setup: the My details form, opening at "show my details"'],
-  ['form_removal_url', '', 'Filled in by setup: the My details form, opening at "remove my details"'],
+  ['form_consent_url', '', 'Filled in by setup: the Show my details form'],
+  ['form_removal_url', '', 'Filled in by setup: the Show my details form (Do not list takes things off)'],
+  ['form_update_url', '', 'Filled in by setup: the Update my details form'],
   ['rebuild_requested_at', '', 'Set by "Rebuild site now": the website updates within about 30 minutes'],
   ['content_changed_at', '', 'Set by every approval, hide, removal and member change: the website takes them at its next update (9 am, 1 pm, 6 pm, 10 pm)'],
   ['inactive_keys', '', 'Filled in by "Refresh public members"; never edit by hand'],
@@ -225,9 +228,9 @@ function addValidation_(main, priv) {
   apply(main, 'activities', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
   apply(main, 'events', 'bulletin_exclude', listRule_(['TRUE', 'FALSE']));
   apply(main, 'events', 'registration_status', listRule_(CORE_REG_STATUSES));
-  ['consent_requests', 'removal_requests'].forEach(function (t) {
-    apply(priv, t, 'status', listRule_(['pending', 'approved', 'rejected']));
-  });
+  apply(priv, 'removal_requests', 'status', listRule_(['pending', 'approved', 'rejected']));
+  // not_matched (23 Nov 2026): a member's own My details form whose email is not on file; nothing was applied
+  apply(priv, 'consent_requests', 'status', listRule_(['pending', 'approved', 'rejected', 'not_matched']));
   // not_accepted (Release 3): sent by someone who is not an office bearer of the club, until a moderator lets it through
   apply(priv, 'club_change_requests', 'status', listRule_(['pending', 'approved', 'rejected', 'not_accepted']));
   apply(priv, 'members_master', 'status', listRule_(['active', 'deceased', 'left']));

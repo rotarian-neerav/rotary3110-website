@@ -19,15 +19,19 @@ var NOT_ACCEPTED = 'not_accepted';
 var GATED = { activities: 'activity', events: 'event', club_profile_requests: 'club details update', public_services: 'public service',
   club_change_requests: 'members and roles update' };
 
-/** Each club's acting office bearers in the Rotary year of today's date (not the year the website shows). */
-function actingOfficers_() {
-  return Core_actingOfficers(readTab_(mainSs_(), 'officers'), Core_rotaryYearOf(today_()));
+/**
+ * Each club's acting office bearers in the Rotary year of today's date (not the year the website shows); one who left
+ * or moved to another club no longer counts for the old club (owner, 23 Nov 2026).
+ */
+function actingOfficers_(master) {
+  return Core_actingOfficers(readTab_(mainSs_(), 'officers'), Core_rotaryYearOf(today_()), master || readTab_(privateSs_(), 'members_master'));
 }
 
 /** Who sent a form for a club, judged by the sender's Google account: the Core_clubSender result. */
 function clubSender_(clubId, email, acting, master) {
   var owner = Core_str(email).toLowerCase() === deskOwner_();
-  var check = Core_clubSender(email, clubId, acting || actingOfficers_(), master || readTab_(privateSs_(), 'members_master'), deskModeratorRows_());
+  master = master || readTab_(privateSs_(), 'members_master');
+  var check = Core_clubSender(email, clubId, acting || actingOfficers_(master), master, deskModeratorRows_());
   if (owner && check.who !== 'officer') check.who = 'moderator'; // the district account counts as an Administrator
   if (check.who === 'unknown' && !Core_str(clubId)) check.who = 'noclub';
   return check;

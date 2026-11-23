@@ -19,7 +19,9 @@ function onAnyFormSubmit(e) {
     else if (formId === ids.contact) fileContact_(answers, meta);
     // the two forms with sections (Release 2): each section is filed by the code its old form used
     else if (formId === ids.club_updates) fileClubUpdates_(answers, meta);
-    else if (formId === ids.my_details) fileMyDetails_(answers, meta);
+    else if (ids.my_details && formId === ids.my_details) fileMyDetails_(answers, meta); // closed 23 Nov 2026; any answer still sent is filed as before
+    else if (formId === ids.show_details) fileShowDetails_(answers, meta);
+    else if (formId === ids.update_details) fileUpdateDetails_(answers, meta);
   } finally {
     lock.releaseLock();
   }
@@ -184,7 +186,7 @@ function fileClubUpdates_(a, meta) {
   return fileClubChange_(b, meta);
 }
 
-/** My details on the website (Release 2): consent, removal or a business listing, with page 1's member details. */
+/** My details on the website (Release 2, closed 23 Nov 2026): consent, removal or a business listing, with page 1's member details. */
 function fileMyDetails_(a, meta) {
   var kind = Core_str(a[Q.mKind]);
   var b = Object.assign({}, a);
@@ -197,6 +199,156 @@ function fileMyDetails_(a, meta) {
     return fileBusiness_(b, meta);
   }
   return fileConsent_(a, meta);
+}
+
+/* ---------- The two My details forms (owner, 23 Nov 2026) ---------- */
+
+/** Show my details: List or Do not list for each thing the website can show. */
+function fileShowDetails_(a, meta) {
+  var grid = a[Q.showGrid] || [];
+  var said = {};
+  Object.keys(SHOW_ITEMS).forEach(function (k, i) {
+    var v = Core_str(Array.isArray(grid) ? grid[i] : '');
+    said[k] = v === SHOW_COLUMNS[0] ? true : v === SHOW_COLUMNS[1] ? false : '';
+  });
+  var req = detailsRequest_(a, meta, 'show');
+  Object.assign(req, {
+    directory_ok: said.directory, profession_ok: said.profession, photo_ok: said.photo, birthday_ok: said.birthday,
+    anniversary_ok: said.anniversary, couple_photo_ok: said.couple_photo, call_ok: said.call, contact_ok: said.whatsapp,
+    spotlight_ok: said.spotlight,
+  });
+  var notes = [];
+  if (Object.keys(said).some(function (k) { return said[k] === ''; })) notes.push('Not every item was answered: the unanswered ones are taken as Do not list');
+  fileDetails_(req, notes);
+}
+
+/** Update my details: the details themselves (blank: no change), and the business listing. */
+function fileUpdateDetails_(a, meta) {
+  var spouseRotarian = yes_(a[Q.cSpouseRotarian]);
+  var req = detailsRequest_(a, meta, 'update');
+  Object.assign(req, {
+    profession: Core_str(a[Q.cProfession]), area: Core_str(a[Q.cArea]), description: Core_str(a[Q.cWhat]), website: link_(a[Q.cWebsite]),
+    call_number: Core_str(a[Q.uCall]), whatsapp_number: Core_str(a[Q.uWhatsapp]), email2: Core_str(a[Q.uEmail2]).trim().toLowerCase(),
+    birthday: dayMonthAnswer_(a[Q.cBirthdayDate]), photo_file: fileIds_(firstStartingWith_(a, 'My photo')),
+    anniversary: dayMonthAnswer_(a[Q.cAnniversaryDate]), spouse_is_rotarian: spouseRotarian ? 'Yes' : (Core_str(a[Q.cSpouseRotarian]) ? 'No' : ''),
+    spouse_name: Core_str(a[Q.cSpouseName]), spouse_club_id: spouseRotarian ? clubIdByName_(a[Q.cSpouseClub]) : '',
+    spouse_member_id: Core_str(a[Q.cSpouseId]), spouse_agrees: checked_(a[Q.cSpouseAgrees]),
+    couple_photo_file: fileIds_(firstStartingWith_(a, 'Couple photo')), couple_photo_spouse_agrees: checked_(a[Q.cCoupleAgree]),
+    remove_business: Core_str(a[Q.uBusiness]) === BUSINESS_CHOICES.remove,
+  });
+  var notes = [];
+  if (req.call_number && !Core_mobile(req.call_number)) notes.push('The Call number is not a 10-digit mobile: it will not be saved');
+  if (req.whatsapp_number && !Core_mobile(req.whatsapp_number)) notes.push('The WhatsApp number is not a 10-digit mobile: it will not be saved');
+  if (req.anniversary && spouseRotarian && !Core_str(req.spouse_member_id)) notes.push("The spouse is a Rotarian but no member ID was given: the anniversary cannot be linked");
+  textNotes_([req.description], notes);
+  var hasDetails = ['profession', 'area', 'description', 'website', 'call_number', 'whatsapp_number', 'email2', 'birthday', 'photo_file',
+    'anniversary', 'spouse_name', 'couple_photo_file'].some(function (k) { return Core_str(req[k]); }) || req.remove_business;
+  var business = Core_str(a[Q.uBusiness]) === BUSINESS_CHOICES.list;
+  var found = detailsMatch_(req);
+  var lost = !found.club && !found.member; // the member's own form that finds nobody is not applied, business included
+  if (hasDetails || !business || lost) found = fileDetails_(req, notes);
+  if (!business || lost) return;
+  var b = Object.assign({}, a);
+  b[Q.club] = found && found.member ? clubNameById_(found.member.club_id) : '';
+  b[Q.name] = found && found.member ? Core_str(found.member.name) : Core_str(req.name);
+  fileBusiness_(b, meta, found || { member: null, own: false });
+}
+
+/** The parts both My details forms share: who filled it, and for a club office bearer, which member. */
+function detailsRequest_(a, meta, form) {
+  var club = Core_filledByClub(a[Q.cFilledBy]);
+  return {
+    id: '', submitted_at: meta.submitted_at, submitter_email: Core_str(meta.submitter_email).toLowerCase(), form: form,
+    filled_by: Core_str(a[Q.cFilledBy]) || FILLED_BY.member, club_id: '', name: club ? Core_str(a[Q.rName]) : '',
+    member_id: club ? Core_str(a[Q.gMemberId]).trim() : '', declaration: checked_(a[Q.cDeclaration]), status: 'pending',
+  };
+}
+
+/** The member a My details request is for: { member, own (sent from the member's own email), count (members with that email) }. */
+function detailsMatch_(req) {
+  var master = readTab_(privateSs_(), 'members_master');
+  var club = Core_filledByClub(req.filled_by);
+  var i = Core_matchMember(req, master);
+  return { member: i >= 0 ? master[i] : null, own: !club && i >= 0, club: club,
+    count: club ? (i >= 0 ? 1 : 0) : Core_findByEmail(req.submitter_email, master).count };
+}
+
+/**
+ * Files a My details request. The member's own (found by their email): applied at once after filing; not found: kept
+ * as not_matched, nothing applied, and the sender is told why (owner, 23 Nov 2026: dropped, no moderator). Filled in by
+ * the club: the member is told at every email they have, the sender gets a receipt, and a Members moderator decides.
+ */
+function fileDetails_(req, notes) {
+  var ps = privateSs_();
+  var found = detailsMatch_(req);
+  var m = found.member;
+  req.id = nextId_(readTab_(ps, 'consent_requests'), 'CON-');
+  if (m) {
+    req.matched_member_id = Core_str(m.member_id);
+    req.club_id = Core_str(m.club_id);
+    if (!found.club) req.name = Core_str(m.name);
+    if (req.email2 && Core_emailOwners(req.email2, readTab_(ps, 'members_master'), m.member_id).length) {
+      notes.push('The second email is already used by another member: it will not be saved');
+    }
+  }
+  if (!found.club && !m) {
+    req.status = 'not_matched';
+    req.moderator_note = found.count > 1 ? 'This email belongs to more than one member: not applied' : 'No member has this email on file: not applied';
+    appendRow_(ps, 'consent_requests', req);
+    detailsNotFound_(req, found.count);
+    return found;
+  }
+  if (found.club && !m) notes.push('No member has this Rotary member ID: reject, and ask the club to check the ID');
+  req.moderator_note = notes.join('; ');
+  var row = appendRow_(ps, 'consent_requests', req);
+  if (found.own) {
+    updateRow_(ps, 'consent_requests', row, { member_notice: "Not needed: sent from the member's own email" });
+    AFTER_FILING.push(function () {
+      try {
+        approveConsent_(req.id, AUTO_BY, false);
+      } catch (e) {
+        updateRow_(ps, 'consent_requests', row, { moderator_note: (req.moderator_note ? req.moderator_note + '; ' : '') + 'Not applied by itself: ' + e.message });
+        alertMembers_('consent', req);
+      }
+    });
+    return found;
+  }
+  updateRow_(ps, 'consent_requests', row, { member_notice: noticeMember_(ps, req) });
+  detailsReceipt_(req, m);
+  alertMembers_('consent', req);
+  return found;
+}
+
+/** The member's own form found nobody: they are told which email was used and how to be found (nothing is kept pending). */
+function detailsNotFound_(req, count) {
+  var to = Core_str(req.submitter_email);
+  if (!to || !deskQuota_(1)) return;
+  var why = count > 1 ? 'The email ' + to + ' belongs to more than one member in the district\'s list, so we cannot tell which member you are.'
+    : 'We could not find a member with the email ' + to + ' in the district\'s list.';
+  try {
+    MailApp.sendEmail(to, 'Your form to the Rotary District 3110 website was not applied',
+      'Thank you for your form.\n\n' + why + ' Nothing was changed.\n\n' +
+      "Please ask your club's President, Secretary or Executive Secretary to give this email as your second email on the Update my details form" +
+      (Core_str(settings_().form_update_url) ? ' (' + Core_str(settings_().form_update_url) + ')' : '') +
+      '. Once that is done, send your form again from this email.\n\nRotary District 3110', { name: 'Rotary District 3110' });
+  } catch (e) {
+    Logger.log('Not-found email failed: ' + e.message);
+  }
+}
+
+/** A receipt to the club office bearer who filled in a My details form for a member. */
+function detailsReceipt_(req, m) {
+  var to = Core_str(req.submitter_email);
+  if (!to || !deskQuota_(1)) return;
+  try {
+    MailApp.sendEmail(to, 'Received: ' + (req.form === 'show' ? 'Show my details' : 'Update my details') + ' for ' + (m ? m.name : req.name),
+      'Thank you. We received the form you filled in for ' + (m ? m.name + ' (' + m.member_id + ')' : req.name + ' (member ID ' + req.member_id + ', not found in the list)') +
+      '.\n\nIt asks:\n' + detailsLines_(req).map(function (l) { return '- ' + l; }).join('\n') +
+      '\n\nThe member is told by email, and a district moderator checks it before anything changes. You get an email when it is decided.' +
+      '\n\nRotary District 3110', { name: 'Rotary District 3110' });
+  } catch (e) {
+    Logger.log('Receipt failed: ' + e.message);
+  }
 }
 
 /**
@@ -249,7 +401,7 @@ function filePublicService_(a, meta) {
  * Rotary Means Business: a member's own business, the topics they can speak on, or both. The sender is looked up
  * in the private members list now, so the moderator sees who it is; approving needs an active member (members only).
  */
-function fileBusiness_(a, meta) {
+function fileBusiness_(a, meta, found) {
   var ss = mainSs_();
   var clubName = Core_str(a[Q.club]);
   var whatsapp = Core_str(a[Q.bWhatsapp]);
@@ -261,17 +413,23 @@ function fileBusiness_(a, meta) {
     photo_files: fileIds_(firstStartingWith_(a, 'Logo')), speaker_topics: Core_str(a[Q.bTopics]), status: 'pending',
   };
   var notes = [];
-  var master = readTab_(privateSs_(), 'members_master');
-  var i = Core_matchMember({ member_id: Core_str(a[Q.bMemberId]), mobile: row.submitter_mobile, club_id: row.club_id,
-    filled_by: Core_str(a[Q.cFilledBy]), submitter_email: meta.submitter_email }, master);
-  var m = i >= 0 ? master[i] : null;
+  var m;
+  if (found) {
+    // Update my details (23 Nov 2026): the member was found by their own email, or by the ID the club gave
+    m = found.member;
+  } else {
+    var master = readTab_(privateSs_(), 'members_master');
+    var i = Core_matchMember({ member_id: Core_str(a[Q.bMemberId]), mobile: row.submitter_mobile, club_id: row.club_id,
+      filled_by: Core_str(a[Q.cFilledBy]), submitter_email: meta.submitter_email }, master);
+    m = i >= 0 ? master[i] : null;
+  }
+  var own = !!m && Core_memberEmails(m).indexOf(Core_str(meta.submitter_email).toLowerCase()) >= 0;
   if (m && businessMemberActive_(m)) {
     row.member_id = Core_str(m.member_id);
     row.member_name = Core_str(m.name);
     row.club_id = Core_str(m.club_id) || row.club_id;
-    if (Core_str(m.email) && Core_str(m.email).toLowerCase() !== Core_str(meta.submitter_email).toLowerCase()) {
-      notes.push("Not sent from the member's own email: check with the member before approving");
-    }
+    row.club_name = clubNameById_(row.club_id) || row.club_name;
+    if (!own) notes.push("Not sent from the member's own email: check with the member before approving");
   } else {
     notes.push(m ? 'The member is not active in the members list: members only' :
       'Not found in the members list: fill in member_id (and member_name) before approving, or reject (members only)');
@@ -285,7 +443,6 @@ function fileBusiness_(a, meta) {
   row.moderator_note = notes.join('; ');
   row._row = appendRow_(ss, 'businesses', row);
   // the member's own listing from their own email, with nothing to check, goes live by itself (Release 2)
-  var own = m && Core_str(m.email) && Core_str(m.email).toLowerCase() === Core_str(meta.submitter_email).toLowerCase();
   var onlyReplaces = notes.every(function (n) { return /^Updates BIZ-/.test(n); });
   if (own && onlyReplaces && !businessBlock_(row)) {
     approveRow_('businesses', row, AUTO_BY);
@@ -399,19 +556,21 @@ function fileConsent_(a, meta) {
 function noticeMember_(ps, req) {
   var check = consentChecker_(ps)(req);
   if (check.who === 'member') return "Not needed: sent from the member's own email";
-  if (!check.memberEmail) return 'Not told: no email on file';
+  var to = (check.memberEmails || []).join(',');
+  if (!to) return 'Not told: no email on file';
   if (!deskQuota_(1)) return 'Not told: the daily email limit was reached';
-  var choices = [
+  var choices = req.form ? detailsLines_(req).map(function (l) { return '- ' + l; }) : [
     [req.directory_ok, 'a listing in the members directory'], [req.contact_ok, 'a WhatsApp button'], [req.photo_ok, 'your photo'],
     [req.birthday_ok, 'birthday greetings'], [req.anniversary_ok, 'anniversary greetings'],
   ].filter(function (c) { return c[0]; }).map(function (c) { return '- ' + c[1]; });
   var until = Core_dateLabel(Core_isoDate(new Date(consentHoldUntil_(req, check))));
+  var asks = req.form === 'update' ? 'A request to change your details for the district website' : 'A request to show your details on the district website';
   try {
-    MailApp.sendEmail(check.memberEmail, 'Your details were sent to the Rotary District 3110 website',
-      'Dear ' + (check.memberName || req.name) + ',\n\nA request to show your details on the district website was sent for you by ' + req.submitter_email +
-      (req.filled_by ? ' (as "' + req.filled_by + '")' : '') + '.\n\nIt asks to show:\n' + (choices.join('\n') || '- nothing') +
+    MailApp.sendEmail(to, 'Your details were sent to the Rotary District 3110 website',
+      'Dear ' + (check.memberName || req.name) + ',\n\n' + asks + ' was sent for you by ' + req.submitter_email +
+      (req.filled_by ? ' (as "' + req.filled_by + '")' : '') + '.\n\nIt asks:\n' + (choices.join('\n') || '- nothing') +
       '\n\nIf you or your club sent it, there is nothing to do. A district moderator checks every form, and nothing is shown before ' + until + '.' +
-      '\n\nIf you did not agree to this, reply to this email or use the My details form to remove them, and nothing will be shown.' + removalLine_() +
+      '\n\nIf you did not agree to this, reply to this email, and nothing will be changed.' + removalLine_() +
       '\n\nRotary District 3110', { name: 'Rotary District 3110' });
     return 'Told by email ' + today_();
   } catch (e) {
@@ -446,6 +605,7 @@ function fileClubChange_(a, meta) {
   if (!req.club_id) notes.push('Club not recognised: ' + Core_str(a[Q.cClub]));
   if (change === 'moved' && newClub === CLUB_OUTSIDE) notes.push('Moved to a club outside District 3110: approving marks the member as left');
   else if (change === 'moved' && !req.new_club_id) notes.push('New club not recognised: ' + newClub);
+  notes = notes.concat(clubChangeNotes_(req, readTab_(ps, 'members_master')));
   textNotes_([req.note], notes);
   req.moderator_note = notes.join('; ');
   fileGated_(ps, 'club_change_requests', req, req.club_id, function () { alertMembers_('change', req); });

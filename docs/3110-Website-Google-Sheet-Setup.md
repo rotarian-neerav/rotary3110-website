@@ -23,14 +23,15 @@ You will need two files from this project: `dist/apps-script/Code.gs` and `dist/
 3. You will see **"Google hasn't verified this app"**. That is normal for a script you wrote yourself. Click **Advanced → Go to (project name) (unsafe)** → **Allow**.
    The script asks to manage your spreadsheets, forms and Drive files, send email as you (for moderator reminders and replies to clubs), and connect to an external service (to download the sample data from GitHub).
 4. Wait about a minute. The log at the bottom says **Setup finished** and lists what it did:
-   tabs in both Sheets, sample data loaded, four forms created (activity, **Club updates**, **My details on the website** and the website's contact form) and moved into the folder that holds the Sheet, sharing checked, daily reminders scheduled.
-   (Club updates has a section each for the club's details, members and roles, and a public service; My details has a section each for showing a member's details, removing them, and a business listing. The first question on page 1 leads to the section.)
+   tabs in both Sheets, sample data loaded, five forms created (activity, **Club updates**, **Show my details**, **Update my details** and the website's contact form) and moved into the folder that holds the Sheet, sharing checked, daily reminders scheduled.
+   (Club updates has a section each for the club's details, members and roles, and a public service; the first question on page 1 leads to the section. Show my details and Update my details first ask who is filling the form; a club office bearer then gives the member's Rotary member ID.)
+6. In each of **Club updates**, **Show my details** and **Update my details**: **Settings → Responses → Collect email addresses: Verified**. The member updates that go in by themselves and the office-bearer check rely on it.
 5. Go back to the Sheet and reload the page. A **Rotary** menu appears.
 
 ## 3. Add the seven photo questions by hand (8 minutes)
 
 Google does not let a script add file-upload questions, so these seven are added by hand: four on the
-activity form, three on the **My details on the website** form, in its sections. **The titles must match exactly** (copy them from here).
+activity form, three on the **Update my details** form. **The titles must match exactly** (copy them from here).
 
 The forms are in the same folder as the Sheet (testing: **3110Website-Testing**; production: **3110Website**), or open them from the Sheet's **settings** tab (`form_…_url`; change `viewform` to `edit` in the address).
 
@@ -40,9 +41,11 @@ The forms are in the same folder as the Sheet (testing: **3110Website-Testing**;
 | Club activity or event | the **Photos** question you just added (activity page) | `Before photo (optional)` | File upload · **Image** · **1** file · **1 MB** · not required |
 | Club activity or event | **Before photo (optional)** | `After photo (optional)` | File upload · **Image** · **1** file · **1 MB** · not required |
 | Club activity or event | **Short description (optional)** (event page) | `Photos (up to 3, each under 1 MB)` | File upload · **Image** · **3** files · **1 MB** · not required |
-| My details on the website | **Show my photo next to my name** (Photo section) | `My photo (one photo of me alone, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
-| My details on the website | **Our wedding anniversary** (Celebrations section) | `Couple photo (optional, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
-| My details on the website | **Business WhatsApp number (optional)** (Your business section) | `Logo or shop photo (optional, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
+| Update my details | **My birthday** (The details page) | `My photo (one photo of me alone, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
+| Update my details | **Spouse's agreement** (The details page) | `Couple photo (optional, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
+| Update my details | **Business WhatsApp number (optional)** (Your business page) | `Logo or shop photo (optional, under 1 MB)` | File upload · **Image** · **1** file · **1 MB** · not required |
+
+The old **My details on the website** form (with these three questions) was closed on 23 Nov 2026 by Upgrade Sheet; its answer tab stays.
 
 How to add one: open the form → click the question named in the middle column → click **⊕ (Add question)** in the floating toolbar → change the type to **File upload** → Google asks to confirm that respondents will sign in and files go to your Drive → **Continue** → paste the title and set the options above.
 

@@ -77,8 +77,8 @@ function memberRequests_(withThumbs) {
   var master = readTab_(ps, 'members_master');
   var clubName = function (id) { return clubNameById_(id) || id || '–'; };
   var describe = function (r) {
-    var i = Core_matchMember(r, master);
-    return i >= 0 ? 'Matches ' + master[i].name + ' (' + master[i].member_id + ')' : 'No matching member – a new record will be created';
+    var m = requestMember_(r, master);
+    return m ? 'Matches ' + m.name + ' (' + m.member_id + '), ' + clubName(m.club_id) : 'No member matches: reject (no new record is made from a form)';
   };
   var thumb = function (ref) {
     if (!withThumbs) return '';
@@ -95,9 +95,10 @@ function memberRequests_(withThumbs) {
     var hold = consentHoldUntil_(r, check);
     return {
       id: r.id, name: r.name, club: clubName(r.club_id), filledBy: r.filled_by, match: describe(r), submitted: Core_isoTimestamp(r.submitted_at),
+      form: r.form === 'show' ? 'Show my details' : r.form === 'update' ? 'Update my details' : '',
       sentFrom: Core_str(r.submitter_email), sender: CONSENT_SENDERS[check.who], memberNotice: Core_str(r.member_notice),
       holdUntil: hold > Date.now() ? new Date(hold).toISOString() : '', needsConfirm: check.who === 'other', blocked: !!check.removal,
-      choices: [
+      choices: r.form ? detailsLines_(r, requestMember_(r, master)) : [
         r.directory_ok ? 'Directory: ' + [r.profession, r.area].filter(String).join(', ') : '',
         r.contact_ok ? 'WhatsApp button' : '',
         r.photo_ok ? 'Photo' : '',
@@ -106,10 +107,10 @@ function memberRequests_(withThumbs) {
       ].filter(String),
       description: r.description, website: r.website, photo: thumb(r.photo_file), couplePhoto: thumb(r.couple_photo_file),
       photoRef: Core_str(r.photo_file).split(',')[0].trim(), couplePhotoRef: Core_str(r.couple_photo_file).split(',')[0].trim(),
-      warnings: check.warnings.concat([
+      warnings: check.warnings.concat(Core_str(r.moderator_note) ? Core_str(r.moderator_note).split('; ') : []).concat([
         r.declaration ? '' : 'Declaration not ticked',
         r.anniversary_ok && r.spouse_is_rotarian !== 'Yes' && !r.spouse_agrees ? 'Spouse agreement not ticked' : '',
-        r.directory_ok && !r.profession ? 'No profession given' : '',
+        r.directory_ok && !r.profession && !r.form ? 'No profession given' : '',
       ]).filter(String),
     };
   });
@@ -190,21 +191,34 @@ function approveClubChange_(requestId, who, confirmed) {
     if (change === 'joined') {
       if (!Core_str(req.club_id)) throw new Error('The club was not recognised: fill in club_id on the request, or reject it.');
       if (m && Core_str(m.status) === 'deceased') throw new Error(m.name + ' is marked as deceased in the members list: check the member ID.');
+      var contact = joinedContact_(req, readTab_(ps, 'members_master'), id);
       if (m) {
-        if (Core_str(m.club_id) === Core_str(req.club_id) && Core_str(m.status || 'active') === 'active') {
+        var active = Core_str(m.status || 'active') === 'active';
+        if (Core_str(m.club_id) === Core_str(req.club_id) && active) {
           throw new Error(m.name + ' is already an active member of this club: reject this request.');
         }
-        clubChangeMove_(ps, m, req.club_id, when, 'joined (' + note + ')', Object.assign({ status: 'active' }, joinedContact_(req)));
+        // still in another club: that club's "left" comes first (owner, 23 Nov 2026)
+        if (active && Core_str(m.club_id)) {
+          throw new Error(m.name + ' is still a member of ' + (clubNameById_(m.club_id) || m.club_id) + '. Approve this after that club\'s "left" for ' +
+            'this member has been approved.');
+        }
+        clubChangeMove_(ps, m, req.club_id, when, 'joined (' + note + ')', Object.assign({ status: 'active' }, contact.fields));
         message = m.name + ' is now recorded in ' + clubNameById_(req.club_id) + '.';
       } else {
         appendRow_(ps, 'members_master', Object.assign({ member_id: id, name: Core_str(req.name), club_id: Core_str(req.club_id), is_rotarian: true, status: 'active',
-          notes: 'Added from ' + note + ' (' + today_() + ')' }, joinedContact_(req)));
+          notes: 'Added from ' + note + ' (' + today_() + ')' }, contact.fields));
         appendRow_(ps, 'club_history', { member_id: id, club_id: Core_str(req.club_id), from_date: when, reason: 'joined (' + note + ')' });
         message = Core_str(req.name) + ' is added to the members list.';
       }
+      if (contact.skipped) message += ' ' + contact.skipped;
     } else if (change === 'left' || change === 'moved' || change === 'deceased') {
       if (!m) throw new Error('No one with member ID ' + id + ' in the members list: check the ID, or reject this request.');
       if (Core_str(m.status) === 'deceased') throw new Error(m.name + ' is already marked as deceased.');
+      // "left" only from the club the member is in now: after a move it would take them out of their new club (owner, 23 Nov 2026)
+      if (change === 'left' && Core_str(m.club_id) !== Core_str(req.club_id)) {
+        throw new Error(m.name + ' is recorded in ' + (clubNameById_(m.club_id) || m.club_id || 'no club') + ', not this club; nothing to do: reject this request.');
+      }
+      if (change === 'left' && Core_str(m.status || 'active') !== 'active') throw new Error(m.name + ' is already marked as ' + m.status + ': reject this request.');
       if (change === 'deceased') {
         markDeceased_(m, who);
         message = m.name + ' is marked as deceased. Greetings stop at once.';
@@ -246,12 +260,43 @@ function approveClubChange_(requestId, who, confirmed) {
   }
 }
 
-/** A new member's mobile and email from the club changes form (Release 2), when given and valid. */
-function joinedContact_(req) {
+/**
+ * A new member's mobile and email from the club changes form (Release 2), when given and valid. An email another
+ * member already uses is not saved (owner, 23 Nov 2026: every email is one member's): { fields, skipped }.
+ */
+function joinedContact_(req, master, memberId) {
   var out = {};
+  var skipped = '';
   if (Core_mobile(req.mobile)) out.mobile = Core_str(req.mobile);
-  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(Core_str(req.email))) out.email = Core_str(req.email);
-  return out;
+  var email = Core_str(req.email).trim().toLowerCase();
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    var owners = Core_emailOwners(email, master, memberId);
+    if (owners.length) skipped = 'The email was not saved: member ' + owners[0].member_id + ' already uses it.';
+    else out.email = email;
+  }
+  return { fields: out, skipped: skipped };
+}
+
+/** Notes for a moderator on a club change as it is filed: a "joined" for someone still in another club, a used email, a "left" from another club. */
+function clubChangeNotes_(req, master) {
+  var notes = [];
+  var m = clubChangeMember_(req, master);
+  var club = function (id) { return clubNameById_(id) || Core_str(id) || 'no club'; };
+  var active = m && Core_str(m.status || 'active') === 'active';
+  if (req.change === 'joined' && active && Core_str(m.club_id) !== Core_str(req.club_id)) {
+    notes.push('Still a member of ' + club(m.club_id) + ': approve after that club\'s "left" for this member is approved');
+  }
+  if (req.change === 'joined' && Core_str(req.email)) {
+    var owners = Core_emailOwners(req.email, master, req.member_id);
+    if (owners.length) {
+      var o = owners[0];
+      notes.push('The email is already used by member ' + o.member_id + ' (' + club(o.club_id) + ', ' + (Core_str(o.status) || 'active') + '): it will not be saved');
+    }
+  }
+  if (req.change === 'left' && m && Core_str(m.club_id) !== Core_str(req.club_id)) {
+    notes.push('Recorded in ' + club(m.club_id) + ', not this club: reject');
+  }
+  return notes;
 }
 
 /** A member recorded in another club from a date: the open club history row ends, a new one starts, and club_id changes. */
@@ -289,10 +334,13 @@ var CONSENT_SENDERS = { member: "The member's own email", officer: 'An office be
  */
 function consentChecker_(ps, master) {
   master = master || readTab_(ps, 'members_master');
-  var acting = actingOfficers_();
+  var acting = actingOfficers_(master);
   var officers = [];
   Object.keys(acting).forEach(function (id) { Object.keys(acting[id]).forEach(function (r) { officers.push(acting[id][r]); }); });
-  var removals = readTab_(ps, 'removal_requests');
+  // a removal the member asked for, or their own Show my details choices (23 Nov 2026), sent after a form for them
+  var removals = readTab_(ps, 'removal_requests').concat(readTab_(ps, 'consent_requests').filter(function (r) {
+    return Core_str(r.form) === 'show' && !Core_filledByClub(r.filled_by) && Core_str(r.status) === 'approved';
+  }));
   return function (req) { return Core_consentSender(req, master, officers, removals); };
 }
 
@@ -321,7 +369,7 @@ function approveConsent_(requestId, who, confirmed) {
       return 'Practice: approved. Nothing was changed in the members list.';
     }
     var check = consentChecker_(ps)(req);
-    if (check.removal) throw new Error('The member asked to remove their details after this form was sent (' + check.removal + '); reject this form.');
+    if (check.removal) throw new Error(Core_removalSince(check.removal) + '; reject this form.');
     if (check.who === 'other' && !confirmed) {
       throw new Error('This form did not come from the member or an office bearer of their club. Check with the member (or their club President ' +
         'or Secretary) first, then tick "I have confirmed this with the member" and approve.');
@@ -331,7 +379,8 @@ function approveConsent_(requestId, who, confirmed) {
       throw new Error('The member has until ' + Core_dateLabel(Core_isoDate(new Date(hold))) + ' to object to this form. Approve after that, ' +
         'or check with the member now and tick "I have confirmed this with the member".');
     }
-    var member = findOrCreateMember_(ps, req, 'Created from consent request ' + requestId);
+    if (req.form) return approveDetails_(ps, req, who, confirmed, check);
+    var member = findMember_(ps, req);
     var fields = {
       directory_ok: Core_isTrue(req.directory_ok), contact_ok: Core_isTrue(req.contact_ok), photo_ok: Core_isTrue(req.photo_ok),
       birthday_ok: Core_isTrue(req.birthday_ok), anniversary_ok: Core_isTrue(req.anniversary_ok), spotlight_ok: Core_isTrue(req.spotlight_ok),
@@ -367,23 +416,164 @@ function approveConsent_(requestId, who, confirmed) {
   }
 }
 
-function findOrCreateMember_(ps, req, note) {
-  var master = readTab_(ps, 'members_master');
+/**
+ * The member a request is for. A form never makes a new member (owner, 23 Nov 2026): new members come from the club's
+ * "A member joined" or the RI list; a request that finds nobody is rejected.
+ */
+function findMember_(ps, req) {
+  var m = requestMember_(req, readTab_(ps, 'members_master'));
+  if (!m) throw new Error('No member matches this request (a form never makes a new member): reject it, and ask the club to check the Rotary member ID.');
+  return m;
+}
+
+/** The member a request was matched to when it was filed, else as it matches now. */
+function requestMember_(req, master) {
+  var id = Core_str(req.matched_member_id);
+  if (id) return master.filter(function (m) { return Core_str(m.member_id) === id; })[0] || null;
   var i = Core_matchMember(req, master);
-  if (i >= 0) return master[i];
-  var id = Core_str(req.member_id) || nextId_(master, 'TM-');
-  var row = appendRow_(ps, 'members_master', {
-    member_id: id, name: req.name, club_id: req.club_id, is_rotarian: true, status: 'active', mobile: req.mobile, notes: note,
+  return i >= 0 ? master[i] : null;
+}
+
+/** What a My details request asks, in plain lines (the desk card, the member's notice, the receipts). */
+function detailsLines_(req, m) {
+  var lines = [];
+  if (req.form === 'show') {
+    var said = { directory: req.directory_ok, profession: req.profession_ok, photo: req.photo_ok, birthday: req.birthday_ok,
+      anniversary: req.anniversary_ok, couple_photo: req.couple_photo_ok, call: req.call_ok, whatsapp: req.contact_ok, spotlight: req.spotlight_ok };
+    Object.keys(SHOW_ITEMS).forEach(function (k) { lines.push(SHOW_ITEMS[k] + ': ' + (Core_isTrue(said[k]) ? SHOW_COLUMNS[0] : SHOW_COLUMNS[1])); });
+    return lines;
+  }
+  var was = function (k) { return m && Core_str(m[k]) ? ' (was ' + Core_str(m[k]) + ')' : ''; };
+  [['Profession', 'profession'], ['Area', 'area'], ['What I do', 'description'], ['Website', 'website'], ['Call number', 'call_number'],
+    ['WhatsApp number', 'whatsapp_number'], ['Second email', 'email2']].forEach(function (f) {
+    if (Core_str(req[f[1]])) lines.push(f[0] + ': ' + Core_str(req[f[1]]) + was(f[1]));
   });
-  appendRow_(ps, 'club_history', { member_id: id, club_id: req.club_id, from_date: today_(), reason: 'recorded from consent form' });
-  return readTab_(ps, 'members_master').filter(function (m) { return m._row === row; })[0];
+  if (Core_str(req.birthday)) lines.push('Birthday: ' + req.birthday + (m && Core_dayMonth(m.dob) ? ' (was ' + m.dob + ')' : ''));
+  if (Core_str(req.photo_file)) lines.push('A new photo');
+  if (Core_str(req.anniversary) || Core_str(req.spouse_name)) {
+    lines.push('Anniversary ' + (Core_str(req.anniversary) || '?') + ' with ' + (Core_str(req.spouse_name) || '?') +
+      (req.spouse_is_rotarian === 'Yes' ? ' (Rotarian, member ID ' + (Core_str(req.spouse_member_id) || '?') + ')' : ''));
+  }
+  if (Core_str(req.couple_photo_file)) lines.push('A couple photo');
+  if (Core_isTrue(req.remove_business)) lines.push('Remove the business listing');
+  return lines.length ? lines : ['Nothing to change'];
+}
+
+/** Approves one of the two My details requests (owner, 23 Nov 2026). The checks before it are approveConsent_'s. */
+function approveDetails_(ps, req, who, confirmed, check) {
+  var m = findMember_(ps, req);
+  if (!Core_isTrue(m.is_rotarian) || Core_str(m.status || 'active').toLowerCase() !== 'active') {
+    throw new Error(m.name + ' is not an active member in the members list: reject this request.');
+  }
+  var note = req.form === 'show' ? applyShow_(ps, m, req, who) : applyUpdate_(ps, m, req);
+  var done = { status: 'approved', matched_member_id: m.member_id, approved_by: who, approved_at: nowIso_() };
+  var notes = [confirmed ? 'Confirmed with the member or their club by ' + who : '', note].filter(String);
+  if (notes.length) done.moderator_note = notes.join('; ');
+  updateRow_(ps, 'consent_requests', req._row, done);
+  refreshPublicMembers(true);
+  contentChanged_();
+  var what = req.form === 'show' ? 'What the website shows about ' + m.name : 'The details of ' + m.name;
+  var body = 'Thank you. ' + what + ' on the Rotary District 3110 website ' + (who === AUTO_BY ? 'have been updated' : 'have been approved by a district moderator') +
+    ':\n\n' + detailsLines_(req).map(function (l) { return '- ' + l; }).join('\n') + (note ? '\n\nNote: ' + note : '') +
+    '\n\nThe website shows it ' + NEXT_UPDATE + '.' + removalLine_() + '\n\nRotary District 3110';
+  if (Core_isTrue(req.is_sample)) return 'Approved ' + req.id + ' for ' + m.name + '.';
+  // the sender, and the member at every email they have now (a changed second email: the old one too)
+  var fresh = readTab_(ps, 'members_master').filter(function (x) { return x._row === m._row; })[0] || m;
+  var to = [Core_str(req.submitter_email)].concat(Core_memberEmails(fresh), req._oldEmail2 ? [req._oldEmail2] : []);
+  notifyEmails_(to, (req.form === 'show' ? 'Your choices: ' : 'Your details: ') + m.name, body);
+  return 'Approved ' + req.id + ' for ' + m.name + '. The website shows it ' + NEXT_UPDATE + '.';
+}
+
+/** Show my details: each choice as answered; what is no longer shown is taken off (a photo also leaves Drive). */
+function applyShow_(ps, m, req, who) {
+  var on = function (k) { return Core_isTrue(req[k]); };
+  var f = {
+    directory_ok: on('directory_ok'), profession_ok: on('profession_ok'), contact_ok: on('contact_ok'), call_ok: on('call_ok'),
+    photo_ok: on('photo_ok'), birthday_ok: on('birthday_ok'), anniversary_ok: on('anniversary_ok'), spotlight_ok: on('spotlight_ok'),
+    listing_approved: true, listing_approved_by: who, listing_approved_at: nowIso_(), consent_source: Core_str(req.filled_by), consent_updated_at: nowIso_(),
+  };
+  if (!f.photo_ok && Core_str(m.photo_file)) { trashRef_(m.photo_file); f.photo_file = ''; f.photo_approved = false; }
+  updateRow_(ps, 'members_master', m._row, f);
+  if (!f.anniversary_ok) {
+    withdrawCouples_(ps, m.member_id, 'Anniversary: Do not list (' + req.id + ')');
+    return '';
+  }
+  var photoOk = on('couple_photo_ok');
+  var linked = 0;
+  var master = readTab_(ps, 'members_master');
+  var byId = function (id) { return master.filter(function (x) { return Core_str(x.member_id) === Core_str(id); })[0] || {}; };
+  readTab_(ps, 'couples').forEach(function (c) {
+    var isA = Core_str(c.person_a_id) === Core_str(m.member_id);
+    if (!isA && Core_str(c.person_b_id) !== Core_str(m.member_id)) return;
+    linked++;
+    var u = {};
+    u[isA ? 'a_consent' : 'b_consent'] = true;
+    u[isA ? 'couple_photo_ok_a' : 'couple_photo_ok_b'] = photoOk;
+    if (!photoOk && Core_str(c.couple_photo_file)) { trashRef_(c.couple_photo_file); u.couple_photo_file = ''; }
+    var other = Core_isTrue(isA ? c.b_consent : c.a_consent);
+    // two Rotarian spouses who each gave a date: they must agree before the anniversary shows
+    var dates = [byId(c.person_a_id), byId(c.person_b_id)].filter(function (p) { return Core_isTrue(p.is_rotarian) && Core_dayMonth(p.marriage_date); })
+      .map(function (p) { return Core_dayMonth(p.marriage_date); });
+    var differ = dates.length === 2 && dates[0] !== dates[1];
+    u.status = !other ? 'awaiting_spouse' : differ ? 'check_dates' : 'active';
+    u.notes = !other ? "Waiting for the spouse's agreement" : differ ? 'The two spouses gave different dates; please check' : '';
+    updateRow_(ps, 'couples', c._row, u);
+  });
+  return linked ? '' : 'Anniversary listed, but the district has no anniversary for this member yet: send it on the Update my details form';
+}
+
+/** Update my details: what was given replaces what the district had; blanks change nothing. Returns a note, or ''. */
+function applyUpdate_(ps, m, req) {
+  var master = readTab_(ps, 'members_master');
+  var f = {};
+  var notes = [];
+  ['profession', 'area', 'description', 'website'].forEach(function (k) { if (Core_str(req[k])) f[k] = Core_str(req[k]); });
+  ['call_number', 'whatsapp_number'].forEach(function (k) { if (Core_mobile(req[k])) f[k] = Core_str(req[k]); });
+  var email2 = Core_str(req.email2).trim().toLowerCase();
+  if (email2) {
+    var owners = Core_emailOwners(email2, master, m.member_id);
+    if (owners.length) {
+      notes.push('Second email not saved: ' + email2 + ' is already used by member ' + owners[0].member_id);
+    } else if (email2 !== Core_str(m.email).toLowerCase() && email2 !== Core_str(m.email2).toLowerCase()) {
+      if (Core_str(m.email2)) req._oldEmail2 = Core_str(m.email2).toLowerCase();
+      f.email2 = email2;
+    }
+  }
+  if (Core_dayMonth(req.birthday)) f.dob = req.birthday;
+  if (Core_str(req.photo_file)) {
+    if (Core_str(m.photo_file) && m.photo_file !== req.photo_file) trashRef_(m.photo_file); // a newer photo replaces the old
+    f.photo_file = Core_str(req.photo_file).split(',')[0].trim();
+    f.photo_approved = true;
+  }
+  if (Core_str(req.anniversary)) f.marriage_date = req.anniversary;
+  if (Object.keys(f).length) updateRow_(ps, 'members_master', m._row, f);
+  if (Core_str(req.anniversary) || Core_str(req.couple_photo_file)) {
+    var fresh = readTab_(ps, 'members_master').filter(function (x) { return x._row === m._row; })[0];
+    var n = linkCouple_(ps, fresh, req, Core_isTrue(fresh.anniversary_ok));
+    if (n) notes.push(n);
+  }
+  if (Core_isTrue(req.remove_business)) removeBusinesses_(m.member_id, req.id);
+  return notes.join('; ');
+}
+
+/** Emails to everyone given (blanks and repeats left out), within the daily allowance. */
+function notifyEmails_(list, subject, body) {
+  var seen = {};
+  list.forEach(function (e) {
+    var to = Core_str(e).trim().toLowerCase();
+    if (!/@/.test(to) || seen[to]) return;
+    seen[to] = true;
+    if (!deskQuota_(1)) return;
+    try { MailApp.sendEmail(to, subject, body, { name: 'Rotary District 3110' }); } catch (e2) { Logger.log('Email to ' + to + ' failed: ' + e2.message); }
+  });
 }
 
 /** Creates or updates the couple record for an anniversary request. */
-function linkCouple_(ps, member, req) {
+function linkCouple_(ps, member, req, consent) {
   var couples = readTab_(ps, 'couples');
   var master = readTab_(ps, 'members_master');
   var anniversary = req.anniversary;
+  if (consent === undefined) consent = true; // forms before 23 Nov 2026 gave the anniversary and the choice together
 
   if (Core_str(req.spouse_is_rotarian) !== 'Yes') {
     // Spouse is not a Rotarian: the member's tick records the spouse's agreement
@@ -400,8 +590,9 @@ function linkCouple_(ps, member, req) {
     var photoAgreed = Core_isTrue(req.couple_photo_spouse_agrees) && !!Core_str(req.couple_photo_file);
     var fields = {
       couple_id: existing ? existing.couple_id : nextId_(couples.map(function (c) { return { id: c.couple_id }; }), 'C-'),
-      person_a_id: member.member_id, person_b_id: spouseId, anniversary: anniversary, a_consent: true, b_consent: agrees,
-      status: agrees ? 'active' : 'awaiting_spouse', notes: agrees ? '' : "Spouse's agreement not ticked",
+      person_a_id: member.member_id, person_b_id: spouseId, anniversary: anniversary || (existing ? existing.anniversary : ''), a_consent: consent, b_consent: agrees,
+      status: !consent ? 'withdrawn' : agrees ? 'active' : 'awaiting_spouse',
+      notes: !consent ? 'Waiting for the member to list the anniversary on Show my details' : agrees ? '' : "Spouse's agreement not ticked",
     };
     if (Core_str(req.couple_photo_file)) {
       if (existing && Core_str(existing.couple_photo_file)) trashRef_(existing.couple_photo_file);
@@ -409,32 +600,21 @@ function linkCouple_(ps, member, req) {
       fields.couple_photo_ok_a = photoAgreed; fields.couple_photo_ok_b = photoAgreed; fields.couple_photo_approved = true;
     }
     if (existing) updateRow_(ps, 'couples', existing._row, fields); else appendRow_(ps, 'couples', fields);
-    return;
+    return '';
   }
 
-  // Spouse is a Rotarian: each must agree on their own form
-  var spouseReq = { member_id: req.spouse_member_id, club_id: req.spouse_club_id, mobile: '' };
-  var si = Core_matchMember(spouseReq, master);
-  if (si < 0) {
-    var target = Core_str(req.spouse_name).toLowerCase().replace(/^(rtn|dr)\.?\s+/g, '').replace(/[^a-z]/g, '');
-    master.forEach(function (m, idx) {
-      if (si < 0 && Core_str(m.club_id) === Core_str(req.spouse_club_id) &&
-        Core_str(m.name).toLowerCase().replace(/^(rtn|dr)\.?\s+/g, '').replace(/[^a-z]/g, '') === target) si = idx;
-    });
-  }
-  var spouse = si >= 0 ? master[si] : null;
-  if (!spouse) {
-    var newId = Core_str(req.spouse_member_id) || nextId_(master, 'TM-');
-    appendRow_(ps, 'members_master', { member_id: newId, name: req.spouse_name, club_id: req.spouse_club_id, is_rotarian: true, status: 'active', notes: 'Spouse of ' + member.name + ' – recorded from a consent form; please check' });
-    spouse = { member_id: newId, name: req.spouse_name };
-  }
+  // Spouse is a Rotarian: each must agree on their own form; found only by the member ID given (owner, 23 Nov 2026:
+  // a form never makes a member record)
+  var spouseId = Core_str(req.spouse_member_id);
+  var spouse = spouseId ? master.filter(function (x) { return Core_str(x.member_id) === spouseId && Core_isTrue(x.is_rotarian); })[0] : null;
+  if (!spouse) return "Anniversary not linked: no Rotarian with the spouse's member ID " + (spouseId || '(none given)');
   var couple = couples.filter(function (c) {
     var ids = [Core_str(c.person_a_id), Core_str(c.person_b_id)];
     return ids.indexOf(Core_str(member.member_id)) >= 0 && ids.indexOf(Core_str(spouse.member_id)) >= 0;
   })[0];
   var memberIsA = !couple || Core_str(couple.person_a_id) === Core_str(member.member_id);
   var update = {};
-  update[memberIsA ? 'a_consent' : 'b_consent'] = true;
+  update[memberIsA ? 'a_consent' : 'b_consent'] = consent;
   update[memberIsA ? 'couple_photo_ok_a' : 'couple_photo_ok_b'] = Core_isTrue(req.couple_photo_spouse_agrees);
   if (Core_str(req.couple_photo_file)) {
     update.couple_photo_file = Core_str(req.couple_photo_file).split(',')[0].trim();
@@ -446,16 +626,17 @@ function linkCouple_(ps, member, req) {
     update.person_b_id = spouse.member_id;
     update.anniversary = anniversary;
     update.b_consent = false;
-    update.status = 'awaiting_spouse';
+    update.status = consent ? 'awaiting_spouse' : 'withdrawn';
     update.notes = "Waiting for the spouse's own consent form";
     appendRow_(ps, 'couples', update);
-    return;
+    return '';
   }
   var otherConsent = Core_isTrue(memberIsA ? couple.b_consent : couple.a_consent);
-  var sameDate = Core_dayMonth(couple.anniversary) === Core_dayMonth(anniversary);
-  update.status = !otherConsent ? 'awaiting_spouse' : sameDate ? 'active' : 'check_dates';
+  var sameDate = !anniversary || Core_dayMonth(couple.anniversary) === Core_dayMonth(anniversary);
+  update.status = !consent ? 'withdrawn' : !otherConsent ? 'awaiting_spouse' : sameDate ? 'active' : 'check_dates';
   update.notes = update.status === 'check_dates' ? 'The two forms give different dates (' + couple.anniversary + ' and ' + anniversary + '); please check' : '';
   updateRow_(ps, 'couples', couple._row, update);
+  return '';
 }
 
 function withdrawCouples_(ps, memberId, note) {

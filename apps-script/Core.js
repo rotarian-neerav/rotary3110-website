@@ -758,6 +758,16 @@ function Core_sampleRows(tabs) {
   return n;
 }
 
+/**
+ * The number behind a member's Call or WhatsApp button: the one the member gave for it, else the other one they gave,
+ * else the mobile from the RI list: 91 and the 10 digits, or '' when none is a mobile.
+ */
+function Core_memberNumber(m, kind) {
+  var order = kind === 'whatsapp' ? [m.whatsapp_number, m.call_number, m.mobile] : [m.call_number, m.whatsapp_number, m.mobile];
+  for (var i = 0; i < order.length; i++) if (Core_mobile(order[i])) return Core_mobile(order[i]);
+  return '';
+}
+
 /** The Rotary year after the given one: "2024-25" -> "2025-26", "2099-00" -> "2100-01". Empty if not a Rotary year. */
 function Core_nextRotaryYear(year) {
   var m = /^(\d{4})-(\d{2})$/.exec(Core_str(year));
@@ -773,9 +783,16 @@ function Core_nextRotaryYear(year) {
  */
 function Core_memberShows(m) {
   var directory = Core_isTrue(m.directory_ok);
+  var sample = Core_isTrue(m.is_sample);
+  // My details split (23 Nov 2026): the profession lines and the Call button have their own choice; a member who
+  // has not made it yet keeps what the directory and WhatsApp choices gave them
+  var said = function (v, before) { return Core_str(v) === '' ? before : Core_isTrue(v); };
+  var whatsapp = directory && Core_isTrue(m.contact_ok);
   return {
     directory: directory,
-    contact: directory && Core_isTrue(m.contact_ok) && (Core_isTrue(m.is_sample) || !!Core_mobile(m.mobile)),
+    profession: directory && said(m.profession_ok, true),
+    contact: whatsapp && (sample || !!Core_memberNumber(m, 'whatsapp')),
+    call: directory && said(m.call_ok, whatsapp) && (sample || !!Core_memberNumber(m, 'call')),
     photo: Core_isTrue(m.photo_ok) && Core_isTrue(m.photo_approved) && !!Core_str(m.photo_file),
     birthday: Core_isTrue(m.birthday_ok) && !!Core_dayMonth(m.dob),
   };
@@ -819,13 +836,16 @@ function Core_memberCheckEmail(m, clubName, siteUrl, forms) {
   var lines = ['• Club: ' + (Core_str(clubName) || Core_str(m.club_id))];
   if (s.directory) {
     lines.push('• In the member directory: yes');
-    [['Profession', m.profession], ['Area', m.area], ['About you', m.description], ['Website', m.website]].forEach(function (f) {
-      if (Core_str(f[1])) lines.push('    ' + f[0] + ': ' + Core_str(f[1]));
-    });
+    if (s.profession) {
+      [['Profession', m.profession], ['Area', m.area], ['About you', m.description], ['Website', m.website]].forEach(function (f) {
+        if (Core_str(f[1])) lines.push('    ' + f[0] + ': ' + Core_str(f[1]));
+      });
+    }
   } else {
     lines.push('• In the member directory: no');
   }
   lines.push('• Your photo: ' + yes(s.photo));
+  lines.push('• A Call button: ' + yes(s.call));
   lines.push('• A WhatsApp button, so people can message you: ' + yes(s.contact));
   lines.push('• A birthday greeting on the Celebrations page: ' + (s.birthday ? 'yes (' + birthday(Core_dayMonth(m.dob)) + ', without the year)' : 'no'));
   var site = Core_str(siteUrl).replace(/\/?$/, '/');
@@ -833,8 +853,8 @@ function Core_memberCheckEmail(m, clubName, siteUrl, forms) {
     'Once a year, in July, we check with every member listed on the Rotary District 3110 website (' + site + ') ' +
     'that it still shows what you want. This is what it shows about you:\n\n' + lines.join('\n') + '\n\n' +
     'Nothing to do if this is right.\n\n' +
-    'To change any of it, send the My details on the website form again' + (forms && forms.consent ? ':\n' + forms.consent : ' (linked from the website\'s Privacy page).') + '\n\n' +
-    'To remove any of it, or your whole listing' + (forms && forms.removal ? ', use the same form:\n' + forms.removal : ', use the same form and choose "Remove" (linked from the website\'s Privacy page).') + '\n\n' +
+    'To show or stop showing any of it, send the Show my details form' + (forms && forms.consent ? ':\n' + forms.consent : ' (linked from the website\'s Privacy page).') + '\n\n' +
+    'To correct your profession, photo, birthday or numbers, send the Update my details form' + (forms && forms.update ? ':\n' + forms.update : ' (linked from the website\'s Privacy page).') + '\n\n' +
     'Your mobile number and email address are never shown on the website.\n\nRotary District 3110';
   return { subject: 'Your listing on the Rotary District 3110 website: still right?', body: body };
 }
@@ -879,6 +899,7 @@ function Core_buildMembersPublic(master, couples, makeKey) {
     var directory = shows.directory;
     var sample = Core_isTrue(m.is_sample);
     var contact = shows.contact;
+    var call = shows.call;
     var photo = shows.photo;
     var birthday = shows.birthday;
     if (!directory && !photo && !birthday) return;
@@ -889,12 +910,14 @@ function Core_buildMembersPublic(master, couples, makeKey) {
       name: Core_str(m.name),
       club_id: Core_str(m.club_id),
       directory_ok: directory,
-      profession: directory ? Core_str(m.profession) : '',
-      area: directory ? Core_str(m.area) : '',
-      description: directory ? Core_str(m.description) : '',
-      website: directory ? Core_url(m.website) : '',
+      profession: shows.profession ? Core_str(m.profession) : '',
+      area: shows.profession ? Core_str(m.area) : '',
+      description: shows.profession ? Core_str(m.description) : '',
+      website: shows.profession ? Core_url(m.website) : '',
       contact_ok: contact,
-      contact_link: contact && !sample ? 'https://wa.me/' + Core_mobile(m.mobile) : '',
+      contact_link: contact && !sample ? 'https://wa.me/' + Core_memberNumber(m, 'whatsapp') : '',
+      call_ok: call,
+      call_link: call && !sample ? 'https://wa.me/' + Core_memberNumber(m, 'call') : '',
       photo_ok: photo,
       photo_file: photo ? Core_str(m.photo_file) : '',
       birthday_ok: birthday,
@@ -1028,6 +1051,9 @@ function Core_buildPublicData(tabs, nowIso, options) {
       website: Core_url(m.website),
       contact_ok: Core_isTrue(m.contact_ok),
       contact_link: Core_str(m.contact_link),
+      // a public row made before 23 Nov 2026 has no Call choice yet: its WhatsApp choice gave both buttons
+      call_ok: Core_str(m.call_ok) === '' ? Core_isTrue(m.contact_ok) : Core_isTrue(m.call_ok),
+      call_link: Core_str(m.call_ok) === '' ? Core_str(m.contact_link) : Core_str(m.call_link),
       photo_ok: Core_isTrue(m.photo_ok),
       photo: Core_photoRefs(m.photo_file)[0] || '',
       birthday_ok: Core_isTrue(m.birthday_ok),
@@ -1362,6 +1388,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
       contact: Core_url(settings.form_contact_url),
       business: Core_url(settings.form_business_url),
       club_change: Core_url(settings.form_club_change_url),
+      update: Core_url(settings.form_update_url),
     },
     lists: {
       themes: CORE_THEMES.slice(),
@@ -1426,6 +1453,8 @@ function Core_validatePublic(data) {
     if (!m.directory_ok && (m.profession || m.area || m.description || m.website)) err(w, 'directory details without directory consent');
     if (m.contact_link && !(m.contact_ok && m.directory_ok)) err(w, 'contact link without consent');
     if (m.contact_link && !CORE_WA_LINK_RE.test(m.contact_link)) err(w, 'contact link is not a WhatsApp link');
+    if (m.call_link && !(m.call_ok && m.directory_ok)) err(w, 'call link without consent');
+    if (m.call_link && !CORE_WA_LINK_RE.test(m.call_link)) err(w, 'call link is not a number link');
     if (m.photo && !m.photo_ok) err(w, 'photo without photo consent');
     if (m.birthday && !m.birthday_ok) err(w, 'birthday without consent');
     if (m.birthday && !/^\d{2}-\d{2}$/.test(m.birthday)) err(w, 'birthday must be day and month only, got "' + m.birthday + '"');
@@ -1527,10 +1556,22 @@ function Core_walk(node, path, fn) {
 /* Helpers used by the Sheet script                                    */
 /* ------------------------------------------------------------------ */
 
-/** Finds the member a consent or removal request refers to: member ID first, then mobile + club. */
+/**
+ * Finds the member a request refers to. The two My details forms (owner, 23 Nov 2026; requests with a "form"): a
+ * member's own request only by the Google account it came from, the member's email or second email, and only when
+ * exactly one member has it; one filled by a club office bearer only by the Rotary member ID. Older requests, club
+ * changes and spouses: member ID first, then the sender's email when the name agrees.
+ */
 function Core_matchMember(request, master) {
   var id = Core_str(request.member_id);
   var i;
+  if (Core_str(request.form)) {
+    if (Core_filledByClub(request.filled_by)) {
+      for (i = 0; id && i < master.length; i++) if (Core_str(master[i].member_id) === id) return i;
+      return -1;
+    }
+    return Core_findByEmail(request.submitter_email, master).index;
+  }
   if (id) {
     for (i = 0; i < master.length; i++) if (Core_str(master[i].member_id) === id) return i;
   }
@@ -1550,6 +1591,44 @@ function Core_matchMember(request, master) {
   return -1;
 }
 
+/** Why a form for a member can no longer be approved: what the member sent since (a removal, or their own choices). */
+function Core_removalSince(id) {
+  return /^CON-/.test(Core_str(id)) ? 'The member sent their own choices after this form (' + id + ')'
+    : 'The member asked to remove their details after this form was sent (' + id + ')';
+}
+
+/** Filled in by a club's President, Secretary or Executive Secretary for a member (not by the member). */
+function Core_filledByClub(filledBy) {
+  return /secretary|president/i.test(Core_str(filledBy));
+}
+
+/** A member's emails: the one from RI and the second one the district keeps, lower case, without blanks or repeats. */
+function Core_memberEmails(m) {
+  var out = [];
+  [m && m.email, m && m.email2].forEach(function (e) {
+    var v = Core_str(e).trim().toLowerCase();
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) && out.indexOf(v) < 0) out.push(v);
+  });
+  return out;
+}
+
+/** The members with this email or second email: { index (only when exactly one), count }. */
+function Core_findByEmail(email, master) {
+  var want = Core_str(email).trim().toLowerCase();
+  var found = [];
+  if (/@/.test(want)) (master || []).forEach(function (m, i) { if (Core_memberEmails(m).indexOf(want) >= 0) found.push(i); });
+  return { index: found.length === 1 ? found[0] : -1, count: found.length };
+}
+
+/** Other members (not memberId) who already use this email as their email or second email: every email is one member's. */
+function Core_emailOwners(email, master, memberId) {
+  var want = Core_str(email).trim().toLowerCase();
+  if (!want) return [];
+  return (master || []).filter(function (m) {
+    return Core_str(m.member_id) !== Core_str(memberId) && Core_memberEmails(m).indexOf(want) >= 0;
+  });
+}
+
 /**
  * Who sent a consent form, judged by the sender's Google account: 'member' when it is the member's own email on file,
  * 'officer' when it is the email on file of one of the club's office bearers (officers: the acting ones), otherwise
@@ -1560,21 +1639,25 @@ function Core_consentSender(request, master, officers, removals) {
   var i = Core_matchMember(request, master);
   var member = i >= 0 ? master[i] : null;
   var sender = lower(request.submitter_email);
-  var memberEmail = member ? lower(member.email) : '';
+  var emails = member ? Core_memberEmails(member) : [];
+  var memberEmail = emails[0] || '';
   var clubs = [Core_str(request.club_id), member ? Core_str(member.club_id) : ''].filter(String);
   var byId = {};
   master.forEach(function (m) { byId[Core_str(m.member_id)] = m; });
   var officer = !!sender && (officers || []).some(function (o) {
     var m = byId[Core_str(o.member_id)];
-    return m && clubs.indexOf(Core_str(o.club_id)) >= 0 && lower(m.email) === sender;
+    return m && clubs.indexOf(Core_str(o.club_id)) >= 0 && Core_memberEmails(m).indexOf(sender) >= 0;
   });
-  var who = sender && sender === memberEmail ? 'member' : officer ? 'officer' : 'other';
-  var saysSecretary = /secretary/i.test(Core_str(request.filled_by));
+  var who = sender && emails.indexOf(sender) >= 0 ? 'member' : officer ? 'officer' : 'other';
+  var saysSecretary = Core_filledByClub(request.filled_by);
   var warnings = [];
   if (!saysSecretary && who !== 'member' && memberEmail) {
     warnings.push("Says the member filled it, but it was sent from " + (sender || 'no Google account') + ", not the member's email on file");
   }
-  if (saysSecretary && who === 'other') warnings.push('Says the club secretary filled it, but ' + (sender || 'the sender') + ' is not an office bearer of the club on file');
+  if (saysSecretary && who === 'other') {
+    warnings.push('Says a club office bearer filled it, but ' + (sender || 'the sender') + ' is not the President, Secretary or Executive Secretary of ' +
+      (member ? "this member's club" : 'the club') + ' on file');
+  }
   if (member && Core_str(request.member_id) && Core_str(request.member_id) === Core_str(member.member_id)) {
     var words = function (n) { return Core_plainName(n).split(' ').filter(function (w) { return w.length > 2; }); };
     var known = words(member.name);
@@ -1593,8 +1676,8 @@ function Core_consentSender(request, master, officers, removals) {
       if (Core_matchMember(r, master) === i && (new Date(r.submitted_at).getTime() || 0) >= sent) removal = Core_str(r.id) || 'a removal request';
     });
   }
-  if (removal) warnings.unshift('The member asked to remove their details after this form was sent (' + removal + '): reject this form');
-  return { who: who, memberEmail: memberEmail, memberName: member ? Core_str(member.name) : '', warnings: warnings, removal: removal };
+  if (removal) warnings.unshift(Core_removalSince(removal) + ': reject this form');
+  return { who: who, memberEmail: memberEmail, memberEmails: emails, memberName: member ? Core_str(member.name) : '', warnings: warnings, removal: removal };
 }
 
 /**
@@ -1602,9 +1685,17 @@ function Core_consentSender(request, master, officers, removals) {
  * Per club and role the latest year up to `year` that has a row decides, so until this year's holder is told the
  * previous known holder carries on. A role ended in that year has nobody acting; next year's rows count from 1 July.
  * Returns { club_id: { role: the officer row, with acting_year and carried } }.
+ * master (the members list, optional): an office bearer counts only for the club they are in now (owner, 23 Nov 2026);
+ * one who left or moved to another club leaves the role empty until the club tells the new holder.
  */
-function Core_actingOfficers(officers, year) {
+function Core_actingOfficers(officers, year, master) {
   var best = {};
+  var byId = {};
+  (master || []).forEach(function (m) { if (Core_str(m.member_id)) byId[Core_str(m.member_id)] = m; });
+  var moved = function (o) {
+    var m = byId[Core_str(o.member_id)];
+    return !!m && (Core_str(m.status || 'active').toLowerCase() !== 'active' || Core_str(m.club_id) !== Core_str(o.club_id));
+  };
   (officers || []).forEach(function (o) {
     var y = Core_str(o.rotary_year);
     var role = Core_str(o.role);
@@ -1618,7 +1709,7 @@ function Core_actingOfficers(officers, year) {
   var out = {};
   Object.keys(best).forEach(function (key) {
     var b = best[key];
-    if (!b.row) return;
+    if (!b.row || moved(b.row)) return;
     var club = key.split('|')[0];
     out[club] = out[club] || {};
     out[club][Core_str(b.row.role)] = Object.assign({}, b.row, { acting_year: b.year, carried: b.year !== year });
@@ -1645,11 +1736,11 @@ function Core_clubSender(email, clubId, acting, master, moderatorRows) {
   var roles = (acting && acting[Core_str(clubId)]) || {};
   var emails = {};
   (master || []).forEach(function (m) {
-    if (Core_str(m.status || 'active').toLowerCase() === 'active' && !Core_isTrue(m.is_sample)) emails[Core_str(m.member_id)] = lower(m.email);
+    if (Core_str(m.status || 'active').toLowerCase() === 'active' && !Core_isTrue(m.is_sample)) emails[Core_str(m.member_id)] = Core_memberEmails(m);
   });
   var known = CORE_CLUB_ROLES.filter(function (r) { return roles[r]; });
-  var reachable = known.filter(function (r) { return CORE_EMAIL_RE.test(emails[Core_str(roles[r].member_id)] || ''); });
-  var held = known.filter(function (r) { return sender && emails[Core_str(roles[r].member_id)] === sender; });
+  var reachable = known.filter(function (r) { return (emails[Core_str(roles[r].member_id)] || []).length > 0; });
+  var held = known.filter(function (r) { return sender && (emails[Core_str(roles[r].member_id)] || []).indexOf(sender) >= 0; });
   var out = { roles: known, held: held };
   if (held.length) out.who = 'officer';
   else if (sender && CORE_MODERATOR_TYPES.some(function (t) { return Core_moderatorEmails(moderatorRows || [], t).indexOf(sender) >= 0; })) out.who = 'moderator';
@@ -1829,7 +1920,8 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
     Core_memberShows: Core_memberShows, Core_sampleRows: Core_sampleRows, Core_nextRotaryYear: Core_nextRotaryYear, Core_memberCheckDue: Core_memberCheckDue, Core_memberCheckEmail: Core_memberCheckEmail,
     Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
-    Core_matchMember: Core_matchMember, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
+    Core_matchMember: Core_matchMember, Core_findByEmail: Core_findByEmail, Core_emailOwners: Core_emailOwners, Core_memberEmails: Core_memberEmails,
+    Core_filledByClub: Core_filledByClub, Core_memberNumber: Core_memberNumber, Core_removalSince: Core_removalSince, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
     Core_checkRoles: Core_checkRoles, Core_plainName: Core_plainName, Core_unsafeText: Core_unsafeText,
     Core_uniqueRows: Core_uniqueRows, Core_cleanLines: Core_cleanLines, Core_lineParts: Core_lineParts, Core_isDistrictEvent: Core_isDistrictEvent,

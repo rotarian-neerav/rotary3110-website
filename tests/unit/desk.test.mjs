@@ -270,13 +270,17 @@ test('Saturday preview: each Content moderator gets "Leave this out" links; one 
 });
 
 test('member requests: the Members moderator is alerted with only the name; approves and rejects on the desk; marks a death after a search', () => {
+  // Update my details, filled in for the member by someone who is not an office bearer of their club (23 Nov 2026)
+  for (const [id, name] of [['7650001', 'Rtn Desk Member'], ['7650002', 'Rtn Turned Away']]) {
+    env.run('appendRow_', env.priv, 'members_master', { member_id: id, name, club_id: 'S-004', is_rotarian: true, status: 'active', mobile: '9876501299' });
+  }
   const consent = {
-    [Q.cClub]: 'RC Agra North', [Q.cName]: 'Rtn Desk Member', [Q.cMemberId]: '7650001', [Q.cMobile]: '9876501299', [Q.cFilledBy]: 'The member',
-    [Q.cDirectory]: 'Yes', [Q.cProfession]: 'Teacher', [Q.cArea]: 'Agra', [Q.cWhat]: 'Teaches maths.', [Q.cContact]: 'No', [Q.cPhoto]: 'Yes',
-    'My photo (one photo of me alone, under 1 MB)': ['1DeskMemberPhoto0123456789abcd'], [Q.cBirthday]: 'No', [Q.cAnniversary]: 'No', [Q.cDeclaration]: ['yes'],
+    [Q.cFilledBy]: 'Club President, Secretary or Executive Secretary for the member', [Q.gMemberId]: '7650001', [Q.rName]: 'Rtn Desk Member',
+    [Q.cProfession]: 'Teacher', [Q.cArea]: 'Agra', [Q.cWhat]: 'Teaches maths.', 'My photo (one photo of me alone, under 1 MB)': ['1DeskMemberPhoto0123456789abcd'],
+    [Q.cDeclaration]: ['yes'], [Q.uBusiness]: env.context.BUSINESS_CHOICES.none,
   };
   const before = env.mails.length;
-  env.submit('consent', consent, 'desk.member@example.com');
+  env.submit('update_details', consent, 'desk.member@example.com', new Date());
   const alert = mailsTo('meera@example.com', before).at(-1);
   assert.equal(alert.subject, 'Consent form to check: Rtn Desk Member – RC Agra North');
   assert.match(alert.body, /Open the moderation desk: https:\/\/\S+\/desk\/#k=TEST$/m);
@@ -291,14 +295,16 @@ test('member requests: the Members moderator is alerted with only the name; appr
   assert.ok(env.post({ fn: 'photo', session: s, ref: req.photoRef }).base64);
   assert.match(env.post({ fn: 'photo', session: signIn('asha@example.com'), ref: req.photoRef }).error, /not available/, 'not for Content moderators');
   assert.equal(req.sentFrom, 'desk.member@example.com');
-  assert.ok(req.needsConfirm, 'not in the member list: the moderator must confirm first');
+  assert.equal(req.form, 'Update my details');
+  assert.ok(req.choices.includes('Profession: Teacher'), req.choices.join('|'));
+  assert.ok(req.needsConfirm, 'not from the member or their club: the moderator must confirm first');
   assert.match(env.post({ fn: 'member', session: s, kind: 'consent', action: 'approve', id: req.id }).error, /did not come from the member/);
   const ok = env.post({ fn: 'member', session: s, kind: 'consent', action: 'approve', id: req.id, confirmed: true });
   assert.ok(ok.ok, ok.error);
   assert.equal(env.priv.rows('consent_requests').find((r) => r.id === req.id).approved_by, 'meera@example.com');
   assert.equal(env.mails.at(-1).to, 'desk.member@example.com', 'the confirmation email still goes');
 
-  env.submit('consent', { ...consent, [Q.cName]: 'Rtn Turned Away', [Q.cMemberId]: '7650002', [Q.cMobile]: '9876501298' });
+  env.submit('update_details', { ...consent, [Q.rName]: 'Rtn Turned Away', [Q.gMemberId]: '7650002' }, 'desk.member@example.com', new Date());
   const second = env.priv.rows('consent_requests').at(-1).id;
   assert.match(env.post({ fn: 'member', session: s, kind: 'consent', action: 'reject', id: second }).error, /Please write a reason/);
   assert.ok(env.post({ fn: 'member', session: s, kind: 'consent', action: 'reject', id: second, reason: 'Two people in the photo' }).ok);

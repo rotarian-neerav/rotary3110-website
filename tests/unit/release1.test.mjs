@@ -148,7 +148,7 @@ test('hide: a published activity comes off the website with a reason, and Put ba
   assert.ok(data().activities.some((x) => x.id === a.id));
 });
 
-test('members: find by RI ID, email or mobile; correct a member with a reason; the change log and Undo; a corrected ID follows the club history', () => {
+test('members: find by RI ID, email or mobile; correct a member with a reason; the change log and Undo; the RI ID never changes; an email is one member\'s', () => {
   addMember('7100001', { mobile: '9812345601', email: 'real.one@example.com' });
   addMember('7100002', { club_id: 'S-029' });
   const s = signIn('meera@example.com');
@@ -199,13 +199,21 @@ test('members: find by RI ID, email or mobile; correct a member with a reason; t
   assert.ok(env.post({ fn: 'membersave', session: s, member_id: '7100001', fields: { mobile: '9812345688' }, reason: 'Another new number' }).ok);
   assert.match(env.post({ fn: 'undo', session: s, id: changes.find((c) => c.key === '7100001').id }).error, /Not undone: mobile has been changed again since/);
 
-  // a wrong RI member ID is corrected: the club history follows; an ID already in use is refused
-  assert.match(env.post({ fn: 'membersave', session: s, member_id: '7100002', fields: { member_id: '7100001' }, reason: 'typo' }).error, /already in the members list/);
+  // the RI member ID is never changed on the desk (owner, 23 Nov 2026): it is how a member is found
   const idr = env.post({ fn: 'membersave', session: s, member_id: '7100002', fields: { member_id: '7100022' }, reason: 'RI ID typed wrongly' });
-  assert.ok(idr.ok, idr.error);
-  assert.match(idr.message, /Roles under the old ID 7100002/);
-  assert.ok(!env.priv.rows('club_history').some((h) => h.member_id === '7100002'));
-  assert.ok(env.priv.rows('club_history').some((h) => h.member_id === '7100022'));
+  assert.equal(idr.message, 'Nothing changed.');
+  assert.ok(env.priv.rows('members_master').some((x) => x.member_id === '7100002'));
+  assert.ok(!env.priv.rows('members_master').some((x) => x.member_id === '7100022'));
+  // every email is one member's: the email or second email of another member is refused; the second email and button numbers can be set
+  assert.match(env.post({ fn: 'membersave', session: s, member_id: '7100002', fields: { email: 'Real.One@example.com' }, reason: 'typo' }).error, /already the email of member 7100001/);
+  assert.match(env.post({ fn: 'membersave', session: s, member_id: '7100002', fields: { email2: 'real.one@example.com' }, reason: 'typo' }).error, /already the email of member 7100001/);
+  assert.match(env.post({ fn: 'membersave', session: s, member_id: '7100002', fields: { call_number: '12345' }, reason: 'typo' }).error, /Call number is not a 10-digit/);
+  const two = env.post({ fn: 'membersave', session: s, member_id: '7100002', fields: { email2: 'Two.Now@Example.com', whatsapp_number: '9812345602' }, reason: 'The club gave his new email' });
+  assert.ok(two.ok, two.error);
+  const m2 = env.priv.rows('members_master').find((x) => x.member_id === '7100002');
+  assert.deepEqual([m2.email2, m2.whatsapp_number], ['two.now@example.com', '9812345602']);
+  assert.deepEqual(find('two.now@example.com'), ['7100002'], 'found by the second email too');
+  assert.match(env.post({ fn: 'membersave', session: s, member_id: '7100001', fields: { email: 'two.now@example.com' }, reason: 'typo' }).error, /already the email of member 7100002/);
 });
 
 test('roles: Content moderators correct club office bearers, Members moderators district roles; end a role; add one; AG clubs; role checks on the desk', () => {

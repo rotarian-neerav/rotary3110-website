@@ -43,7 +43,7 @@ in the Sheet; the website updates within about 30 minutes.
 | **Leadership** and **Teams** | The Governor, the district team and committees, with search |
 | **Directory** | Members who chose to be listed, by profession and city |
 | **Rotary Means Business** | Members' businesses and the topics members can speak on |
-| **About** | The District Governor's profile, the Past District Governors, and a glossary of Rotary terms |
+| **About** | The District Governor's profile, the Past District Governors (each shown as "PDG"), and a glossary of Rotary terms |
 | **Footer links** | Public services (blood banks, eye care, dialysis…), cities, meetings by day, the weekly bulletin, campaigns, news, past years, recognition, the magazine, member spotlight, celebrations, messages, contact, privacy |
 
 - **Search** (the magnifying glass at the top) finds activities, clubs, people and pages.

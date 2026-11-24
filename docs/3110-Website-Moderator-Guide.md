@@ -262,7 +262,8 @@ go to the current ones. Ending a role leaves nobody in it; an older holder does 
 **Titles (owner, 23–24 Nov 2026).** The website gives every role its title from the year: a role for next year is
 "Elect", two years ahead "Nominee", three years ahead "Nominee Designate" (written "District Governor Elect"). "Past" is
 used only for the District Governor (Past District Governor) and a club President (Past President); other past roles
-are listed under their year. A district role may be reported for this year and up to three years ahead (for the coming
+are listed under their year. Past District Governors always show as "PDG" before their name (the website writes it;
+there is no need to type it), and a coming year's College of Governors lists every Past Governor. A district role may be reported for this year and up to three years ahead (for the coming
 Governors: team "Governor line", role "District Governor", the year they hold office); a club role for this year or next.
 
 - **Roles tab:** at the top, how many clubs have told this year's President and Secretary, how many still have last

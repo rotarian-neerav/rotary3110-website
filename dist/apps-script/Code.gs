@@ -141,6 +141,19 @@ function appendRow_(ss, name, obj) {
   return sh.getLastRow();
 }
 
+/** Appends many rows given as objects in one write (a long list stays well inside Google's 6-minute limit). */
+function appendRows_(ss, name, objs) {
+  if (!objs.length) return;
+  var sh = ss.getSheetByName(name);
+  var headers = headers_(ss, name);
+  var start = sh.getLastRow() + 1;
+  var end = start + objs.length - 1;
+  if (sh.getMaxRows() < end) sh.insertRowsAfter(sh.getMaxRows(), end - sh.getMaxRows());
+  sh.getRange(start, 1, objs.length, headers.length).setValues(objs.map(function (o) {
+    return headers.map(function (h) { return o[h] == null ? '' : cellValue_(o[h]); });
+  }));
+}
+
 /** Replaces every data row of a tab (keeps the header row). */
 function replaceRows_(ss, name, rows) {
   var sh = ss.getSheetByName(name);
@@ -217,9 +230,10 @@ var SCHEMA_MAIN = {
     // the club its members moved to
     'charter_date', 'merged_into'],
   // ended_on (Release 1): a moderator ended the role on the desk; the row stays, the website no longer shows it
-  officers: ['rotary_year', 'club_id', 'member_id', 'name', 'role', 'contact_ok', 'contact_link', 'is_sample', 'ended_on'],
+  // list_id: the Team lists import that added the row (B13, 24 Nov 2026), so a whole list can be withdrawn
+  officers: ['rotary_year', 'club_id', 'member_id', 'name', 'role', 'contact_ok', 'contact_link', 'is_sample', 'ended_on', 'list_id'],
   functionaries: ['rotary_year', 'page', 'section', 'committee', 'member_id', 'name', 'role', 'zone', 'club_id', 'term',
-    'sort_order', 'contact_ok', 'contact_link', 'is_sample', 'ag_clubs', 'ended_on'],
+    'sort_order', 'contact_ok', 'contact_link', 'is_sample', 'ag_clubs', 'ended_on', 'list_id'],
   activities: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'club_id',
     'club_name', 'title', 'date', 'theme', 'description', 'photo_files', 'post_link', 'people_helped', 'amount_spent', 'partner_clubs',
     'photo_consent', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'story_of_month', 'event_id',
@@ -2331,6 +2345,156 @@ function Core_checkRoles(officers, functionaries, master, rotaryYear) {
   return out;
 }
 
+/* ------------------------------------------------------------------ */
+/* Team lists (B13, owner 23–24 Nov 2026, decision 144)                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The two lists in the separate "Team lists" Sheet: next year's (or a later year's) district team and club office
+ * bearers, prepared by the district and imported by an Administrator. Each tab is checked and imported on its own.
+ * `input` are the columns the district fills in; status and list are written by the script.
+ */
+var CORE_TEAM_LISTS = {
+  district: { tab: 'District team', target: 'functionaries', prefix: 'D', ahead: 3,
+    input: ['rotary_year', 'team', 'committee', 'role', 'member_id', 'name', 'order', 'ag_clubs'] },
+  club: { tab: 'Club office bearers', target: 'officers', prefix: 'C', ahead: 1,
+    input: ['rotary_year', 'club', 'role', 'member_id', 'name'] },
+};
+var CORE_LEADERSHIP_SECTIONS = ['Governor line', 'College of Governors', 'District Counsellors', 'Assistant Governors', "Governor's Office Team"];
+
+/** A short fingerprint of a list row's own values (not its status), to tell whether it changed after import. */
+function Core_teamRowKey(kind, r) {
+  return Core_hash(CORE_TEAM_LISTS[kind].input.map(function (c) { return Core_str(r[c]).trim(); }).join('|'));
+}
+
+/**
+ * Checks one list (kind 'district' or 'club'). rows: the tab's rows (readTab_). ctx: { year (this Rotary year), master
+ * (members list), clubs, functionaries, officers }. A row already imported keeps its status unless its values changed
+ * since (then it is reported, never applied). Every other row is Ready, Ready with a note, or an Error; a list goes in
+ * only when it has no errors (owner: never partly). Returns { rows: [{ _row, state, status, list, write, skip }],
+ * counts: { ready, notes, errors, imported, changed }, fingerprint }.
+ */
+function Core_teamListCheck(kind, rows, ctx) {
+  var spec = CORE_TEAM_LISTS[kind];
+  var byId = {};
+  (ctx.master || []).forEach(function (m) { if (Core_str(m.member_id)) byId[Core_str(m.member_id)] = m; });
+  var clubs = (ctx.clubs || []).filter(function (c) { return Core_str(c.club_id); });
+  var clubById = {};
+  clubs.forEach(function (c) { clubById[Core_str(c.club_id)] = c; });
+  var years = [];
+  for (var y = ctx.year, i = 0; i <= spec.ahead; i++, y = Core_nextRotaryYear(y)) years.push(y);
+  var known = { team: {}, committee: {}, role: {} };
+  (ctx.functionaries || []).forEach(function (f) {
+    known.team[Core_str(f.section).toLowerCase()] = Core_str(f.page);
+    known.committee[Core_str(f.committee).toLowerCase()] = true;
+    known.role[Core_baseRole(f.role).toLowerCase()] = true;
+  });
+  var open = function (r) { return !Core_str(r.ended_on); };
+  var counts = { ready: 0, notes: 0, errors: 0, imported: 0, changed: 0 };
+  // the same person and role (district) or the same club role (club) twice in rows not yet imported: both rows are errors
+  var dupKey = function (r) {
+    var y = Core_str(r.rotary_year).trim();
+    var role = Core_str(r.role).trim();
+    if (kind === 'club') {
+      var cid = Core_clubRef(r.club, clubs);
+      return cid && CORE_CLUB_ROLES.indexOf(role) >= 0 ? [y, cid, role].join('|') : '';
+    }
+    return [y, Core_str(r.team).trim(), Core_str(r.committee).trim(), role, Core_str(r.member_id).trim()].join('|').toLowerCase();
+  };
+  var seen = {};
+  rows.forEach(function (r) {
+    if (/^[A-Z]\d+ [0-9a-f]{8}$/.test(Core_str(r.list))) return;
+    var k = dupKey(r);
+    if (k) (seen[k] = seen[k] || []).push(r._row);
+  });
+  var out = [];
+  var keys = [];
+
+  rows.forEach(function (r) {
+    var res = { _row: r._row, state: '', status: Core_str(r.status), list: Core_str(r.list), write: null, skip: false };
+    out.push(res);
+    var key = Core_teamRowKey(kind, r);
+    if (spec.input.every(function (c) { return !Core_str(r[c]).trim(); })) { res.state = 'blank'; res.status = ''; res.list = ''; return; }
+    // imported earlier: "<list id> <fingerprint>"; a withdrawn list's rows count as new again
+    var done = /^([A-Z]\d+) ([0-9a-f]{8})$/.exec(res.list);
+    if (done) {
+      if (done[2] === key) { res.state = 'imported'; counts.imported++; return; }
+      res.state = 'changed';
+      res.status = 'Changed after import: not applied. Change it on the desk (Roles), or withdraw list ' + done[1] + ' before its year starts.';
+      counts.changed++;
+      return;
+    }
+    res.list = '';
+    keys.push(r._row + ':' + key);
+    var errors = [];
+    var notes = [];
+    var year = Core_str(r.rotary_year).trim();
+    if (years.indexOf(year) < 0) errors.push('Rotary year must be ' + (years.length > 2 ? years[0] + ' to ' + years[years.length - 1] : years.join(' or ')));
+    var id = Core_str(r.member_id).trim();
+    var m = byId[id];
+    if (!id) errors.push('Rotary member ID missing');
+    else if (!m) errors.push('Rotary member ID ' + id + ' is not in the members list');
+    else if (Core_str(m.status || 'active').toLowerCase() !== 'active') errors.push(Core_str(m.name) + ' is marked "' + Core_str(m.status) + '" in the members list');
+    var name = m ? Core_str(m.name) : Core_str(r.name).trim();
+    if (m && Core_str(r.name).trim() && Core_plainName(r.name) !== Core_plainName(m.name)) notes.push('the members list has the name as ' + Core_str(m.name) + ' (that is used)');
+    var role = Core_str(r.role).trim();
+    if (!role) errors.push('Role missing');
+
+    if (kind === 'club') {
+      var clubId = Core_clubRef(r.club, clubs);
+      var club = clubById[clubId];
+      if (!Core_str(r.club).trim()) errors.push('Club missing');
+      else if (!club) errors.push('Club "' + Core_str(r.club).trim() + '" not recognised: choose it from the list');
+      else if (Core_str(club.status || 'active').toLowerCase() !== 'active') errors.push(Core_str(club.club_name) + ' is closed');
+      if (role && CORE_CLUB_ROLES.indexOf(role) < 0) notes.push('not President, Secretary or Executive Secretary: shown on the club page in its year, but does not send for the club');
+      if (m && club && Core_str(m.club_id) !== clubId) notes.push('the members list has ' + name + ' in ' + (clubById[Core_str(m.club_id)] ? Core_str(clubById[Core_str(m.club_id)].club_name) : 'another club') + ': they act for this club only once that is corrected');
+      var twice = seen[dupKey(r)] || [];
+      if (club && twice.length > 1) errors.push('two rows for ' + Core_str(club.club_name) + ' ' + role + ' ' + year + ' (rows ' + twice.join(' and ') + ')');
+      var already = (ctx.officers || []).filter(function (o) {
+        return open(o) && Core_str(o.rotary_year) === year && Core_str(o.club_id) === clubId && Core_str(o.role) === role;
+      });
+      if (already.some(function (o) { return Core_str(o.member_id) === id; })) { notes.push('already on record: skipped'); res.skip = true; }
+      else if (already.length && CORE_CLUB_ROLES.indexOf(role) >= 0) notes.push('replaces ' + Core_str(already[already.length - 1].name) + ', on record for this role');
+      res.write = { rotary_year: year, club_id: clubId, member_id: id, name: name, role: role, contact_ok: false };
+    } else {
+      var team = Core_str(r.team).trim();
+      var committee = Core_str(r.committee).trim();
+      if (!team) errors.push('Team missing');
+      else if (!(team.toLowerCase() in known.team)) notes.push('a team not used before: check the spelling');
+      if (committee && !known.committee[committee.toLowerCase()]) notes.push('a committee not used before: check the spelling');
+      if (role && !known.role[Core_baseRole(role).toLowerCase()]) notes.push('a role not used before: check the spelling');
+      var order = Core_str(r.order).trim();
+      if (order && !/^\d+$/.test(order)) errors.push('Order must be a number');
+      var agClubs = Core_list(r.ag_clubs);
+      var unknownClubs = agClubs.filter(function (v) { return !Core_clubRef(v, clubs); });
+      if (unknownClubs.length) errors.push('club(s) not recognised: ' + unknownClubs.join(', '));
+      var same = seen[dupKey(r)] || [];
+      if (same.length > 1) errors.push('the same row twice (rows ' + same.join(' and ') + ')');
+      if ((ctx.functionaries || []).some(function (f) {
+        return open(f) && Core_str(f.rotary_year) === year && Core_str(f.section).toLowerCase() === team.toLowerCase() &&
+          Core_str(f.committee).toLowerCase() === committee.toLowerCase() && Core_str(f.role).toLowerCase() === role.toLowerCase() && Core_str(f.member_id) === id;
+      })) { notes.push('already on record: skipped'); res.skip = true; }
+      var page = known.team[team.toLowerCase()] || (CORE_LEADERSHIP_SECTIONS.indexOf(team) >= 0 ? 'leadership' : 'teams');
+      res.write = { rotary_year: year, page: page, section: team, committee: committee, member_id: id, name: name, role: role,
+        club_id: m ? Core_str(m.club_id) : '', sort_order: order ? Number(order) : '', contact_ok: false,
+        ag_clubs: agClubs.map(function (v) { return Core_str((clubById[Core_clubRef(v, clubs)] || {}).club_name) || v; }).join(', ') };
+    }
+
+    if (errors.length) {
+      res.state = 'error';
+      res.status = 'Error: ' + errors.join('; ') + (notes.length ? '. Note: ' + notes.join('; ') : '');
+      res.write = null;
+      counts.errors++;
+    } else {
+      res.state = notes.length ? 'note' : 'ready';
+      res.status = 'Ready' + (notes.length ? '. Note: ' + notes.join('; ') : '');
+      counts.ready++;
+      if (notes.length) counts.notes++;
+    }
+  });
+  return { rows: out, counts: counts, fingerprint: Core_hash(kind + '#' + keys.join(',')) };
+}
+
 // Lets the website's Node.js tests load this file; ignored by Google Apps Script.
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -2359,6 +2523,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_clubWeekday: Core_clubWeekday, Core_clubWeeklyDue: Core_clubWeeklyDue, Core_clubWeeklyEmail: Core_clubWeeklyEmail,
     Core_yearsAhead: Core_yearsAhead, Core_baseRole: Core_baseRole, Core_heldYear: Core_heldYear, Core_roleTitle: Core_roleTitle,
     Core_comingOfficers: Core_comingOfficers,
+    CORE_TEAM_LISTS: CORE_TEAM_LISTS, Core_teamRowKey: Core_teamRowKey, Core_teamListCheck: Core_teamListCheck,
   };
 }
 
@@ -2398,6 +2563,8 @@ function setup() {
   createForms_(report);
   addLaterQuestions_(report);
   ensureMemberPhotosFolder_(report);
+  // B13 (24 Nov 2026): the Team lists Sheet; one refusal from Google must not stop the rest
+  try { ensureTeamLists_(report); } catch (e) { report.push('Team lists Sheet not made or updated (' + e.message + '): run Upgrade Sheet again'); }
   checkSharing_(main, report);
   installTriggers_(report);
   refreshDashboard();
@@ -2426,6 +2593,8 @@ function upgradeSheet() {
   ensureLists_(report);
   createForms_(report); // new forms only; existing forms are kept
   addLaterQuestions_(report);
+  // B13 (24 Nov 2026): the Team lists Sheet; one refusal from Google must not stop the rest
+  try { ensureTeamLists_(report); } catch (e) { report.push('Team lists Sheet not made or updated (' + e.message + '): run Upgrade Sheet again'); }
   installTriggers_(report);
   // Apps Script stops a run after 6 minutes (18 Nov 2026: the first Release 1 upgrade did); making new forms is slow,
   // so the form lists wait for the next run, or for the menu, when time is short
@@ -2516,6 +2685,7 @@ var DEFAULT_SETTINGS = [
   ['contact_email', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
   ['last_backup_at', '', 'Filled in by the weekly backup (Sunday 3 am); copies are in the private Backups folder next to the Sheets'],
+  ['team_lists_url', '', 'The Team lists Sheet, made by Upgrade Sheet: the coming district team and club office bearers, checked and imported on the desk (Roles)'],
   ['summary_emails', '', 'The weekly summary (Monday 8 am) goes here. Blank: the district account that owns the Sheet'],
   ['club_senders_only', 'off', 'Club office bearers: off, watch or on. On: the activity and Club updates forms are accepted only from the club\'s President, Secretary or Executive Secretary (this year\'s, or the last known until this year\'s is told), sent from their email on file; watch: nobody is refused, each row says who sent it'],
   ['weekly_club_email', 'off', 'Club office bearers: off, test or on. On: each club\'s office bearers get one email a week, on the club\'s own weekday, with what was approved for the club (none when nothing happened); test: the day\'s club emails all go to weekly_club_email_test_to'],
@@ -5527,6 +5697,11 @@ function desk_(req) {
   // Release 3 (18 Nov 2026): a form refused by the sender check (Clubs.js)
   if (fn === 'letthrough') return deskLetThrough_(me, req.tab, req.id);
   if (fn === 'modsave') return deskModeratorSave_(me, req.row, req.fields || {}, req.reason);
+  // B13 (24 Nov 2026): the Team lists Sheet (TeamLists.js)
+  if (fn === 'teamlists') return deskTeamLists_(me);
+  if (fn === 'teamcheck') return deskTeamCheck_(me, req.list);
+  if (fn === 'teamimport') return deskTeamImport_(me, req.list);
+  if (fn === 'teamwithdraw') return deskTeamWithdraw_(me, req.id);
   throw new Error('unknown request');
 }
 
@@ -7146,6 +7321,261 @@ function senderCheckSummary_(since) {
     if (ss.getSheetByName(tab)) readTab_(ss, tab).forEach(tally);
   });
   return Object.keys(counts).map(function (k) { return k + ': ' + counts[k]; });
+}
+
+
+// ===== TeamLists.js =====
+/**
+ * Team lists (B13, owner 23–24 Nov 2026, decision 144): a separate Google Sheet where the district prepares a coming
+ * year's district team and club office bearers, so next year's team can be on the website before July. Upgrade Sheet
+ * makes it next to the main Sheet; the owner shares it with the people who prepare the lists.
+ * - Each tab is checked and imported on its own (Google stops a run after 6 minutes).
+ * - A list goes in only when it has no errors, never in part; rows added later go in as a further list.
+ * - Check: Members moderators and Administrators. Import and Withdraw this list: Administrators only.
+ * - Withdraw this list takes one imported list off again, only before its year starts.
+ * The Sheet holds names and Rotary IDs only, never phones or emails.
+ */
+
+var TEAM_LISTS_NAME = '3110Website – Team lists';
+var TEAM_LIST_REFS = { roles: 'Roles used', clubs: 'Clubs', help: 'Instructions' };
+var TEAM_LIST_HELP = [
+  'Team lists: next year\'s (or a later year\'s) district team and club office bearers, for the website.',
+  '',
+  'Fill in one row per person and role. Names and Rotary member IDs only: never phone numbers or emails.',
+  'District team: rotary_year (e.g. 2027-28), team (e.g. District Membership Team, Assistant Governors, Governor line), committee (if any), role (e.g. Chairman, Co-chairman, Assistant Governor), member_id (the Rotary member ID), name, order (optional: 1 first), ag_clubs (an Assistant Governor\'s clubs, separated by commas).',
+  'Club office bearers: rotary_year, club (choose from the list), role (President, Secretary or Executive Secretary), member_id, name.',
+  'Team, committee and role offer the names used before (from the Roles used tab); a new name can be typed, and the check notes it.',
+  'The year: this Rotary year up to three years ahead for the district team; this year or next for club office bearers.',
+  'Write "Elect" or "Nominee" nowhere: the website adds them from the year.',
+  '',
+  'Then a Members moderator or an Administrator opens the moderation desk → Roles → Team lists → Check. The status column says Ready, Ready with a note, or Error for each row.',
+  'Correct every Error and check again. An Administrator then presses Import: the whole list goes in at once, or nothing does.',
+  'Rows added later are checked and imported as a further list. The status and list columns are filled in by the script: do not type in them.',
+  'A row changed after it was imported is not applied: change that person on the desk (Roles), or an Administrator withdraws that whole list (only before its year starts) and imports it again.',
+];
+
+/** The Team lists Sheet; with `create`, made (or found again) by Upgrade Sheet. */
+function teamListsSs_() {
+  var id = props_().getProperty('TEAM_LISTS_ID');
+  if (!id) throw deskError_('The Team lists Sheet is not made yet: run Rotary → Administrator → Upgrade Sheet.');
+  return retry_(function () { return SpreadsheetApp.openById(id); });
+}
+
+/** Upgrade Sheet: makes the Team lists Sheet next to the main Sheet, or brings an existing one up to date. */
+function ensureTeamLists_(report) {
+  var ss = null;
+  var id = props_().getProperty('TEAM_LISTS_ID');
+  if (id) {
+    try { ss = retry_(function () { return SpreadsheetApp.openById(id); }); } catch (e) { report.push('The Team lists Sheet could not be opened (' + e.message + '), so a new one was made'); }
+  }
+  if (!ss) {
+    ss = SpreadsheetApp.create(TEAM_LISTS_NAME);
+    props_().setProperty('TEAM_LISTS_ID', ss.getId());
+    keepInSheetFolder_(ss.getId(), 'the Team lists Sheet', report);
+    report.push('Made the Team lists Sheet ("' + TEAM_LISTS_NAME + '"; its link is in settings → team_lists_url). Share it, as an editor, only with the people who prepare the lists.');
+  }
+  setSetting_('team_lists_url', ss.getUrl());
+  var schema = {};
+  schema[TEAM_LIST_REFS.help] = ['How to fill in the Team lists'];
+  Object.keys(CORE_TEAM_LISTS).forEach(function (k) { schema[CORE_TEAM_LISTS[k].tab] = CORE_TEAM_LISTS[k].input.concat(['status', 'list']); });
+  schema[TEAM_LIST_REFS.roles] = ['team', 'committee', 'role'];
+  schema[TEAM_LIST_REFS.clubs] = ['club', 'club_id'];
+  ensureTabs_(ss, schema, report);
+  replaceRows_(ss, TEAM_LIST_REFS.help, TEAM_LIST_HELP.map(function (l) { return { 'How to fill in the Team lists': l }; }));
+  [TEAM_LIST_REFS.help, TEAM_LIST_REFS.roles, TEAM_LIST_REFS.clubs].forEach(function (n) {
+    var sh = ss.getSheetByName(n);
+    if (!sh.getProtections(SpreadsheetApp.ProtectionType.SHEET).length) sh.protect().setDescription('Filled in by the script – do not edit by hand').setWarningOnly(true);
+  });
+  refreshTeamListRefs_(ss);
+}
+
+/** The Roles used and Clubs tabs, and the drop-downs that read them: a new name warns but is kept; a club must be a real one. */
+function refreshTeamListRefs_(ss) {
+  var uniq = function (list) {
+    return list.map(Core_str).map(function (v) { return v.trim(); }).filter(function (v, i, a) { return v && a.indexOf(v) === i; }).sort(function (a, b) { return a.localeCompare(b); });
+  };
+  var team = readTab_(mainSs_(), 'functionaries');
+  var cols = { team: uniq(team.map(function (f) { return f.section; })), committee: uniq(team.map(function (f) { return f.committee; })),
+    role: uniq(team.map(function (f) { return Core_baseRole(f.role); }).concat(CORE_CLUB_ROLES)) };
+  var n = Math.max(cols.team.length, cols.committee.length, cols.role.length);
+  var rows = [];
+  for (var i = 0; i < n; i++) rows.push({ team: cols.team[i] || '', committee: cols.committee[i] || '', role: cols.role[i] || '' });
+  replaceRows_(ss, TEAM_LIST_REFS.roles, rows);
+  var clubs = clubs_().filter(function (c) { return Core_str(c.status || 'active').toLowerCase() === 'active'; })
+    .sort(function (a, b) { return Core_str(a.club_name).localeCompare(Core_str(b.club_name)); });
+  replaceRows_(ss, TEAM_LIST_REFS.clubs, clubs.map(function (c) { return { club: Core_str(c.club_name), club_id: Core_str(c.club_id) }; }));
+
+  var ref = function (tab, col, allowInvalid) {
+    return SpreadsheetApp.newDataValidation().requireValueInRange(ss.getSheetByName(tab).getRange(2, col, 999, 1), true).setAllowInvalid(allowInvalid).build();
+  };
+  var put = function (tab, col, rule) {
+    var idx = headers_(ss, tab).indexOf(col);
+    var sh = ss.getSheetByName(tab);
+    if (idx >= 0) sh.getRange(2, idx + 1, sh.getMaxRows() - 1, 1).setDataValidation(rule);
+  };
+  var district = CORE_TEAM_LISTS.district.tab;
+  put(district, 'team', ref(TEAM_LIST_REFS.roles, 1, true));
+  put(district, 'committee', ref(TEAM_LIST_REFS.roles, 2, true));
+  put(district, 'role', ref(TEAM_LIST_REFS.roles, 3, true));
+  put(CORE_TEAM_LISTS.club.tab, 'club', ref(TEAM_LIST_REFS.clubs, 1, false));
+  put(CORE_TEAM_LISTS.club.tab, 'role', SpreadsheetApp.newDataValidation().requireValueInList(CORE_CLUB_ROLES, true).setAllowInvalid(true).build());
+}
+
+/** Checks one list against the members list, the clubs and what is already on record. */
+function teamListCheck_(kind) {
+  var spec = CORE_TEAM_LISTS[kind];
+  if (!spec) throw deskError_('Unknown list.');
+  var ss = teamListsSs_();
+  var main = mainSs_();
+  var ctx = { year: Core_rotaryYearOf(today_()), master: readTab_(privateSs_(), 'members_master'), clubs: clubs_(),
+    functionaries: readTab_(main, 'functionaries'), officers: readTab_(main, 'officers') };
+  return { ss: ss, spec: spec, result: Core_teamListCheck(kind, readTab_(ss, spec.tab), ctx), year: ctx.year };
+}
+
+/** Writes the status and list columns of a list in one go (a long list stays well inside the 6-minute limit). */
+function writeTeamStatuses_(ss, tab, rows) {
+  var sh = ss.getSheetByName(tab);
+  var headers = headers_(ss, tab);
+  var s = headers.indexOf('status');
+  var l = headers.indexOf('list');
+  var last = sh.getLastRow();
+  if (last < 2 || s < 0 || l < 0) return;
+  var statuses = sh.getRange(2, s + 1, last - 1, 1).getValues();
+  var lists = sh.getRange(2, l + 1, last - 1, 1).getValues();
+  rows.forEach(function (r) {
+    statuses[r._row - 2][0] = r.status;
+    lists[r._row - 2][0] = r.list;
+  });
+  retry_(function () { sh.getRange(2, s + 1, last - 1, 1).setValues(statuses); });
+  retry_(function () { sh.getRange(2, l + 1, last - 1, 1).setValues(lists); });
+}
+
+/** Imported lists by list id, from the officers and functionaries tabs. */
+function teamListsImported_() {
+  var main = mainSs_();
+  var out = {};
+  Object.keys(CORE_TEAM_LISTS).forEach(function (kind) {
+    var spec = CORE_TEAM_LISTS[kind];
+    readTab_(main, spec.target).forEach(function (r) {
+      var id = Core_str(r.list_id);
+      if (!id) return;
+      var x = out[id] = out[id] || { id: id, kind: kind, tab: spec.tab, rows: 0, years: [] };
+      x.rows++;
+      if (x.years.indexOf(Core_str(r.rotary_year)) < 0) x.years.push(Core_str(r.rotary_year));
+    });
+  });
+  var year = Core_rotaryYearOf(today_());
+  return Object.keys(out).map(function (k) {
+    var x = out[k];
+    x.years.sort();
+    x.withdrawable = x.years.every(function (y) { return y > year; }); // only before its year starts
+    return x;
+  }).sort(function (a, b) { return a.id.localeCompare(b.id); });
+}
+
+/* ---------- The desk (Roles → Team lists) ---------- */
+
+/** What the desk shows: each list's counts, whether it was checked as it stands, and the lists imported so far. */
+function deskTeamLists_(me) {
+  if (!me.views.members) throw deskError_('Only Members moderators and Administrators can do this.');
+  if (!props_().getProperty('TEAM_LISTS_ID')) return { made: false };
+  var url = Core_str(settings_().team_lists_url);
+  var lists = Object.keys(CORE_TEAM_LISTS).map(function (kind) {
+    var c = teamListCheck_(kind);
+    return { kind: kind, tab: c.spec.tab, counts: c.result.counts,
+      checked: Core_str(props_().getProperty('TEAMLIST_CHECKED_' + kind)) === c.result.fingerprint };
+  });
+  return { made: true, url: /^https:\/\/docs\.google\.com\//.test(url) ? url : '', lists: lists, imported: teamListsImported_(), canImport: !!me.views.admin };
+}
+
+/** Check: fills the status column and remembers the list as checked. */
+function deskTeamCheck_(me, kind) {
+  if (!me.views.members) throw deskError_('Only Members moderators and Administrators can do this.');
+  var c = teamListCheck_(kind);
+  try { refreshTeamListRefs_(c.ss); } catch (e) { Logger.log('Team lists: reference tabs not refreshed: ' + e.message); }
+  writeTeamStatuses_(c.ss, c.spec.tab, c.result.rows);
+  props_().setProperty('TEAMLIST_CHECKED_' + kind, c.result.fingerprint);
+  var n = c.result.counts;
+  return { message: c.spec.tab + ': ' + n.ready + ' ready' + (n.notes ? ' (' + n.notes + ' with a note)' : '') + ', ' + n.errors + ' with an error' +
+    (n.imported ? ', ' + n.imported + ' imported before' : '') + (n.changed ? ', ' + n.changed + ' changed after import (not applied)' : '') + '.' +
+    (n.errors ? ' Correct the errors in the Sheet and check again.' : n.ready ? ' An Administrator can now import it.' : '') };
+}
+
+/**
+ * Import: only an Administrator; only a list checked as it stands now (checked again here, so nothing changed in
+ * between) and with no errors; all of it or nothing. One import at a time.
+ */
+function deskTeamImport_(me, kind) {
+  if (!me.views.admin) throw deskError_('Only Administrators can import a list.');
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) throw deskError_('Another import is running: try again in a minute.');
+  try {
+    var c = teamListCheck_(kind);
+    var res = c.result;
+    if (Core_str(props_().getProperty('TEAMLIST_CHECKED_' + kind)) !== res.fingerprint) {
+      throw deskError_('The list has changed since it was checked: press Check again first. Nothing was imported.');
+    }
+    if (res.counts.errors) throw deskError_('The list has ' + res.counts.errors + ' row(s) with an error: correct them and check again. Nothing was imported.');
+    var take = res.rows.filter(function (r) { return (r.state === 'ready' || r.state === 'note') && !r.skip; });
+    var skipped = res.rows.filter(function (r) { return (r.state === 'ready' || r.state === 'note') && r.skip; });
+    if (!take.length && !skipped.length) throw deskError_('Nothing new to import in ' + c.spec.tab + '.');
+    var seqKey = 'TEAMLIST_SEQ_' + kind;
+    var listId = c.spec.prefix + (Number(props_().getProperty(seqKey) || 0) + 1);
+    props_().setProperty(seqKey, listId.slice(1));
+    var main = mainSs_();
+    appendRows_(main, c.spec.target, take.map(function (r) { return Object.assign({}, r.write, { list_id: listId }); }));
+    var who = deskName_(me.email) || me.email;
+    var when = Core_dateLabel(today_());
+    var rowsByRow = {};
+    readTab_(c.ss, c.spec.tab).forEach(function (r) { rowsByRow[r._row] = Core_teamRowKey(kind, r); });
+    take.forEach(function (r) { r.status = 'Imported ' + when + ' by ' + who + ' (list ' + listId + ')'; r.list = listId + ' ' + rowsByRow[r._row]; });
+    skipped.forEach(function (r) { r.status = 'Already on record: not imported again (list ' + listId + ')'; r.list = listId + ' ' + rowsByRow[r._row]; });
+    writeTeamStatuses_(c.ss, c.spec.tab, take.concat(skipped));
+    props_().deleteProperty('TEAMLIST_CHECKED_' + kind);
+    deskLog_(me, 'imported list', c.spec.target, listId, take.length + ' row(s) from ' + c.spec.tab);
+    contentChanged_();
+    try { checkRoles(true); } catch (e) { Logger.log('Role check not run: ' + e.message); }
+    return { message: 'Imported list ' + listId + ': ' + take.length + ' row(s)' + (skipped.length ? '; ' + skipped.length + ' already on record' : '') +
+      '. The website shows them ' + NEXT_UPDATE + '.' };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Withdraw this list: takes every row of one imported list off again, only before its year starts. */
+function deskTeamWithdraw_(me, listId) {
+  if (!me.views.admin) throw deskError_('Only Administrators can withdraw a list.');
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) throw deskError_('Another import is running: try again in a minute.');
+  try {
+    var list = teamListsImported_().filter(function (x) { return x.id === Core_str(listId); })[0];
+    if (!list) throw deskError_('No imported list ' + Core_str(listId) + '.');
+    if (!list.withdrawable) throw deskError_('The year of list ' + list.id + ' has started: change people one by one on the desk (Roles) instead.');
+    var spec = CORE_TEAM_LISTS[list.kind];
+    var main = mainSs_();
+    var sh = main.getSheetByName(spec.target);
+    var rows = readTab_(main, spec.target).filter(function (r) { return Core_str(r.list_id) === list.id; }).map(function (r) { return r._row; });
+    // from the bottom up, so the row numbers above stay right; neighbouring rows go in one call
+    rows.sort(function (a, b) { return b - a; });
+    for (var i = 0; i < rows.length;) {
+      var j = i;
+      while (j + 1 < rows.length && rows[j + 1] === rows[j] - 1) j++;
+      sh.deleteRows(rows[j], i === j ? 1 : rows[i] - rows[j] + 1);
+      i = j + 1;
+    }
+    var ss = teamListsSs_();
+    var who = deskName_(me.email) || me.email;
+    var back = readTab_(ss, spec.tab).filter(function (r) { return Core_str(r.list).indexOf(list.id + ' ') === 0; }).map(function (r) {
+      return { _row: r._row, status: 'Withdrawn ' + Core_dateLabel(today_()) + ' by ' + who + ' (list ' + list.id + '): check and import again, or delete the row', list: '' };
+    });
+    writeTeamStatuses_(ss, spec.tab, back);
+    deskLog_(me, 'withdrew list', spec.target, list.id, rows.length + ' row(s)');
+    contentChanged_();
+    try { checkRoles(true); } catch (e) { Logger.log('Role check not run: ' + e.message); }
+    return { message: 'Withdrew list ' + list.id + ': ' + rows.length + ' row(s) taken off. The website follows ' + NEXT_UPDATE + '.' };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 

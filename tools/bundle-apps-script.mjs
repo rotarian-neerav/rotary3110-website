@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = resolve(ROOT, 'apps-script');
 const OUT = resolve(ROOT, 'dist/apps-script');
-export const ORDER = ['Config.js', 'Schema.js', 'Core.js', 'Setup.js', 'Forms.js', 'Submissions.js', 'Moderation.js', 'Members.js', 'Endpoint.js', 'Desk.js', 'Admin.js', 'Clubs.js', 'Jobs.js', 'Sample.js', 'Practice.js'];
+export const ORDER = ['Config.js', 'Schema.js', 'Core.js', 'Setup.js', 'Forms.js', 'Submissions.js', 'Moderation.js', 'Members.js', 'Endpoint.js', 'Desk.js', 'Admin.js', 'Clubs.js', 'TeamLists.js', 'Jobs.js', 'Sample.js', 'Practice.js'];
 
 /** The whole Code.gs as text. The tests load this directly, so test files running at once never read a half-written file. */
 export function bundleCode() {

@@ -137,6 +137,19 @@ function appendRow_(ss, name, obj) {
   return sh.getLastRow();
 }
 
+/** Appends many rows given as objects in one write (a long list stays well inside Google's 6-minute limit). */
+function appendRows_(ss, name, objs) {
+  if (!objs.length) return;
+  var sh = ss.getSheetByName(name);
+  var headers = headers_(ss, name);
+  var start = sh.getLastRow() + 1;
+  var end = start + objs.length - 1;
+  if (sh.getMaxRows() < end) sh.insertRowsAfter(sh.getMaxRows(), end - sh.getMaxRows());
+  sh.getRange(start, 1, objs.length, headers.length).setValues(objs.map(function (o) {
+    return headers.map(function (h) { return o[h] == null ? '' : cellValue_(o[h]); });
+  }));
+}
+
 /** Replaces every data row of a tab (keeps the header row). */
 function replaceRows_(ss, name, rows) {
   var sh = ss.getSheetByName(name);

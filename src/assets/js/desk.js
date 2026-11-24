@@ -19,6 +19,13 @@
     en: {
       // Release 1 (18 Nov 2026)
       notBearer: 'Sent by someone who is not an office bearer of the club', tabHeld: 'Not accepted', heldIntro: 'Sent by someone who is not an office bearer of the club on file; they were told by email. Let one through if it should be (a new office bearer? Add them on the Roles tab too).', letThrough: 'Let through', from: 'from',
+      // B13 (24 Nov 2026): the Team lists Sheet
+      teamLists: 'Team lists (a coming year\'s district team and club office bearers)', teamListsIntro: 'Prepared in the Team lists Sheet. Check fills its status column; an Administrator imports a list once it has no errors. Each list goes in whole, or not at all.',
+      teamListsOpen: 'Show the lists', teamListsNone: 'The Team lists Sheet is not made yet: an Administrator runs Upgrade Sheet.', teamOpenSheet: 'Open the Team lists Sheet',
+      teamCounts: '{ready} ready ({notes} with a note) · {errors} with an error · {imported} imported before · {changed} changed after import',
+      teamNotChecked: 'Not checked as it stands now: press Check.', teamCheck: 'Check', teamImport: 'Import', teamImported: 'Imported lists',
+      teamWithdraw: 'Withdraw this list', teamConfirmImport: 'Import the whole list now? It shows on the website at the next update.', teamConfirmWithdraw: 'Take list {id} off the website?',
+      teamRows: '{n} rows', teamStarted: 'its year has started',
       officersYear: 'Club office bearers, {year}', officersTold: "Clubs that have told this year's President and Secretary: {n}", officersCarried: "Clubs where last year's (or older) still act: {n}", officersNone: 'Clubs with none on record: {n}', actsNow: 'acts now', carriedOver: "acts until this year's is told",
       tabRoles: 'Roles', tabAdmin: 'Admin', subClean: 'Clean', subLook: 'Needs a look', otherZones: 'Other areas',
       cleanIntro: 'Nothing to check was found in these. Glance at each, untick any that look wrong (it moves to Needs a look), then approve the rest.',
@@ -62,6 +69,12 @@
     },
     hi: {
       notBearer: 'भेजने वाले रिकॉर्ड में क्लब के पदाधिकारी नहीं हैं', tabHeld: 'स्वीकार नहीं', heldIntro: 'इन्हें किसी ऐसे व्यक्ति ने भेजा जो रिकॉर्ड में क्लब का पदाधिकारी नहीं है; उन्हें ईमेल से बता दिया गया। ठीक हो तो आगे भेजें (नए पदाधिकारी? उन्हें पद टैब में भी जोड़ें)।', letThrough: 'आगे भेजें', from: 'से',
+      teamLists: 'टीम सूचियाँ (आने वाले वर्ष की डिस्ट्रिक्ट टीम और क्लब पदाधिकारी)', teamListsIntro: 'टीम सूचियाँ शीट में तैयार होती हैं। जाँचें उसका स्थिति कॉलम भरता है; कोई त्रुटि न रहने पर प्रशासक सूची आयात करते हैं। हर सूची पूरी जाती है, या बिल्कुल नहीं।',
+      teamListsOpen: 'सूचियाँ दिखाएँ', teamListsNone: 'टीम सूचियाँ शीट अभी नहीं बनी: प्रशासक Upgrade Sheet चलाएँ।', teamOpenSheet: 'टीम सूचियाँ शीट खोलें',
+      teamCounts: '{ready} तैयार ({notes} टिप्पणी सहित) · {errors} में त्रुटि · {imported} पहले आयात · {changed} आयात के बाद बदले',
+      teamNotChecked: 'अभी की स्थिति में जाँची नहीं गई: जाँचें दबाएँ।', teamCheck: 'जाँचें', teamImport: 'आयात करें', teamImported: 'आयात की गई सूचियाँ',
+      teamWithdraw: 'यह सूची वापस लें', teamConfirmImport: 'पूरी सूची अभी आयात करें? अगले अपडेट में वेबसाइट पर दिखेगी।', teamConfirmWithdraw: 'सूची {id} वेबसाइट से हटाएँ?',
+      teamRows: '{n} पंक्तियाँ', teamStarted: 'इसका वर्ष शुरू हो चुका है',
       officersYear: 'क्लब पदाधिकारी, {year}', officersTold: 'जिन क्लबों ने इस वर्ष के अध्यक्ष और सचिव बताए: {n}', officersCarried: 'जहाँ पिछले (या पुराने) पदाधिकारी अभी काम कर रहे हैं: {n}', officersNone: 'जिनका कोई रिकॉर्ड नहीं: {n}', actsNow: 'अभी पद पर', carriedOver: 'इस वर्ष के बताए जाने तक पद पर',
       tabRoles: 'पद', tabAdmin: 'प्रशासन', subClean: 'साफ़', subLook: 'देखना ज़रूरी', otherZones: 'दूसरे क्षेत्र',
       cleanIntro: 'इनमें जाँचने लायक कुछ नहीं मिला। हर एक पर नज़र डालें, जो ठीक न लगे उसका टिक हटाएँ (वह "देखना ज़रूरी" में चला जाएगा), फिर बाकी स्वीकृत करें।',
@@ -835,6 +848,8 @@
           esc(p.tab + ' · ' + p.rotary_year) + '</span><br><span class="small">' + esc(p.problem) + '</span></div><div>' +
           '<button type="button" class="btn-small" data-check="' + i + '">' + esc(t('open')) + '</button></div></li>';
       }).join('') + '</ul>' : '<p>' + esc(t('none')) + '</p>');
+      h += '<h2>' + esc(t('teamLists')) + '</h2><p class="small muted">' + esc(t('teamListsIntro')) + '</p><div data-team-lists>' +
+        '<button type="button" class="btn-small" data-load-team>' + esc(t('teamListsOpen')) + '</button></div>';
     }
     h += '<h2>' + esc(t('findRole')) + '</h2><form class="desk-form desk-search" data-role-search><label>' + esc(t('roleHint')) +
       '<input name="q" required></label><button class="btn-small" type="submit">' + esc(t('search')) + '</button></form><div data-roles></div>' +
@@ -863,6 +878,52 @@
     });
     view.querySelector('[data-add-officer] [data-cancel]').remove();
     view.querySelector('[data-load-changes]').addEventListener('click', function () { drawChanges(view.querySelector('[data-changes]')); });
+    var team = view.querySelector('[data-load-team]');
+    if (team) team.addEventListener('click', function () { drawTeamLists(view.querySelector('[data-team-lists]')); });
+  }
+
+  // B13 (24 Nov 2026): check, import and withdraw the lists prepared in the Team lists Sheet
+  function drawTeamLists(box) {
+    say(t('working'));
+    api({ fn: 'teamlists' }).then(function (d) {
+      say('');
+      if (!d.made) { box.innerHTML = '<p>' + esc(t('teamListsNone')) + '</p>'; return; }
+      var again = function () { drawTeamLists(box); };
+      box.innerHTML = (d.url ? '<p><a href="' + esc(safeUrl(d.url)) + '" target="_blank" rel="noopener">' + esc(t('teamOpenSheet')) + ' ↗</a></p>' : '') +
+        '<ul class="desk-list">' + d.lists.map(function (x) {
+          var n = x.counts;
+          var canImport = d.canImport && x.checked && !n.errors && n.ready > 0;
+          return '<li class="desk-row"><div><strong>' + esc(x.tab) + '</strong><br><span class="small">' +
+            esc(t('teamCounts').replace('{ready}', n.ready).replace('{notes}', n.notes).replace('{errors}', n.errors).replace('{imported}', n.imported).replace('{changed}', n.changed)) +
+            '</span>' + (x.checked ? '' : '<br><span class="small muted">' + esc(t('teamNotChecked')) + '</span>') + '</div><div>' +
+            '<button type="button" class="btn-small" data-team-check="' + esc(x.kind) + '">' + esc(t('teamCheck')) + '</button>' +
+            (d.canImport ? '<button type="button" class="btn-small" data-team-import="' + esc(x.kind) + '"' + (canImport ? '' : ' disabled') + '>' + esc(t('teamImport')) + '</button>' : '') +
+            '</div></li>';
+        }).join('') + '</ul>' +
+        (d.imported.length ? '<h3>' + esc(t('teamImported')) + '</h3><ul class="desk-list">' + d.imported.map(function (x) {
+          return '<li class="desk-row"><div><strong>' + esc(x.id) + '</strong> · ' + esc(x.tab) + '<br><span class="small muted">' + esc(x.years.join(', ') + ' · ' + t('teamRows').replace('{n}', x.rows) +
+            (x.withdrawable ? '' : ' · ' + t('teamStarted'))) + '</span></div><div>' +
+            (d.canImport && x.withdrawable ? '<button type="button" class="btn-small btn-no-small" data-team-withdraw="' + esc(x.id) + '">' + esc(t('teamWithdraw')) + '</button>' : '') + '</div></li>';
+        }).join('') + '</ul>' : '');
+      Array.prototype.forEach.call(box.querySelectorAll('[data-team-check]'), function (b) {
+        b.addEventListener('click', function () { b.disabled = true; send({ fn: 'teamcheck', list: b.getAttribute('data-team-check') }, again).then(function () { b.disabled = false; }); });
+      });
+      Array.prototype.forEach.call(box.querySelectorAll('[data-team-import]'), function (b) {
+        b.addEventListener('click', function () {
+          if (!window.confirm(t('teamConfirmImport'))) return;
+          b.disabled = true;
+          send({ fn: 'teamimport', list: b.getAttribute('data-team-import') }, again);
+        });
+      });
+      Array.prototype.forEach.call(box.querySelectorAll('[data-team-withdraw]'), function (b) {
+        b.addEventListener('click', function () {
+          var id = b.getAttribute('data-team-withdraw');
+          if (!window.confirm(t('teamConfirmWithdraw').replace('{id}', id))) return;
+          b.disabled = true;
+          send({ fn: 'teamwithdraw', id: id }, again);
+        });
+      });
+    }).catch(function (err) { say(err.message, true); });
   }
 
   function drawRoleList(box, roles, again) {

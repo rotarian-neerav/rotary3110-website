@@ -32,6 +32,8 @@ function setup() {
   createForms_(report);
   addLaterQuestions_(report);
   ensureMemberPhotosFolder_(report);
+  // B13 (24 Nov 2026): the Team lists Sheet; one refusal from Google must not stop the rest
+  try { ensureTeamLists_(report); } catch (e) { report.push('Team lists Sheet not made or updated (' + e.message + '): run Upgrade Sheet again'); }
   checkSharing_(main, report);
   installTriggers_(report);
   refreshDashboard();
@@ -60,6 +62,8 @@ function upgradeSheet() {
   ensureLists_(report);
   createForms_(report); // new forms only; existing forms are kept
   addLaterQuestions_(report);
+  // B13 (24 Nov 2026): the Team lists Sheet; one refusal from Google must not stop the rest
+  try { ensureTeamLists_(report); } catch (e) { report.push('Team lists Sheet not made or updated (' + e.message + '): run Upgrade Sheet again'); }
   installTriggers_(report);
   // Apps Script stops a run after 6 minutes (18 Nov 2026: the first Release 1 upgrade did); making new forms is slow,
   // so the form lists wait for the next run, or for the menu, when time is short
@@ -150,6 +154,7 @@ var DEFAULT_SETTINGS = [
   ['contact_email', '', 'Older setting: used only while the moderators tab names no District office moderator'],
   ['contact_daily_limit', String(CORE_CONTACT_DAILY_LIMIT), 'At most this many contact messages are emailed per day; the rest wait in the private Sheet'],
   ['last_backup_at', '', 'Filled in by the weekly backup (Sunday 3 am); copies are in the private Backups folder next to the Sheets'],
+  ['team_lists_url', '', 'The Team lists Sheet, made by Upgrade Sheet: the coming district team and club office bearers, checked and imported on the desk (Roles)'],
   ['summary_emails', '', 'The weekly summary (Monday 8 am) goes here. Blank: the district account that owns the Sheet'],
   ['club_senders_only', 'off', 'Club office bearers: off, watch or on. On: the activity and Club updates forms are accepted only from the club\'s President, Secretary or Executive Secretary (this year\'s, or the last known until this year\'s is told), sent from their email on file; watch: nobody is refused, each row says who sent it'],
   ['weekly_club_email', 'off', 'Club office bearers: off, test or on. On: each club\'s office bearers get one email a week, on the club\'s own weekday, with what was approved for the club (none when nothing happened); test: the day\'s club emails all go to weekly_club_email_test_to'],

@@ -196,7 +196,7 @@ a short guide for each type.
 | **Recent** | Approved activities of the last 30 days and coming events: **Story of the month**, **Leave out of the bulletin**, **Hide** (takes it off the website, with a reason) and **Put back**. |
 | **Members** | Show my details and Update my details forms a club filled in for a member, old removal requests and club changes, with who sent them; **Approve**, **Reject**, **Remove now**. **Find a member** (name, RI ID, email, second email or mobile) and **Edit** with a reason (the RI ID never changes; an email another member uses is refused); **Mark as deceased**. |
 | **Not accepted** | Forms refused because the sender is not an office bearer of the club (only when that check is on). **Let through** sends one to the moderators as usual. |
-| **Roles** | How many clubs have told this year's office bearers; roles to check; **Find a role**, **Change**, **End role**, **Add an office bearer**; **Recent changes** with **Undo**. |
+| **Roles** | How many clubs have told this year's office bearers; roles to check; **Find a role**, **Change**, **End role**, **Add an office bearer**; **Team lists**: **Check** a coming year's district team or club office bearers prepared in the Team lists Sheet, then an Administrator **Imports** it (all or nothing, only with no errors) or **Withdraws** one before its year starts; **Recent changes** with **Undo**. |
 | **Quiet clubs** | Clubs with no activity in 30 days; **Email the office bearers** or **WhatsApp**. |
 | **Messages** | Contact messages; **Reply** (sent from the district account, signed "Rotary District 3110") or **Mark answered**. |
 | **Admin** | Add, rename and close clubs; add and change moderators and their areas. |
@@ -253,6 +253,7 @@ Change only the **value** column; the notes explain each setting. The ones you a
 | `weekly_club_email` | **off / test / on**: the weekly email to each club's office bearers. Test sends the day's club emails to one address instead. |
 | `weekly_club_email_test_to` | Where test emails go (blank: the district account) |
 | `summary_emails` | Who gets the Monday weekly summary |
+| `team_lists_url` | The Team lists Sheet (made by Upgrade Sheet) where the district prepares a coming year's team; share it only with the people who prepare the lists |
 | `contact_daily_limit` | How many contact messages are emailed on per day |
 | `campaign_check_above` | A campaign count above this gets a note for the moderator |
 | `bulletin_start_date` | The Sunday the bulletin archive starts |
@@ -290,7 +291,8 @@ first); Google sometimes refuses a change to a form ("Invalid data updating form
 
 The website works out the Rotary year from the date, so on 1 July it moves on by itself: next year's office bearers and
 team become this year's and the Governor who has just finished becomes a Past District Governor. The owner starts a
-build that morning. Next year's team may be added any time before; it shows at once, as "Elect". Every year's
+build that morning. Next year's team may be added any time before, best through the **Team lists** Sheet (checked
+and imported on the desk); it shows at once, as "Elect". Every year's
 Leadership and Teams pages stay, chosen from the **Rotary year** drop-down. The **Yearly update** guide has every step.
 
 ---

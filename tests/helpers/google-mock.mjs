@@ -113,6 +113,7 @@ class FakeRange {
     return out;
   }
   setValues(values) {
+    if (this.row + values.length - 1 > this.sheet.getMaxRows()) throw new Error('Exception: The coordinates of the range are outside the dimensions of the sheet.');
     values.forEach((line, r) => line.forEach((v, c) => this.sheet.set(this.row + r, this.col + c, v)));
     return this;
   }
@@ -141,7 +142,7 @@ class FakeRange {
 }
 
 class FakeSheet {
-  constructor(name) { this.name = name; this.data = []; this.formUrl = null; this.maxCols = 26; this.rules = new Map(); this.formulas = new Map(); }
+  constructor(name) { this.name = name; this.data = []; this.formUrl = null; this.maxCols = 26; this.maxRowCount = 1000; this.rules = new Map(); this.formulas = new Map(); }
   cell(r, c) { return (this.data[r - 1] || [])[c - 1] ?? ''; }
   set(r, c, v) {
     // Like Google Sheets: text a script writes is read as if typed. A leading apostrophe marks text and is not
@@ -154,11 +155,12 @@ class FakeSheet {
     }
     // Like Google Sheets: a value outside a column's dropdown list is refused (rules kept per column, below the header)
     const rule = r > 1 && this.rules.get(c);
-    if (rule && rule.list && v !== '' && v != null && !rule.list.some((x) => String(x).toLowerCase() === String(v).toLowerCase())) {
+    const allowed = rule && (rule.list || (rule.range && rule.range.getValues().map((x) => x[0]).filter((x) => x !== '')));
+    if (rule && allowed && !rule.allowInvalid && v !== '' && v != null && !allowed.some((x) => String(x).toLowerCase() === String(v).toLowerCase())) {
       let n = c;
       let letters = '';
       while (n > 0) { letters = String.fromCharCode(65 + ((n - 1) % 26)) + letters; n = Math.floor((n - 1) / 26); }
-      throw new Error(`Exception: The data you entered in cell ${letters}${r} violates the data validation rules set on this cell. Please enter one of the following values: ${rule.list.join(', ')}.`);
+      throw new Error(`Exception: The data you entered in cell ${letters}${r} violates the data validation rules set on this cell. Please enter one of the following values: ${allowed.join(', ')}.`);
     }
     while (this.data.length < r) this.data.push([]);
     const row = this.data[r - 1];
@@ -173,14 +175,14 @@ class FakeSheet {
   setName(n) { this.name = n; return this; }
   getLastRow() { this.trim(); return this.data.length; }
   getLastColumn() { return this.data.reduce((m, r) => { let n = r.length; while (n && (r[n - 1] === '' || r[n - 1] == null)) n--; return Math.max(m, n); }, 0); }
-  getMaxRows() { return 1000; }
+  getMaxRows() { return Math.max(this.maxRowCount, this.data.length); }
   getMaxColumns() { return Math.max(this.maxCols, this.getLastColumn()); }
   // Like Google Sheets: inserted columns copy the formatting and dropdown of the column they follow
   insertColumnsAfter(after, n) {
     this.maxCols += n;
     if (this.rules.has(after)) for (let i = 1; i <= n; i++) this.rules.set(after + i, this.rules.get(after));
   }
-  insertRowsAfter() {}
+  insertRowsAfter(after, n) { this.maxRowCount = this.getMaxRows() + n; }
   // Like Google Sheets: a tab cannot lose all of its rows below the header
   deleteRows(from, n) {
     if (from + n - 1 >= this.getMaxRows()) throw new Error('Exception: Sorry, it is not possible to delete all non-frozen rows.');
@@ -237,6 +239,8 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
   const triggers = [];
   const trashed = [];
   const moved = new Map(); // drive id -> folder id it was moved into
+  const made = new Map(); // spreadsheets the script made (SpreadsheetApp.create)
+  const lock = { held: false };
   const forms = {};
   let activeSheet = null;
   let activeUser = 'moderator.a@example.com';
@@ -287,20 +291,24 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
   const google = {
     SpreadsheetApp: {
       getActiveSpreadsheet: () => main,
-      openById: (id) => (id === privateId ? priv : id === mainId ? main : (() => { throw new Error('No spreadsheet ' + id); })()),
+      openById: (id) => (id === privateId ? priv : id === mainId ? main : made.get(id) || (() => { throw new Error('No spreadsheet ' + id); })()),
+      create: (name) => { const ss = new FakeSpreadsheet('SS' + (made.size + 1), name); made.set(ss.id, ss); return ss; },
       getUi: () => ui,
       getActiveSheet: () => activeSheet,
       flush: () => {},
       newDataValidation: () => {
         let checkbox = false;
         let list = null;
+        let range = null;
+        let allowInvalid = false;
         const b = chain({ requireCheckbox: () => { checkbox = true; return b; }, requireValueInList: (v) => { list = [...v]; return b; },
-          build: () => ({ checkbox, list }) });
+          requireValueInRange: (r) => { range = r; return b; }, setAllowInvalid: (x) => { allowInvalid = !!x; return b; },
+          build: () => ({ checkbox, list, range, allowInvalid }) });
         return b;
       },
       ProtectionType: { SHEET: 'SHEET' },
     },
-    PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => props.get(k) ?? null, setProperty: (k, v) => props.set(k, v) }) },
+    PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => props.get(k) ?? null, setProperty: (k, v) => props.set(k, String(v)), deleteProperty: (k) => props.delete(k) }) },
     CacheService: {
       getScriptCache: () => {
         // like Apps Script: a value over 100 KB is refused
@@ -314,7 +322,16 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
         };
       },
     },
-    LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
+    LockService: {
+      getScriptLock: () => {
+        let mine = false;
+        return {
+          tryLock() { if (lock.held) return false; lock.held = mine = true; return true; },
+          waitLock() { if (lock.held && !mine) throw new Error('Lock timeout: another process was holding the lock for too long.'); lock.held = mine = true; },
+          releaseLock() { if (mine) lock.held = mine = false; },
+        };
+      },
+    },
     Session: { getActiveUser: () => ({ getEmail: () => activeUser }), getEffectiveUser: () => ({ getEmail: () => 'district.account@example.com' }) },
     Utilities: {
       sleep: (ms) => { slept.push(ms); },
@@ -361,7 +378,7 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
         // new forms start in My Drive, like Google's; everything else sits in the Sheet's folder
         getParents: () => {
           let done = false;
-          const where = moved.get(id) || (/^FORM/.test(id) ? 'ROOT' : 'PARENT');
+          const where = moved.get(id) || (/^(FORM|SS)/.test(id) ? 'ROOT' : 'PARENT');
           return { hasNext: () => !done, next: () => { done = true; return where === 'ROOT' ? folder('ROOT', 'My Drive') : folder(where, '3110Website'); } };
         },
         moveTo: (f) => moved.set(id, f.getId()),
@@ -456,6 +473,8 @@ export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIV
     pages,
     quota,
     cache,
+    made,
+    lock,
     load(code) { vm.runInContext(code, context, { filename: 'Code.gs' }); },
     run(fn, ...args) { return context[fn](...args); },
     setActive(tab, row, numRows = 1) { activeSheet = main.getSheetByName(tab); activeSheet.select(row, numRows); },

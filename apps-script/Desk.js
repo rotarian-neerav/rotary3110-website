@@ -80,6 +80,11 @@ function desk_(req) {
   // Release 3 (18 Nov 2026): a form refused by the sender check (Clubs.js)
   if (fn === 'letthrough') return deskLetThrough_(me, req.tab, req.id);
   if (fn === 'modsave') return deskModeratorSave_(me, req.row, req.fields || {}, req.reason);
+  // B13 (24 Nov 2026): the Team lists Sheet (TeamLists.js)
+  if (fn === 'teamlists') return deskTeamLists_(me);
+  if (fn === 'teamcheck') return deskTeamCheck_(me, req.list);
+  if (fn === 'teamimport') return deskTeamImport_(me, req.list);
+  if (fn === 'teamwithdraw') return deskTeamWithdraw_(me, req.id);
   throw new Error('unknown request');
 }
 

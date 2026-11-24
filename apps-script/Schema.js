@@ -15,9 +15,10 @@ var SCHEMA_MAIN = {
     // the club its members moved to
     'charter_date', 'merged_into'],
   // ended_on (Release 1): a moderator ended the role on the desk; the row stays, the website no longer shows it
-  officers: ['rotary_year', 'club_id', 'member_id', 'name', 'role', 'contact_ok', 'contact_link', 'is_sample', 'ended_on'],
+  // list_id: the Team lists import that added the row (B13, 24 Nov 2026), so a whole list can be withdrawn
+  officers: ['rotary_year', 'club_id', 'member_id', 'name', 'role', 'contact_ok', 'contact_link', 'is_sample', 'ended_on', 'list_id'],
   functionaries: ['rotary_year', 'page', 'section', 'committee', 'member_id', 'name', 'role', 'zone', 'club_id', 'term',
-    'sort_order', 'contact_ok', 'contact_link', 'is_sample', 'ag_clubs', 'ended_on'],
+    'sort_order', 'contact_ok', 'contact_link', 'is_sample', 'ag_clubs', 'ended_on', 'list_id'],
   activities: ['id', 'submitted_at', 'submitter_email', 'submitter_name', 'submitter_role', 'submitter_mobile', 'club_id',
     'club_name', 'title', 'date', 'theme', 'description', 'photo_files', 'post_link', 'people_helped', 'amount_spent', 'partner_clubs',
     'photo_consent', 'status', 'source', 'approved_by', 'approved_at', 'moderator_note', 'story_of_month', 'event_id',

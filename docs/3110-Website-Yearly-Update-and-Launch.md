@@ -10,11 +10,14 @@ year's, so history is kept. Next year's team can be added any time before July; 
 
 0. **1 July: start a build.** On GitHub, **Actions → Build and publish → Run workflow** (the owner does this), so the
    website changes year that morning instead of at the next scheduled build.
-1. **officers**: add the new year's office bearers with the new `rotary_year`. Leave last year's rows. Clubs may already
+1. **officers**: add the new year's office bearers with the new `rotary_year`. Leave last year's rows. The easiest
+   way for many clubs at once: the **Team lists** Sheet, tab Club office bearers, checked and imported on the desk
+   (Roles → Team lists; see the moderator guide). Clubs may already
    have reported theirs through Club updates (members and roles) or a moderator added them on the desk; those count from
    1 July by themselves. A club whose new office bearers are not in yet keeps its last known ones acting (who may send
    for the club, who gets the weekly club email) until they are, so nothing stops on 1 July.
-2. **functionaries**: add the new year's teams and committees with the new `rotary_year`. Every year stays on the
+2. **functionaries**: add the new year's teams and committees with the new `rotary_year`, best through the **Team
+   lists** Sheet, tab District team, checked and imported on the desk, any time before July. Every year stays on the
    Leadership and Teams pages, chosen from the **Rotary year** drop-down. The coming Governors are added through Club
    updates (a district role, team "Governor line", role "District Governor", the year they hold office, up to three
    years ahead); the website calls them Elect, Nominee and Nominee Designate by itself.

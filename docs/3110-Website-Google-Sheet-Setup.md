@@ -94,6 +94,13 @@ the bulletin preview on Saturday at 6 pm and the message on Sunday at 8 am; the 
 summary on Monday at 8 am; the clubs-not-posting email on the 1st at 9 am; and every 2 hours, a check that a
 **Rebuild site now** was not missed. With the 7 am jobs, the weekly club emails, when switched on (below).
 
+**Team lists Sheet (B13, 24 Nov 2026).** Upgrade Sheet makes a separate Google Sheet, "3110Website – Team lists",
+in the folder that holds the main Sheet, and puts its link in settings → `team_lists_url` (running it again keeps the
+same Sheet). It has the tabs Instructions, District team, Club office bearers, Roles used and Clubs (the last two are
+kept up to date by the script, for the drop-downs). **Share it, as an editor, only with the people who prepare the
+lists**; it holds names and Rotary member IDs only. Lists are checked and imported on the desk (Roles → Team lists);
+the moderator guide explains how.
+
 **Club office bearers: three settings** in the settings tab, all **off** after Upgrade Sheet:
 - `club_senders_only`: **off**, **watch** or **on** (who may send the activity and Club updates forms for a club; the
   moderator guide explains it). Start with **watch** for a week or two and read the weekly summary's "Who sent the club

@@ -1997,6 +1997,156 @@ function Core_checkRoles(officers, functionaries, master, rotaryYear) {
   return out;
 }
 
+/* ------------------------------------------------------------------ */
+/* Team lists (B13, owner 23–24 Nov 2026, decision 144)                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The two lists in the separate "Team lists" Sheet: next year's (or a later year's) district team and club office
+ * bearers, prepared by the district and imported by an Administrator. Each tab is checked and imported on its own.
+ * `input` are the columns the district fills in; status and list are written by the script.
+ */
+var CORE_TEAM_LISTS = {
+  district: { tab: 'District team', target: 'functionaries', prefix: 'D', ahead: 3,
+    input: ['rotary_year', 'team', 'committee', 'role', 'member_id', 'name', 'order', 'ag_clubs'] },
+  club: { tab: 'Club office bearers', target: 'officers', prefix: 'C', ahead: 1,
+    input: ['rotary_year', 'club', 'role', 'member_id', 'name'] },
+};
+var CORE_LEADERSHIP_SECTIONS = ['Governor line', 'College of Governors', 'District Counsellors', 'Assistant Governors', "Governor's Office Team"];
+
+/** A short fingerprint of a list row's own values (not its status), to tell whether it changed after import. */
+function Core_teamRowKey(kind, r) {
+  return Core_hash(CORE_TEAM_LISTS[kind].input.map(function (c) { return Core_str(r[c]).trim(); }).join('|'));
+}
+
+/**
+ * Checks one list (kind 'district' or 'club'). rows: the tab's rows (readTab_). ctx: { year (this Rotary year), master
+ * (members list), clubs, functionaries, officers }. A row already imported keeps its status unless its values changed
+ * since (then it is reported, never applied). Every other row is Ready, Ready with a note, or an Error; a list goes in
+ * only when it has no errors (owner: never partly). Returns { rows: [{ _row, state, status, list, write, skip }],
+ * counts: { ready, notes, errors, imported, changed }, fingerprint }.
+ */
+function Core_teamListCheck(kind, rows, ctx) {
+  var spec = CORE_TEAM_LISTS[kind];
+  var byId = {};
+  (ctx.master || []).forEach(function (m) { if (Core_str(m.member_id)) byId[Core_str(m.member_id)] = m; });
+  var clubs = (ctx.clubs || []).filter(function (c) { return Core_str(c.club_id); });
+  var clubById = {};
+  clubs.forEach(function (c) { clubById[Core_str(c.club_id)] = c; });
+  var years = [];
+  for (var y = ctx.year, i = 0; i <= spec.ahead; i++, y = Core_nextRotaryYear(y)) years.push(y);
+  var known = { team: {}, committee: {}, role: {} };
+  (ctx.functionaries || []).forEach(function (f) {
+    known.team[Core_str(f.section).toLowerCase()] = Core_str(f.page);
+    known.committee[Core_str(f.committee).toLowerCase()] = true;
+    known.role[Core_baseRole(f.role).toLowerCase()] = true;
+  });
+  var open = function (r) { return !Core_str(r.ended_on); };
+  var counts = { ready: 0, notes: 0, errors: 0, imported: 0, changed: 0 };
+  // the same person and role (district) or the same club role (club) twice in rows not yet imported: both rows are errors
+  var dupKey = function (r) {
+    var y = Core_str(r.rotary_year).trim();
+    var role = Core_str(r.role).trim();
+    if (kind === 'club') {
+      var cid = Core_clubRef(r.club, clubs);
+      return cid && CORE_CLUB_ROLES.indexOf(role) >= 0 ? [y, cid, role].join('|') : '';
+    }
+    return [y, Core_str(r.team).trim(), Core_str(r.committee).trim(), role, Core_str(r.member_id).trim()].join('|').toLowerCase();
+  };
+  var seen = {};
+  rows.forEach(function (r) {
+    if (/^[A-Z]\d+ [0-9a-f]{8}$/.test(Core_str(r.list))) return;
+    var k = dupKey(r);
+    if (k) (seen[k] = seen[k] || []).push(r._row);
+  });
+  var out = [];
+  var keys = [];
+
+  rows.forEach(function (r) {
+    var res = { _row: r._row, state: '', status: Core_str(r.status), list: Core_str(r.list), write: null, skip: false };
+    out.push(res);
+    var key = Core_teamRowKey(kind, r);
+    if (spec.input.every(function (c) { return !Core_str(r[c]).trim(); })) { res.state = 'blank'; res.status = ''; res.list = ''; return; }
+    // imported earlier: "<list id> <fingerprint>"; a withdrawn list's rows count as new again
+    var done = /^([A-Z]\d+) ([0-9a-f]{8})$/.exec(res.list);
+    if (done) {
+      if (done[2] === key) { res.state = 'imported'; counts.imported++; return; }
+      res.state = 'changed';
+      res.status = 'Changed after import: not applied. Change it on the desk (Roles), or withdraw list ' + done[1] + ' before its year starts.';
+      counts.changed++;
+      return;
+    }
+    res.list = '';
+    keys.push(r._row + ':' + key);
+    var errors = [];
+    var notes = [];
+    var year = Core_str(r.rotary_year).trim();
+    if (years.indexOf(year) < 0) errors.push('Rotary year must be ' + (years.length > 2 ? years[0] + ' to ' + years[years.length - 1] : years.join(' or ')));
+    var id = Core_str(r.member_id).trim();
+    var m = byId[id];
+    if (!id) errors.push('Rotary member ID missing');
+    else if (!m) errors.push('Rotary member ID ' + id + ' is not in the members list');
+    else if (Core_str(m.status || 'active').toLowerCase() !== 'active') errors.push(Core_str(m.name) + ' is marked "' + Core_str(m.status) + '" in the members list');
+    var name = m ? Core_str(m.name) : Core_str(r.name).trim();
+    if (m && Core_str(r.name).trim() && Core_plainName(r.name) !== Core_plainName(m.name)) notes.push('the members list has the name as ' + Core_str(m.name) + ' (that is used)');
+    var role = Core_str(r.role).trim();
+    if (!role) errors.push('Role missing');
+
+    if (kind === 'club') {
+      var clubId = Core_clubRef(r.club, clubs);
+      var club = clubById[clubId];
+      if (!Core_str(r.club).trim()) errors.push('Club missing');
+      else if (!club) errors.push('Club "' + Core_str(r.club).trim() + '" not recognised: choose it from the list');
+      else if (Core_str(club.status || 'active').toLowerCase() !== 'active') errors.push(Core_str(club.club_name) + ' is closed');
+      if (role && CORE_CLUB_ROLES.indexOf(role) < 0) notes.push('not President, Secretary or Executive Secretary: shown on the club page in its year, but does not send for the club');
+      if (m && club && Core_str(m.club_id) !== clubId) notes.push('the members list has ' + name + ' in ' + (clubById[Core_str(m.club_id)] ? Core_str(clubById[Core_str(m.club_id)].club_name) : 'another club') + ': they act for this club only once that is corrected');
+      var twice = seen[dupKey(r)] || [];
+      if (club && twice.length > 1) errors.push('two rows for ' + Core_str(club.club_name) + ' ' + role + ' ' + year + ' (rows ' + twice.join(' and ') + ')');
+      var already = (ctx.officers || []).filter(function (o) {
+        return open(o) && Core_str(o.rotary_year) === year && Core_str(o.club_id) === clubId && Core_str(o.role) === role;
+      });
+      if (already.some(function (o) { return Core_str(o.member_id) === id; })) { notes.push('already on record: skipped'); res.skip = true; }
+      else if (already.length && CORE_CLUB_ROLES.indexOf(role) >= 0) notes.push('replaces ' + Core_str(already[already.length - 1].name) + ', on record for this role');
+      res.write = { rotary_year: year, club_id: clubId, member_id: id, name: name, role: role, contact_ok: false };
+    } else {
+      var team = Core_str(r.team).trim();
+      var committee = Core_str(r.committee).trim();
+      if (!team) errors.push('Team missing');
+      else if (!(team.toLowerCase() in known.team)) notes.push('a team not used before: check the spelling');
+      if (committee && !known.committee[committee.toLowerCase()]) notes.push('a committee not used before: check the spelling');
+      if (role && !known.role[Core_baseRole(role).toLowerCase()]) notes.push('a role not used before: check the spelling');
+      var order = Core_str(r.order).trim();
+      if (order && !/^\d+$/.test(order)) errors.push('Order must be a number');
+      var agClubs = Core_list(r.ag_clubs);
+      var unknownClubs = agClubs.filter(function (v) { return !Core_clubRef(v, clubs); });
+      if (unknownClubs.length) errors.push('club(s) not recognised: ' + unknownClubs.join(', '));
+      var same = seen[dupKey(r)] || [];
+      if (same.length > 1) errors.push('the same row twice (rows ' + same.join(' and ') + ')');
+      if ((ctx.functionaries || []).some(function (f) {
+        return open(f) && Core_str(f.rotary_year) === year && Core_str(f.section).toLowerCase() === team.toLowerCase() &&
+          Core_str(f.committee).toLowerCase() === committee.toLowerCase() && Core_str(f.role).toLowerCase() === role.toLowerCase() && Core_str(f.member_id) === id;
+      })) { notes.push('already on record: skipped'); res.skip = true; }
+      var page = known.team[team.toLowerCase()] || (CORE_LEADERSHIP_SECTIONS.indexOf(team) >= 0 ? 'leadership' : 'teams');
+      res.write = { rotary_year: year, page: page, section: team, committee: committee, member_id: id, name: name, role: role,
+        club_id: m ? Core_str(m.club_id) : '', sort_order: order ? Number(order) : '', contact_ok: false,
+        ag_clubs: agClubs.map(function (v) { return Core_str((clubById[Core_clubRef(v, clubs)] || {}).club_name) || v; }).join(', ') };
+    }
+
+    if (errors.length) {
+      res.state = 'error';
+      res.status = 'Error: ' + errors.join('; ') + (notes.length ? '. Note: ' + notes.join('; ') : '');
+      res.write = null;
+      counts.errors++;
+    } else {
+      res.state = notes.length ? 'note' : 'ready';
+      res.status = 'Ready' + (notes.length ? '. Note: ' + notes.join('; ') : '');
+      counts.ready++;
+      if (notes.length) counts.notes++;
+    }
+  });
+  return { rows: out, counts: counts, fingerprint: Core_hash(kind + '#' + keys.join(',')) };
+}
+
 // Lets the website's Node.js tests load this file; ignored by Google Apps Script.
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -2025,5 +2175,6 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_clubWeekday: Core_clubWeekday, Core_clubWeeklyDue: Core_clubWeeklyDue, Core_clubWeeklyEmail: Core_clubWeeklyEmail,
     Core_yearsAhead: Core_yearsAhead, Core_baseRole: Core_baseRole, Core_heldYear: Core_heldYear, Core_roleTitle: Core_roleTitle,
     Core_comingOfficers: Core_comingOfficers,
+    CORE_TEAM_LISTS: CORE_TEAM_LISTS, Core_teamRowKey: Core_teamRowKey, Core_teamListCheck: Core_teamListCheck,
   };
 }

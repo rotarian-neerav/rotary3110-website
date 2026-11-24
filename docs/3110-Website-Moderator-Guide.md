@@ -216,6 +216,23 @@ Messages from the website's contact form go to the private Sheet's **contact_mes
   Assistant Governor's clubs and zone; **End role** (the website stops showing it, the row stays with `ended_on`);
   **Add an office bearer** (President, Secretary or Executive Secretary, one of each per club and year). Content
   moderators may do this for club office bearers; district roles are for Members moderators.
+- **Team lists (Roles tab; B13, 24 Nov 2026):** a coming year's district team and club office bearers are prepared
+  in the separate **Team lists** Google Sheet (its link is in settings → `team_lists_url`; the owner shares it only with
+  the people who prepare the lists; names and Rotary member IDs only). On the desk, **Show the lists**:
+  - **Check** (Members moderators and Administrators) fills each row's status in the Sheet: **Ready**, **Ready. Note:**
+    (it can go in; read the note: a new team or role name, a different spelling of the name, a member listed in another
+    club, someone replacing a holder already on record) or **Error:** (it cannot: a year outside the allowed ones, a
+    Rotary ID not in the members list or of someone marked left or deceased, a club not recognised, the same club role
+    or row twice, an Assistant Governor's club not recognised).
+  - **Import** (Administrators only) takes the whole list, or nothing: only when it has no errors and has not changed
+    since it was checked. One import runs at a time. Rows added later are checked and imported as a further list
+    (D1, D2… for the district team; C1, C2… for club office bearers).
+  - A row changed after it was imported is not applied: change that person with **Find a role → Change** or **End
+    role**, or withdraw the list.
+  - **Withdraw this list** (Administrators only) takes every row of one imported list off again, only before its year
+    starts; the rows in the Sheet say Withdrawn and can be checked and imported again.
+  - The years: the district team this year up to three years ahead (the coming Governors: team "Governor line", role
+    "District Governor"); club office bearers this year or next. Never type "Elect" or "Nominee": the website adds them.
 - **Admin tab (Administrators):** add, rename and close clubs (members move to the club it merged into, or are marked
   left); add and change moderators and their zones. Club member counts are worked out from the members list every day,
   so nobody types them.

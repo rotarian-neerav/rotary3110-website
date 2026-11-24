@@ -212,6 +212,9 @@ the website at its next update.
 - **A passing away** sent through Club updates needs **I have confirmed this with the club** ticked before Approve.
 - **A sender who is not an office bearer:** while the district is trying the check out ("watch"), the card shows a
   **Sender** line, and the Clean list says so in red.
+- **Sent by:** the sender's name, role and mobile come from the members list and the club's office bearers, found by
+  the email Google collects (the club forms no longer ask them). An email the members list does not have is shown
+  as it is.
 - **Within 48 hours:** items waiting longer bring a reminder email at 7 am.
 
 ### Practice round (new moderators)
@@ -308,7 +311,7 @@ Leadership and Teams pages stay, chosen from the **Rotary year** drop-down. The 
 | "Your form was not applied": the member's email is not on file | The club adds it as the member's second email on Update my details (a moderator approves it); then the member sends the form again from that email. |
 | A photo does not show | It must be a normal photo file under 1 MB; HEIC photos from iPhones usually work but can be slow. Send it again if it is missing after the next update. |
 | I cannot sign in to the desk | Your email must be an **active** row of the moderators tab. Codes last 15 minutes; ask for a new one. |
-| The website has not updated | Updates run four times a day; GitHub sometimes starts them 15 to 60 minutes late. |
+| The website has not updated | Updates run four times a day; GitHub sometimes starts them 15 to 60 minutes late. If a change is still missing after 13 hours, the Administrators are emailed "a rebuild has not happened", once a day until it catches up: see GitHub → Actions. |
 
 ---
 

@@ -48,6 +48,7 @@ function clubSender_(clubId, email, acting, master, coming) {
  * not_accepted, out of the moderators' lists, until a moderator lets it through on the desk.
  */
 function fileGated_(ss, tab, row, clubId, alert) {
+  fillSender_(row, clubId);
   var mode = Core_settingMode(settings_().club_senders_only);
   var refused = false;
   if (mode !== 'off') {
@@ -67,6 +68,22 @@ function fileGated_(ss, tab, row, clubId, alert) {
   appendRow_(ss, tab, row);
   if (refused) notAcceptedEmail_(tab, row, clubId, check);
   else alert();
+}
+
+/**
+ * B11: the sender's name and role come from the members list by their Verified email (the forms no longer ask).
+ * A row from an older form keeps what was typed where the list has nothing. The mobile is not copied: the desk
+ * shows the one the members list holds.
+ */
+function fillSender_(row, clubId) {
+  try {
+    var master = readTab_(privateSs_(), 'members_master');
+    var officers = readTab_(mainSs_(), 'officers');
+    var year = Core_rotaryYearOf(today_());
+    var who = Core_formSender(row.submitter_email, clubId, master, Core_actingOfficers(officers, year, master), Core_comingOfficers(officers, year, master));
+    if (who.name) row.submitter_name = who.name;
+    if (who.role) row.submitter_role = who.role;
+  } catch (e) { Logger.log('Sender not looked up: ' + e.message); }
 }
 
 function notAcceptedEmail_(tab, row, clubId, check) {
@@ -101,7 +118,7 @@ function deskNotAccepted_(me) {
       if (Core_str(r.status) !== NOT_ACCEPTED) return;
       out.push({ tab: tab, id: Core_str(r.id), kind: GATED[tab], club: deskClubName_(r.club_id) || Core_str(r.club_name || r.organiser),
         title: Core_str(r.title || r.name) || (CLUB_CHANGES[Core_str(r.change)] || ''), from: Core_str(r.submitter_email),
-        sender: [Core_str(r.submitter_name), Core_str(r.submitter_role)].filter(String).join(', '), submitted: Core_isoTimestamp(r.submitted_at) });
+        sender: [Core_str(r.submitter_name), Core_str(r.submitter_role)].filter(String).join(', ') || Core_str(r.submitter_email), submitted: Core_isoTimestamp(r.submitted_at) });
     });
   });
   return out.sort(function (a, b) { return b.submitted.localeCompare(a.submitted); }).slice(0, 50);

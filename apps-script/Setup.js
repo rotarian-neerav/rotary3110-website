@@ -62,6 +62,7 @@ function upgradeSheet() {
   ensureLists_(report);
   createForms_(report); // new forms only; existing forms are kept
   addLaterQuestions_(report);
+  dropSenderQuestions_(report); // B11 (24 Nov 2026): the club forms no longer ask name, role and mobile
   // B13 (24 Nov 2026): the Team lists Sheet; one refusal from Google must not stop the rest
   try { ensureTeamLists_(report); } catch (e) { report.push('Team lists Sheet not made or updated (' + e.message + '): run Upgrade Sheet again'); }
   installTriggers_(report);

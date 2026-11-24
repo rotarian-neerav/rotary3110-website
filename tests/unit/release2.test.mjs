@@ -63,7 +63,7 @@ test('five forms: activity, Club updates, Show my details, Update my details, co
 test('Club updates: page 1 says who and what; each answer leads to its own section, and each section ends the form', () => {
   const f = form('club_updates');
   const t = titles(f);
-  assert.deepEqual(t.slice(0, 5), [Q.club, Q.name, Q.role, Q.mobile, Q.uKind]);
+  assert.deepEqual(t.slice(0, 2), [Q.club, Q.uKind], 'the sender is known by their Verified email (B11)');
   const kind = item(f, Q.uKind);
   assert.deepEqual([...kind.choices], [U.profile, U.member, U.service]);
   assert.deepEqual([...kind.goTo].map((p) => p.title), ["Our club's details", 'A member or a role', 'A public service the club runs']);

@@ -299,6 +299,23 @@ function deskClubZone_(id) {
   return (DESK_CLUB_ZONES || {})[Core_str(id)] || '';
 }
 
+/** B11 (option 2a): the mobile the members list holds for a sender's email, read once per request. */
+var DESK_SENDER_MOBILES = null;
+function deskSenderMobile_(email) {
+  var e = Core_str(email).trim().toLowerCase();
+  if (!e) return '';
+  if (!DESK_SENDER_MOBILES) {
+    DESK_SENDER_MOBILES = {};
+    try {
+      readTab_(privateSs_(), 'members_master').forEach(function (m) {
+        if (Core_str(m.status || 'active').toLowerCase() !== 'active' || !Core_mobile(m.mobile)) return;
+        Core_memberEmails(m).forEach(function (x) { if (!DESK_SENDER_MOBILES[x]) DESK_SENDER_MOBILES[x] = Core_mobile(m.mobile); });
+      });
+    } catch (err) { Logger.log('Members list not read: ' + err.message); }
+  }
+  return DESK_SENDER_MOBILES[e] || '';
+}
+
 function deskCard_(tab, r) {
   var lines = [];
   var links = [];
@@ -309,8 +326,8 @@ function deskCard_(tab, r) {
     lines: lines, links: links,
     photos: Core_str(r.photo_files).split(',').map(function (s) { return s.trim(); }).filter(function (s) { return /^drive:/.test(s); }),
     notes: Core_str(r.moderator_note).split(/;\s*/).filter(String),
-    sender: [Core_str(r.submitter_name), Core_str(r.submitter_role)].filter(String).join(', '),
-    sender_mobile: Core_mobile(r.submitter_mobile), submitted: Core_isoTimestamp(r.submitted_at),
+    sender: [Core_str(r.submitter_name), Core_str(r.submitter_role)].filter(String).join(', ') || Core_str(r.submitter_email),
+    sender_mobile: Core_mobile(r.submitter_mobile) || deskSenderMobile_(r.submitter_email), submitted: Core_isoTimestamp(r.submitted_at),
     block: approveBlock_(tab, r), done_by: deskName_(r.approved_by), done_at: Core_isoTimestamp(r.approved_at),
     edit: {}, zone: deskClubZone_(r.club_id),
   };

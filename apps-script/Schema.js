@@ -119,7 +119,9 @@ var SCHEMA_PRIVATE = {
     // added in Release 2 (18 November 2026): a new member's own mobile and email, for the members list only
     'mobile', 'email',
     // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
-    'sender_check'],
+    'sender_check',
+    // added 24 November 2026 (B11): the sender's name and role, from the members list by their Verified email
+    'submitter_name', 'submitter_role'],
   // every change a moderator makes on the desk to a member, a role, a club or a moderator (Release 1, 18 November 2026):
   // one row per field, rows of one save share an id; Undo puts old_value back while the field still holds new_value
   change_log: ['id', 'at', 'moderator', 'action', 'tab', 'key', 'field', 'old_value', 'new_value', 'reason', 'undone_at', 'undone_by'],

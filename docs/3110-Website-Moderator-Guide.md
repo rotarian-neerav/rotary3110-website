@@ -28,6 +28,12 @@ Moderators check everything before it appears on the website. Any Content modera
 ## The forms
 
 Five forms bring everything in; their links are on the website.
+
+**Who sent it (B11, 24 Nov 2026):** the activity and Club updates forms no longer ask the sender's name, role and
+mobile. The sender is known by the email Google collects (Verified email: keep it on). The card's **Sent by** line
+gives their name from the members list (email or second email) and their role from the club's office bearers
+(acting this year, else next year's "President Elect", else "Member"), with the mobile the members list holds. If the
+members list does not have that email, the card shows the email itself. Items sent before keep what was typed.
 - **Club activity or event** (clubs): an activity done or an event coming up.
 - **Club updates** (clubs): the club's details, a member or a role (joined, left, passed away, club or district role),
   or a public service, each in its own section. A member who moves: the old club sends "left", the new club "joined".
@@ -59,6 +65,12 @@ Sheet's moderator_log names only the action and the row.
 **The website updates four times a day** (about 9 am, 1 pm, 6 pm and 10 pm India time), taking everything approved,
 hidden, removed or corrected since the last update. Removals and deaths also wait for the next update. **Rotary →
 Rebuild site now** stays for an emergency (within about 30 minutes).
+
+**If the website does not catch up (B10, 24 Nov 2026):** when something approved more than 13 hours ago (or a
+Rebuild site now pressed more than 3 hours ago) is still not on the website, the Administrators on the moderators tab
+and the addresses in `summary_emails` get an email, "a rebuild has not happened", and again once a day until the
+website catches up. Open the GitHub repository → **Actions**: a failed run's log says why; if nothing ran, press
+**Run workflow** there.
 
 ## Practice round (for new moderators)
 

@@ -425,8 +425,9 @@ function backupNow() {
 /* ---------- A rebuild that did not happen (Release B) ---------- */
 
 /**
- * Every 2 hours: if "Rebuild site now" was pressed more than 3 hours ago and the website has not been built since,
- * one email to the owner (summary_emails, or the district account), so a stuck build is noticed the same day.
+ * Every 2 hours: if "Rebuild site now" was pressed more than 3 hours ago, or something approved more than 13 hours
+ * ago is not on the website, an email to the Administrators (the moderators tab) and summary_emails, so a stuck
+ * build is noticed. It is repeated once a day while the website has not caught up (B10, decision 140, 23 Nov 2026).
  */
 function checkRebuild() {
   var s = settings_();
@@ -438,18 +439,29 @@ function checkRebuild() {
   if (changed && Date.now() - new Date(changed).getTime() >= 13 * 3600000 && changed > asked) asked = changed;
   if (!asked) return 'nothing to check';
   var props = props_();
-  if (props.getProperty('REBUILD_ALERTED') === asked) return 'already told';
   var built = '';
   try {
     built = Core_isoTimestamp(JSON.parse(UrlFetchApp.fetch(Core_str(s.site_url).replace(/\/?$/, '/') + 'build-info.json', { muteHttpExceptions: true }).getContentText()).generated_at);
   } catch (e) { built = ''; }
   if (built && built >= asked) return 'built';
-  var to = Core_list(s.summary_emails).join(',') || Session.getEffectiveUser().getEmail();
+  // told already, and the website has not been built since: again only after a day
+  var last = Core_str(props.getProperty('REBUILD_ALERTED')).split('|');
+  if (last[1] && last[2] === built && Date.now() - Number(last[1]) < 23 * 3600000) return 'already told';
+  var to = rebuildRecipients_();
   var what = asked === changed ? 'Something was approved or changed on ' + asked.slice(0, 16).replace('T', ' at ') + ' UTC, more than 13 hours ago (the website should have taken it at one of its four daily updates)'
     : '"Rebuild site now" was pressed on ' + asked.slice(0, 16).replace('T', ' at ') + ' UTC, more than 3 hours ago';
   MailApp.sendEmail(to, 'Rotary 3110 website: a rebuild has not happened', what + ', but the website ' + (built ?'was last built on ' + built.slice(0, 16).replace('T', ' at ') + ' UTC' : 'could not be checked') + '.\n\n' +
     'What to do: open the GitHub repository → Actions. If the latest run failed, its log says why. If nothing ran, press "Run workflow" there.\n\n' +
-    'You get this email once for each rebuild request.', { name: 'Rotary 3110 website' });
-  props.setProperty('REBUILD_ALERTED', asked);
+    'You get this email once a day until the website catches up.', { name: 'Rotary 3110 website' });
+  props.setProperty('REBUILD_ALERTED', [asked, Date.now(), built].join('|'));
   return 'told ' + to;
+}
+
+/** The Administrators on the moderators tab and summary_emails; the district account if there is no one. */
+function rebuildRecipients_() {
+  var seen = {};
+  return Core_moderatorEmails(deskModeratorRows_(), 'Administrator').concat(Core_list(settings_().summary_emails))
+    .map(function (e) { return Core_str(e).trim().toLowerCase(); })
+    .filter(function (e) { if (!e || seen[e]) return false; seen[e] = true; return true; })
+    .join(',') || Session.getEffectiveUser().getEmail();
 }

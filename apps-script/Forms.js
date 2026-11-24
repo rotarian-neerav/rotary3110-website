@@ -504,12 +504,34 @@ function baseForm_(title, description) {
   return form;
 }
 
+/**
+ * The club only (B11, decision 141, 23 Nov 2026): the sender is known by the Verified email the form collects; their
+ * name, role and mobile come from the members list and the club's office bearers.
+ */
 function addSender_(form, L) {
   form.addListItem().setTitle(Q.club).setChoiceValues(L.clubs).setRequired(true);
-  form.addTextItem().setTitle(Q.name).setRequired(true);
-  form.addListItem().setTitle(Q.role).setChoiceValues(L.roles).setRequired(true);
-  form.addTextItem().setTitle(Q.mobile).setHelpText('Only moderators see this, to ask you a question. It is never published.')
-    .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number')).setRequired(true);
+}
+
+/**
+ * Upgrade Sheet (B11): takes "Your name", "Your role in the club" and "Your mobile number" off the live activity and
+ * Club updates forms. Answers already sent stay in the Sheet. Google refuses some form changes, so a refusal is
+ * reported and the rest of the upgrade goes on.
+ */
+function dropSenderQuestions_(report) {
+  var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
+  [['activity', 'activity'], ['club_updates', 'Club updates']].forEach(function (pair) {
+    if (!ids[pair[0]]) return;
+    try {
+      var form = FormApp.openById(ids[pair[0]]);
+      var gone = form.getItems().filter(function (it) { return [Q.name, Q.role, Q.mobile].indexOf(it.getTitle()) >= 0; });
+      if (!gone.length) return;
+      gone.forEach(function (it) { form.deleteItem(it); });
+      report.push('The ' + pair[1] + ' form no longer asks the sender\'s name, role and mobile (taken from the members list by their email)');
+    } catch (e) {
+      report.push('The ' + pair[1] + ' form: could not remove "Your name", "Your role in the club" and "Your mobile number" (' + e.message +
+        '); delete them by hand in the form');
+    }
+  });
 }
 
 function makeActivityForm_(L) {

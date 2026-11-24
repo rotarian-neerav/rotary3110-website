@@ -164,11 +164,12 @@ function notifySubmitter_(tab, r, approved, reason) {
   var link = tab === 'activities' ? site + 'activities/' + Core_str(r.id).toLowerCase() + '/'
     : tab === 'events' ? site + 'events/' + Core_str(r.id).toLowerCase() + '/' : tab === 'public_services' ? site + 'services/'
     : tab === 'businesses' ? site + 'rmb/' : site + 'clubs/';
-  var body = approved
+  var dear = Core_str(r.submitter_name) ? 'Dear ' + Core_str(r.submitter_name) + ',\n\n' : '';
+  var body = dear + (approved
     ? 'Thank you! Your ' + what + ' has been approved by a district moderator.\n\nIt will appear on the district website ' + NEXT_UPDATE + ':\n' + link +
       '\n\nPlease share it in your club\'s WhatsApp group once it is live.\n\nRotary District 3110'
     : 'Thank you for sending your ' + what + '. A district moderator could not publish it this time.\n\nReason: ' + reason +
-      '\n\nYou are welcome to send it again with the changes.\n\nRotary District 3110';
+      '\n\nYou are welcome to send it again with the changes.\n\nRotary District 3110');
   try {
     MailApp.sendEmail(to, (approved ? 'Approved: ' : 'Not published: ') + what, body);
     if (tab !== 'club_profile_requests') updateRow_(mainSs_(), tab, r._row, { notified: true });

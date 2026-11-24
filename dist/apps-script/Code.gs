@@ -334,7 +334,9 @@ var SCHEMA_PRIVATE = {
     // added in Release 2 (18 November 2026): a new member's own mobile and email, for the members list only
     'mobile', 'email',
     // added in Release 3 (18 November 2026): who sent it, while club_senders_only is watched or on
-    'sender_check'],
+    'sender_check',
+    // added 24 November 2026 (B11): the sender's name and role, from the members list by their Verified email
+    'submitter_name', 'submitter_role'],
   // every change a moderator makes on the desk to a member, a role, a club or a moderator (Release 1, 18 November 2026):
   // one row per field, rows of one save share an id; Undo puts old_value back while the field still holds new_value
   change_log: ['id', 'at', 'moderator', 'action', 'tab', 'key', 'field', 'old_value', 'new_value', 'reason', 'undone_at', 'undone_by'],
@@ -2181,6 +2183,31 @@ function Core_clubSender(email, clubId, acting, master, moderatorRows, coming) {
   return out;
 }
 
+/**
+ * B11 (decision 141, 23 Nov 2026): the sender of a club form is known by their Verified email, not by what they type.
+ * The name from the members list (email or second email; an active member, the one in that club if several share it);
+ * the role from the club's acting office bearers, else next year's ("President Elect"), else "Member" of that club.
+ * Nothing is found for an email the members list does not hold: the desk then shows the email.
+ */
+function Core_formSender(email, clubId, master, acting, coming) {
+  var sender = Core_str(email).trim().toLowerCase();
+  var club = Core_str(clubId);
+  if (!sender) return { name: '', role: '', member_id: '', mobile: '' };
+  var found = (master || []).filter(function (m) {
+    return Core_str(m.status || 'active').toLowerCase() === 'active' && !Core_isTrue(m.is_sample) && Core_memberEmails(m).indexOf(sender) >= 0;
+  });
+  var m = found.filter(function (x) { return club && Core_str(x.club_id) === club; })[0] || found[0];
+  if (!m) return { name: '', role: '', member_id: '', mobile: '' };
+  var id = Core_str(m.member_id);
+  var holds = function (roles, suffix) {
+    return CORE_CLUB_ROLES.filter(function (r) { return roles[r] && Core_str(roles[r].member_id) === id; }).map(function (r) { return r + suffix; });
+  };
+  var roles = holds((acting && acting[club]) || {}, '');
+  if (!roles.length) roles = holds((coming && coming[club]) || {}, ' Elect');
+  if (!roles.length && club && Core_str(m.club_id) === club) roles = ['Member'];
+  return { name: Core_str(m.name), role: roles.join(', '), member_id: id, mobile: Core_mobile(m.mobile) };
+}
+
 /** The weekday (0 Sunday … 6 Saturday) a club's weekly email goes on: fixed per club, spread over the week. */
 function Core_clubWeekday(clubId) {
   var s = Core_str(clubId);
@@ -2519,7 +2546,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl, Core_isPractice: Core_isPractice,
     Core_moderatorZones: Core_moderatorZones, Core_activityChecks: Core_activityChecks, Core_memberCounts: Core_memberCounts,
     CORE_NEW_CLUB_DAYS: CORE_NEW_CLUB_DAYS, CORE_CLUB_ROLES: CORE_CLUB_ROLES,
-    Core_actingOfficers: Core_actingOfficers, Core_settingMode: Core_settingMode, Core_clubSender: Core_clubSender,
+    Core_actingOfficers: Core_actingOfficers, Core_settingMode: Core_settingMode, Core_clubSender: Core_clubSender, Core_formSender: Core_formSender,
     Core_clubWeekday: Core_clubWeekday, Core_clubWeeklyDue: Core_clubWeeklyDue, Core_clubWeeklyEmail: Core_clubWeeklyEmail,
     Core_yearsAhead: Core_yearsAhead, Core_baseRole: Core_baseRole, Core_heldYear: Core_heldYear, Core_roleTitle: Core_roleTitle,
     Core_comingOfficers: Core_comingOfficers,
@@ -2593,6 +2620,7 @@ function upgradeSheet() {
   ensureLists_(report);
   createForms_(report); // new forms only; existing forms are kept
   addLaterQuestions_(report);
+  dropSenderQuestions_(report); // B11 (24 Nov 2026): the club forms no longer ask name, role and mobile
   // B13 (24 Nov 2026): the Team lists Sheet; one refusal from Google must not stop the rest
   try { ensureTeamLists_(report); } catch (e) { report.push('Team lists Sheet not made or updated (' + e.message + '): run Upgrade Sheet again'); }
   installTriggers_(report);
@@ -3380,12 +3408,34 @@ function baseForm_(title, description) {
   return form;
 }
 
+/**
+ * The club only (B11, decision 141, 23 Nov 2026): the sender is known by the Verified email the form collects; their
+ * name, role and mobile come from the members list and the club's office bearers.
+ */
 function addSender_(form, L) {
   form.addListItem().setTitle(Q.club).setChoiceValues(L.clubs).setRequired(true);
-  form.addTextItem().setTitle(Q.name).setRequired(true);
-  form.addListItem().setTitle(Q.role).setChoiceValues(L.roles).setRequired(true);
-  form.addTextItem().setTitle(Q.mobile).setHelpText('Only moderators see this, to ask you a question. It is never published.')
-    .setValidation(textRule_(MOBILE_PATTERN, 'Please give a 10-digit mobile number')).setRequired(true);
+}
+
+/**
+ * Upgrade Sheet (B11): takes "Your name", "Your role in the club" and "Your mobile number" off the live activity and
+ * Club updates forms. Answers already sent stay in the Sheet. Google refuses some form changes, so a refusal is
+ * reported and the rest of the upgrade goes on.
+ */
+function dropSenderQuestions_(report) {
+  var ids = JSON.parse(props_().getProperty('FORM_IDS') || '{}');
+  [['activity', 'activity'], ['club_updates', 'Club updates']].forEach(function (pair) {
+    if (!ids[pair[0]]) return;
+    try {
+      var form = FormApp.openById(ids[pair[0]]);
+      var gone = form.getItems().filter(function (it) { return [Q.name, Q.role, Q.mobile].indexOf(it.getTitle()) >= 0; });
+      if (!gone.length) return;
+      gone.forEach(function (it) { form.deleteItem(it); });
+      report.push('The ' + pair[1] + ' form no longer asks the sender\'s name, role and mobile (taken from the members list by their email)');
+    } catch (e) {
+      report.push('The ' + pair[1] + ' form: could not remove "Your name", "Your role in the club" and "Your mobile number" (' + e.message +
+        '); delete them by hand in the form');
+    }
+  });
 }
 
 function makeActivityForm_(L) {
@@ -4557,11 +4607,12 @@ function notifySubmitter_(tab, r, approved, reason) {
   var link = tab === 'activities' ? site + 'activities/' + Core_str(r.id).toLowerCase() + '/'
     : tab === 'events' ? site + 'events/' + Core_str(r.id).toLowerCase() + '/' : tab === 'public_services' ? site + 'services/'
     : tab === 'businesses' ? site + 'rmb/' : site + 'clubs/';
-  var body = approved
+  var dear = Core_str(r.submitter_name) ? 'Dear ' + Core_str(r.submitter_name) + ',\n\n' : '';
+  var body = dear + (approved
     ? 'Thank you! Your ' + what + ' has been approved by a district moderator.\n\nIt will appear on the district website ' + NEXT_UPDATE + ':\n' + link +
       '\n\nPlease share it in your club\'s WhatsApp group once it is live.\n\nRotary District 3110'
     : 'Thank you for sending your ' + what + '. A district moderator could not publish it this time.\n\nReason: ' + reason +
-      '\n\nYou are welcome to send it again with the changes.\n\nRotary District 3110';
+      '\n\nYou are welcome to send it again with the changes.\n\nRotary District 3110');
   try {
     MailApp.sendEmail(to, (approved ? 'Approved: ' : 'Not published: ') + what, body);
     if (tab !== 'club_profile_requests') updateRow_(mainSs_(), tab, r._row, { notified: true });
@@ -5916,6 +5967,23 @@ function deskClubZone_(id) {
   return (DESK_CLUB_ZONES || {})[Core_str(id)] || '';
 }
 
+/** B11 (option 2a): the mobile the members list holds for a sender's email, read once per request. */
+var DESK_SENDER_MOBILES = null;
+function deskSenderMobile_(email) {
+  var e = Core_str(email).trim().toLowerCase();
+  if (!e) return '';
+  if (!DESK_SENDER_MOBILES) {
+    DESK_SENDER_MOBILES = {};
+    try {
+      readTab_(privateSs_(), 'members_master').forEach(function (m) {
+        if (Core_str(m.status || 'active').toLowerCase() !== 'active' || !Core_mobile(m.mobile)) return;
+        Core_memberEmails(m).forEach(function (x) { if (!DESK_SENDER_MOBILES[x]) DESK_SENDER_MOBILES[x] = Core_mobile(m.mobile); });
+      });
+    } catch (err) { Logger.log('Members list not read: ' + err.message); }
+  }
+  return DESK_SENDER_MOBILES[e] || '';
+}
+
 function deskCard_(tab, r) {
   var lines = [];
   var links = [];
@@ -5926,8 +5994,8 @@ function deskCard_(tab, r) {
     lines: lines, links: links,
     photos: Core_str(r.photo_files).split(',').map(function (s) { return s.trim(); }).filter(function (s) { return /^drive:/.test(s); }),
     notes: Core_str(r.moderator_note).split(/;\s*/).filter(String),
-    sender: [Core_str(r.submitter_name), Core_str(r.submitter_role)].filter(String).join(', '),
-    sender_mobile: Core_mobile(r.submitter_mobile), submitted: Core_isoTimestamp(r.submitted_at),
+    sender: [Core_str(r.submitter_name), Core_str(r.submitter_role)].filter(String).join(', ') || Core_str(r.submitter_email),
+    sender_mobile: Core_mobile(r.submitter_mobile) || deskSenderMobile_(r.submitter_email), submitted: Core_isoTimestamp(r.submitted_at),
     block: approveBlock_(tab, r), done_by: deskName_(r.approved_by), done_at: Core_isoTimestamp(r.approved_at),
     edit: {}, zone: deskClubZone_(r.club_id),
   };
@@ -7131,6 +7199,7 @@ function clubSender_(clubId, email, acting, master, coming) {
  * not_accepted, out of the moderators' lists, until a moderator lets it through on the desk.
  */
 function fileGated_(ss, tab, row, clubId, alert) {
+  fillSender_(row, clubId);
   var mode = Core_settingMode(settings_().club_senders_only);
   var refused = false;
   if (mode !== 'off') {
@@ -7150,6 +7219,22 @@ function fileGated_(ss, tab, row, clubId, alert) {
   appendRow_(ss, tab, row);
   if (refused) notAcceptedEmail_(tab, row, clubId, check);
   else alert();
+}
+
+/**
+ * B11: the sender's name and role come from the members list by their Verified email (the forms no longer ask).
+ * A row from an older form keeps what was typed where the list has nothing. The mobile is not copied: the desk
+ * shows the one the members list holds.
+ */
+function fillSender_(row, clubId) {
+  try {
+    var master = readTab_(privateSs_(), 'members_master');
+    var officers = readTab_(mainSs_(), 'officers');
+    var year = Core_rotaryYearOf(today_());
+    var who = Core_formSender(row.submitter_email, clubId, master, Core_actingOfficers(officers, year, master), Core_comingOfficers(officers, year, master));
+    if (who.name) row.submitter_name = who.name;
+    if (who.role) row.submitter_role = who.role;
+  } catch (e) { Logger.log('Sender not looked up: ' + e.message); }
 }
 
 function notAcceptedEmail_(tab, row, clubId, check) {
@@ -7184,7 +7269,7 @@ function deskNotAccepted_(me) {
       if (Core_str(r.status) !== NOT_ACCEPTED) return;
       out.push({ tab: tab, id: Core_str(r.id), kind: GATED[tab], club: deskClubName_(r.club_id) || Core_str(r.club_name || r.organiser),
         title: Core_str(r.title || r.name) || (CLUB_CHANGES[Core_str(r.change)] || ''), from: Core_str(r.submitter_email),
-        sender: [Core_str(r.submitter_name), Core_str(r.submitter_role)].filter(String).join(', '), submitted: Core_isoTimestamp(r.submitted_at) });
+        sender: [Core_str(r.submitter_name), Core_str(r.submitter_role)].filter(String).join(', ') || Core_str(r.submitter_email), submitted: Core_isoTimestamp(r.submitted_at) });
     });
   });
   return out.sort(function (a, b) { return b.submitted.localeCompare(a.submitted); }).slice(0, 50);
@@ -8007,8 +8092,9 @@ function backupNow() {
 /* ---------- A rebuild that did not happen (Release B) ---------- */
 
 /**
- * Every 2 hours: if "Rebuild site now" was pressed more than 3 hours ago and the website has not been built since,
- * one email to the owner (summary_emails, or the district account), so a stuck build is noticed the same day.
+ * Every 2 hours: if "Rebuild site now" was pressed more than 3 hours ago, or something approved more than 13 hours
+ * ago is not on the website, an email to the Administrators (the moderators tab) and summary_emails, so a stuck
+ * build is noticed. It is repeated once a day while the website has not caught up (B10, decision 140, 23 Nov 2026).
  */
 function checkRebuild() {
   var s = settings_();
@@ -8020,20 +8106,31 @@ function checkRebuild() {
   if (changed && Date.now() - new Date(changed).getTime() >= 13 * 3600000 && changed > asked) asked = changed;
   if (!asked) return 'nothing to check';
   var props = props_();
-  if (props.getProperty('REBUILD_ALERTED') === asked) return 'already told';
   var built = '';
   try {
     built = Core_isoTimestamp(JSON.parse(UrlFetchApp.fetch(Core_str(s.site_url).replace(/\/?$/, '/') + 'build-info.json', { muteHttpExceptions: true }).getContentText()).generated_at);
   } catch (e) { built = ''; }
   if (built && built >= asked) return 'built';
-  var to = Core_list(s.summary_emails).join(',') || Session.getEffectiveUser().getEmail();
+  // told already, and the website has not been built since: again only after a day
+  var last = Core_str(props.getProperty('REBUILD_ALERTED')).split('|');
+  if (last[1] && last[2] === built && Date.now() - Number(last[1]) < 23 * 3600000) return 'already told';
+  var to = rebuildRecipients_();
   var what = asked === changed ? 'Something was approved or changed on ' + asked.slice(0, 16).replace('T', ' at ') + ' UTC, more than 13 hours ago (the website should have taken it at one of its four daily updates)'
     : '"Rebuild site now" was pressed on ' + asked.slice(0, 16).replace('T', ' at ') + ' UTC, more than 3 hours ago';
   MailApp.sendEmail(to, 'Rotary 3110 website: a rebuild has not happened', what + ', but the website ' + (built ?'was last built on ' + built.slice(0, 16).replace('T', ' at ') + ' UTC' : 'could not be checked') + '.\n\n' +
     'What to do: open the GitHub repository → Actions. If the latest run failed, its log says why. If nothing ran, press "Run workflow" there.\n\n' +
-    'You get this email once for each rebuild request.', { name: 'Rotary 3110 website' });
-  props.setProperty('REBUILD_ALERTED', asked);
+    'You get this email once a day until the website catches up.', { name: 'Rotary 3110 website' });
+  props.setProperty('REBUILD_ALERTED', [asked, Date.now(), built].join('|'));
   return 'told ' + to;
+}
+
+/** The Administrators on the moderators tab and summary_emails; the district account if there is no one. */
+function rebuildRecipients_() {
+  var seen = {};
+  return Core_moderatorEmails(deskModeratorRows_(), 'Administrator').concat(Core_list(settings_().summary_emails))
+    .map(function (e) { return Core_str(e).trim().toLowerCase(); })
+    .filter(function (e) { if (!e || seen[e]) return false; seen[e] = true; return true; })
+    .join(',') || Session.getEffectiveUser().getEmail();
 }
 
 

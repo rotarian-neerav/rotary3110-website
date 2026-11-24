@@ -1833,6 +1833,31 @@ function Core_clubSender(email, clubId, acting, master, moderatorRows, coming) {
   return out;
 }
 
+/**
+ * B11 (decision 141, 23 Nov 2026): the sender of a club form is known by their Verified email, not by what they type.
+ * The name from the members list (email or second email; an active member, the one in that club if several share it);
+ * the role from the club's acting office bearers, else next year's ("President Elect"), else "Member" of that club.
+ * Nothing is found for an email the members list does not hold: the desk then shows the email.
+ */
+function Core_formSender(email, clubId, master, acting, coming) {
+  var sender = Core_str(email).trim().toLowerCase();
+  var club = Core_str(clubId);
+  if (!sender) return { name: '', role: '', member_id: '', mobile: '' };
+  var found = (master || []).filter(function (m) {
+    return Core_str(m.status || 'active').toLowerCase() === 'active' && !Core_isTrue(m.is_sample) && Core_memberEmails(m).indexOf(sender) >= 0;
+  });
+  var m = found.filter(function (x) { return club && Core_str(x.club_id) === club; })[0] || found[0];
+  if (!m) return { name: '', role: '', member_id: '', mobile: '' };
+  var id = Core_str(m.member_id);
+  var holds = function (roles, suffix) {
+    return CORE_CLUB_ROLES.filter(function (r) { return roles[r] && Core_str(roles[r].member_id) === id; }).map(function (r) { return r + suffix; });
+  };
+  var roles = holds((acting && acting[club]) || {}, '');
+  if (!roles.length) roles = holds((coming && coming[club]) || {}, ' Elect');
+  if (!roles.length && club && Core_str(m.club_id) === club) roles = ['Member'];
+  return { name: Core_str(m.name), role: roles.join(', '), member_id: id, mobile: Core_mobile(m.mobile) };
+}
+
 /** The weekday (0 Sunday … 6 Saturday) a club's weekly email goes on: fixed per club, spread over the week. */
 function Core_clubWeekday(clubId) {
   var s = Core_str(clubId);
@@ -2171,7 +2196,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_moderatorTypesOf: Core_moderatorTypesOf, Core_deskViews: Core_deskViews, Core_quietClubs: Core_quietClubs, Core_looksLikeUrl: Core_looksLikeUrl, Core_isPractice: Core_isPractice,
     Core_moderatorZones: Core_moderatorZones, Core_activityChecks: Core_activityChecks, Core_memberCounts: Core_memberCounts,
     CORE_NEW_CLUB_DAYS: CORE_NEW_CLUB_DAYS, CORE_CLUB_ROLES: CORE_CLUB_ROLES,
-    Core_actingOfficers: Core_actingOfficers, Core_settingMode: Core_settingMode, Core_clubSender: Core_clubSender,
+    Core_actingOfficers: Core_actingOfficers, Core_settingMode: Core_settingMode, Core_clubSender: Core_clubSender, Core_formSender: Core_formSender,
     Core_clubWeekday: Core_clubWeekday, Core_clubWeeklyDue: Core_clubWeeklyDue, Core_clubWeeklyEmail: Core_clubWeeklyEmail,
     Core_yearsAhead: Core_yearsAhead, Core_baseRole: Core_baseRole, Core_heldYear: Core_heldYear, Core_roleTitle: Core_roleTitle,
     Core_comingOfficers: Core_comingOfficers,

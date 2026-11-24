@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { core, plain, sampleOptions } from '../../lib/core.mjs';
-import { derive } from '../../lib/derive.mjs';
+import { derive, pdgName } from '../../lib/derive.mjs';
 import { glossHtml } from '../../lib/gloss.mjs';
 import glossary from '../../src/_data/glossary.js';
 
@@ -222,9 +222,12 @@ test('year summaries: totals match the activities of that Rotary year; areas and
 test('Past District Governors: from the tab, then from the Governor line; until the tab is filled in, the College of Governors stands in', () => {
   const s = site();
   assert.equal(s.pastGovernors.length, 30, 'the 28 in the tab, and 2024-25 and 2025-26 from the Governor line');
-  assert.deepEqual(s.pastGovernors.slice(-2).map((g) => [g.term, g.name]), [['2024-25', 'Neerav N Agrawal'], ['2025-26', 'Rajan Vidhyarthi']],
+  assert.deepEqual(s.pastGovernors.slice(-2).map((g) => [g.term, g.name]), [['2024-25', 'PDG Neerav N Agrawal'], ['2025-26', 'PDG Rajan Vidhyarthi']],
     'without the title typed in that year\'s list');
   assert.ok(s.pastGovernors.slice(-2).every((g) => g.card), 'with their member cards');
+  for (const [typed, shown] of [['DGE Dr. A Rao', 'PDG Dr. A Rao'], ['PDG PDG Vivek GARG', 'PDG Vivek GARG'], ['Rtn. CA Mohan Lal', 'PDG CA Mohan Lal'], ['Neerav Agrawal', 'PDG Neerav Agrawal'], ['', '']]) {
+    assert.equal(pdgName(typed), shown, 'Dr. and CA stay; a typed Rotary title is replaced');
+  }
   assert.ok(!s.pastGovernors.some((g) => g.term >= '2026-27'), 'not this year\'s or a coming Governor');
   const d = build();
   d.past_governors = [];
@@ -235,10 +238,10 @@ test('Past District Governors: from the tab, then from the Governor line; until 
   const tabs = structuredClone(sample.main);
   const pdg = tabs.past_governors.find((g) => g.member_id);
   const dead = derive(plain(core.Core_buildPublicData(tabs, '2026-10-13T00:00:00Z', { ...sampleOptions(sample), inactiveIds: [pdg.member_id] })), media, '2026-10-13');
-  const listed = dead.pastGovernors.find((g) => g.name === pdg.name);
+  const listed = dead.pastGovernors.find((g) => g.name === pdgName(pdg.name));
   assert.ok(listed && !listed.card);
   const college = dead.rolesByYear.find((x) => x.current).leadership.find((x) => x.section === 'College of Governors').groups.flatMap((g) => g.people);
-  assert.ok(!college.some((p) => p.name === pdg.name), 'but not in this year\'s College of Governors');
+  assert.ok(!college.some((p) => p.name === pdgName(pdg.name)), 'but not in this year\'s College of Governors');
 });
 
 test('titles by year: Elect, Nominee and Nominee Designate ahead; Past only for the Governor and a club President', () => {
@@ -282,7 +285,7 @@ test('1 July: next year\'s team becomes this year\'s and the Governor a Past Dis
   assert.equal(nextDg.role, 'District Governor Elect');
   assert.equal(dg(after).name, nextDg.name);
   assert.equal(dg(after).role, 'District Governor');
-  assert.ok(after.pastGovernors.some((g) => g.term === '2026-27' && g.name === dg(before).name), 'the outgoing Governor joins the Past District Governors');
+  assert.ok(after.pastGovernors.some((g) => g.term === '2026-27' && g.name === `PDG ${dg(before).name}`), 'the outgoing Governor joins the Past District Governors');
   const club = (s) => s.clubs.find((c) => c.name === 'RC Agra');
   assert.ok(club(before).elects.length === 2 && club(before).officers.every((o) => o.since === '2024-25'));
   assert.deepEqual(club(after).officers.map((o) => [o.role, o.since]), [['President', ''], ['Secretary', '']], 'the Elects now hold office');
@@ -321,8 +324,23 @@ test('team pages: every year from the first list to the furthest entered, with t
   assert.deepEqual(people('2026-27', 'District Governor').map((p) => [p.name, p.role]), [['Jasbir Bhatia', 'District Governor']]);
   const college = people('2026-27', 'College of Governors');
   assert.deepEqual(college.slice(-3).map((p) => p.role), ['District Governor Elect', 'District Governor Nominee', 'District Governor Nominee Designate']);
-  assert.ok(college.some((p) => p.name === 'Neerav N Agrawal' && p.role === 'Past District Governor' && p.term === '2024-25'));
-  assert.ok(college.some((p) => p.name === 'Rajan Vidhyarthi' && p.term === '2025-26'));
+  assert.ok(college.some((p) => p.name === 'PDG Neerav N Agrawal' && p.role === 'Past District Governor' && p.term === '2024-25'));
+  assert.ok(college.some((p) => p.name === 'PDG Rajan Vidhyarthi' && p.term === '2025-26'));
+  // every Past District Governor is "PDG …", whether worked out or typed with or without a title (owner, 24 Nov 2026)
+  assert.ok(college.filter((p) => p.role === 'Past District Governor').every((p) => /^PDG (?!PDG )\S/.test(p.name)), college.map((p) => p.name).join(', '));
+  assert.ok(people(LIST_YEAR, 'College of Governors').filter((p) => p.role === 'Past District Governor').every((p) => /^PDG (?!PDG )\S/.test(p.name)));
+  assert.ok(s.pastGovernors.every((g) => /^PDG (?!PDG )\S/.test(g.name)), 'the About page too');
+  // a coming year's page (owner, 24 Nov 2026, option A): all the Past Governors in the same order, then this year's
+  // Governor with today's title, then the Governor line
+  const pastOnes = college.filter((p) => p.role === 'Past District Governor').map((p) => p.name);
+  const next = people('2027-28', 'College of Governors');
+  assert.deepEqual(next.slice(0, pastOnes.length).map((p) => p.name), pastOnes);
+  assert.deepEqual(next.slice(pastOnes.length).map((p) => [p.name, p.role, p.term]), [['Jasbir Bhatia', 'District Governor', '2026-27'],
+    ...next.slice(pastOnes.length + 1).map((p) => [p.name, p.role, p.term])]);
+  assert.deepEqual(next.slice(pastOnes.length + 1).map((p) => p.role), ['District Governor Nominee', 'District Governor Nominee Designate']);
+  const later = people('2028-29', 'College of Governors');
+  assert.deepEqual(later.slice(pastOnes.length, pastOnes.length + 2).map((p) => p.role), ['District Governor', 'District Governor Elect'],
+    "the 2028-29 page: this year's Governor, then the 2027-28 Governor Elect");
   assert.ok(!s.rolesByYear.find((x) => x.year === '2026-27').leadership.some((x) => x.section === 'Assistant Governors'), 'the rest stays blank');
   assert.equal(s.rolesByYear.find((x) => x.year === '2026-27').teams.length, 0);
   // a coming year's list shows today's titles

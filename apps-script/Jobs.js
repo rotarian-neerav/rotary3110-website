@@ -153,6 +153,7 @@ function sendReminders_() {
  * Never shown on the website. Goes to the Club engagement moderators (until they are named: not_posting_emails, a dummy address).
  */
 function notPostingReport() {
+  if (activityPaused_()) return 0; // nothing to ask of quiet clubs while the activity form is paused
   var list = Core_quietClubs(clubs_(), readTab_(mainSs_(), 'activities'), today_(), CORE_QUIET_DAYS);
   var label = 'the last ' + CORE_QUIET_DAYS + ' days';
   var to = moderatorRecipients_('Club engagement', 'not_posting_emails');
@@ -168,6 +169,10 @@ function notPostingReport() {
 }
 
 function sendNotPostingNow() {
+  if (activityPaused_()) {
+    try { SpreadsheetApp.getUi().alert('Not sent: the activity form is paused (Rotary → Reopen activity form).'); } catch (e) { /* editor */ }
+    return;
+  }
   var n = notPostingReport();
   try { SpreadsheetApp.getUi().alert('Sent to ' + moderatorRecipients_('Club engagement', 'not_posting_emails') + ': ' + n + ' club(s) listed.'); } catch (e) { /* editor */ }
 }

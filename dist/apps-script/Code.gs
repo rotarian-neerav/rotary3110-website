@@ -1373,6 +1373,11 @@ function Core_settings(rows) {
   return s;
 }
 
+/** The activity form paused (Rotary → Pause activity form, owner 24 Nov 2026): the website hides every invitation to it. */
+function Core_activityPaused(settings) {
+  return Core_str(settings && settings.activity_form).toLowerCase() === 'paused';
+}
+
 function Core_photoRefs(v) {
   return Core_list(v).map(function (ref) {
     // Google Form uploads arrive as Drive links; keep just the file id
@@ -1790,9 +1795,10 @@ function Core_buildPublicData(tabs, nowIso, options) {
       rotary_year: rotaryYear,
       district: Core_str(settings.district_name) || 'Rotary District 3110',
       bulletin_start_date: Core_isoDate(settings.bulletin_start_date),
+      activity_paused: Core_activityPaused(settings),
     },
     forms: {
-      activity: Core_url(settings.form_activity_url),
+      activity: Core_activityPaused(settings) ? '' : Core_url(settings.form_activity_url),
       club_profile: Core_url(settings.form_club_profile_url),
       consent: Core_url(settings.form_consent_url),
       removal: Core_url(settings.form_removal_url),
@@ -2528,7 +2534,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_isTrue: Core_isTrue, Core_isoDate: Core_isoDate, Core_dayMonth: Core_dayMonth, Core_rows: Core_rows,
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
     Core_memberShows: Core_memberShows, Core_sampleRows: Core_sampleRows, Core_nextRotaryYear: Core_nextRotaryYear, Core_memberCheckDue: Core_memberCheckDue, Core_memberCheckEmail: Core_memberCheckEmail,
-    Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
+    Core_buildPublicData: Core_buildPublicData, Core_activityPaused: Core_activityPaused, Core_validatePublic: Core_validatePublic,
     Core_matchMember: Core_matchMember, Core_findByEmail: Core_findByEmail, Core_emailOwners: Core_emailOwners, Core_memberEmails: Core_memberEmails,
     Core_filledByClub: Core_filledByClub, Core_memberNumber: Core_memberNumber, Core_removalSince: Core_removalSince, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,
@@ -2718,6 +2724,7 @@ var DEFAULT_SETTINGS = [
   ['club_senders_only', 'off', 'Club office bearers: off, watch or on. On: the activity and Club updates forms are accepted only from the club\'s President, Secretary or Executive Secretary (this year\'s, or the last known until this year\'s is told), sent from their email on file; watch: nobody is refused, each row says who sent it'],
   ['weekly_club_email', 'off', 'Club office bearers: off, test or on. On: each club\'s office bearers get one email a week, on the club\'s own weekday, with what was approved for the club (none when nothing happened); test: the day\'s club emails all go to weekly_club_email_test_to'],
   ['weekly_club_email_test_to', '', 'Where the weekly club emails go while weekly_club_email is test. Blank: the district account that owns the Sheet'],
+  ['activity_form', 'open', 'open or paused: set by Rotary → Pause activity form / Reopen activity form. Paused: the activity form takes no answers, the website hides its buttons and links (its short link opens the home page), and the quiet-club reminders stop'],
   ['not_posting_emails', 'not-posting@example.com', 'Older setting (a dummy address): used only while the moderators tab names no Club engagement moderator'],
 ];
 
@@ -4458,6 +4465,8 @@ function onOpen() {
     .addItem('Refresh dashboard', 'refreshDashboard')
     .addItem('Check roles and member IDs', 'checkRoles')
     .addItem('Update form lists (clubs, areas, professions)', 'updateFormLists')
+    .addItem('Pause activity form…', 'pauseActivityForm')
+    .addItem('Reopen activity form…', 'reopenActivityForm')
     .addSeparator()
     // Load sample data left the menu after launch (17 Nov 2026); setup uses it for a new test Sheet.
     // Reset for production, used once on 29 Oct, was removed (18 Nov 2026)
@@ -4677,6 +4686,38 @@ function requestRebuild() {
   try {
     SpreadsheetApp.getUi().alert('Done. The website will update within about 30 minutes.');
   } catch (e) { /* called from code */ }
+}
+
+/**
+ * Rotary → Pause / Reopen activity form (owner, 24 Nov 2026): one switch for the activity and event form. Paused, the
+ * form takes no answers (Google's own closed page), the website hides every button and link to it at the rebuild
+ * asked for here, and the quiet-club reminders stop. Reopen puts it all back.
+ */
+function pauseActivityForm() { setActivityForm_(true); }
+function reopenActivityForm() { setActivityForm_(false); }
+
+function activityPaused_() {
+  return Core_activityPaused(settings_());
+}
+
+function setActivityForm_(paused) {
+  var ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { /* called from code */ }
+  if (ui && ui.alert(paused ? 'Pause the activity form?' : 'Reopen the activity form?', paused
+    ? 'Clubs will not be able to send activities or events. The website hides its buttons and links within about 30 minutes, and the quiet-club reminders stop.'
+    : 'Clubs can send activities and events again. The website shows its buttons and links again within about 30 minutes.', ui.ButtonSet.YES_NO) !== ui.Button.YES) return '';
+  var id = JSON.parse(props_().getProperty('FORM_IDS') || '{}').activity;
+  var note = '';
+  try {
+    FormApp.openById(id).setAcceptingResponses(!paused);
+  } catch (e) {
+    note = '\n\nGoogle did not ' + (paused ? 'close' : 'open') + ' the form itself (' + e.message + '): open the form, click Published and turn Accepting responses ' + (paused ? 'off' : 'on') + ' by hand.';
+  }
+  setSetting_('activity_form', paused ? 'paused' : 'open');
+  setSetting_('rebuild_requested_at', nowIso_());
+  var msg = (paused ? 'The activity form is paused.' : 'The activity form is open again.') + ' The website updates within about 30 minutes.' + note;
+  if (ui) ui.alert(msg);
+  return msg;
 }
 
 function showDataLink() {
@@ -6313,6 +6354,7 @@ function deskNudge_(me, clubId, via) {
   if (!me.views.clubs) throw deskError_('Only Club engagement moderators can do this.');
   var club = clubs_().filter(function (c) { return Core_str(c.club_id) === Core_str(clubId); })[0];
   if (!club) throw deskError_('Unknown club.');
+  if (activityPaused_()) throw deskError_('The activity form is paused, so clubs are not reminded to post.');
   if (via === 'whatsapp') {
     deskLog_(me, 'reminder whatsapp', 'clubs', club.club_id, '');
     return { message: 'Noted: ' + club.club_name + ' reminded on WhatsApp.' };
@@ -6396,7 +6438,10 @@ function deskList_(me) {
     out.roles = { checks: me.views.members ? deskRoleChecks_() : [], officers: deskOfficerYear_() };
     out.held = deskNotAccepted_(me);
   }
-  if (me.views.clubs) out.clubs = deskClubs_(me);
+  if (me.views.clubs) {
+    out.activity_paused = activityPaused_();
+    out.clubs = out.activity_paused ? [] : deskClubs_(me); // no reminders while the activity form is paused
+  }
   if (me.views.office) out.office = deskOffice_();
   if (me.views.admin) out.admin = { clubs: clubs_().map(deskClubRow_), moderators: deskModerators_() };
   if (me.views.members || me.views.content || me.views.admin) out.lists = deskLists_();
@@ -7820,6 +7865,7 @@ function sendReminders_() {
  * Never shown on the website. Goes to the Club engagement moderators (until they are named: not_posting_emails, a dummy address).
  */
 function notPostingReport() {
+  if (activityPaused_()) return 0; // nothing to ask of quiet clubs while the activity form is paused
   var list = Core_quietClubs(clubs_(), readTab_(mainSs_(), 'activities'), today_(), CORE_QUIET_DAYS);
   var label = 'the last ' + CORE_QUIET_DAYS + ' days';
   var to = moderatorRecipients_('Club engagement', 'not_posting_emails');
@@ -7835,6 +7881,10 @@ function notPostingReport() {
 }
 
 function sendNotPostingNow() {
+  if (activityPaused_()) {
+    try { SpreadsheetApp.getUi().alert('Not sent: the activity form is paused (Rotary → Reopen activity form).'); } catch (e) { /* editor */ }
+    return;
+  }
   var n = notPostingReport();
   try { SpreadsheetApp.getUi().alert('Sent to ' + moderatorRecipients_('Club engagement', 'not_posting_emails') + ': ' + n + ' club(s) listed.'); } catch (e) { /* editor */ }
 }

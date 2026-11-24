@@ -23,5 +23,7 @@ eleventyComputed:
   {%- else %}
   <p>{{ t.news.empty }}</p>
   {%- endif %}
+  {%- if not site.activityPaused %}
   <p class="small">Was your club's activity in the news? Add the paper's name, date and link when you <a href="/submit/">send the activity</a>.</p>
+  {%- endif %}
 </div>

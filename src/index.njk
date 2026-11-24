@@ -21,7 +21,9 @@ eleventyComputed:
         <li><strong>{{ site.stats.clubsPosting }}</strong> clubs posting</li>
         <li><strong>{{ site.stats.peopleHelped | number }}</strong> people helped</li>
       </ul>
+      {%- if not site.activityPaused %}
       <a class="btn btn-gold" href="/submit/">{{ t.home.share_button }}</a>
+      {%- endif %}
     </div>
     {%- if dg %}
     <{% if dg.url %}a href="{{ dg.url }}"{% else %}div{% endif %} class="dg-card" id="governor">
@@ -151,6 +153,7 @@ eleventyComputed:
   {%- endif %}
 </div>
 
+{%- if not site.activityPaused %}
 <section class="cta-band">
   <div class="wrap">
     <h2>{{ t.home.share_cta }}</h2>
@@ -158,3 +161,4 @@ eleventyComputed:
     <a class="btn btn-gold" href="/submit/">{{ t.home.share_button }}</a>
   </div>
 </section>
+{%- endif %}

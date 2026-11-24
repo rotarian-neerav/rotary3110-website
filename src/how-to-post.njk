@@ -3,11 +3,16 @@ layout: layouts/base.njk
 title: How to post a good activity
 description: Tips for club secretaries and members sending an activity or event to the Rotary District 3110 website, and what moderators check.
 permalink: /how-to-post/
+eleventyComputed:
+  forwardHome: "{{ 'yes' if site.activityPaused else '' }}"
+  noindex: "{{ 'yes' if site.activityPaused else '' }}"
 ---
 <div class="wrap section narrow prose">
   <h1>{{ t.guide.title }}</h1>
   <p class="lead">A short guide for club office bearers and members. Sending an activity takes about two minutes on a phone; a district moderator checks it, usually within two days.</p>
+  {%- if not site.activityPaused %}
   <p><a class="btn btn-gold" href="/submit/">Open the activity form</a></p>
+  {%- endif %}
 
   <h2>Before you start</h2>
   <ul>

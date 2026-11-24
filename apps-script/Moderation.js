@@ -15,6 +15,8 @@ function onOpen() {
     .addItem('Refresh dashboard', 'refreshDashboard')
     .addItem('Check roles and member IDs', 'checkRoles')
     .addItem('Update form lists (clubs, areas, professions)', 'updateFormLists')
+    .addItem('Pause activity form…', 'pauseActivityForm')
+    .addItem('Reopen activity form…', 'reopenActivityForm')
     .addSeparator()
     // Load sample data left the menu after launch (17 Nov 2026); setup uses it for a new test Sheet.
     // Reset for production, used once on 29 Oct, was removed (18 Nov 2026)
@@ -234,6 +236,38 @@ function requestRebuild() {
   try {
     SpreadsheetApp.getUi().alert('Done. The website will update within about 30 minutes.');
   } catch (e) { /* called from code */ }
+}
+
+/**
+ * Rotary → Pause / Reopen activity form (owner, 24 Nov 2026): one switch for the activity and event form. Paused, the
+ * form takes no answers (Google's own closed page), the website hides every button and link to it at the rebuild
+ * asked for here, and the quiet-club reminders stop. Reopen puts it all back.
+ */
+function pauseActivityForm() { setActivityForm_(true); }
+function reopenActivityForm() { setActivityForm_(false); }
+
+function activityPaused_() {
+  return Core_activityPaused(settings_());
+}
+
+function setActivityForm_(paused) {
+  var ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { /* called from code */ }
+  if (ui && ui.alert(paused ? 'Pause the activity form?' : 'Reopen the activity form?', paused
+    ? 'Clubs will not be able to send activities or events. The website hides its buttons and links within about 30 minutes, and the quiet-club reminders stop.'
+    : 'Clubs can send activities and events again. The website shows its buttons and links again within about 30 minutes.', ui.ButtonSet.YES_NO) !== ui.Button.YES) return '';
+  var id = JSON.parse(props_().getProperty('FORM_IDS') || '{}').activity;
+  var note = '';
+  try {
+    FormApp.openById(id).setAcceptingResponses(!paused);
+  } catch (e) {
+    note = '\n\nGoogle did not ' + (paused ? 'close' : 'open') + ' the form itself (' + e.message + '): open the form, click Published and turn Accepting responses ' + (paused ? 'off' : 'on') + ' by hand.';
+  }
+  setSetting_('activity_form', paused ? 'paused' : 'open');
+  setSetting_('rebuild_requested_at', nowIso_());
+  var msg = (paused ? 'The activity form is paused.' : 'The activity form is open again.') + ' The website updates within about 30 minutes.' + note;
+  if (ui) ui.alert(msg);
+  return msg;
 }
 
 function showDataLink() {

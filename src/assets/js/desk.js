@@ -59,7 +59,7 @@
       datesDiffer: 'Dates differ: check with the couple', waitingSpouse: "Waiting for the spouse's own form",
       deceased: 'Mark as deceased', searchName: 'Type at least three letters of the name', search: 'Search',
       confirmDeceased: 'Mark {name} as deceased? Birthday and anniversary greetings stop at once.', noOne: 'No one found.',
-      quietIntro: 'Active clubs with no activity in the last 30 days.', lastActivity: 'Last activity', never: 'none yet',
+      quietIntro: 'Active clubs with no activity in the last 30 days.', quietPaused: 'The activity form is paused, so clubs are not reminded to post.', lastActivity: 'Last activity', never: 'none yet',
       reminded: 'Reminded', by: 'by', emailClub: 'Email the office bearers', whatsapp: 'WhatsApp',
       reply: 'Reply', replyLabel: 'Your answer (sent from the district account, signed Rotary District 3110; your name and email are not shown)', send: 'Send', phoneOnly: 'Mobile number: please call or WhatsApp from the district office phone, not your personal phone.', earlier: 'Sent earlier', markAnswered: 'Mark answered', answered: 'Answered', newMsg: 'New',
       openDesk: 'Open the moderation desk', linkFor: 'This link is for', approveQ: 'Approve this?', rejectQ: 'Reject this?',
@@ -108,7 +108,7 @@
       datesDiffer: 'तारीखें अलग हैं: दंपति से पूछें', waitingSpouse: 'जीवनसाथी के अपने फ़ॉर्म की प्रतीक्षा',
       deceased: 'दिवंगत चिह्नित करें', searchName: 'नाम के कम से कम तीन अक्षर लिखें', search: 'खोजें',
       confirmDeceased: '{name} को दिवंगत चिह्नित करें? जन्मदिन और वर्षगाँठ की शुभकामनाएँ तुरंत बंद हो जाएँगी।', noOne: 'कोई नहीं मिला।',
-      quietIntro: 'सक्रिय क्लब जिनकी पिछले 30 दिनों में कोई गतिविधि नहीं आई।', lastActivity: 'आखिरी गतिविधि', never: 'अभी तक कोई नहीं',
+      quietIntro: 'सक्रिय क्लब जिनकी पिछले 30 दिनों में कोई गतिविधि नहीं आई।', quietPaused: 'गतिविधि फ़ॉर्म अभी रुका हुआ है, इसलिए क्लबों को पोस्ट करने की याद नहीं दिलाई जाती।', lastActivity: 'आखिरी गतिविधि', never: 'अभी तक कोई नहीं',
       reminded: 'याद दिलाया', by: 'द्वारा', emailClub: 'अध्यक्ष और सचिव को ईमेल करें', whatsapp: 'व्हाट्सऐप',
       reply: 'जवाब दें', replyLabel: 'आपका जवाब (डिस्ट्रिक्ट खाते से, "Rotary District 3110" के नाम से जाएगा; आपका नाम और ईमेल नहीं दिखेगा)', send: 'भेजें', phoneOnly: 'मोबाइल नंबर: कृपया डिस्ट्रिक्ट ऑफ़िस के फ़ोन से कॉल या व्हाट्सऐप करें, अपने निजी फ़ोन से नहीं।', earlier: 'पहले भेजा गया', markAnswered: 'जवाब दिया गया', answered: 'जवाब दिया गया', newMsg: 'नया',
       openDesk: 'मॉडरेशन डेस्क खोलें', linkFor: 'यह लिंक इनके लिए है:', approveQ: 'इसे स्वीकृत करें?', rejectQ: 'इसे अस्वीकार करें?',
@@ -1033,6 +1033,7 @@
 
   function drawClubs(view) {
     var clubs = state.data.clubs;
+    if (state.data.activity_paused) { view.innerHTML = '<p class="desk-empty">' + esc(t('quietPaused')) + '</p>'; return; }
     view.innerHTML = '<p class="muted">' + esc(t('quietIntro')) + '</p>' + (clubs.length ? '<ul class="desk-list">' + clubs.map(function (c) {
       return '<li class="desk-row desk-club"><div><strong>' + esc(c.club_name) + '</strong><br><span class="small muted">' + esc(c.zone) + ' · ' + esc(t('lastActivity')) + ': ' +
         esc(c.last_activity_date ? day(c.last_activity_date) : t('never')) + '</span>' +

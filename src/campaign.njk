@@ -51,7 +51,7 @@ eleventyComputed:
   <p>{{ t.campaigns.empty }}</p>
   {%- endif %}
 
-  {%- if not c.isPast %}
+  {%- if not c.isPast and not site.activityPaused %}
   <section class="how-to">
     <h2>{{ t.campaigns.how }}</h2>
     <p>{{ t.campaigns.how_text }}</p>

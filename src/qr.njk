@@ -10,11 +10,11 @@ bodyClass: print-page
   <h1>QR codes for the forms</h1>
   <p class="lead">Print this page for district meetings. Each code opens the form on a phone.</p>
   <div class="qr-grid">
-    {%- for q in qr %}
+    {%- for q in qr %}{% if not (q.form == 'activity' and site.activityPaused) %}
     <figure class="qr">
       {{ q.svg | safe }}
       <figcaption><strong>{{ q.title }}</strong><br><span class="small">{{ q.url }}</span></figcaption>
     </figure>
-    {%- endfor %}
+    {%- endif %}{% endfor %}
   </div>
 </div>

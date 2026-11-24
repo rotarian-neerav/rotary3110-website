@@ -9,13 +9,16 @@ permalink: "/{{ link.slug }}/"
 noindex: true
 eleventyComputed:
   title: "{{ link.title }}"
+  forwardHome: "{{ 'yes' if (link.form == 'activity' and site.activityPaused) else '' }}"
   description: "{{ link.text }}"
 ---
 {%- set url = site.forms[link.form] %}
 <div class="wrap section narrow">
   <h1>{{ link.title }}</h1>
   <p class="lead">{{ link.text }}</p>
-  {%- if url %}
+  {%- if forwardHome %}
+  <p><a href="/">{{ t.district }}</a></p>
+  {%- elif url %}
   <p><a class="btn btn-gold" href="{{ url }}" data-autoforward>Open the form →</a></p>
   <p class="small muted">Opening the form…</p>
   {%- else %}

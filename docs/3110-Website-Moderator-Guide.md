@@ -29,6 +29,13 @@ Moderators check everything before it appears on the website. Any Content modera
 
 Five forms bring everything in; their links are on the website.
 
+**Pausing the activity form (24 Nov 2026):** **Rotary → Pause activity form…** stops the activity and event form
+taking answers (Google shows its own closed page, also for each club's own link). Within about 30 minutes the website
+hides every button and link to it; its short link (`…/submit/`) and the posting guide open the home page, and the QR
+page leaves its code out. The quiet-club reminders stop (the desk's Quiet clubs tab and the 1st-of-month email).
+Items already sent can still be approved. **Rotary → Reopen activity form…** puts everything back. The setting
+`activity_form` shows which it is (open or paused).
+
 **Who sent it (B11, 24 Nov 2026):** the activity and Club updates forms no longer ask the sender's name, role and
 mobile. The sender is known by the email Google collects (Verified email: keep it on). The card's **Sent by** line
 gives their name from the members list (email or second email) and their role from the club's office bearers
@@ -357,7 +364,7 @@ Each month, choose a member who chose List for "member spotlight" on the Show my
 
 ## Quiet clubs
 
-A club is **quiet** when it has no activity (approved or waiting) dated in the **last 30 days**. The same rule is used in three places: the desk's **Quiet clubs** tab, the **dashboard** tab (refreshed every morning; `needs_nudge = TRUE`), and an email on the 1st of each month to the **Club engagement** moderators (until one is named, a dummy address). Send those clubs a friendly reminder from the desk's **Quiet clubs** tab: by email to the President and Secretary, or on WhatsApp, both with the club's own form link (the club already chosen). The posting guide is at `…/how-to-post/`. The Club engagement moderators decide who follows up which clubs. **Rotary → Administrator → Send clubs-not-posting email now** sends the email at any time.
+A club is **quiet** when it has no activity (approved or waiting) dated in the **last 30 days**. The same rule is used in three places: the desk's **Quiet clubs** tab, the **dashboard** tab (refreshed every morning; `needs_nudge = TRUE`), and an email on the 1st of each month to the **Club engagement** moderators (until one is named, a dummy address). Send those clubs a friendly reminder from the desk's **Quiet clubs** tab: by email to the President and Secretary, or on WhatsApp, both with the club's own form link (the club already chosen). The posting guide is at `…/how-to-post/`. The Club engagement moderators decide who follows up which clubs. **Rotary → Administrator → Send clubs-not-posting email now** sends the email at any time. While the activity form is paused, no reminders are sent and the tab says so.
 
 ## Sharing links in WhatsApp
 

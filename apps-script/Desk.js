@@ -645,6 +645,7 @@ function deskNudge_(me, clubId, via) {
   if (!me.views.clubs) throw deskError_('Only Club engagement moderators can do this.');
   var club = clubs_().filter(function (c) { return Core_str(c.club_id) === Core_str(clubId); })[0];
   if (!club) throw deskError_('Unknown club.');
+  if (activityPaused_()) throw deskError_('The activity form is paused, so clubs are not reminded to post.');
   if (via === 'whatsapp') {
     deskLog_(me, 'reminder whatsapp', 'clubs', club.club_id, '');
     return { message: 'Noted: ' + club.club_name + ' reminded on WhatsApp.' };
@@ -728,7 +729,10 @@ function deskList_(me) {
     out.roles = { checks: me.views.members ? deskRoleChecks_() : [], officers: deskOfficerYear_() };
     out.held = deskNotAccepted_(me);
   }
-  if (me.views.clubs) out.clubs = deskClubs_(me);
+  if (me.views.clubs) {
+    out.activity_paused = activityPaused_();
+    out.clubs = out.activity_paused ? [] : deskClubs_(me); // no reminders while the activity form is paused
+  }
   if (me.views.office) out.office = deskOffice_();
   if (me.views.admin) out.admin = { clubs: clubs_().map(deskClubRow_), moderators: deskModerators_() };
   if (me.views.members || me.views.content || me.views.admin) out.lists = deskLists_();

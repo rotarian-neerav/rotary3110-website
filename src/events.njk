@@ -31,5 +31,7 @@ eleventyComputed:
   <h2 id="past">{{ t.events.past }}</h2>
   {%- for e in site.pastEvents %}{{ eventItem(e, t) }}{% endfor %}
   {%- endif %}
+  {%- if not site.activityPaused %}
   <p class="small">Want your club's event here? <a href="/submit/">Send it through the activity form</a> and choose "An upcoming event".</p>
+  {%- endif %}
 </div>

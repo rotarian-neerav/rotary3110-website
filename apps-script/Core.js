@@ -1023,6 +1023,11 @@ function Core_settings(rows) {
   return s;
 }
 
+/** The activity form paused (Rotary → Pause activity form, owner 24 Nov 2026): the website hides every invitation to it. */
+function Core_activityPaused(settings) {
+  return Core_str(settings && settings.activity_form).toLowerCase() === 'paused';
+}
+
 function Core_photoRefs(v) {
   return Core_list(v).map(function (ref) {
     // Google Form uploads arrive as Drive links; keep just the file id
@@ -1440,9 +1445,10 @@ function Core_buildPublicData(tabs, nowIso, options) {
       rotary_year: rotaryYear,
       district: Core_str(settings.district_name) || 'Rotary District 3110',
       bulletin_start_date: Core_isoDate(settings.bulletin_start_date),
+      activity_paused: Core_activityPaused(settings),
     },
     forms: {
-      activity: Core_url(settings.form_activity_url),
+      activity: Core_activityPaused(settings) ? '' : Core_url(settings.form_activity_url),
       club_profile: Core_url(settings.form_club_profile_url),
       consent: Core_url(settings.form_consent_url),
       removal: Core_url(settings.form_removal_url),
@@ -2178,7 +2184,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_isTrue: Core_isTrue, Core_isoDate: Core_isoDate, Core_dayMonth: Core_dayMonth, Core_rows: Core_rows,
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
     Core_memberShows: Core_memberShows, Core_sampleRows: Core_sampleRows, Core_nextRotaryYear: Core_nextRotaryYear, Core_memberCheckDue: Core_memberCheckDue, Core_memberCheckEmail: Core_memberCheckEmail,
-    Core_buildPublicData: Core_buildPublicData, Core_validatePublic: Core_validatePublic,
+    Core_buildPublicData: Core_buildPublicData, Core_activityPaused: Core_activityPaused, Core_validatePublic: Core_validatePublic,
     Core_matchMember: Core_matchMember, Core_findByEmail: Core_findByEmail, Core_emailOwners: Core_emailOwners, Core_memberEmails: Core_memberEmails,
     Core_filledByClub: Core_filledByClub, Core_memberNumber: Core_memberNumber, Core_removalSince: Core_removalSince, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,

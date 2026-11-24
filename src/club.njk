@@ -90,7 +90,7 @@ eleventyComputed:
   {%- if c.activities.length %}
   <div class="grid cards">{% for a in c.activities %}{{ activityCard(a, t) }}{% endfor %}</div>
   {%- else %}
-  <p>No activities shared yet. <a href="/submit/">Share your club's first activity</a>.</p>
+  <p>No activities shared yet.{% if not site.activityPaused %} <a href="/submit/">Share your club's first activity</a>.{% endif %}</p>
   {%- endif %}
   <p class="small"><a href="/club-profile/">{{ t.club.update_profile }}</a></p>
 </div>

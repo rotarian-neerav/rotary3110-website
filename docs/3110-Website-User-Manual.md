@@ -126,7 +126,8 @@ nothing happened.
 ### Reminders
 
 A club with no activity in 30 days may get a friendly reminder from the district's Club engagement moderator, by
-email to the office bearers or on WhatsApp, with the club's own form link.
+email to the office bearers or on WhatsApp, with the club's own form link. While the activity form is paused (an
+administrator's choice), the website shows no way to send activities or events, and no reminders go out.
 
 ---
 
@@ -244,6 +245,7 @@ consent tick; never use the Sheet's Reject to remove many rows at once (it email
 | **Refresh dashboard** | Recounts clubs' activities |
 | **Check roles and member IDs** | Runs the role check (also daily) |
 | **Update form lists** | Clubs, areas, professions and campaigns in the forms' drop-downs (also daily) |
+| **Pause activity form… / Reopen activity form…** | Closes or reopens the activity and event form; the website hides or shows every button and link to it within about 30 minutes, and the quiet-club reminders stop or start again |
 | **Administrator → …** | Data link details, **Upgrade Sheet**, Apply moderators (Sheet access), Sign everyone out of the desk, send the bulletin preview, bulletin message, clubs-not-posting email or weekly summary now, a sample July member email, **Back up both Sheets now**, the practice round, Run setup again |
 
 ### Settings (the main Sheet's settings tab)
@@ -260,6 +262,7 @@ Change only the **value** column; the notes explain each setting. The ones you a
 | `contact_daily_limit` | How many contact messages are emailed on per day |
 | `campaign_check_above` | A campaign count above this gets a note for the moderator |
 | `bulletin_start_date` | The Sunday the bulletin archive starts |
+| `activity_form` | **open / paused**: set by **Pause activity form** and **Reopen activity form** (use the menu, which also closes or opens the form itself) |
 
 The **moderators** tab names each moderator: type, name, Google email, active, areas. Setting **active** to FALSE
 locks that person out of the desk at once.

@@ -31,7 +31,6 @@ function onOpen() {
       .addItem('Send weekly summary now', 'sendWeeklySummaryNow')
       .addItem('Send me a sample July member email', 'sendMemberCheckSample')
       .addItem('Back up both Sheets now', 'backupNow')
-      .addItem('Start new Rotary year…', 'startNewRotaryYear')
       .addItem('Practice round: start…', 'startPractice')
       .addItem('Practice round: report', 'practiceReport')
       .addItem('Practice round: remove practice items…', 'removePractice')

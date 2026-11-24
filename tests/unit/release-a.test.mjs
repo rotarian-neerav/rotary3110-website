@@ -13,6 +13,8 @@ const sample = JSON.parse(readFileSync(new URL('../../sample/sample-data.json', 
 const build = (tabs = sample.main) => plain(core.Core_buildPublicData(tabs, '2026-10-13T00:00:00Z', sampleOptions(sample)));
 const media = { images: {}, pdfs: {} };
 const site = (d = build()) => derive(d, media, '2026-10-13');
+// the sample's district team list is of 2024-25, as on the live site; on the sample's day the website's year is 2026-27
+const LIST_YEAR = '2024-25';
 
 /* ---------- small rules ---------- */
 
@@ -100,13 +102,14 @@ test("clubs: the meeting day from the question or the meeting text; an Assistant
   assert.equal(by('RC Kanpur').meeting_day, 'Saturday');
   const fromText = d.clubs.find((c) => c.meeting && !sample.main.clubs.find((s) => s.club_id === c.club_id).meeting_day);
   assert.match(fromText.meeting, new RegExp(fromText.meeting_day), 'read from the meeting text');
-  const ags = d.functionaries.filter((f) => f.section === 'Assistant Governors' && f.rotary_year === d.site.rotary_year);
+  const ags = d.functionaries.filter((f) => f.section === 'Assistant Governors' && f.rotary_year === LIST_YEAR);
   assert.ok(ags.length > 20 && ags.every((f) => f.clubs.length >= 1), 'every Assistant Governor has their clubs');
   const ids = new Set(d.clubs.map((c) => c.club_id));
   assert.ok(ags.every((f) => f.clubs.every((id) => ids.has(id))));
   const tabs = structuredClone(sample.main);
-  tabs.functionaries.find((f) => f.section === 'Assistant Governors').ag_clubs = 'RC Agra, S-002, No Such Club, RC Agra';
-  const ag = build(tabs).functionaries.find((f) => f.section === 'Assistant Governors');
+  const first = tabs.functionaries.find((f) => f.section === 'Assistant Governors');
+  first.ag_clubs = 'RC Agra, S-002, No Such Club, RC Agra';
+  const ag = build(tabs).functionaries.find((f) => f.section === 'Assistant Governors' && f.name === first.name);
   assert.deepEqual(ag.clubs, ['S-001', 'S-002'], 'unknown names dropped, no repeats');
 });
 
@@ -216,19 +219,124 @@ test('year summaries: totals match the activities of that Rotary year; areas and
   assert.equal(s.years[0].current, true);
 });
 
-test('Past District Governors: from the tab; until it is filled in, the College of Governors stands in', () => {
+test('Past District Governors: from the tab, then from the Governor line; until the tab is filled in, the College of Governors stands in', () => {
   const s = site();
-  assert.equal(s.pastGovernors.length, 28);
+  assert.equal(s.pastGovernors.length, 30, 'the 28 in the tab, and 2024-25 and 2025-26 from the Governor line');
+  assert.deepEqual(s.pastGovernors.slice(-2).map((g) => [g.term, g.name]), [['2024-25', 'Neerav N Agrawal'], ['2025-26', 'Rajan Vidhyarthi']],
+    'without the title typed in that year\'s list');
+  assert.ok(s.pastGovernors.slice(-2).every((g) => g.card), 'with their member cards');
+  assert.ok(!s.pastGovernors.some((g) => g.term >= '2026-27'), 'not this year\'s or a coming Governor');
   const d = build();
   d.past_governors = [];
   const fallback = site(d).pastGovernors;
   assert.ok(fallback.length >= 20 && fallback.every((g) => g.term && g.name));
   for (const list of [s.pastGovernors, fallback]) assert.ok(list.every((g, i) => i === 0 || list[i - 1].term <= g.term), 'newest last');
+  // a Past Governor marked deceased stays on the list, without a card (owner, 24 Nov 2026)
+  const tabs = structuredClone(sample.main);
+  const pdg = tabs.past_governors.find((g) => g.member_id);
+  const dead = derive(plain(core.Core_buildPublicData(tabs, '2026-10-13T00:00:00Z', { ...sampleOptions(sample), inactiveIds: [pdg.member_id] })), media, '2026-10-13');
+  const listed = dead.pastGovernors.find((g) => g.name === pdg.name);
+  assert.ok(listed && !listed.card);
+  const college = dead.rolesByYear.find((x) => x.current).leadership.find((x) => x.section === 'College of Governors').groups.flatMap((g) => g.people);
+  assert.ok(!college.some((p) => p.name === pdg.name), 'but not in this year\'s College of Governors');
+});
+
+test('titles by year: Elect, Nominee and Nominee Designate ahead; Past only for the Governor and a club President', () => {
+  const t = (role, held, from, club) => core.Core_roleTitle(role, held, from, club);
+  assert.equal(t('District Governor', '2026-27', '2026-27'), 'District Governor');
+  assert.equal(t('District Governor', '2027-28', '2026-27'), 'District Governor Elect');
+  assert.equal(t('District Governor', '2028-29', '2026-27'), 'District Governor Nominee');
+  assert.equal(t('District Governor', '2029-30', '2026-27'), 'District Governor Nominee Designate');
+  assert.equal(t('District Governor', '2024-25', '2026-27'), 'Past District Governor');
+  assert.equal(t('President', '2027-28', '2026-27', true), 'President Elect');
+  assert.equal(t('President', '2024-25', '2026-27', true), 'Past President');
+  assert.equal(t('Secretary', '2024-25', '2026-27', true), 'Secretary', 'no "Past" for a Secretary');
+  assert.equal(t('Assistant Governor', '2024-25', '2026-27'), 'Assistant Governor', 'nor for a district team role');
+  assert.equal(t('Chairman', '2027-28', '2026-27'), 'Chairman Elect');
+  assert.equal(t('District Membership Chair (DMC)', '2027-28', '2026-27'), 'District Membership Chair Elect (DMC)');
+  // a role typed with the word in it is read without it, its year from the term
+  assert.equal(core.Core_baseRole('District Governor Nominee'), 'District Governor');
+  assert.equal(core.Core_baseRole('District Governor-elect'), 'District Governor');
+  assert.equal(core.Core_heldYear({ section: 'Governor line', rotary_year: '2024-25', term: '2026-27', role: 'District Governor Nominee' }), '2026-27');
+  assert.equal(core.Core_heldYear({ section: 'College of Governors', rotary_year: '2024-25', term: '1983-84' }), '2024-25');
+  assert.equal(t('District Governor Nominee', '2026-27', '2026-27'), 'District Governor');
+});
+
+test('the website\'s year comes from the date: 30 June is the old year, 1 July the new; no setting moves it', () => {
+  const d = build();
+  assert.equal(d.site.rotary_year, '2026-27');
+  assert.equal(plain(core.Core_buildPublicData(sample.main, '2027-06-30T18:00:00Z', sampleOptions(sample))).site.rotary_year, '2026-27', '30 June, 11:30 pm in India');
+  assert.equal(plain(core.Core_buildPublicData(sample.main, '2027-06-30T18:31:00Z', sampleOptions(sample))).site.rotary_year, '2027-28', '1 July, just after midnight in India');
+  assert.equal(derive(d, media, '2027-06-30').rotaryYear, '2026-27');
+  assert.equal(derive(d, media, '2027-07-01').rotaryYear, '2027-28');
+  // data from a Sheet script still sending the old year setting does not move the website
+  assert.equal(derive({ ...d, site: { ...d.site, rotary_year: '2024-25' } }, media, '2026-10-13').rotaryYear, '2026-27');
+});
+
+test('1 July: next year\'s team becomes this year\'s and the Governor a Past District Governor, with nothing done by hand', () => {
+  const d = build();
+  const before = derive(d, media, '2027-06-30');
+  const after = derive(plain(core.Core_buildPublicData(sample.main, '2027-07-01T06:00:00Z', sampleOptions(sample))), media, '2027-07-01');
+  const dg = (s) => s.rolesByYear.find((x) => x.current).leadership.find((x) => x.section === 'District Governor').groups[0].people[0];
+  const nextDg = before.rolesByYear.find((x) => x.year === '2027-28').leadership.find((x) => x.section === 'District Governor').groups[0].people[0];
+  assert.equal(nextDg.role, 'District Governor Elect');
+  assert.equal(dg(after).name, nextDg.name);
+  assert.equal(dg(after).role, 'District Governor');
+  assert.ok(after.pastGovernors.some((g) => g.term === '2026-27' && g.name === dg(before).name), 'the outgoing Governor joins the Past District Governors');
+  const club = (s) => s.clubs.find((c) => c.name === 'RC Agra');
+  assert.ok(club(before).elects.length === 2 && club(before).officers.every((o) => o.since === '2024-25'));
+  assert.deepEqual(club(after).officers.map((o) => [o.role, o.since]), [['President', ''], ['Secretary', '']], 'the Elects now hold office');
+  assert.equal(club(after).elects.length, 0);
+  const pastPresident = after.cards.find((c) => c.name === club(before).officers[0].name);
+  assert.ok(pastPresident.titles.includes('Past President, RC Agra (2024-25)'));
+});
+
+test('club pages: the office bearers acting now, the last known with their year, then next year\'s as Elects', () => {
+  const s = site();
+  const agra = s.clubs.find((c) => c.name === 'RC Agra');
+  assert.deepEqual(agra.officers.map((o) => [o.role, o.since]), [['President', '2024-25'], ['Secretary', '2024-25']]);
+  assert.deepEqual(agra.elects.map((o) => o.role), ['President Elect', 'Secretary Elect']);
+  assert.ok(agra.officers.concat(agra.elects).every((o) => o.card), 'each links to the member card');
+  // a club that told this year's President: the 2024-25 one is a Past President, the Secretary carries on
+  const told = s.clubs.find((c) => c.officers.some((o) => o.role === 'President' && !o.since));
+  assert.deepEqual(told.officers.map((o) => [o.role, o.since]), [['President', ''], ['Secretary', '2024-25']]);
+  const old = sample.main.officers.find((o) => o.club_id === told.club_id && o.role === 'President' && o.rotary_year === '2024-25');
+  assert.ok(s.cards.find((c) => c.name === old.name).titles.includes(`Past President, ${told.name} (2024-25)`));
+  const elect = s.cards.find((c) => c.name === agra.elects[0].name);
+  assert.ok(elect.currentRoles.some((r) => r.role === 'President Elect'), 'the card says President Elect');
+  assert.ok(s.directory.some((x) => x.u === elect.url && /President Elect/.test(x.roles)), 'and so does the directory');
+  // data from a Sheet script deployed before 24 Nov 2026 has no acting mark: the website works it out
+  const d = build();
+  for (const o of d.officers) delete o.acting;
+  const older = derive(d, media, '2026-10-13').clubs.find((c) => c.name === 'RC Agra');
+  assert.deepEqual(older.officers.map((o) => [o.role, o.since]), [['President', '2024-25'], ['Secretary', '2024-25']]);
+});
+
+test('team pages: every year from the first list to the furthest entered, with this year\'s Governor and the coming ones', () => {
+  const s = site();
+  assert.deepEqual(s.rolesByYear.map((y) => y.label), ['2029-30 (from 1 July 2029)', '2028-29 (from 1 July 2028)', '2027-28 (from 1 July 2027)',
+    '2026-27 (this year)', '2025-26', '2024-25', '2023-24']);
+  const people = (year, sec) => (s.rolesByYear.find((x) => x.year === year).leadership.find((x) => x.section === sec)?.groups || []).flatMap((g) => g.people);
+  // this year: no list yet, so the Governor, the coming Governors and the College of Governors are worked out
+  assert.deepEqual(people('2026-27', 'District Governor').map((p) => [p.name, p.role]), [['Jasbir Bhatia', 'District Governor']]);
+  const college = people('2026-27', 'College of Governors');
+  assert.deepEqual(college.slice(-3).map((p) => p.role), ['District Governor Elect', 'District Governor Nominee', 'District Governor Nominee Designate']);
+  assert.ok(college.some((p) => p.name === 'Neerav N Agrawal' && p.role === 'Past District Governor' && p.term === '2024-25'));
+  assert.ok(college.some((p) => p.name === 'Rajan Vidhyarthi' && p.term === '2025-26'));
+  assert.ok(!s.rolesByYear.find((x) => x.year === '2026-27').leadership.some((x) => x.section === 'Assistant Governors'), 'the rest stays blank');
+  assert.equal(s.rolesByYear.find((x) => x.year === '2026-27').teams.length, 0);
+  // a coming year's list shows today's titles
+  assert.deepEqual(people('2027-28', 'Assistant Governors').map((p) => p.role), ['Assistant Governor Elect']);
+  const teams = s.rolesByYear.find((x) => x.year === '2027-28').teams;
+  assert.equal(teams[0].leaders[0].role, 'District Membership Chair Elect (DMC)');
+  assert.equal(teams[0].committees[0].chairs[0].role, 'Chairman Elect');
+  // the people search finds the Governor worked out for this year
+  assert.ok(s.people.some((p) => p.year === '2026-27' && p.name === 'Jasbir Bhatia'));
 });
 
 test('District Leadership: sitting governor only, then the College of Governors (oldest first, DGE and DGN last), counsellors, AGs, aides, office', () => {
   const s = site();
-  const y = s.rolesByYear.find((x) => x.current);
+  const y = s.rolesByYear.find((x) => x.year === LIST_YEAR);
   assert.deepEqual(y.leadership.map((x) => x.section),
     ['District Governor', 'College of Governors', 'District Counsellors', 'Assistant Governors', "Governor's Aides", "Governor's Office"]);
   const people = (sec) => y.leadership.find((x) => x.section === sec).groups.flatMap((g) => g.people);
@@ -239,15 +347,15 @@ test('District Leadership: sitting governor only, then the College of Governors 
   assert.ok(pdgs.every((p, i) => p.role === 'Past District Governor' && (i === 0 || pdgs[i - 1].term <= p.term)), 'PDGs oldest first');
   assert.ok(people("Governor's Aides").length > 0 && people("Governor's Aides").every((p) => p.committee === "Governor's Aide"));
   assert.ok(people("Governor's Office").every((p) => p.committee !== "Governor's Aide"));
-  // a past year without a sitting governor row still lists its DGE and DGN in the College of Governors
+  // a past year without a sitting governor row still lists its DGE and DGN at the end of the College of Governors
   const past = s.rolesByYear.find((x) => x.year === '2023-24');
   assert.ok(!past.leadership.some((x) => x.section === 'District Governor'));
-  assert.deepEqual(past.leadership.find((x) => x.section === 'College of Governors').groups[0].people.map((p) => p.role),
+  assert.deepEqual(past.leadership.find((x) => x.section === 'College of Governors').groups[0].people.slice(-2).map((p) => p.role),
     ['District Governor Elect', 'District Governor Nominee']);
 });
 
 test('sample Assistant Governors given by the district look after the clubs they named', () => {
-  const y = site().rolesByYear.find((x) => x.current);
+  const y = site().rolesByYear.find((x) => x.year === LIST_YEAR);
   const ags = y.leadership.find((x) => x.section === 'Assistant Governors').groups[0].people;
   const clubsOf = (name) => ags.find((p) => p.name === name).agClubs.map((c) => c.name).sort();
   assert.deepEqual(clubsOf('Rtn Amit Khatri'), ['RC Kanpur', 'RC Kanpur Global', 'RC Kanpur Green', 'RC Kanpur South']);

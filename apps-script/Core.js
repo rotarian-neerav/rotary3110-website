@@ -776,6 +776,50 @@ function Core_nextRotaryYear(year) {
   return start + '-' + String(start + 1).slice(-2);
 }
 
+/** How many Rotary years `year` is after `from` ("2027-28" after "2026-27" is 1; before it, negative). NaN if either is not a year. */
+function Core_yearsAhead(year, from) {
+  var a = /^(\d{4})-\d{2}$/.exec(Core_str(year));
+  var b = /^(\d{4})-\d{2}$/.exec(Core_str(from));
+  return a && b ? Number(a[1]) - Number(b[1]) : NaN;
+}
+
+// Rotary's names for a role held in a coming year (owner, 23 Nov 2026: for every role, written "District Governor Elect")
+var CORE_COMING = ['', 'Elect', 'Nominee', 'Nominee Designate'];
+var CORE_COMING_RE = /[\s-]+(elect|nominee(\s+designate)?)(\s*\([^)]*\))?$/i;
+
+/**
+ * A role without the coming-year word typed into it: "District Governor Nominee" -> "District Governor",
+ * "District Membership Chair Elect (DMC)" -> "District Membership Chair (DMC)".
+ */
+function Core_baseRole(role) {
+  return Core_str(role).replace(CORE_COMING_RE, '$3').trim();
+}
+
+/**
+ * The Rotary year a role is held in. Rows of the Governor line are kept under the year they were entered, with the
+ * year of office in `term` (the 2024-25 list holds the District Governor Elect with term 2025-26), so for them the
+ * term counts. Every other row is held in its own rotary_year.
+ */
+function Core_heldYear(r) {
+  if (Core_str(r.section) === 'Governor line' && /^\d{4}-\d{2}$/.test(Core_str(r.term))) return Core_str(r.term);
+  return Core_str(r.rotary_year);
+}
+
+/**
+ * A role's title as seen from Rotary year `from` (owner, 23–24 Nov 2026): Elect, Nominee or Nominee Designate for a
+ * role held one, two or three years later; "Past" only for the District Governor and a club President once their
+ * year is over (`club` says the role is a club's); every other past role keeps its name, shown under its year.
+ */
+function Core_roleTitle(role, held, from, club) {
+  var base = Core_baseRole(role);
+  var ahead = Core_yearsAhead(held, from);
+  if (!base || isNaN(ahead) || ahead === 0) return base;
+  // the word goes before an abbreviation in brackets: "District Membership Chair Elect (DMC)"
+  if (ahead > 0) return base.replace(/^(.*?)(\s*\([^)]*\))?$/, function (all, name, abbr) { return name + ' ' + CORE_COMING[Math.min(ahead, 3)] + (abbr || ''); });
+  if (base === 'District Governor' || (club && base === 'President')) return 'Past ' + base;
+  return base;
+}
+
 /**
  * What the website shows about one members_master row once its listing is approved: the directory card, the
  * WhatsApp button, the photo, the birthday greeting. Sample members never get a real WhatsApp link (the site shows
@@ -997,7 +1041,9 @@ function Core_photoRefs(v) {
  * options.personRef(memberId): the scrambled reference that links one person's roles and listing
  *   (the Sheet uses a keyed hash, so the member ID cannot be worked back from it).
  * options.inactiveIds: member IDs marked deceased or left in the private members list. Their
- *   current-year roles are left out; past roles keep the name only, with no link, photo or contact.
+ *   roles of this year and coming years are left out; past roles keep the name only, with no link, photo or contact.
+ * options.master: the private members list, so an office bearer who moved club stops acting for the old one.
+ * The Rotary year is the one of nowIso's date in India (owner, 24 Nov 2026: no setting to move on each July).
  */
 function Core_buildPublicData(tabs, nowIso, options) {
   var opts = options || {};
@@ -1005,7 +1051,7 @@ function Core_buildPublicData(tabs, nowIso, options) {
   var inactiveIds = {};
   (opts.inactiveIds || []).forEach(function (id) { if (Core_str(id)) inactiveIds[Core_str(id)] = true; });
   var settings = Core_settings(tabs.settings || []);
-  var rotaryYear = Core_str(settings.current_rotary_year);
+  var rotaryYear = Core_rotaryYearOf(Core_isoDate(nowIso ? new Date(nowIso) : new Date()));
   // free text left out because it held a phone number or email (one careless entry must not stop the build)
   var skippedItems = [];
 
@@ -1090,16 +1136,30 @@ function Core_buildPublicData(tabs, nowIso, options) {
       photo: p ? p.photo : '',
       contact_ok: !!contact,
       contact_link: contact,
+      // false for someone marked deceased or left: a Governor of a past year is then not in a later College of Governors
+      active: !inactive,
     };
   }
 
-  // Current-year roles of people who have died or left are not shown at all
+  // Roles of this year or a coming year held by people who have died or left are not shown at all
   // A role a moderator ended on the desk (ended_on) is no longer shown; its row stays in the Sheet
   function current(r) {
-    return Core_str(r.name) && !Core_str(r.ended_on) && !(inactiveIds[Core_str(r.member_id)] && Core_str(r.rotary_year) === rotaryYear);
+    return Core_str(r.name) && !Core_str(r.ended_on) && !(inactiveIds[Core_str(r.member_id)] && Core_heldYear(r) >= rotaryYear);
   }
 
-  var officers = (tabs.officers || []).filter(current).map(roleRow);
+  // Which club office bearers act now: this year's, or the last known until the club tells the new one (decision 134),
+  // by the same rule as the sender check, so the club page and the forms agree
+  var actingKeys = {};
+  var officerKey = function (o) { return [o.club_id, o.role, o.rotary_year, o.member_id, o.name].map(Core_str).join('|'); };
+  var acting = Core_actingOfficers(tabs.officers || [], rotaryYear, opts.master, true);
+  Object.keys(acting).forEach(function (club) {
+    Object.keys(acting[club]).forEach(function (role) { actingKeys[officerKey(acting[club][role])] = true; });
+  });
+  var officers = (tabs.officers || []).filter(current).map(function (o) {
+    var row = roleRow(o);
+    row.acting = !!actingKeys[officerKey(o)];
+    return row;
+  });
 
   var clubRows = tabs.clubs || [];
   var functionaries = (tabs.functionaries || []).filter(current).map(function (f) {
@@ -1305,6 +1365,8 @@ function Core_buildPublicData(tabs, nowIso, options) {
       name: Core_str(g.name),
       club_id: Core_clubRef(g.club, clubRows),
       person_ref: id && !inactiveIds[id] ? personRef(id) : '',
+      // marked deceased or left: still listed among Past Governors, but not in this year's College of Governors
+      active: !(id && inactiveIds[id]),
     };
   }).sort(function (a, b) { return a.term.localeCompare(b.term) || a.name.localeCompare(b.name); }); // newest last
 
@@ -1688,7 +1750,7 @@ function Core_consentSender(request, master, officers, removals) {
  * master (the members list, optional): an office bearer counts only for the club they are in now (owner, 23 Nov 2026);
  * one who left or moved to another club leaves the role empty until the club tells the new holder.
  */
-function Core_actingOfficers(officers, year, master) {
+function Core_actingOfficers(officers, year, master, withSample) {
   var best = {};
   var byId = {};
   (master || []).forEach(function (m) { if (Core_str(m.member_id)) byId[Core_str(m.member_id)] = m; });
@@ -1700,7 +1762,7 @@ function Core_actingOfficers(officers, year, master) {
     var y = Core_str(o.rotary_year);
     var role = Core_str(o.role);
     var club = Core_str(o.club_id);
-    if (!y || y > year || !club || CORE_CLUB_ROLES.indexOf(role) < 0 || Core_isTrue(o.is_sample) || Core_isPractice(o)) return;
+    if (!y || y > year || !club || CORE_CLUB_ROLES.indexOf(role) < 0 || (Core_isTrue(o.is_sample) && !withSample) || Core_isPractice(o)) return;
     var key = club + '|' + role;
     if (best[key] && best[key].year > y) return;
     if (!best[key] || best[key].year < y) best[key] = { year: y, row: null };
@@ -1717,6 +1779,24 @@ function Core_actingOfficers(officers, year, master) {
   return out;
 }
 
+/**
+ * Next year's President, Secretary and Executive Secretary already told, by club and role, as Core_actingOfficers
+ * gives them. They may send their club's activities and club updates from now on (owner, 24 Nov 2026, decision 143).
+ */
+function Core_comingOfficers(officers, year, master, withSample) {
+  var next = Core_nextRotaryYear(year);
+  var all = next ? Core_actingOfficers(officers, next, master, withSample) : {};
+  var out = {};
+  Object.keys(all).forEach(function (club) {
+    Object.keys(all[club]).forEach(function (role) {
+      if (all[club][role].acting_year !== next) return;
+      out[club] = out[club] || {};
+      out[club][role] = all[club][role];
+    });
+  });
+  return out;
+}
+
 /** "off", "watch" or "on" from a settings value (yes/true count as on; anything else unknown is off). */
 function Core_settingMode(v, modes) {
   var s = Core_str(v).trim().toLowerCase();
@@ -1729,8 +1809,9 @@ function Core_settingMode(v, modes) {
  * club's acting office bearers, 'moderator' for an active moderator, 'other' otherwise, and 'unknown' when it cannot be
  * told (club not recognised, or none of its office bearers has an email on file), so a gap in the records refuses nobody.
  * Matched by the sender's Google account only: a typed RI ID or mobile could be anyone's.
+ * `coming` (Core_comingOfficers): next year's office bearers count too, as 'elect' (owner, 24 Nov 2026).
  */
-function Core_clubSender(email, clubId, acting, master, moderatorRows) {
+function Core_clubSender(email, clubId, acting, master, moderatorRows, coming) {
   var lower = function (v) { return Core_str(v).trim().toLowerCase(); };
   var sender = lower(email);
   var roles = (acting && acting[Core_str(clubId)]) || {};
@@ -1741,8 +1822,11 @@ function Core_clubSender(email, clubId, acting, master, moderatorRows) {
   var known = CORE_CLUB_ROLES.filter(function (r) { return roles[r]; });
   var reachable = known.filter(function (r) { return (emails[Core_str(roles[r].member_id)] || []).length > 0; });
   var held = known.filter(function (r) { return sender && (emails[Core_str(roles[r].member_id)] || []).indexOf(sender) >= 0; });
-  var out = { roles: known, held: held };
+  var next = (coming && coming[Core_str(clubId)]) || {};
+  var elect = CORE_CLUB_ROLES.filter(function (r) { return next[r] && sender && (emails[Core_str(next[r].member_id)] || []).indexOf(sender) >= 0; });
+  var out = { roles: known, held: held, elect: elect };
   if (held.length) out.who = 'officer';
+  else if (elect.length) out.who = 'elect';
   else if (sender && CORE_MODERATOR_TYPES.some(function (t) { return Core_moderatorEmails(moderatorRows || [], t).indexOf(sender) >= 0; })) out.who = 'moderator';
   else if (!Core_str(clubId) || !reachable.length) out.who = 'unknown';
   else out.who = 'other';
@@ -1891,8 +1975,8 @@ function Core_checkRoles(officers, functionaries, master, rotaryYear) {
     var id = Core_str(r.member_id);
     var m = byId[id];
     var status = m ? Core_str(m.status || 'active').toLowerCase() : 'active';
-    if (m && status !== 'active' && Core_str(r.rotary_year) === rotaryYear) {
-      add(x, 1, 'Holds a role this year but is marked "' + status + '" in the members list: not shown on the website; enter who holds the role now');
+    if (m && status !== 'active' && Core_heldYear(r) >= rotaryYear) {
+      add(x, 1, 'Holds a role this year or a coming year but is marked "' + status + '" in the members list: not shown on the website; enter who holds the role now');
     }
     if (!id) { add(x, 2, 'No member ID: this role cannot be linked to a member card'); return; }
     var names = Object.keys(namesById[id] || {});
@@ -1939,5 +2023,7 @@ if (typeof module !== 'undefined' && module.exports) {
     CORE_NEW_CLUB_DAYS: CORE_NEW_CLUB_DAYS, CORE_CLUB_ROLES: CORE_CLUB_ROLES,
     Core_actingOfficers: Core_actingOfficers, Core_settingMode: Core_settingMode, Core_clubSender: Core_clubSender,
     Core_clubWeekday: Core_clubWeekday, Core_clubWeeklyDue: Core_clubWeeklyDue, Core_clubWeeklyEmail: Core_clubWeeklyEmail,
+    Core_yearsAhead: Core_yearsAhead, Core_baseRole: Core_baseRole, Core_heldYear: Core_heldYear, Core_roleTitle: Core_roleTitle,
+    Core_comingOfficers: Core_comingOfficers,
   };
 }

@@ -396,6 +396,9 @@ function formLists_() {
     newClubs: (activeClubs.length ? activeClubs : ['(clubs not loaded yet)']).concat([CLUB_OUTSIDE]),
     teams: teams.length ? teams.slice().sort() : ["Governor's Office Team"],
     years: [year, Core_nextRotaryYear(year)],
+    // a district role may be told up to three years ahead, for the Governor Nominee and Nominee Designate (owner, 24 Nov 2026)
+    districtYears: [year, Core_nextRotaryYear(year), Core_nextRotaryYear(Core_nextRotaryYear(year)),
+      Core_nextRotaryYear(Core_nextRotaryYear(Core_nextRotaryYear(year)))],
   };
 }
 
@@ -626,7 +629,7 @@ function clubChangePages_(form, L) {
   form.addListItem().setTitle(Q.gClubRole).setChoiceValues(CORE_CLUB_ROLES.slice()).setRequired(true);
   p.district_role = form.addPageBreakItem().setTitle(CLUB_CHANGES.district_role)
     .setHelpText('The member may be from another club. Please say in the note who decided it, for example the Governor\'s letter.');
-  form.addListItem().setTitle(Q.gDistYear).setChoiceValues(L.years).setRequired(true);
+  form.addListItem().setTitle(Q.gDistYear).setChoiceValues(L.districtYears).setRequired(true);
   form.addListItem().setTitle(Q.gTeam).setChoiceValues(L.teams).setRequired(true);
   form.addTextItem().setTitle(Q.gCommittee).setHelpText('As the district names it, for example District Social Media Management Committee');
   form.addTextItem().setTitle(Q.gRole).setRequired(true).setHelpText('For example: Chairman, Co-chairman, Member, Assistant Governor')
@@ -854,7 +857,7 @@ function updateFormLists(silent) {
   lists[Q.club] = L.clubs; lists[Q.cClub] = L.clubs; lists[Q.aPartners] = L.clubs; lists[Q.cSpouseClub] = L.clubs;
   lists[Q.eCity] = L.areas; lists[Q.cArea] = L.areas; lists[Q.cProfession] = L.professions; lists[Q.eOrganiser] = L.organisers;
   lists[Q.aCampaign] = L.campaigns; lists[Q.sCity] = L.areas; lists[Q.bCity] = L.areas; lists[Q.bTrade] = L.trades;
-  lists[Q.gNewClub] = L.newClubs; lists[Q.gTeam] = L.teams; lists[Q.gClubYear] = L.years; lists[Q.gDistYear] = L.years;
+  lists[Q.gNewClub] = L.newClubs; lists[Q.gTeam] = L.teams; lists[Q.gClubYear] = L.years; lists[Q.gDistYear] = L.districtYears;
   Object.keys(ids).forEach(function (k) {
     var form = FormApp.openById(ids[k]);
     form.getItems().forEach(function (item) {

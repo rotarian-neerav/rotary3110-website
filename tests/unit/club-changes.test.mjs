@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { before, beforeEach, test } from 'node:test';
 import { createGoogleEnv } from '../helpers/google-mock.mjs';
+import { core } from '../../lib/core.mjs';
 import { routeOldForms } from '../helpers/forms.mjs';
 import { bundleCode } from '../../tools/bundle-apps-script.mjs';
 
@@ -65,7 +66,7 @@ test("the form: the Club updates form's members section (Release 2): the member 
   assert.ok(env.priv.getSheetByName('raw_club_updates_form'));
   const years = form.items.find((i) => i.title === Q.gClubYear).choices;
   // the years around today's date, not the year the website shows (Release 1)
-  const year = env.run('Core_rotaryYearOf', new Date().toISOString().slice(0, 10));
+  const year = env.run('Core_rotaryYearOf', new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10)); // India time, as the script
   assert.deepEqual([...years], [year, env.run('Core_nextRotaryYear', year)]);
   assert.deepEqual([...form.items.find((i) => i.title === Q.gClubRole).choices], ['President', 'Secretary', 'Executive Secretary']);
   assert.ok(form.items.find((i) => i.title === Q.gTeam).choices.length > 3, 'the district teams from the functionaries tab');
@@ -168,7 +169,7 @@ test('roles: a club role adds an officers row, a district role a functionaries r
   const s = signIn('meera@example.com');
   const club = clubs()[1];
   env.run('appendRow_', env.priv, 'members_master', { member_id: '7700020', name: 'Rtn Role Holder', club_id: club.club_id, is_rotarian: true, status: 'active' });
-  const year = env.main.rows('settings').find((r) => r.key === 'current_rotary_year').value;
+  const year = core.Core_rotaryYearOf(core.Core_isoDate(new Date()));
 
   let req = send('club_role', { [Q.cClub]: club.club_name, [Q.gMemberId]: '7700020', [Q.rName]: 'Role Holder', [Q.gClubYear]: year, [Q.gClubRole]: 'Secretary' });
   assert.equal(req.rotary_year, year);
@@ -229,4 +230,22 @@ test('Update form lists keeps the team and year lists current', () => {
   form.items.find((i) => i.title === Q.gTeam).choices = ['old'];
   env.run('updateFormLists', true);
   assert.ok(form.items.find((i) => i.title === Q.gTeam).choices.length > 3);
+  // a district role up to three years ahead (the Governor Nominee and Nominee Designate); a club role this year or next
+  const year = core.Core_rotaryYearOf(core.Core_isoDate(new Date()));
+  const ahead = (n) => (n ? core.Core_nextRotaryYear(ahead(n - 1)) : year);
+  assert.deepEqual([...form.items.find((i) => i.title === Q.gDistYear).choices], [0, 1, 2, 3].map(ahead));
+  assert.deepEqual([...form.items.find((i) => i.title === Q.gClubYear).choices], [0, 1].map(ahead));
+});
+
+test('a Governor three years ahead, added through Club updates, goes in as District Governor of that year', () => {
+  const s = signIn('meera@example.com');
+  env.run('appendRow_', env.priv, 'members_master', { member_id: '7700060', name: 'Rtn Coming Governor', club_id: clubs()[0].club_id, is_rotarian: true, status: 'active' });
+  const year = core.Core_nextRotaryYear(core.Core_nextRotaryYear(core.Core_nextRotaryYear(core.Core_rotaryYearOf(core.Core_isoDate(new Date())))));
+  const req = send('district_role', { [Q.cClub]: clubs()[0].club_name, [Q.gMemberId]: '7700060', [Q.rName]: 'Rtn Coming Governor', [Q.gDistYear]: year,
+    [Q.gTeam]: 'Governor line', [Q.gRole]: 'District Governor', [Q.gNote]: 'Announced by RI' });
+  assert.ok(approve(s, req.id).ok);
+  const row = env.main.rows('functionaries').at(-1);
+  assert.deepEqual([row.rotary_year, row.section, row.role, row.page], [year, 'Governor line', 'District Governor', 'leadership']);
+  const d = env.run('publicData_');
+  assert.ok(d.functionaries.some((f) => f.name === 'Rtn Coming Governor' && core.Core_heldYear(f) === year), 'on the website as the Nominee Designate');
 });

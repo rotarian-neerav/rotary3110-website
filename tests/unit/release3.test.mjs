@@ -12,7 +12,7 @@ import { bundleCode } from '../../tools/bundle-apps-script.mjs';
 import { core } from '../../lib/core.mjs';
 
 const ROOT = resolve(import.meta.dirname, '../..');
-const YEAR = core.Core_rotaryYearOf(new Date().toISOString().slice(0, 10));
+const YEAR = core.Core_rotaryYearOf(new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10)); // India time, as the script
 const LAST = '2024-25';
 let env;
 let Q;
@@ -211,6 +211,27 @@ test('on: a stranger is told politely and the form waits as not accepted; office
   const change = env.priv.rows('club_change_requests').at(-1);
   assert.equal(change.status, 'not_accepted');
   set('club_senders_only', 'off');
+});
+
+test('next year\'s office bearers may send for their club from now on; the desk says "President Elect of the club" (24 Nov 2026)', () => {
+  const year = core.Core_rotaryYearOf(core.Core_isoDate(new Date()));
+  const next = core.Core_nextRotaryYear(year);
+  member('8100011', 'Rtn Next President', 'S-004', 'next.president@example.com');
+  officer(next, 'S-004', '8100011', 'Rtn Next President', 'President');
+  member('8100012', 'Rtn Later President', 'S-004', 'later@example.com');
+  officer(core.Core_nextRotaryYear(next), 'S-004', '8100012', 'Rtn Later President', 'President');
+  set('club_senders_only', 'on');
+  const a = activity(clubName('S-004'), 'On: President Elect', 'next.president@example.com');
+  assert.equal(a.status, 'pending');
+  assert.equal(a.sender_check, 'President Elect of the club');
+  assert.equal(activity(clubName('S-004'), 'On: two years ahead', 'later@example.com').status, 'not_accepted', 'the year after next does not count yet');
+  // the weekly club email and the reminders still go to this year's office bearers only
+  assert.equal(env.run('actingOfficers_')['S-004'].President.name, 'Rtn Old President');
+  // and only activities and club updates: not a member's details on their behalf
+  assert.equal(env.run('clubSender_', 'S-004', 'next.president@example.com').who, 'other');
+  set('club_senders_only', 'off');
+  const off = env.main.getSheetByName('officers');
+  off.data = off.data.filter((r) => !r.includes('8100011') && !r.includes('8100012'));
 });
 
 test('the desk: Not accepted lists them for the right moderators; Let through sends one to the moderators as usual', () => {

@@ -19,6 +19,7 @@ eleventyComputed:
       <div>
         <h1>{{ p.name }}</h1>
         {%- if p.club %}<p class="club"><a href="{{ p.club.url }}">{{ p.club.name }}</a></p>{% endif %}
+        {%- if p.titles.length %}<p class="titles">{{ p.titles | join(' · ') }}</p>{% endif %}
         {%- if p.profession %}<p class="role">{{ p.profession }}{% if p.area %} · {{ p.area }}{% endif %}</p>{% endif %}
         <p class="dir-actions">
           {%- if p.wa %}<a class="btn-small wa" href="{{ p.wa | waHello }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
@@ -41,7 +42,7 @@ eleventyComputed:
     <h2>Roles in the district</h2>
     {%- for y in p.years %}
     <section class="role-year">
-      <h3>{{ y.year }}{% if y.current %} <span class="chip">Current</span>{% endif %}</h3>
+      <h3>{{ y.year }}{% if y.current %} <span class="chip">Current</span>{% elif y.coming %} <span class="chip">{{ t.club.from_july }} {{ y.year.slice(0, 4) }}</span>{% endif %}</h3>
       <ul class="role-list">
         {%- for r in y.roles %}
         <li><strong>{% if r.link %}<a href="{{ r.link }}">{{ r.role }}</a>{% else %}{{ r.role }}{% endif %}</strong>{% if r.where %} <span class="muted">· {{ r.where }}</span>{% endif %}</li>

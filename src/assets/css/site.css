@@ -204,7 +204,8 @@ img.avatar { width: auto; }
 .search-box { margin: 12px 0; }
 .search-box label { display: block; font-weight: 600; color: var(--royal); margin-bottom: 4px; font-size: .9rem; }
 .search-results { background: #fffaf0; border: 1px solid #f2d9a6; border-radius: var(--radius); padding: 12px; margin-bottom: 16px; }
-.year-switch { font-size: .9rem; }
+.year-switch { font-size: .9rem; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 4px 0 12px; }
+.year-switch select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg, #fff); color: inherit; max-width: 100%; }
 
 /* Directory */
 .directory-list { list-style: none; padding: 0; display: grid; gap: 12px; }
@@ -312,6 +313,7 @@ img.avatar { width: auto; }
 .member-head h1 { margin: 0 0 4px; }
 .member-head p { margin: 0 0 4px; }
 .member-head .club a { font-weight: 600; }
+.member-head .titles { font-size: .95rem; }
 .role-year { border-top: 1px solid var(--line); padding: 8px 0 4px; }
 .role-year h3 { margin: 4px 0 6px; font-size: 1rem; }
 .role-list { margin: 0 0 6px; padding-left: 18px; }

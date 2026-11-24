@@ -71,7 +71,8 @@ explains it fully.
 
 A club's **President, Secretary and Executive Secretary** speak for the club. Until the club tells the district this
 year's holder of a role, **the last known holder carries on** in that role. Next year's office bearers, reported in
-advance, take over on 1 July.
+advance, are shown as **President Elect**, **Secretary Elect** and **Executive Secretary Elect** and may already send
+the club's activities and club updates; they take over on 1 July.
 
 The district may switch on **"only office bearers may send"**. Then the activity form and the Club updates form are
 accepted for your club only from your acting office bearers, sent from the Google account whose email the district
@@ -240,7 +241,7 @@ consent tick; never use the Sheet's Reject to remove many rows at once (it email
 | **Refresh dashboard** | Recounts clubs' activities |
 | **Check roles and member IDs** | Runs the role check (also daily) |
 | **Update form lists** | Clubs, areas, professions and campaigns in the forms' drop-downs (also daily) |
-| **Administrator → …** | Data link details, **Upgrade Sheet**, Apply moderators (Sheet access), Sign everyone out of the desk, send the bulletin preview, bulletin message, clubs-not-posting email or weekly summary now, a sample July member email, **Back up both Sheets now**, **Start new Rotary year…**, the practice round, Run setup again |
+| **Administrator → …** | Data link details, **Upgrade Sheet**, Apply moderators (Sheet access), Sign everyone out of the desk, send the bulletin preview, bulletin message, clubs-not-posting email or weekly summary now, a sample July member email, **Back up both Sheets now**, the practice round, Run setup again |
 
 ### Settings (the main Sheet's settings tab)
 
@@ -248,7 +249,6 @@ Change only the **value** column; the notes explain each setting. The ones you a
 
 | Setting | Meaning |
 |---|---|
-| `current_rotary_year` | The Rotary year the website shows for office bearers and teams |
 | `club_senders_only` | **off / watch / on**: whether only a club's office bearers may send its forms. Watch refuses nobody and shows who sent each form. |
 | `weekly_club_email` | **off / test / on**: the weekly email to each club's office bearers. Test sends the day's club emails to one address instead. |
 | `weekly_club_email_test_to` | Where test emails go (blank: the district account) |
@@ -288,9 +288,10 @@ first); Google sometimes refuses a change to a form ("Invalid data updating form
 
 ### Each July
 
-New office bearers and teams are added with the new Rotary year, then **Start new Rotary year…** moves the website on
-and adds the Past Governor. Clubs that reported their new office bearers in advance are already in. The **Yearly
-update** guide has every step.
+The website works out the Rotary year from the date, so on 1 July it moves on by itself: next year's office bearers and
+team become this year's and the Governor who has just finished becomes a Past District Governor. The owner starts a
+build that morning. Next year's team may be added any time before; it shows at once, as "Elect". Every year's
+Leadership and Teams pages stay, chosen from the **Rotary year** drop-down. The **Yearly update** guide has every step.
 
 ---
 
@@ -315,6 +316,8 @@ update** guide has every step.
 |---|---|
 | **Office bearers** | A club's President, Secretary and Executive Secretary |
 | **Acting office bearer** | This year's holder, or the last known holder until this year's is told |
+| **Elect, Nominee, Nominee Designate** | A role held next year, in two years, in three years ("District Governor Elect") |
+| **Past** | Only for a District Governor or a club President whose year is over |
 | **Moderator** | A district volunteer who checks items before they are published |
 | **The desk** | The moderation desk at `/desk/`, for moderators on their phones |
 | **Clean / Needs a look** | Activities with nothing to check / with something a moderator must look at |

@@ -162,7 +162,7 @@ test('a move: "joined" waits while the member is still in another club; "left" o
 });
 
 test('an office bearer counts only for the club they are in now: after a move, the old club has nobody acting in that role', () => {
-  const year = env.run('Core_rotaryYearOf', new Date().toISOString().slice(0, 10));
+  const year = env.run('Core_rotaryYearOf', new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10)); // India time, as the script
   add('7850001', { name: 'Rtn Secretary Moves', club_id: 'S-004', email: 'sec.moves@example.com' });
   env.run('appendRow_', env.main, 'officers', { rotary_year: year, club_id: 'S-004', member_id: '7850001', name: 'Rtn Secretary Moves', role: 'Secretary' });
   assert.equal(env.run('actingOfficers_')['S-004'].Secretary.member_id, '7850001');

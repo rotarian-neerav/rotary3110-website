@@ -9,6 +9,13 @@ import { core } from '../../lib/core.mjs';
 
 const SITE = resolve(import.meta.dirname, '../../_site');
 const data = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../.cache/public-data.json'), 'utf8'));
+
+// The website's year comes from the build day's date in India (24 Nov 2026), not from the data. The district team
+// list checked here is the latest one up to that year (2024-25 until the next list is imported), on its own page.
+const YEAR = core.Core_rotaryYearOf(process.env.SITE_TODAY || new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10));
+const LIST_YEAR = [...new Set(data.functionaries.filter((f) => f.page === 'leadership' && f.section !== 'Governor line').map((f) => f.rotary_year))]
+  .filter((y) => y <= YEAR).sort().pop() || YEAR;
+const listPage = (name) => (LIST_YEAR === YEAR ? name : `${name}/${LIST_YEAR}`);
 const PREFIX = (process.env.PATH_PREFIX || '/').replace(/\/$/, '');
 
 function walk(dir) {
@@ -223,8 +230,8 @@ test("home page recognition matches the hand-worked sample (September 2026)", ()
 
 test('Teams and Leadership pages list every person from the Excel', () => {
   // as text: an abbreviation in a name (PDG, Rtn) may be wrapped in an explanation
-  const text = parse(page('teams') + page('leadership')).text;
-  for (const f of data.functionaries.filter((x) => x.rotary_year === data.site.rotary_year)) assert.ok(text.includes(f.name), `missing ${f.name}`);
+  const text = parse(page(listPage('teams')) + page(listPage('leadership'))).text;
+  for (const f of data.functionaries.filter((x) => x.rotary_year === LIST_YEAR)) assert.ok(text.includes(f.name), `missing ${f.name}`);
 });
 
 const sitemap = () => read(join(SITE, 'sitemap.xml'));
@@ -257,27 +264,37 @@ test('member cards: hidden from search engines unless the person agreed to be li
   if (data.source === 'sample') assert.ok(listed > 0 && listed < cards.length, 'sample has both kinds of card');
 });
 
-test("PDG Sharat Chandra's card shows his 4 roles this year, then last year's", () => {
+test("PDG Sharat Chandra's card shows his 4 roles of the team list's year, then the year before", () => {
   if (data.source !== 'sample') return;
   const card = cardPages().find((c) => c.url.startsWith('/members/sharat-chandra-'));
   assert.ok(card);
   const years = parse(card.html).querySelectorAll('.role-year');
-  assert.match(years[0].querySelector('h3').text, new RegExp(data.site.rotary_year));
+  assert.match(years[0].querySelector('h3').text, new RegExp(LIST_YEAR));
   assert.equal(years[0].querySelectorAll('li').length, 4);
-  assert.match(years[1].querySelector('h3').text, /2023-24/);
+  assert.match(years[1].querySelector('h3').text, new RegExp(`${+LIST_YEAR.slice(0, 4) - 1}-${LIST_YEAR.slice(2, 4)}`));
 });
 
 test('every office bearer and team member with a member ID links to a working card; every club has a members page', () => {
+  // a club page shows the office bearers acting now (this year's, or the last known) and next year's; data from a Sheet
+  // script deployed before 24 Nov 2026 has no acting mark, so it is worked out the website's way
+  const next = core.Core_nextRotaryYear(YEAR);
+  let actingIdx = null;
+  if (!data.officers.some((o) => 'acting' in o)) {
+    const a = core.Core_actingOfficers(data.officers.map((o, i) => ({ ...o, _i: i })), YEAR, null, true);
+    actingIdx = new Set(Object.values(a).flatMap((roles) => Object.values(roles).map((o) => o._i)));
+  }
+  const shownOfficers = data.officers.filter((o, i) => o.rotary_year === next ||
+    (core.CORE_CLUB_ROLES.includes(o.role) ? (actingIdx ? actingIdx.has(i) : o.acting) : o.rotary_year === YEAR));
   for (const c of data.clubs) {
     const root = parse(page(`clubs/${c.slug}`));
     assert.ok(root.querySelector(`a[href$="/clubs/${c.slug}/members/"]`), `members link on ${c.slug}`);
     assert.ok(existsSync(join(SITE, 'clubs', c.slug, 'members', 'index.html')), `members page ${c.slug}`);
-    const officers = data.officers.filter((o) => o.club_id === c.club_id && o.rotary_year === data.site.rotary_year && o.person_ref);
+    const officers = shownOfficers.filter((o) => o.club_id === c.club_id && o.person_ref);
     const links = root.querySelectorAll('.people-grid .person strong a').map((a) => a.getAttribute('href'));
     assert.equal(links.length, officers.length, `${c.slug}: office bearers link to cards`);
     for (const l of links) assert.match(l, /\/members\/[a-z0-9-]+\/$/);
   }
-  const leaders = parse(page('leadership') + page('teams')).querySelectorAll('.person strong');
+  const leaders = parse(page(listPage('leadership')) + page(listPage('teams'))).querySelectorAll('.person strong');
   if (data.source === 'sample') assert.ok(leaders.length > 100 && leaders.every((s) => s.querySelector('a')), 'Leadership and Teams names link to cards');
 });
 
@@ -290,7 +307,7 @@ test('someone marked deceased: no card, not on the club or directory pages, name
   assert.ok(!page(`clubs/${club.slug}/members`).includes(dead.name));
   assert.ok(!read(join(SITE, 'data/directory.json')).includes(dead.name));
   assert.ok(!cardPages().some((c) => c.html.includes(dead.name)), 'no card mentions them');
-  const past = parse(page('leadership/2023-24'));
+  const past = parse(page(`leadership/${+LIST_YEAR.slice(0, 4) - 1}-${LIST_YEAR.slice(2, 4)}`));
   const entry = past.querySelectorAll('.person strong').find((s) => s.text.trim() === dead.name);
   assert.ok(entry, "still in last year's leadership");
   assert.equal(entry.querySelector('a'), null, 'as plain text, not a link');
@@ -356,7 +373,7 @@ test('campaign pages: one per campaign with the right total; the list groups the
 });
 
 test("home page: this year's District Governor in the banner, with photo, only for the site's Rotary year", () => {
-  const year = data.site.rotary_year;
+  const year = YEAR;
   const profile = (data.profiles || []).find((p) => p.role === 'District Governor' && p.rotary_year === year && p.photo);
   const card = parse(page('')).querySelector('.hero #governor');
   if (data.source === 'sample') assert.ok(profile, 'sample data should have a District Governor profile with a photo for the site year');

@@ -89,6 +89,10 @@
     if (e.target.hasAttribute && e.target.hasAttribute('data-no-submit')) e.preventDefault();
   });
 
+  // Leadership and Teams: choosing a Rotary year opens that year's page
+  var yearSelect = document.querySelector('[data-year-select] select');
+  if (yearSelect) yearSelect.addEventListener('change', function () { window.location.href = siteUrl(yearSelect.value); });
+
   // YouTube videos load only when tapped, using YouTube's no-cookie player.
   // A video whose picture YouTube no longer has keeps the play button on a dark box.
   document.addEventListener('error', function (e) {

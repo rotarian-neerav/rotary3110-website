@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { createHash, createHmac } from 'node:crypto';
 import vm from 'node:vm';
+import { shiftSampleYears } from '../../lib/core.mjs';
 
 /** Returns a callable object where any method call returns itself, for builder-style APIs. */
 /** Google Forms refuses a pattern that counts past 1000 ("Invalid data updating form"), like RE2. */
@@ -222,6 +223,8 @@ class FakeSpreadsheet {
 }
 
 export function createGoogleEnv({ sampleJson, mainId = 'MAIN', privateId = 'PRIVATE', magazineFolderId = 'MAGAZINES' } = {}) {
+  // the sample's role years move on with the calendar, as in the website build, so these tests do not age each July
+  if (sampleJson) sampleJson = JSON.stringify(shiftSampleYears(JSON.parse(sampleJson), new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10)));
   const main = new FakeSpreadsheet(mainId, '3110Website');
   const priv = new FakeSpreadsheet(privateId, 'Private sheet for Full Members List');
   // the ids the owner puts in Project Settings → Script properties

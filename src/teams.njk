@@ -15,6 +15,7 @@ eleventyComputed:
 <div class="wrap section">
   <h1>Teams & Committees <span class="muted">{{ y.year }}</span></h1>
   {% include "partials/year-switch.njk" %}
+  {%- if y.coming %}<p class="lead">{{ t.people.coming }} {{ y.year.slice(0, 4) }}.</p>{% endif %}
   {% set searchYear = y.year %}{% include "partials/people-search.njk" %}
   <nav class="jump" aria-label="Teams">{% for tm in y.teams %}<a href="#{{ tm.id }}">{{ tm.name }}</a>{% endfor %}<a href="/leadership/{% if not y.current %}{{ y.year }}/{% endif %}">District Leadership →</a></nav>
   {%- for tm in y.teams %}
@@ -35,7 +36,5 @@ eleventyComputed:
       {%- endfor %}
     </div>
   </section>
-  {%- else %}
-  <p>No teams list for this year yet.</p>
   {%- endfor %}
 </div>

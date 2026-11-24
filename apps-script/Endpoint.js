@@ -46,7 +46,8 @@ function publicData_() {
   ['settings', 'clubs', 'officers', 'functionaries', 'activities', 'events', 'magazines', 'messages', 'spotlights', 'members_public', 'couples_public',
     'campaigns', 'public_services', 'businesses', 'profiles', 'past_governors']
     .forEach(function (name) { tabs[name] = readTab_(ss, name); });
-  var data = Core_buildPublicData(tabs, nowIso_(), { personRef: personRefFn_(), inactiveIds: inactiveMemberIds_() });
+  var master = readTab_(privateSs_(), 'members_master');
+  var data = Core_buildPublicData(tabs, nowIso_(), { personRef: personRefFn_(), inactiveIds: inactiveMemberIds_(master), master: master });
   var problems = Core_validatePublic(data);
   if (problems.length) throw new Error('privacy check failed: ' + problems.slice(0, 5).join(' | '));
   // remember which Drive files may be handed out, for the file mode below
@@ -102,8 +103,8 @@ function personRefFn_() {
 }
 
 /** Member IDs marked deceased or left in the private members list. */
-function inactiveMemberIds_() {
-  return readTab_(privateSs_(), 'members_master').filter(function (m) {
+function inactiveMemberIds_(master) {
+  return (master || readTab_(privateSs_(), 'members_master')).filter(function (m) {
     return Core_str(m.member_id) && Core_str(m.status || 'active').toLowerCase() !== 'active';
   }).map(function (m) { return Core_str(m.member_id); });
 }

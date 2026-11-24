@@ -16,7 +16,7 @@ Every awkward case the site must handle, and how many sample rows cover it. Gene
 | Events with photos | 2 |
 | Past events with a report linked | 2 |
 | Upcoming events | 10 |
-| Members who never opted in | 36 |
+| Members who never opted in | 45 |
 | Members waiting for a moderator | 5 |
 | Contact allowed = yes | 24 |
 | Directory listed, contact = no | 74 |
@@ -31,6 +31,10 @@ Every awkward case the site must handle, and how many sample rows cover it. Gene
 | Member text naming a Rotary International zone (allowed) | 1 |
 | People marked deceased | 2 |
 | Roles from last Rotary year (member card history) | 15 |
+| Clubs that told this year's President (the 2024-25 one is a Past President) | 5 |
+| Next year's office bearers told (President Elect, Secretary Elect) | 6 |
+| Coming Governors (Elect, Nominee, Nominee Designate) | 3 |
+| Next year's district team rows announced early | 3 |
 | This year's role held by someone marked deceased (must not show) | 1 |
 | Upcoming events beyond the home page limit of 8 | 1 |
 | Members who changed clubs (club history) | 3 |
@@ -55,7 +59,7 @@ Every awkward case the site must handle, and how many sample rows cover it. Gene
 | Other video links (Instagram) | 1 |
 | Events marked open to everyone on the form | 1 |
 | Clubs with a meeting weekday given | 2 |
-| Assistant Governors with their clubs listed | 33 |
+| Assistant Governors with their clubs listed | 34 |
 | Approved public services | 7 |
 | Public service with a mobile-format number (moderator note) | 2 |
 | Public service with no valid number (shown without one) | 1 |

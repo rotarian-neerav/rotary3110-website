@@ -1,8 +1,17 @@
+{#- Every year of the team pages, as a drop-down (owner, 24 Nov 2026); without scripts, the same years as links -#}
 {%- if site.rolesByYear.length > 1 %}
 {%- set base = '/leadership/' if '/leadership/' in page.url else '/teams/' %}
-<p class="year-switch">{{ t.people.past_years }}:
+<form class="year-switch" data-year-select data-no-submit>
+  <label for="year-select">{{ t.people.year }}</label>
+  <select id="year-select">
+    {%- for yy in site.rolesByYear %}
+    <option value="{{ base }}{% if not yy.current %}{{ yy.year }}/{% endif %}"{% if yy.year == y.year %} selected{% endif %}>{{ yy.label }}</option>
+    {%- endfor %}
+  </select>
+</form>
+<noscript><p class="year-switch small">{{ t.people.year }}:
 {%- for yy in site.rolesByYear %}
   {%- if yy.year == y.year %} <strong>{{ yy.year }}</strong>{% else %} <a href="{{ base }}{% if not yy.current %}{{ yy.year }}/{% endif %}">{{ yy.year }}</a>{% endif %}
 {%- endfor %}
-</p>
+</p></noscript>
 {%- endif %}

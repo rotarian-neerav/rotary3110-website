@@ -124,7 +124,6 @@ function ensureTabs_(ss, schema, report) {
 
 var DEFAULT_SETTINGS = [
   ['district_name', 'Rotary District 3110', 'Shown in the header and footer'],
-  ['current_rotary_year', '2024-25', 'Rotary year shown for office bearers, teams and committees'],
   ['zones', 'Agra, Bareilly, Kanpur', 'District zones: for the district\'s own use only, never shown on the website'],
   ['professions', '', 'Comma-separated list for the directory; placeholder until the real list is agreed'],
   ['moderator_emails', '', 'Older setting: used only while the moderators tab names no Content moderator'],

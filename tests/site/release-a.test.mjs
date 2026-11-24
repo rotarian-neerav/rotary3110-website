@@ -11,6 +11,13 @@ import { core } from '../../lib/core.mjs';
 
 const SITE = resolve(import.meta.dirname, '../../_site');
 const data = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../.cache/public-data.json'), 'utf8'));
+
+// The website's year comes from the build day's date in India (24 Nov 2026), not from the data. The district team
+// list checked here is the latest one up to that year (2024-25 until the next list is imported), on its own page.
+const YEAR = core.Core_rotaryYearOf(process.env.SITE_TODAY || new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10));
+const LIST_YEAR = [...new Set(data.functionaries.filter((f) => f.page === 'leadership' && f.section !== 'Governor line').map((f) => f.rotary_year))]
+  .filter((y) => y <= YEAR).sort().pop() || YEAR;
+const listPage = (name) => (LIST_YEAR === YEAR ? name : `${name}/${LIST_YEAR}`);
 const PREFIX = (process.env.PATH_PREFIX || '/').replace(/\/$/, '');
 const read = (f) => readFileSync(f, 'utf8');
 const page = (url) => read(join(SITE, url, 'index.html'));
@@ -91,8 +98,8 @@ test('club pages link to their city; the meeting day shows; services the public 
 });
 
 test('Leadership: Assistant Governors listed with the clubs they look after, no zone headings', () => {
-  const root = dom('leadership');
-  const ags = data.functionaries.filter((f) => f.section === 'Assistant Governors' && f.rotary_year === data.site.rotary_year);
+  const root = dom(listPage('leadership'));
+  const ags = data.functionaries.filter((f) => f.section === 'Assistant Governors' && f.rotary_year === LIST_YEAR);
   if (!ags.length && !sample) return; // the live Sheet may not have this year's Assistant Governors yet
   const section = root.querySelector('#assistant-governors');
   assert.ok(section);
@@ -210,10 +217,11 @@ test('About page: profiles, every Past District Governor (a card link only for t
   assert.equal(root.querySelectorAll('.profile-card').length, (data.profiles || []).filter((p) => p.role === 'District Governor').length, "only the Governor's profile");
   assert.ok(!/Draft for legal review/.test(page('privacy')), 'the lawyer approved the privacy notice (11 Nov 2026)');
   const rows = root.querySelectorAll('.past-dgs tbody tr');
-  assert.equal(rows.length, (data.past_governors || []).length || rows.length);
+  // the tab's, and from 2024-25 on, those from the Governor line (24 Nov 2026)
+  assert.ok(rows.length >= (data.past_governors || []).length);
   if (sample) {
-    assert.equal(rows.length, 28);
-    assert.equal(rows.filter((r) => r.querySelector('td:nth-child(2) a')).length, 26, 'the two late governors have no card');
+    assert.equal(rows.length, 30);
+    assert.equal(rows.filter((r) => r.querySelector('td:nth-child(2) a')).length, 28, 'the two late governors have no card');
   }
   assert.ok(root.querySelectorAll('.glossary dt').length >= 20);
   assert.equal(root.querySelectorAll('.glossary abbr').length, 0, 'the glossary itself is not marked up again');
@@ -221,10 +229,10 @@ test('About page: profiles, every Past District Governor (a card link only for t
 });
 
 test('abbreviations are explained once per page, never in titles, scripts or data', () => {
-  const html = page('leadership');
+  const html = page(listPage('leadership'));
   const root = parse(html);
   const abbrs = root.querySelectorAll('main abbr.gloss');
-  if (sample || data.functionaries.some((f) => f.rotary_year === data.site.rotary_year && f.page === 'leadership')) {
+  if (sample || data.functionaries.some((f) => f.rotary_year === LIST_YEAR && f.page === 'leadership')) {
     assert.ok(abbrs.some((a) => a.text === 'DG' && a.getAttribute('title') === 'District Governor'));
     assert.ok(abbrs.some((a) => a.text === 'PDG'));
   }
@@ -322,12 +330,12 @@ test('the menu has seven items; the pages that left it are linked from the foote
 });
 
 test('District Leadership: sections in the agreed order; the College of Governors runs oldest to newest with the DGE and DGN last', () => {
-  const root = dom('leadership');
+  const root = dom(listPage('leadership'));
   const about = dom('about').querySelectorAll('.past-dgs tbody tr td:first-child').map((td) => td.text.trim());
   if (sample || about.length) assert.ok(about.length > 0);
   assert.deepEqual(about, [...about].sort(), 'About page: newest last');
   // the live Sheet may not have this year's leadership yet
-  if (!sample && !data.functionaries.some((f) => f.rotary_year === data.site.rotary_year && f.page === 'leadership')) return;
+  if (!sample && !data.functionaries.some((f) => f.rotary_year === LIST_YEAR && f.page === 'leadership')) return;
   const order = ['District Governor', 'College of Governors', 'District Counsellors', 'Assistant Governors', "Governor's Aides", "Governor's Office"];
   const h2 = root.querySelectorAll('main h2').map((h) => h.text.trim());
   assert.deepEqual(h2, order.filter((x) => h2.includes(x)));
@@ -366,8 +374,9 @@ test('standalone "go to more" links are outlined buttons too: About, Activities 
 
 test("the directory lists this year's office bearers and team by role, with no contact buttons until they ask (16 Nov)", () => {
   const dir = JSON.parse(read(join(SITE, 'data/directory.json')));
-  const year = data.site.rotary_year;
-  const holders = new Set([...data.officers, ...data.functionaries].filter((r) => r.rotary_year === year && r.person_ref).map((r) => r.name));
+  // held now or to come (office bearers acting now included); titles as of today
+  const holders = new Set([...data.officers.filter((o) => o.rotary_year >= YEAR || o.acting), ...data.functionaries.filter((f) => core.Core_heldYear(f) >= YEAR)]
+    .filter((r) => r.person_ref).map((r) => r.name));
   const byRole = dir.filter((d) => d.roles);
   assert.ok(byRole.length > 0 && holders.size > 0);
   // a role row may carry a title ("DG …") that the card's name does not, so names are compared without titles
@@ -504,4 +513,25 @@ test('a page with nothing on it yet stays out of search engines, the sitemap and
     assert.equal(html.includes('data-pagefind-body'), !isEmpty, `${p}: site search`);
   }
   if (sample) assert.ok(Object.values(empty).every((e) => !e), 'the sample fills every page');
+});
+
+test('the Rotary year drop-down on Leadership and Teams: every year, each option opens that year\'s page (24 Nov 2026)', () => {
+  for (const base of ['leadership', 'teams']) {
+    const options = dom(base).querySelectorAll('[data-year-select] option');
+    assert.ok(options.length >= 2, `${base}: a drop-down`);
+    const years = options.map((o) => o.text.trim().slice(0, 7));
+    assert.deepEqual(years, [...years].sort().reverse(), 'newest first');
+    for (let i = 1; i < years.length; i++) assert.equal(core.Core_nextRotaryYear(years[i]), years[i - 1], 'no year skipped');
+    assert.ok(options.some((o) => o.text.trim() === `${YEAR} (this year)` && o.getAttribute('selected') !== undefined), 'this year chosen on its own page');
+    for (const o of options) {
+      const url = o.getAttribute('value').replace(/^\/|\/$/g, '');
+      assert.ok(existsSync(join(SITE, url, 'index.html')), `${url} exists`);
+      const h1 = dom(url).querySelector('h1').text;
+      assert.ok(h1.includes(o.text.trim().slice(0, 7)), `${url} is that year's page`);
+    }
+    // without scripts, the same years as links
+    assert.ok(page(base).includes('<noscript><p class="year-switch'));
+  }
+  const next = core.Core_nextRotaryYear(YEAR);
+  if (sample) assert.ok(page(`leadership/${next}`).includes(`Announced early: they take office on 1 July ${next.slice(0, 4)}`));
 });

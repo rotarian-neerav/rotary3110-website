@@ -13,7 +13,8 @@ const ROOT = resolve(import.meta.dirname, '../..');
 let env;
 let token;
 const Q = {};
-const today = () => new Date().toISOString().slice(0, 10);
+// today in India, as the script has it (a UTC date is a day behind before 5:30 am)
+const today = () => new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
 const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10);
 
 beforeEach(() => { if (env) env.quota.left = 100; });
@@ -246,11 +247,9 @@ test('roles: Content moderators correct club office bearers, Members moderators 
   assert.ok(env.post({ fn: 'roleadd', session: content, fields: { ...add, role: 'Executive Secretary', member_id: '7200001' }, reason: 'appointed' }).ok);
   assert.match(env.post({ fn: 'roleadd', session: content, fields: { ...add, rotary_year: '2019-20' }, reason: 'check' }).error, /Choose \d{4}-\d{2} or/);
   // an ended role is not published, and the role check no longer counts it
-  env.run('setSetting_', 'current_rotary_year', year);
   const pub = data().officers.filter((x) => x.club_id === 'S-004' && x.rotary_year === year);
   assert.deepEqual(pub.filter((x) => x.role === 'President').map((x) => x.name), ['Rtn Real 7200002']);
   assert.ok(pub.some((x) => x.role === 'Executive Secretary'));
-  env.run('setSetting_', 'current_rotary_year', '2024-25');
 
   // district roles: Members moderators only; an Assistant Governor's clubs and zone
   const ag = tab(env.main, 'functionaries').find((f) => /Assistant Governor/.test(f.role));

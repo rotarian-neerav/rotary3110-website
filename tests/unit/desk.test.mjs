@@ -332,7 +332,7 @@ test('quiet clubs: the Club engagement moderator emails the President and Secret
   assert.ok(env.post({ fn: 'nudge', session: s, club_id: c.club_id, via: 'whatsapp' }).ok);
 
   // a real (not sample) President with an email, this Rotary year
-  const year = env.main.rows('settings').find((r) => r.key === 'current_rotary_year').value;
+  const year = core.Core_rotaryYearOf(core.Core_isoDate(new Date()));
   env.main.getSheetByName('officers').appendRow([year, c.club_id, '7659999', 'Rtn Real President', 'President', false, '', '']);
   env.priv.getSheetByName('members_master').appendRow(['7659999', 'Rtn Real President', c.club_id, true, 'active', '', 'real.president@example.com']);
   const after = env.post({ fn: 'list', session: s }).clubs.find((x) => x.club_id === c.club_id);
@@ -347,11 +347,11 @@ test('quiet clubs: the Club engagement moderator emails the President and Secret
 
 test('contact messages: answered from the desk by the district account, never by Reply (the moderator stays private); phone-only messages are marked answered', () => {
   const before = env.mails.length;
-  env.submit('contact', { [Q.kName]: 'Asha Verma', [Q.kReply]: 'asha.v@example.com', [Q.kTopic]: 'I want to volunteer', [Q.kCity]: 'Agra', [Q.kMessage]: 'I would like to help at the next blood camp.' });
+  env.submit('contact', { [Q.kName]: 'Asha Verma', [Q.kReply]: 'asha.v@example.com', [Q.kTopic]: 'I want to volunteer', [Q.kCity]: 'Agra', [Q.kMessage]: 'I would like to help at the next blood camp.' }, undefined, new Date()); // today: the desk shows 60 days
   const mail = env.mails.at(-1);
   assert.deepEqual([env.mails.length - before, mail.to, mail.options.replyTo], [1, 'dina@example.com', undefined]);
   assert.match(mail.body, /Please answer from the moderation desk \(Messages → Reply\), not by pressing Reply here/);
-  env.submit('contact', { [Q.kName]: 'Ravi', [Q.kReply]: '98765 11111', [Q.kTopic]: 'I want to volunteer', [Q.kCity]: 'Agra', [Q.kMessage]: 'Please call me about joining Rotary.' });
+  env.submit('contact', { [Q.kName]: 'Ravi', [Q.kReply]: '98765 11111', [Q.kTopic]: 'I want to volunteer', [Q.kCity]: 'Agra', [Q.kMessage]: 'Please call me about joining Rotary.' }, undefined, new Date());
   assert.equal(env.mails.at(-1).options.replyTo, undefined);
   assert.match(env.mails.at(-1).body, /\+919876511111\. Please call or WhatsApp from the district office phone, not your personal phone/);
   assert.ok(!env.mails.at(-1).body.includes('wa.me'));

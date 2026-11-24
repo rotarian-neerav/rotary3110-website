@@ -9,6 +9,7 @@
 
 var SENDER_CHECKS = {
   officer: 'An office bearer of the club',
+  elect: "Next year's office bearer of the club",
   moderator: 'A district moderator',
   unknown: 'Not checked: no office bearer of the club has an email on file',
   noclub: 'Not checked: club not recognised',
@@ -27,12 +28,16 @@ function actingOfficers_(master) {
   return Core_actingOfficers(readTab_(mainSs_(), 'officers'), Core_rotaryYearOf(today_()), master || readTab_(privateSs_(), 'members_master'));
 }
 
-/** Who sent a form for a club, judged by the sender's Google account: the Core_clubSender result. */
-function clubSender_(clubId, email, acting, master) {
+/**
+ * Who sent a form for a club, judged by the sender's Google account: the Core_clubSender result. With `coming`, next
+ * year's President, Secretary and Executive Secretary count too (activities and club updates, owner 24 Nov 2026).
+ */
+function clubSender_(clubId, email, acting, master, coming) {
   var owner = Core_str(email).toLowerCase() === deskOwner_();
   master = master || readTab_(privateSs_(), 'members_master');
-  var check = Core_clubSender(email, clubId, acting || actingOfficers_(master), master, deskModeratorRows_());
-  if (owner && check.who !== 'officer') check.who = 'moderator'; // the district account counts as an Administrator
+  var next = coming ? Core_comingOfficers(readTab_(mainSs_(), 'officers'), Core_rotaryYearOf(today_()), master) : null;
+  var check = Core_clubSender(email, clubId, acting || actingOfficers_(master), master, deskModeratorRows_(), next);
+  if (owner && check.who !== 'officer' && check.who !== 'elect') check.who = 'moderator'; // the district account counts as an Administrator
   if (check.who === 'unknown' && !Core_str(clubId)) check.who = 'noclub';
   return check;
 }
@@ -46,8 +51,10 @@ function fileGated_(ss, tab, row, clubId, alert) {
   var mode = Core_settingMode(settings_().club_senders_only);
   var refused = false;
   if (mode !== 'off') {
-    var check = clubSender_(clubId, row.submitter_email);
+    var check = clubSender_(clubId, row.submitter_email, null, null, true);
     row.sender_check = SENDER_CHECKS[check.who];
+    // the desk card says which coming role, e.g. "President Elect of the club"
+    if (check.who === 'elect') row.sender_check = check.elect.map(function (r) { return r + ' Elect'; }).join(', ') + ' of the club';
     if (check.who === 'other' && mode === 'on') {
       refused = true;
       row.status = NOT_ACCEPTED;

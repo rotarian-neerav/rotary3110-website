@@ -114,7 +114,8 @@
   },
   "people": {
     "search": "Search by name, team, committee, role or club",
-    "past_years": "Past years"
+    "year": "Rotary year",
+    "coming": "Announced early: they take office on 1 July"
   },
   "footer": {
     "scam": "The district will never ask for money over WhatsApp. If someone does, it is not us.",
@@ -146,7 +147,9 @@
     "missing": "Is something missing? Update your club's profile",
     "update_profile": "Update this club's links, meeting details, projects or services",
     "campaigns_this_year": "District campaigns this year",
-    "public_services": "Services the public can use"
+    "public_services": "Services the public can use",
+    "last_known": "A year in brackets: the last office bearer the district knows of, shown until the club tells this year's.",
+    "from_july": "From 1 July"
   },
   "campaigns": {
     "title": "District campaigns",

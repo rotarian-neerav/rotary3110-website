@@ -37,7 +37,7 @@ test('setup creates every tab, loads the sample, makes five forms and fills thei
   for (const t of ['members_master', 'club_history', 'couples', 'consent_requests', 'removal_requests', 'club_change_requests']) assert.ok(env.priv.getSheetByName(t), t);
   assert.equal(env.main.getSheetByName('Sheet1'), null, 'empty default tab removed');
   assert.equal(env.main.rows('clubs').length, 70);
-  assert.equal(env.main.rows('functionaries').length, 181, '176 from the Excel plus 5 sample roles from last year');
+  assert.equal(env.main.rows('functionaries').length, 187, '176 from the Excel, 5 sample roles from the year before, 3 coming Governors, 3 of next year\'s team');
   const s = Object.fromEntries(env.main.rows('settings').map((r) => [r.key, r.value]));
   for (const k of ['form_activity_url', 'form_club_updates_url', 'form_show_details_url', 'form_update_details_url', 'form_club_profile_url', 'form_consent_url',
     'form_removal_url', 'form_update_url', 'form_public_service_url', 'form_contact_url', 'form_business_url', 'form_club_change_url']) assert.match(s[k], /^https:\/\/docs\.google\.com\/forms/, k);
@@ -74,7 +74,7 @@ test('data link: member card references are keyed hashes; deceased members hold 
   assert.ok(env.props.get('PERSON_SECRET'), 'secret kept in the script properties');
   assert.deepEqual(data().functionaries.map((r) => r.person_ref), d.functionaries.map((r) => r.person_ref), 'card addresses stay the same between builds');
   const dead = env.priv.rows('members_master').find((m) => m.status === 'deceased' && m.is_rotarian === true);
-  const year = env.main.rows('settings').find((r) => r.key === 'current_rotary_year').value;
+  const year = core.Core_rotaryYearOf(core.Core_isoDate(new Date()));
   assert.ok(env.main.rows('officers').some((o) => o.member_id === dead.member_id && o.rotary_year === year), 'the sample has one');
   assert.ok(!d.officers.some((o) => o.name === dead.name && o.rotary_year === year), 'left out of the website');
 });
@@ -1161,27 +1161,14 @@ test('a rebuild that has not happened after 3 hours: one email to the owner; non
   assert.equal(env.mails.length - before, 1);
 });
 
-test('Start new Rotary year: only once the new team is in; moves the year on, adds the outgoing Governor to past governors', () => {
-  const year = settingsMap().current_rotary_year;
-  const next = core.Core_nextRotaryYear(year);
-  assert.equal(env.run('startNewRotaryYear'), '', 'nothing for the new year yet');
-  assert.match(env.alerts.at(-1), new RegExp('Nothing for ' + next));
-  assert.equal(settingsMap().current_rotary_year, year);
-  const club = env.main.rows('clubs')[0];
-  env.run('appendRow_', env.main, 'officers', { rotary_year: next, club_id: club.club_id, name: 'Rtn New President', role: 'President' });
-  const dg = env.main.rows('functionaries').find((r) => r.rotary_year === year && r.role === 'District Governor');
-  const pastBefore = env.main.rows('past_governors').length;
-  const hadPast = env.main.rows('past_governors').some((p) => p.rotary_year === year);
-  assert.equal(env.run('startNewRotaryYear'), next);
-  assert.equal(settingsMap().current_rotary_year, next);
-  if (dg && !hadPast) assert.equal(env.main.rows('past_governors').at(-1).name, dg.name);
-  assert.match(env.alerts.at(-1), /Still to do by hand/);
-  // put the sample back as it was for the tests that follow
-  env.run('setSetting_', 'current_rotary_year', year);
-  const off = env.main.getSheetByName('officers');
-  off.data = off.data.filter((r) => !r.includes('Rtn New President'));
-  const pg = env.main.getSheetByName('past_governors');
-  pg.data = pg.data.slice(0, pastBefore + 1);
+test('no Start new Rotary year: the year comes from the date, so there is no setting and no menu item to move it (24 Nov 2026)', () => {
+  assert.ok(!('current_rotary_year' in settingsMap()), 'setup makes no year setting');
+  assert.throws(() => env.run('startNewRotaryYear'));
+  const code = readFileSync(resolve(ROOT, 'dist/apps-script/Code.gs'), 'utf8');
+  assert.ok(!/Start new Rotary year/.test(code) && !/current_rotary_year/.test(code));
+  const year = core.Core_rotaryYearOf(core.Core_isoDate(new Date()));
+  assert.equal(env.run('Core_buildPublicData', { settings: [{ key: 'current_rotary_year', value: '2024-25' }] }, new Date().toISOString(), {}).site.rotary_year, year,
+    'a year setting left in the live Sheet is not read');
 });
 
 

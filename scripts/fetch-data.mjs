@@ -10,7 +10,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { core, plain, sampleOptions } from '../lib/core.mjs';
+import { core, plain, sampleOptions, shiftSampleYears } from '../lib/core.mjs';
+import { todayIST } from '../lib/derive.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = resolve(ROOT, '.cache/public-data.json');
@@ -41,8 +42,10 @@ async function fetchOnce(url, token) {
 }
 
 function fromSample() {
-  const sample = JSON.parse(readFileSync(resolve(ROOT, 'sample/sample-data.json'), 'utf8'));
-  return plain(core.Core_buildPublicData(sample.main, new Date().toISOString(), sampleOptions(sample)));
+  const sample = shiftSampleYears(JSON.parse(readFileSync(resolve(ROOT, 'sample/sample-data.json'), 'utf8')), todayIST(process.env.SITE_TODAY));
+  // with SITE_TODAY (tests), the data is made as on that day, so the office bearers acting then are the ones marked
+  const now = process.env.SITE_TODAY ? `${process.env.SITE_TODAY}T06:30:00Z` : new Date().toISOString();
+  return plain(core.Core_buildPublicData(sample.main, now, sampleOptions(sample)));
 }
 
 const { DATA_URL, DATA_TOKEN } = process.env;

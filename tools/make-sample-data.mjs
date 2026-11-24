@@ -347,9 +347,9 @@ activeClubs.slice(0, 8).forEach((c) => {
   const sec = officers.find((o) => o.club_id === c.club_id && o.role === 'Secretary');
   pastOfficer(c.club_id, sec, 'President');
 });
-// A member who has since died: last year's treasurer, and still in this year's list (the build must leave that out)
+// A member who has since died: an earlier treasurer, and still in this year's list (the build must leave that out)
 pastOfficer(deceasedMember.club_id, deceasedMember, 'Treasurer');
-officers.push({ rotary_year: ROTARY_YEAR, club_id: deceasedMember.club_id, member_id: deceasedMember.member_id, name: deceasedMember.name, role: 'Treasurer', contact_ok: false, contact_link: '', is_sample: true });
+officers.push({ rotary_year: core.Core_rotaryYearOf(TODAY), club_id: deceasedMember.club_id, member_id: deceasedMember.member_id, name: deceasedMember.name, role: 'Treasurer', contact_ok: false, contact_link: '', is_sample: true });
 const fnRow = (id) => converted.functionaries.find((f) => f.member_id === id);
 const pastRole = (f, section, role, extra = {}) => functionaries.push({
   rotary_year: PAST_YEAR, page: 'leadership', section, committee: '', member_id: f.member_id, name: f.name, role, zone: '',
@@ -365,6 +365,37 @@ pastRole({ member_id: deceasedMember.member_id, name: deceasedMember.name, club_
 pastRole({ member_id: approved[50].member_id, name: approved[50].name, club_id: approved[50].club_id }, "Governor's Office Team", 'District Treasurer', { committee: 'District Secretariat', sort_order: 5 });
 // PDG Sharat Chandra also served his club last year
 officers.push({ rotary_year: PAST_YEAR, club_id: sharat.club_id, member_id: sharat.member_id, name: sharat.name, role: 'Club Trainer', contact_ok: false, contact_link: '', is_sample: true });
+
+/* ---------- this year, next year and the coming Governors (titles by year, 24 Nov 2026) ---------- */
+// The team list above is the 2024-25 one, as on the live site; the website's year comes from the date. The build
+// moves all these years on with the calendar (shiftSampleYears), so the sample keeps the same shape every year.
+const THIS_YEAR = core.Core_rotaryYearOf(TODAY);
+const NEXT_YEAR = core.Core_nextRotaryYear(THIS_YEAR);
+const holding = new Set([...officers, ...functionaries].map((r) => r.member_id));
+const freeMember = (clubId) => {
+  const m = master.find((x) => (!clubId || x.club_id === clubId) && x.is_rotarian && x.status === 'active' && x.listing_approved && !holding.has(x.member_id));
+  if (m) holding.add(m.member_id);
+  return m;
+};
+const officer = (year, c, m, role) => officers.push({ rotary_year: year, club_id: c.club_id, member_id: m.member_id, name: m.name, role, contact_ok: false, contact_link: '', is_sample: true });
+// Clubs 9-12 told this year's President: the 2024-25 one becomes a Past President; their Secretary carries on
+activeClubs.slice(8, 12).forEach((c) => officer(THIS_YEAR, c, freeMember(c.club_id) || newPerson(c.club_id), 'President'));
+// Clubs 1-3 told next year's President and Secretary (they may send for the club already)
+activeClubs.slice(0, 3).forEach((c) => {
+  officer(NEXT_YEAR, c, freeMember(c.club_id) || newPerson(c.club_id), 'President');
+  officer(NEXT_YEAR, c, freeMember(c.club_id) || newPerson(c.club_id), 'Secretary');
+});
+// The coming Governors, as a moderator adds them through Club updates: District Governor of their own year
+const teamRow = (year, m, section, role, extra = {}) => functionaries.push({
+  rotary_year: year, page: 'leadership', section, committee: '', member_id: m.member_id, name: m.name, role, zone: '',
+  club_id: m.club_id, term: '', sort_order: 1, contact_ok: false, contact_link: '', is_sample: true, ...extra,
+});
+let comingYear = THIS_YEAR;
+for (let i = 0; i < 3; i++) teamRow((comingYear = core.Core_nextRotaryYear(comingYear)), freeMember(), 'Governor line', 'District Governor');
+// Part of next year's district team, announced early
+teamRow(NEXT_YEAR, freeMember(), 'Assistant Governors', 'Assistant Governor', { ag_clubs: activeClubs.slice(0, 3).map((c) => c.club_name).join(', ') });
+teamRow(NEXT_YEAR, freeMember(), 'District Membership Team', 'District Membership Chair (DMC)', { page: 'teams' });
+teamRow(NEXT_YEAR, freeMember(), 'District Membership Team', 'Chairman', { page: 'teams', committee: 'New Club Development', sort_order: 2 });
 
 /* ---------- activities ---------- */
 const MODERATORS = ['moderator.a@example.com', 'moderator.b@example.com', 'moderator.c@example.com', 'moderator.d@example.com'];
@@ -645,7 +676,7 @@ const profiles = [
   { role: 'President of Rotary International', rotary_year: '2026-27', name: 'Sample: RI President', theme: 'Sample theme of the year',
     profile: 'This is a sample profile used while the website is being tested. The district will give the RI President\'s official profile and photo.',
     photo: 'sample:message-1.jpg', link: 'https://www.rotary.org/en/about-rotary/rotary-leadership', sort_order: 1, is_sample: true },
-  { role: 'District Governor', rotary_year: ROTARY_YEAR, name: 'Sample: District Governor', theme: 'Sample district theme',
+  { role: 'District Governor', rotary_year: THIS_YEAR, name: 'Sample: District Governor', theme: 'Sample district theme',
     profile: 'This is a sample profile used while the website is being tested. The District Governor\'s profile and photo will replace it.',
     photo: 'sample:message-2.jpg', link: '', sort_order: 2, is_sample: true },
 ];
@@ -742,7 +773,6 @@ const spotlights = spotlightMembers.map((m, i) => ({
 /* ---------- settings and lists ---------- */
 const settings = [
   ['district_name', 'Rotary District 3110', 'Shown in the header and footer'],
-  ['current_rotary_year', ROTARY_YEAR, 'Rotary year shown for office bearers, teams and committees'],
   ['zones', 'Agra, Bareilly, Kanpur', "District zones: for the district's own use only, never shown on the website"],
   ['professions', PROFESSIONS.join(', '), 'Placeholder list; replace with the real list'],
   ['moderator_emails', '', 'Comma-separated; receive the 48-hour reminders'],
@@ -944,7 +974,11 @@ function writeReport() {
     ['Member text naming a Rotary International zone (allowed)', master.filter((m) => /Zone 6/.test(m.description || '')).length],
     ['People marked deceased', master.filter((m) => m.status === 'deceased').length],
     ['Roles from last Rotary year (member card history)', officers.filter((o) => o.rotary_year === PAST_YEAR).length + functionaries.filter((f) => f.rotary_year === PAST_YEAR).length],
-    ['This year\'s role held by someone marked deceased (must not show)', officers.filter((o) => o.rotary_year === ROTARY_YEAR && o.member_id === deceasedMember.member_id).length],
+    ['Clubs that told this year\'s President (the 2024-25 one is a Past President)', officers.filter((o) => o.rotary_year === THIS_YEAR).length],
+    ['Next year\'s office bearers told (President Elect, Secretary Elect)', officers.filter((o) => o.rotary_year === NEXT_YEAR).length],
+    ['Coming Governors (Elect, Nominee, Nominee Designate)', functionaries.filter((f) => f.section === 'Governor line' && f.rotary_year > THIS_YEAR).length],
+    ['Next year\'s district team rows announced early', functionaries.filter((f) => f.rotary_year === NEXT_YEAR && f.section !== 'Governor line').length],
+    ['This year\'s role held by someone marked deceased (must not show)', officers.filter((o) => o.rotary_year === THIS_YEAR && o.member_id === deceasedMember.member_id).length],
     ['Upcoming events beyond the home page limit of 8', Math.max(0, data.main.events.filter((e) => e.status === 'approved' && e.start_date > TODAY).length - 8)],
     ['Members who changed clubs (club history)', clubHistory.filter((h) => h.reason === 'transferred out').length],
     ['Inactive club kept on record', clubs.filter((c) => c.status === 'inactive').length],

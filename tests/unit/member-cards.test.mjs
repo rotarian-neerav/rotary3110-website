@@ -12,7 +12,9 @@ const site = () => derive(build(), media, '2026-10-13');
 const master = sample.private.members_master;
 const deceased = master.find((m) => m.status === 'deceased' && m.is_rotarian);
 const left = master.find((m) => m.status === 'left');
-const year = sample.main.settings.find((s) => s.key === 'current_rotary_year').value;
+// the sample's team list is of 2024-25, like the live one; on the sample's day (13 Oct 2026) the website's year is 2026-27
+const listYear = sample.main.functionaries[0].rotary_year;
+const year = core.Core_rotaryYearOf('2026-10-13');
 
 test('one scrambled reference joins a person\'s roles and listing; the member ID never appears', () => {
   const d = build();
@@ -31,7 +33,8 @@ test('one scrambled reference joins a person\'s roles and listing; the member ID
 
 test('someone marked deceased or left: no role this year, past roles keep the name only', () => {
   const d = build();
-  const now = d.officers.concat(d.functionaries).filter((r) => r.rotary_year === year);
+  assert.ok(sample.main.officers.some((r) => r.rotary_year === year && r.member_id === deceased.member_id), 'the sample has one');
+  const now = d.officers.concat(d.functionaries).filter((r) => core.Core_heldYear(r) >= year);
   assert.ok(!now.some((r) => r.name === deceased.name), 'this year\'s role of a deceased member is left out');
   const past = d.officers.concat(d.functionaries).filter((r) => r.name === deceased.name);
   assert.ok(past.length >= 2, 'past roles kept');
@@ -45,7 +48,7 @@ test('someone marked deceased or left: no role this year, past roles keep the na
   assert.ok(!s.directory.some((m) => m.name === deceased.name));
   assert.ok(!s.clubs.some((c) => c.members.some((p) => p.name === deceased.name)));
   assert.ok(!s.clubs.some((c) => c.officers.some((o) => o.name === deceased.name)));
-  const pastYear = s.rolesByYear.find((y) => !y.current);
+  const pastYear = s.rolesByYear.find((y) => y.year < listYear);
   const secretary = pastYear.leadership.flatMap((sec) => sec.groups.flatMap((g) => g.people)).find((p) => p.name === deceased.name);
   assert.ok(secretary, 'still listed in last year\'s leadership');
   assert.equal(secretary.card, '', 'as plain text');
@@ -70,9 +73,10 @@ test('a past spotlight story about someone no longer listed keeps the name only'
 test('member card: every role, newest year first; only what the person agreed to show', () => {
   const s = site();
   const sharat = s.cards.find((c) => c.name === 'PDG Sharat Chandra');
-  assert.deepEqual(sharat.years.map((y) => y.year), [year, '2023-24']);
-  assert.equal(sharat.years[0].roles.length, 4, 'holds four roles this year');
-  assert.equal(sharat.currentRoles.length, 4);
+  assert.deepEqual(sharat.years.map((y) => y.year), [listYear, '2023-24']);
+  assert.equal(sharat.years[0].roles.length, 4, 'held four roles in 2024-25');
+  assert.equal(sharat.currentRoles.length, 0, 'none this year');
+  assert.ok(sharat.titles.some((t) => /^Past District Governor \(\d{4}-\d{2}\)$/.test(t)), 'a Past District Governor, with the year');
   assert.equal(sharat.listed, false, 'not in the directory');
   for (const k of ['profession', 'area', 'description', 'website', 'wa']) assert.equal(sharat[k], '', k);
   assert.match(sharat.url, /^\/members\/sharat-chandra-[0-9a-f]{6}\/$/);

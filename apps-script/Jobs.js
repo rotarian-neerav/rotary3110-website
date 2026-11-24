@@ -213,7 +213,7 @@ function refreshDashboard() {
 function checkRoles(silent) {
   var ss = mainSs_();
   var problems = Core_checkRoles(readTab_(ss, 'officers'), readTab_(ss, 'functionaries'), readTab_(privateSs_(), 'members_master'),
-    Core_str(settings_().current_rotary_year));
+    Core_rotaryYearOf(today_()));
   var at = nowIso_();
   replaceRows_(ss, 'role_checks', problems.map(function (p) { p.checked_at = at; return p; }));
   if (silent === true) return problems.length;
@@ -452,45 +452,4 @@ function checkRebuild() {
     'You get this email once for each rebuild request.', { name: 'Rotary 3110 website' });
   props.setProperty('REBUILD_ALERTED', asked);
   return 'told ' + to;
-}
-
-/* ---------- Start a new Rotary year (Release B) ---------- */
-
-/**
- * Administrator → Start new Rotary year…: moves current_rotary_year on by one year once the new office bearers and
- * district team are in the officers and functionaries tabs. Last year's rows stay, so the website shows them under
- * past years. The outgoing District Governor is added to past_governors. Then the role check, the form lists and a
- * rebuild run, and the owner is told what is still to do by hand.
- */
-function startNewRotaryYear() {
-  var ui = SpreadsheetApp.getUi();
-  var main = mainSs_();
-  var cur = Core_str(settings_().current_rotary_year);
-  var next = Core_nextRotaryYear(cur);
-  if (!next) { ui.alert('The setting current_rotary_year ("' + cur + '") is not a Rotary year such as 2024-25. Correct it first.'); return ''; }
-  var officers = readTab_(main, 'officers').filter(function (r) { return Core_str(r.rotary_year) === next; }).length;
-  var team = readTab_(main, 'functionaries').filter(function (r) { return Core_str(r.rotary_year) === next; });
-  if (!officers && !team.length) {
-    ui.alert('Nothing for ' + next + ' yet', 'The officers and functionaries tabs have no rows for ' + next + '. Add the new office bearers and district team first ' +
-      '(see "Every July" in the yearly update guide), then use this again.', ui.ButtonSet.OK);
-    return '';
-  }
-  if (ui.alert('Start Rotary year ' + next + '?', 'Found for ' + next + ': ' + officers + ' club office bearer row(s) and ' + team.length + ' district team row(s).\n\n' +
-    'The website will show ' + next + ' as the current year after the next build; ' + cur + ' stays on the site under past years.', ui.ButtonSet.YES_NO) !== ui.Button.YES) return '';
-  setSetting_('current_rotary_year', next);
-  var done = ['current_rotary_year set to ' + next];
-  var dg = readTab_(main, 'functionaries').filter(function (r) { return Core_str(r.rotary_year) === cur && Core_str(r.role) === 'District Governor'; })[0];
-  var past = readTab_(main, 'past_governors');
-  if (dg && !past.some(function (p) { return Core_str(p.rotary_year) === cur; })) {
-    appendRow_(main, 'past_governors', { rotary_year: cur, name: Core_str(dg.name), club: clubNameById_(dg.club_id), member_id: Core_str(dg.member_id) });
-    done.push(Core_str(dg.name) + ' added to past_governors for ' + cur);
-  }
-  var problems = checkRoles(true);
-  try { updateFormLists(true); } catch (e) { done.push('Form lists not updated: ' + e.message); }
-  requestRebuild();
-  ui.alert('Rotary year ' + next + ' started', done.join('\n') + '\n\nStill to do by hand:\n' +
-    '• profiles: the new District Governor (and photo)\n• campaigns for ' + next + '\n• clubs: member counts; closed clubs set to inactive\n' +
-    '• the new Assistant Governors\' clubs (ag_clubs)\n' + (problems ? '• ' + problems + ' role(s) to check in the role_checks tab\n' : '') +
-    '\nThe website updates within about 30 minutes.', ui.ButtonSet.OK);
-  return next;
 }

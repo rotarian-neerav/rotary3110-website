@@ -132,7 +132,7 @@ test('phone numbers are caught however they are written; figures, dates and IDs 
 
 test("an office bearer's contact link is published only as a WhatsApp link to a mobile; anything else typed in the Sheet is left out and listed", () => {
   const main = structuredClone(sample.main);
-  const [good, bad, mail] = main.officers.filter((o) => o.rotary_year === main.settings.find((s) => s.key === 'current_rotary_year').value).slice(0, 3);
+  const [good, bad, mail] = main.officers.filter((o) => o.rotary_year === '2024-25').slice(0, 3);
   Object.assign(good, { contact_ok: true, contact_link: 'https://wa.me/919876543210' });
   Object.assign(bad, { contact_ok: true, contact_link: 'javascript:alert(1)' });
   Object.assign(mail, { contact_ok: true, contact_link: 'mailto:a.b@example.com' });

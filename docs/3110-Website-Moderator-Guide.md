@@ -225,8 +225,16 @@ Messages from the website's contact form go to the private Sheet's **contact_mes
 A club's **President, Secretary and Executive Secretary** speak for the club. Until a club tells the district this
 year's holder of a role, the **last known holder carries on** in that role (for example the 2024-25 Secretary acts
 until the 2026-27 Secretary is reported). Next year's office bearers, reported in advance through Club updates
-(members and roles) or added on the desk, take over on 1 July. Ending a role leaves nobody in it; an older holder does
-not come back.
+(members and roles) or added on the desk, take over on 1 July. Until then they are shown as **President Elect**,
+**Secretary Elect** and **Executive Secretary Elect**, and they may already send their club's activities and club
+updates (the desk card says, for example, "President Elect of the club"); the weekly club email and the reminders still
+go to the current ones. Ending a role leaves nobody in it; an older holder does not come back.
+
+**Titles (owner, 23–24 Nov 2026).** The website gives every role its title from the year: a role for next year is
+"Elect", two years ahead "Nominee", three years ahead "Nominee Designate" (written "District Governor Elect"). "Past" is
+used only for the District Governor (Past District Governor) and a club President (Past President); other past roles
+are listed under their year. A district role may be reported for this year and up to three years ahead (for the coming
+Governors: team "Governor line", role "District Governor", the year they hold office); a club role for this year or next.
 
 - **Roles tab:** at the top, how many clubs have told this year's President and Secretary, how many still have last
   year's (or older) acting, and which. In **Find a role**, a club office bearer shows *acts now* or *acts until this

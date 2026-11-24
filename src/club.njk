@@ -38,6 +38,15 @@ eleventyComputed:
   <h2>Office bearers {{ site.rotaryYear }}</h2>
   <ul class="people-grid">
     {%- for o in c.officers %}
+    <li class="person">{{ avatar(o.name, o.image.sq.src if o.image else '', 48) }}<div><strong>{% if o.card %}<a href="{{ o.card }}">{{ o.name }}</a>{% else %}{{ o.name }}{% endif %}</strong><span class="role">{{ o.role }}{% if o.since %} ({{ o.since }}){% endif %}</span></div></li>
+    {%- endfor %}
+  </ul>
+  {%- if c.officers | selectattr('since') | length %}<p class="small muted">{{ t.club.last_known }}</p>{% endif %}
+  {%- endif %}
+  {%- if c.elects.length %}
+  <h2>Office bearers {{ site.nextYear }} <span class="muted small">{{ t.club.from_july }} {{ site.nextYear.slice(0, 4) }}</span></h2>
+  <ul class="people-grid">
+    {%- for o in c.elects %}
     <li class="person">{{ avatar(o.name, o.image.sq.src if o.image else '', 48) }}<div><strong>{% if o.card %}<a href="{{ o.card }}">{{ o.name }}</a>{% else %}{{ o.name }}{% endif %}</strong><span class="role">{{ o.role }}</span></div></li>
     {%- endfor %}
   </ul>

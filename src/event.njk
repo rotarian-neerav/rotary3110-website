@@ -9,7 +9,7 @@ permalink: "{{ e.url }}"
 eleventyComputed:
   title: "{{ e.title }} – {{ e.dateLabel }}"
   description: "{{ e.event_type }} in {{ e.city }} on {{ e.dateLabel }}. {{ e.description }}"
-  ogImage: "{{ e.images[0].og.src if e.images.length else '' }}"
+  ogImage: "{{ e.images[0].og.src if (e.images.length and e.images[0].og) else '' }}"
   jsonld:
     "@context": "https://schema.org"
     "@type": "Event"
@@ -41,7 +41,7 @@ eleventyComputed:
   {%- if e.images.length %}
   <div class="photos photos-{{ e.images.length }}">
     {%- for im in e.images %}
-    <a href="{{ im.full.src }}"><img src="{{ im.card.src }}" srcset="{{ im.card.src }} {{ im.card.width }}w, {{ im.full.src }} {{ im.full.width }}w" sizes="(min-width: 760px) 720px, 100vw" alt="Photo {{ loop.index }} of {{ e.title }}" width="{{ im.card.width }}" height="{{ im.card.height }}"{% if not loop.first %} loading="lazy"{% endif %}></a>
+    <a href="{{ im.full.src }}"><img src="{{ im.full.src }}" alt="Photo {{ loop.index }} of {{ e.title }}" width="{{ im.full.width }}" height="{{ im.full.height }}"{% if not loop.first %} loading="lazy"{% endif %}></a>
     {%- endfor %}
   </div>
   {%- endif %}

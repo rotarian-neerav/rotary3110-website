@@ -40,6 +40,9 @@ This repository is **public**. Never commit members' data, phone numbers, emails
 
 - GitHub's scheduled runs are often 15–60 minutes late. Runs share one queue: a newer waiting run cancels the
   older waiting one. A job's log is readable only after the job ends.
+- GitHub Pages publishes at most 1 GB, and photos are nearly all of the site. Since 25 Nov 2026 only photos the pages use
+  are published, sized for phones (`scripts/fetch-media.mjs`); a file's name carries a fingerprint of its size and
+  quality, so changing them there makes every photo again (one long build). The build log says the site's size.
 - Processed photos are cached between builds and saved right after the build step, so a failed check later does
   not mean processing every photo again (a year of activities takes about 45 minutes).
 - Apps Script: the cache holds at most 100 KB per value (the allowed-files list is kept in parts); a run stops

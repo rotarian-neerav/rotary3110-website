@@ -1104,6 +1104,14 @@ test('weekly summary: Monday 8 am to the owner: last build, a rebuild not yet ru
   mail = env.mails.at(-1);
   assert.equal(mail.to, 'owner.one@example.com,owner.two@example.com');
   env.run('rejectRequest', 'removal', env.priv.rows('removal_requests').at(-1).id, 'test');
+  // the website's size (25 Nov 2026), and a warning from 900 MB, before GitHub Pages' 1 GB stops the updates
+  env.pages.buildInfo = { generated_at: '2026-11-15T01:42:09Z', site_mb: 231, media_mb: 222 };
+  env.run('weeklySummary');
+  assert.match(env.mails.at(-1).body, /Size: 231 MB of the 1,024 MB GitHub Pages allows \(photos 222 MB\)\./);
+  assert.doesNotMatch(env.mails.at(-1).body, /SIZE WARNING/);
+  env.pages.buildInfo = { generated_at: '2026-11-15T01:42:09Z', site_mb: 905, media_mb: 890 };
+  env.run('weeklySummary');
+  assert.match(env.mails.at(-1).body, /SIZE WARNING: Size: 905 MB/);
 });
 
 /* ---------- Release B (16 Nov): sample-data lock, weekly backup, missed rebuild, new Rotary year ---------- */

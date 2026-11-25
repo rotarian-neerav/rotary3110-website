@@ -277,7 +277,7 @@ locks that person out of the desk at once.
 | Saturday, 6 pm | Preview of Sunday's bulletin to Content moderators (leave something out from the email) |
 | Sunday, 3 am | Backup of both Sheets (8 weeks kept, private Backups folder) |
 | Sunday, 8 am | The bulletin message, to forward to the district's groups; the website always rebuilds on Sunday |
-| Monday, 8 am | The weekly summary: what went live, what waits, quiet clubs, roles to check, who sent the club forms |
+| Monday, 8 am | The weekly summary: what went live, what waits, quiet clubs, roles to check, who sent the club forms, and the website's size (a **SIZE WARNING** from 900 MB: GitHub Pages publishes at most 1 GB) |
 | 1st of the month, 9 am | Clubs not posting, to the Club engagement moderators |
 
 Google allows a free account about 100 emails a day; the script keeps room for moderators and replies, and moves

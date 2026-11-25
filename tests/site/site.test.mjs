@@ -153,7 +153,7 @@ test('activity pages use their own photo for WhatsApp previews', () => {
   const a = data.activities.find((x) => x.photos.length);
   if (!a && data.source !== 'sample') return; // the live Sheet may not have any activity photos yet
   const og = parse(page(`activities/${a.id.toLowerCase()}`)).querySelector('meta[property="og:image"]').getAttribute('content');
-  assert.match(og, /\/media\/activity-[0-9a-f]+-og\.jpg$/);
+  assert.match(og, /\/media\/activity-[0-9a-f]+-og-[0-9a-f]{6}\.jpg$/);
   const ogFile = join(SITE, 'media', og.split('/media/')[1]);
   assert.ok(statSync(ogFile).size < 300 * 1024, 'preview image under 300 KB so WhatsApp shows it');
 });
@@ -164,7 +164,7 @@ test('event pages show their photos and use one for WhatsApp previews', () => {
   assert.ok(e, 'sample has an event with photos');
   const html = page(`events/${e.id.toLowerCase()}`);
   assert.match(html, /class="photos photos-\d"/);
-  assert.match(parse(html).querySelector('meta[property="og:image"]').getAttribute('content'), /-og\.jpg$/);
+  assert.match(parse(html).querySelector('meta[property="og:image"]').getAttribute('content'), /-og-[0-9a-f]{6}\.jpg$/);
 });
 
 test('until launch (HIDE_FROM_SEARCH=true) every page and robots.txt keep search engines out', () => {
@@ -216,8 +216,35 @@ test('pages stay light for slow connections', () => {
   const js = files.filter((f) => f.includes(join('assets', 'js')) && !f.endsWith('desk.js')).reduce((s, f) => s + statSync(f).size, 0);
   assert.ok(home + css + js < 200 * 1024, `home page + css + js = ${Math.round((home + css + js) / 1024)} KB`);
   assert.ok(js < 30 * 1024, `all scripts = ${Math.round(js / 1024)} KB`);
-  const people = files.filter((f) => /media[\\/]person-.*-sq\.webp$/.test(f));
+  const people = files.filter((f) => /media[\\/]person-.*-sq-[0-9a-f]{6}\.webp$/.test(f));
+  assert.ok(people.length, 'member photos found');
   for (const f of people) assert.ok(statSync(f).size < 40 * 1024, `member photo too large: ${f}`);
+});
+
+test('photos: only those the pages use are published; one picture per activity photo; a preview only for the first', () => {
+  // owner, 25 Nov 2026: sized for phones, about 70% less space, under GitHub Pages' 1 GB
+  const map = JSON.parse(read(resolve(import.meta.dirname, '../../.cache/media-map.json')));
+  const used = new Set([...Object.values(map.images).flatMap((im) => Object.values(im).map((v) => v.src)), ...Object.values(map.pdfs)]);
+  const published = readdirSync(join(SITE, 'media')).map((f) => `/media/${f}`);
+  assert.deepEqual(published.filter((f) => !used.has(f)), [], 'no file the pages do not use (an older size, a removed or replaced photo)');
+  assert.deepEqual([...used].filter((f) => !published.includes(f)), [], 'every file the pages use is there');
+  let firsts = 0;
+  for (const x of [...data.activities, ...data.events]) {
+    (x.photos || []).forEach((ref, i) => {
+      const im = map.images[ref];
+      if (!im) return;
+      assert.equal(im.card.src, im.full.src, 'lists frame the same picture');
+      assert.match(im.card.pos, /^\d{1,3}% \d{1,3}%$/);
+      assert.ok(im.full.width <= 960);
+      if (i === 0) { assert.ok(im.og, 'the first photo has a preview'); assert.ok(im.og.width === 720 && im.og.height === 378); firsts++; }
+    });
+  }
+  assert.ok(firsts > 0 || data.source !== 'sample');
+  const previews = published.filter((f) => /\/activity-[0-9a-f]+-og-/.test(f)).length;
+  assert.ok(previews <= firsts, `previews only for first photos: ${previews} of ${firsts}`);
+  // a list card keeps the framing its photo had
+  const a = data.activities.find((x) => x.photos.length && map.images[x.photos[0]]);
+  if (a) assert.ok(page('activities').includes(`style="object-position: ${map.images[a.photos[0]].card.pos}"`), 'lists keep the framing');
 });
 
 test("home page recognition matches the hand-worked sample (September 2026)", () => {

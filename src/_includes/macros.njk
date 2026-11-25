@@ -14,7 +14,7 @@
 <article class="card activity" data-club="{{ a.club_id }}{% for p in a.partners %} {{ p.club_id }}{% endfor %}" data-theme="{{ a.themeSlug }}" data-avenue="{{ a.avenueSlug }}" data-year="{{ a.year }}">
   <a class="card-media" href="{{ a.url }}" tabindex="-1" aria-hidden="true">
     {%- if a.images.length %}
-    <img src="{{ a.images[0].card.src }}" alt="" width="{{ a.images[0].card.width }}" height="{{ a.images[0].card.height }}" loading="lazy">
+    <img src="{{ a.images[0].card.src }}" alt="" width="{{ a.images[0].card.width }}" height="{{ a.images[0].card.height }}"{% if a.images[0].card.pos %} style="object-position: {{ a.images[0].card.pos }}"{% endif %} loading="lazy">
     {%- else %}
     <span class="media-fallback theme-{{ a.themeSlug }}">{{ a.theme }}</span>
     {%- endif %}
@@ -55,7 +55,7 @@
   <div class="event-date" aria-hidden="true">
     <span class="d">{{ e.start_date.slice(8, 10) | int }}</span><span class="m">{{ e.dateLabel.split(' ')[1] }}</span>
   </div>
-  {%- if e.images.length %}<a class="event-thumb" href="{{ e.url }}" tabindex="-1" aria-hidden="true"><img src="{{ e.images[0].card.src }}" alt="" width="96" height="64" loading="lazy"></a>{% endif %}
+  {%- if e.images.length %}<a class="event-thumb" href="{{ e.url }}" tabindex="-1" aria-hidden="true"><img src="{{ e.images[0].card.src }}" alt="" width="96" height="64"{% if e.images[0].card.pos %} style="object-position: {{ e.images[0].card.pos }}"{% endif %} loading="lazy"></a>{% endif %}
   <div class="event-body">
     <h3><a href="{{ e.url }}">{{ e.title }}</a></h3>
     <p class="meta">{{ e.dateLabel }}{% if e.start_time %} · {{ e.start_time }}{% endif %} · {{ e.venue }}, {{ e.city }}</p>

@@ -1028,6 +1028,15 @@ function Core_activityPaused(settings) {
   return Core_str(settings && settings.activity_form).toLowerCase() === 'paused';
 }
 
+/**
+ * The website's size for the Monday summary (owner, 25 Nov 2026). GitHub Pages publishes at most 1 GB; from 900 MB
+ * the line says it is time to make older years' photos smaller, before the website stops updating.
+ */
+function Core_siteSizeLine(siteMb, mediaMb) {
+  var line = 'Size: ' + siteMb + ' MB of the 1,024 MB GitHub Pages allows' + (mediaMb ? ' (photos ' + mediaMb + ' MB)' : '') + '.';
+  return siteMb >= 900 ? 'SIZE WARNING: ' + line + ' At 1,024 MB the website stops updating; time to make older years\' photos smaller.' : line;
+}
+
 function Core_photoRefs(v) {
   return Core_list(v).map(function (ref) {
     // Google Form uploads arrive as Drive links; keep just the file id
@@ -2184,7 +2193,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_isTrue: Core_isTrue, Core_isoDate: Core_isoDate, Core_dayMonth: Core_dayMonth, Core_rows: Core_rows,
     Core_mobile: Core_mobile, Core_slug: Core_slug, Core_buildMembersPublic: Core_buildMembersPublic,
     Core_memberShows: Core_memberShows, Core_sampleRows: Core_sampleRows, Core_nextRotaryYear: Core_nextRotaryYear, Core_memberCheckDue: Core_memberCheckDue, Core_memberCheckEmail: Core_memberCheckEmail,
-    Core_buildPublicData: Core_buildPublicData, Core_activityPaused: Core_activityPaused, Core_validatePublic: Core_validatePublic,
+    Core_buildPublicData: Core_buildPublicData, Core_activityPaused: Core_activityPaused, Core_siteSizeLine: Core_siteSizeLine, Core_validatePublic: Core_validatePublic,
     Core_matchMember: Core_matchMember, Core_findByEmail: Core_findByEmail, Core_emailOwners: Core_emailOwners, Core_memberEmails: Core_memberEmails,
     Core_filledByClub: Core_filledByClub, Core_memberNumber: Core_memberNumber, Core_removalSince: Core_removalSince, Core_consentSender: Core_consentSender, Core_safeError: Core_safeError, Core_findDuplicate: Core_findDuplicate, Core_overdue: Core_overdue,
     Core_hash: Core_hash, Core_time: Core_time, CORE_THEMES: CORE_THEMES, CORE_EVENT_TYPES: CORE_EVENT_TYPES,

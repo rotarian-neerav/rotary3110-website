@@ -71,7 +71,8 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ 'src/assets/img': 'assets/img' });
   eleventyConfig.addPassthroughCopy({ 'src/assets/js': 'assets/js' });
   eleventyConfig.addPassthroughCopy({ 'src/assets/css': 'assets/css' });
-  eleventyConfig.addPassthroughCopy({ '.cache/media': 'media' });
+  // only the photos and files (fetch-media keeps just those in use); not its notes on where list photos are framed
+  eleventyConfig.addPassthroughCopy({ '.cache/media/*.{webp,jpg,jpeg,png,pdf}': 'media' });
   for (const w of [400, 600, 700]) {
     eleventyConfig.addPassthroughCopy({ [`node_modules/@fontsource/open-sans/files/open-sans-latin-${w}-normal.woff2`]: `assets/fonts/open-sans-latin-${w}-normal.woff2` });
   }

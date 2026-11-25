@@ -61,7 +61,7 @@ Sitemap: {{ '/sitemap.xml' | absolute }}
     <category>{{ a.theme | xml }}</category>
     {%- if a.campaign %}<category>{{ a.campaign.name | xml }}</category>{% endif %}
     <description>{{ a.description | xml }}</description>
-    {%- if a.images.length %}<enclosure url="{{ a.images[0].og.src | absolute }}" type="image/jpeg" length="0"/>{% endif %}
+    {%- if a.images.length and a.images[0].og %}<enclosure url="{{ a.images[0].og.src | absolute }}" type="image/jpeg" length="0"/>{% endif %}
   </item>
   {%- endfor %}
   {%- for e in site.upcomingEvents %}

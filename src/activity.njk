@@ -10,14 +10,14 @@ ogType: article
 eleventyComputed:
   title: "{{ a.title }} – {{ a.club.name }}"
   description: "{{ a.description }}"
-  ogImage: "{{ a.images[0].og.src if a.images.length else '' }}"
+  ogImage: "{{ a.images[0].og.src if (a.images.length and a.images[0].og) else '' }}"
   jsonld:
     "@context": "https://schema.org"
     "@type": "NewsArticle"
     headline: "{{ a.title }}"
     description: "{{ a.description }}"
     datePublished: "{{ a.approved_at or a.date }}"
-    image: "{{ (a.images[0].og.src if a.images.length else '/assets/img/og-default.jpg') | absolute }}"
+    image: "{{ (a.images[0].og.src if (a.images.length and a.images[0].og) else '/assets/img/og-default.jpg') | absolute }}"
     mainEntityOfPage: "{{ a.url | absolute }}"
     author:
       "@type": "Organization"
@@ -40,7 +40,7 @@ eleventyComputed:
   {%- if a.images.length %}
   <div class="photos photos-{{ a.images.length }}">
     {%- for im in a.images %}
-    <a href="{{ im.full.src }}"><img src="{{ im.card.src }}" srcset="{{ im.card.src }} {{ im.card.width }}w, {{ im.full.src }} {{ im.full.width }}w" sizes="(min-width: 760px) 720px, 100vw" alt="Photo {{ loop.index }} of {{ a.title }}" width="{{ im.card.width }}" height="{{ im.card.height }}"{% if not loop.first %} loading="lazy"{% endif %}></a>
+    <a href="{{ im.full.src }}"><img src="{{ im.full.src }}" alt="Photo {{ loop.index }} of {{ a.title }}" width="{{ im.full.width }}" height="{{ im.full.height }}"{% if not loop.first %} loading="lazy"{% endif %}></a>
     {%- endfor %}
   </div>
   {%- endif %}
@@ -52,7 +52,7 @@ eleventyComputed:
       {%- for side in [['before', a.beforeAfter.before], ['after', a.beforeAfter.after]] %}
       {%- set im = side[1] %}
       <figure class="ba-{{ side[0] }}">
-        <a href="{{ im.full.src }}"><img src="{{ im.card.src }}" srcset="{{ im.card.src }} {{ im.card.width }}w, {{ im.full.src }} {{ im.full.width }}w" sizes="(min-width: 760px) 360px, 50vw" alt="{{ t.activity[side[0]] }}: {{ a.title }}" width="{{ im.card.width }}" height="{{ im.card.height }}" loading="lazy"></a>
+        <a href="{{ im.full.src }}"><img src="{{ im.card.src }}" alt="{{ t.activity[side[0]] }}: {{ a.title }}" width="{{ im.card.width }}" height="{{ im.card.height }}"{% if im.card.pos %} style="object-position: {{ im.card.pos }}"{% endif %} loading="lazy"></a>
         <figcaption>{{ t.activity[side[0]] }}</figcaption>
       </figure>
       {%- endfor %}

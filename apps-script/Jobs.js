@@ -296,11 +296,13 @@ function weeklySummary() {
   var real = function (r) { return !Core_isPractice(r) && !Core_isTrue(r.is_sample); };
   var out = [];
 
-  var built = '';
-  try { built = Core_str(JSON.parse(UrlFetchApp.fetch(site + 'build-info.json', { muteHttpExceptions: true }).getContentText()).generated_at); } catch (e) { built = ''; }
+  var info = {};
+  try { info = JSON.parse(UrlFetchApp.fetch(site + 'build-info.json', { muteHttpExceptions: true }).getContentText()) || {}; } catch (e) { info = {}; }
+  var built = Core_str(info.generated_at);
   var asked = Core_str(s.rebuild_requested_at);
   out.push('THE WEBSITE\n' + (built ? 'Last built: ' + Core_dateLabel(Core_isoDate(new Date(built))) + ' (' + built.slice(11, 16) + ' UTC).' : 'Could not read when the website was last built.') +
-    (asked && built && asked > built ? '\nA rebuild was asked for on ' + Core_dateLabel(Core_isoDate(new Date(asked))) + ' and has not run yet: check the Actions tab on GitHub.' : ''));
+    (asked && built && asked > built ? '\nA rebuild was asked for on ' + Core_dateLabel(Core_isoDate(new Date(asked))) + ' and has not run yet: check the Actions tab on GitHub.' : '') +
+    (Number(info.site_mb) ? '\n' + Core_siteSizeLine(Number(info.site_mb), Number(info.media_mb)) : ''));
 
   var labels = { activities: 'activities', events: 'events', public_services: 'public services', club_profile_requests: 'club profile updates',
     businesses: 'business listings' };

@@ -317,8 +317,10 @@ test('home page: sections in the agreed order; at most 8 events, district events
   const html = page('');
   const order = ['class="hero"', 'id="upcoming-events"', 'id="latest"', 'id="recognition"', 'id="spotlight"', 'id="celebrations"', 'id="magazine"', 'id="messages"', 'class="cta-band"'];
   // with the sample every section shows; with real data a section with nothing in it (e.g. no spotlight yet) is left out
-  if (data.source === 'sample') for (const m of order) assert.ok(html.includes(m), `${m} present`);
-  for (const m of ['class="hero"', 'id="latest"', 'class="cta-band"']) assert.ok(html.includes(m), `${m} present`);
+  if (data.source === 'sample') for (const m of order) if (m !== 'class="cta-band"') assert.ok(html.includes(m), `${m} present`);
+  for (const m of ['class="hero"', 'id="latest"']) assert.ok(html.includes(m), `${m} present`);
+  // the closing "share your activity" band goes while the activity form is paused (Rotary → Pause activity form)
+  assert.equal(html.includes('class="cta-band"'), !data.site?.activity_paused, 'the share band shows only while the activity form is open');
   assert.equal(html.includes('id="upcoming-events"'), (data.events || []).length > 0, 'the events section shows once there are events');
   const shown = order.filter((m) => html.includes(m));
   for (let i = 1; i < shown.length; i++) assert.ok(html.indexOf(shown[i - 1]) < html.indexOf(shown[i]), `${shown[i - 1]} before ${shown[i]}`);

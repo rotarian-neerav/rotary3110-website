@@ -353,6 +353,17 @@ test('the four daily updates: the status link gives when anything changed; the b
   assert.equal(env.run('checkRebuild'), 'nothing to check', 'within 13 hours: still waiting for the next update');
 });
 
+test('publishing is its own job after the build (25 Nov 2026: in one job deploy-pages often missed the site just uploaded); only it may publish', () => {
+  const yml = readFileSync(resolve(ROOT, '.github/workflows/build.yml'), 'utf8').split('\n').filter((l) => !/^\s*#/.test(l)).join('\n');
+  const build = yml.slice(yml.indexOf('\n  build:'), yml.indexOf('\n  publish:'));
+  const publish = yml.slice(yml.indexOf('\n  publish:'));
+  assert.match(build, /upload-pages-artifact/);
+  assert.doesNotMatch(build, /deploy-pages|pages: write|id-token/);
+  assert.match(publish, /needs: build/);
+  assert.match(publish, /pages: write/);
+  assert.match(publish, /uses: actions\/deploy-pages@/);
+});
+
 test('the Sheet gets the new columns and the private change log; a death needs the club confirmed in the Sheet sidebar too', () => {
   const head = (ss, tab) => env.run('headers_', ss, tab);
   assert.ok(['charter_date', 'merged_into'].every((c) => head(env.main, 'clubs').includes(c)));

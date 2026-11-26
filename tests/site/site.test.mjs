@@ -518,13 +518,15 @@ test('member spotlight (one a day), Rotarian couples and the directory order on 
   const home = read(join(SITE, 'index.html'));
   const spot = read(join(SITE, 'spotlight/index.html'));
   const daily = JSON.parse(read(join(SITE, 'data/spotlight.json')));
-  assert.ok(daily.items.length > 0 && /^\d{4}-\d{2}-\d{2}$/.test(daily.start));
+  assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(daily.start));
   assert.doesNotMatch(JSON.stringify(daily), /wa\.me|public_key|member_id/, 'names, clubs, own words and photos only');
-  // the build day's member is on the page for browsers without scripts; spotlight.js moves it on each day
-  assert.match(home, /data-spotlight-today>[\s\S]*?spotlight-person/);
+  // the build day's member is on the page for browsers without scripts; spotlight.js moves it on each day.
+  // Real data may have few members in the rotation yet (26 Nov 2026: the first build had one)
   assert.match(home, /assets\/js\/spotlight\.js/);
-  assert.match(spot, /data-spotlight-today="full"/);
-  assert.match(spot, /data-spotlight-recent/);
+  assert.equal(/data-spotlight-today>[\s\S]*?spotlight-person/.test(home), daily.items.length > 0, 'home: the member of the day');
+  assert.equal(spot.includes('data-spotlight-today="full"'), daily.items.length > 0, 'spotlight page: today');
+  assert.equal(spot.includes('data-spotlight-recent'), daily.items.length > 1, 'spotlight page: the last few days');
+  if (data.source === 'sample') assert.ok(daily.items.length > 1, 'the sample fills the rotation');
   // the anniversary banner waits, hidden, for the day's couples
   assert.match(home, /data-anniversary-banner data-nosnippet hidden/);
   // the Couples page: not for search engines; in the footer only from 5 couples

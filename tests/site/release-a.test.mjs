@@ -503,7 +503,9 @@ test('a page with nothing on it yet stays out of search engines, the sitemap and
   const empty = {
     events: !has.events, services: !has.services, news: !has.news, magazine: !has.magazine, messages: !has.messages,
     campaigns: !(data.campaigns || []).length,
-    spotlight: !(data.spotlights || []).some((s) => s.month <= new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 7)),
+    // a written story, or members in the daily rotation (26 Nov 2026)
+    spotlight: !(data.spotlights || []).some((s) => s.month <= new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 7)) &&
+      !JSON.parse(read(join(SITE, 'data/spotlight.json'))).items.length,
     meetings: !(data.clubs || []).some((c) => c.status === 'active' && c.meeting_day),
   };
   for (const [p, isEmpty] of Object.entries(empty)) {

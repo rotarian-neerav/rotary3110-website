@@ -163,8 +163,9 @@ test("Club updates files each section where the old forms did; a new member's mo
 
 test("Core: a member is found by RI ID, then by the sender's own email when the name agrees; never by a typed mobile", () => {
   const master = [{ member_id: '1', name: 'Rtn Asha Verma', club_id: 'A', mobile: '9811100001', email: 'asha@x.com' },
-    { member_id: '2', name: 'Rtn Ravi Gupta', club_id: 'A', email: 'ravi@x.com' }];
+    { member_id: '2', name: 'Rtn Ravi Gupta', club_id: 'A', email: 'ravi@x.com', email2: 'Ravi.Signin@x.com' }];
   assert.equal(core.Core_matchMember({ member_id: '2' }, master), 1);
+  assert.equal(core.Core_matchMember({ name: 'Ravi Gupta', submitter_email: 'ravi.signin@x.com', filled_by: 'The member' }, master), 1, 'the second email kept by the district');
   assert.equal(core.Core_matchMember({ mobile: '+91 98111 00001', club_id: 'A' }, master), -1, 'anyone could type it');
   assert.equal(core.Core_matchMember({ name: 'Asha Verma', submitter_email: 'ASHA@x.com', filled_by: 'The member' }, master), 0);
   assert.equal(core.Core_matchMember({ name: 'Sita Devi', submitter_email: 'asha@x.com', filled_by: 'The member' }, master), -1, 'writing for someone else from one\'s own account');

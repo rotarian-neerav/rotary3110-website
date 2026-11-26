@@ -1661,7 +1661,7 @@ function Core_matchMember(request, master) {
     var words = function (n) { return Core_plainName(n).split(' ').filter(function (w) { return w.length > 2; }); };
     var said = words(request.name);
     for (i = 0; i < master.length; i++) {
-      if (Core_str(master[i].email).toLowerCase() !== email) continue;
+      if (Core_memberEmails(master[i]).indexOf(email) < 0) continue;
       if (!said.length || words(master[i].name).some(function (w) { return said.indexOf(w) >= 0; })) return i;
     }
   }

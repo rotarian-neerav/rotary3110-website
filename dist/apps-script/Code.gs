@@ -2011,7 +2011,7 @@ function Core_matchMember(request, master) {
     var words = function (n) { return Core_plainName(n).split(' ').filter(function (w) { return w.length > 2; }); };
     var said = words(request.name);
     for (i = 0; i < master.length; i++) {
-      if (Core_str(master[i].email).toLowerCase() !== email) continue;
+      if (Core_memberEmails(master[i]).indexOf(email) < 0) continue;
       if (!said.length || words(master[i].name).some(function (w) { return said.indexOf(w) >= 0; })) return i;
     }
   }
@@ -4441,7 +4441,7 @@ function fileRemoval_(a, meta) {
   // the member's own request from their own email is done at once (Release 2)
   var master = readTab_(ps, 'members_master');
   var i = Core_matchMember(req, master);
-  if (i >= 0 && Core_str(master[i].email) && Core_str(master[i].email).toLowerCase() === Core_str(meta.submitter_email).toLowerCase()) {
+  if (i >= 0 && Core_memberEmails(master[i]).indexOf(Core_str(meta.submitter_email).trim().toLowerCase()) >= 0) {
     AFTER_FILING.push(function () {
       try {
         approveRemoval_(req.id, AUTO_BY);

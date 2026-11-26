@@ -623,7 +623,7 @@ function fileRemoval_(a, meta) {
   // the member's own request from their own email is done at once (Release 2)
   var master = readTab_(ps, 'members_master');
   var i = Core_matchMember(req, master);
-  if (i >= 0 && Core_str(master[i].email) && Core_str(master[i].email).toLowerCase() === Core_str(meta.submitter_email).toLowerCase()) {
+  if (i >= 0 && Core_memberEmails(master[i]).indexOf(Core_str(meta.submitter_email).trim().toLowerCase()) >= 0) {
     AFTER_FILING.push(function () {
       try {
         approveRemoval_(req.id, AUTO_BY);

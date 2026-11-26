@@ -1244,6 +1244,15 @@ test('Rotary Means Business: the sender is found in the members list; members on
   assert.equal(env.priv.rows('removal_requests').at(-1).status, 'approved');
   assert.equal(env.main.rows('businesses').find((b) => b.id === update.id).status, 'removed');
   assert.ok(!data().businesses.some((b) => b.owner === m.name), 'off the website');
+
+  // from the second email the district keeps (the RI sign-in email, 26 Nov 2026): done at once too
+  const ps = env.run('privateSs_');
+  const row = env.run('readTab_', ps, 'members_master').find((x) => x.member_id === m.member_id)._row;
+  env.run('updateRow_', ps, 'members_master', row, { email2: 'signin.address@example.com' });
+  env.submit('removal', { [Q.rClub]: club.club_name, [Q.rName]: m.name, [Q.rMemberId]: m.member_id, [Q.rItems]: ['Business listing (Rotary Means Business)'] }, 'Signin.Address@example.com');
+  assert.equal(env.priv.rows('removal_requests').at(-1).status, 'approved');
+  env.submit('removal', { [Q.rClub]: club.club_name, [Q.rName]: m.name, [Q.rMemberId]: m.member_id, [Q.rItems]: ['Business listing (Rotary Means Business)'] }, 'someone.else@example.com');
+  assert.equal(env.priv.rows('removal_requests').at(-1).status, 'pending', 'from anyone else it waits for a moderator');
 });
 
 test('before and after photos: filed from the hand-added questions, noted for the moderator, public only as a pair (17 Nov)', () => {

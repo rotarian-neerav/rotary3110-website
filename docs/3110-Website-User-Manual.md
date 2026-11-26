@@ -36,15 +36,15 @@ in the Sheet; the website updates within about 30 minutes.
 
 | Page | What it shows |
 |---|---|
-| **Home** | This week's highlights, district campaigns and the latest activities |
+| **Home** | This week's highlights, district campaigns, the latest activities, the member of the day (spotlight) and, on their anniversary, Rotarian couples |
 | **Activities** | Every published club activity, newest first, with photos; filter by club, Rotary year and Avenue of Service |
 | **Events** | Coming district and club events, with an add-to-calendar file |
 | **Clubs** | Every club with its page: office bearers, activities, meeting day and place, website and social links |
 | **Leadership** and **Teams** | The Governor, the district team and committees, with search |
-| **Directory** | Members who chose to be listed, by profession and city |
+| **Directory** | Members who chose to be listed, by profession and city: in a new order on each visit (A to Z once you search or filter); a ribbon marks Rotarian couples |
 | **Rotary Means Business** | Members' businesses and the topics members can speak on |
 | **About** | The District Governor's profile, the Past District Governors (each shown as "PDG"), and a glossary of Rotary terms |
-| **Footer links** | Public services (blood banks, eye care, dialysis…), cities, meetings by day, the weekly bulletin, campaigns, news, past years, recognition, the magazine, member spotlight, celebrations, messages, contact, privacy |
+| **Footer links** | Public services (blood banks, eye care, dialysis…), cities, meetings by day, the weekly bulletin, campaigns, news, past years, recognition, the magazine, member spotlight (one member a day), celebrations, Rotary couples (from 5 couples), messages, contact, privacy |
 
 - **Search** (the magnifying glass at the top) finds activities, clubs, people and pages.
 - **A+** at the top makes the text larger; the phone remembers it.
@@ -194,7 +194,7 @@ a short guide for each type.
 | Tab | What you do there |
 |---|---|
 | **To check** | **Clean**: activities where the checks found nothing; glance, untick anything wrong, then **Approve the ticked**. **Needs a look**: each item as a card with the reason first; **Approve**, **Reject** (with ready reasons, sent to the sender) or **Correct** (fix spelling, remove a phone number). |
-| **Recent** | Approved activities of the last 30 days and coming events: **Story of the month**, **Leave out of the bulletin**, **Hide** (takes it off the website, with a reason) and **Put back**. |
+| **Recent** | First a shortlist for last month's **Story of the month** (ranked by quality; clubs that won in the last six months left out; you choose). Then approved activities of the last 30 days and coming events: **Story of the month**, **Leave out of the bulletin**, **Hide** (takes it off the website, with a reason) and **Put back**. |
 | **Members** | Show my details and Update my details forms a club filled in for a member, old removal requests and club changes, with who sent them; **Approve**, **Reject**, **Remove now**. **Find a member** (name, RI ID, email, second email or mobile) and **Edit** with a reason (the RI ID never changes; an email another member uses is refused); **Mark as deceased**. |
 | **Not accepted** | Forms refused because the sender is not an office bearer of the club (only when that check is on). **Let through** sends one to the moderators as usual. |
 | **Roles** | How many clubs have told this year's office bearers; roles to check; **Find a role**, **Change**, **End role**, **Add an office bearer**; **Team lists**: **Check** a coming year's district team or club office bearers prepared in the Team lists Sheet, then an Administrator **Imports** it (all or nothing, only with no errors) or **Withdraws** one before its year starts; **Recent changes** with **Undo**. |

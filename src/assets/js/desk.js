@@ -52,7 +52,7 @@
       check: 'Please check', cannot: 'Cannot be approved yet', sentBy: 'Sent by', call: 'Call', tapPhoto: 'Tap a photo to see it larger',
       story: '★ Story of the month', leaveOut: 'Leave out of bulletin', leaveThisOut: 'Leave this out', putBack: 'Put it back in',
       leftOut: 'Left out of the bulletin', inBulletin: 'In the bulletin',
-      recentActs: 'Approved activities, last 30 days', upcoming: 'Coming events', none: 'None.',
+      recentActs: 'Approved activities, last 30 days', shortlist: 'Story of the month for {m}: shortlist', shortlistNote: 'Ranked by photos, description, people helped and press; clubs that won in the last six months are left out. You choose.', picked: 'Chosen for {m}.', noShortlist: 'No activities to suggest for {m}.', upcoming: 'Coming events', none: 'None.',
       consent: 'Consent forms', removal: 'Removal requests', removeNow: 'Remove now', couples: 'Couples waiting', changes: 'Club changes',
       sentFrom: 'Sent from', memberTold: 'Member', holdUntil: 'The member can object until {day}. Approve after that, or confirm with them now.',
       confirmed: 'I have confirmed this with the member (or their club President or Secretary)',
@@ -101,7 +101,7 @@
       check: 'कृपया जाँचें', cannot: 'अभी स्वीकृत नहीं हो सकता', sentBy: 'भेजने वाले', call: 'कॉल करें', tapPhoto: 'बड़ा देखने के लिए फ़ोटो पर टैप करें',
       story: '★ महीने की कहानी', leaveOut: 'बुलेटिन से हटाएँ', leaveThisOut: 'इसे हटा दें', putBack: 'वापस जोड़ें',
       leftOut: 'बुलेटिन से हटाया गया', inBulletin: 'बुलेटिन में है',
-      recentActs: 'पिछले 30 दिनों की स्वीकृत गतिविधियाँ', upcoming: 'आने वाले कार्यक्रम', none: 'कोई नहीं।',
+      recentActs: 'पिछले 30 दिनों की स्वीकृत गतिविधियाँ', shortlist: '{m} की महीने की कहानी: चुनी हुई सूची', shortlistNote: 'फ़ोटो, विवरण, लाभार्थी और समाचार के आधार पर क्रम; पिछले छह महीनों में जीते क्लब शामिल नहीं। चुनाव आपका है।', picked: '{m} के लिए चुनी गई।', noShortlist: '{m} के लिए सुझाने को कोई गतिविधि नहीं।', upcoming: 'आने वाले कार्यक्रम', none: 'कोई नहीं।',
       consent: 'सहमति फ़ॉर्म', removal: 'हटाने के अनुरोध', removeNow: 'अभी हटाएँ', couples: 'प्रतीक्षा में दंपति', changes: 'क्लब में बदलाव',
       sentFrom: 'किस ईमेल से भेजा', memberTold: 'सदस्य', holdUntil: 'सदस्य {day} तक आपत्ति कर सकते हैं। उसके बाद स्वीकृत करें, या अभी उनसे पुष्टि करें।',
       confirmed: 'मैंने सदस्य (या उनके क्लब के अध्यक्ष या सचिव) से इसकी पुष्टि कर ली है',
@@ -651,7 +651,16 @@
         toggle(t('leaveOut'), x.left_out, 'data-flag="bulletin_exclude" data-tab-name="' + x.tab + '" data-id="' + esc(x.id) + '"') +
         (story ? '<button type="button" class="btn-small btn-no-small" data-hide="' + esc(x.id) + '">' + esc(t('hide')) + '</button>' : '') + '</div><div class="desk-panel" data-hide-panel="' + esc(x.id) + '"></div></li>';
     };
-    view.innerHTML = '<h2>' + esc(t('recentActs')) + '</h2>' + (c.recent.length ? '<ul class="desk-list">' + c.recent.map(function (x) { return row(x, true); }).join('') + '</ul>' : '<p>' + esc(t('none')) + '</p>') +
+    var sl = c.shortlist;
+    var slRow = function (x) {
+      return '<li class="desk-row"><div><strong>' + esc(x.title) + '</strong><br><span class="small muted">' + esc([x.club, day(x.date), x.why].filter(Boolean).join(' · ')) + '</span></div><div>' +
+        toggle(t('story'), x.story, 'data-flag="story_of_month" data-tab-name="activities" data-id="' + esc(x.id) + '"') + '</div></li>';
+    };
+    var shortlistHtml = !sl ? '' : '<h2>' + esc(t('shortlist').replace('{m}', sl.label)) + '</h2>' +
+      (sl.picked.length ? '<p class="small">' + esc(t('picked').replace('{m}', sl.label)) + '</p>' : '') +
+      (sl.items.length ? '<p class="small muted">' + esc(t('shortlistNote')) + '</p><ul class="desk-list">' + sl.items.map(slRow).join('') + '</ul>'
+        : '<p>' + esc(t('noShortlist').replace('{m}', sl.label)) + '</p>');
+    view.innerHTML = shortlistHtml + '<h2>' + esc(t('recentActs')) + '</h2>' + (c.recent.length ? '<ul class="desk-list">' + c.recent.map(function (x) { return row(x, true); }).join('') + '</ul>' : '<p>' + esc(t('none')) + '</p>') +
       '<h2>' + esc(t('upcoming')) + '</h2>' + (c.upcoming.length ? '<ul class="desk-list">' + c.upcoming.map(function (x) { return row(x, false); }).join('') + '</ul>' : '<p>' + esc(t('none')) + '</p>');
     Array.prototype.forEach.call(view.querySelectorAll('[data-hide]'), function (b) {
       b.addEventListener('click', function () {
@@ -675,6 +684,9 @@
           b.setAttribute('aria-pressed', d.value ? 'true' : 'false');
           var list = b.getAttribute('data-tab-name') === 'events' ? c.upcoming : c.recent;
           list.forEach(function (x) { if (x.id === b.getAttribute('data-id')) x[b.getAttribute('data-flag') === 'story_of_month' ? 'story' : 'left_out'] = d.value; });
+          if (sl) sl.items.forEach(function (x) { if (x.id === b.getAttribute('data-id')) x.story = d.value; });
+          // the same activity can be on both lists: keep both buttons in step
+          Array.prototype.forEach.call(view.querySelectorAll('[data-flag="' + b.getAttribute('data-flag') + '"][data-id="' + b.getAttribute('data-id') + '"]'), function (o) { o.setAttribute('aria-pressed', d.value ? 'true' : 'false'); });
           say(d.message);
         }).catch(function (err) { say(err.message, true); });
       });

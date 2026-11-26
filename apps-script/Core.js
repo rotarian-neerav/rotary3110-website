@@ -493,6 +493,54 @@ function Core_quietClubs(clubs, activities, today, days) {
   }).sort(function (a, b) { return a.last_activity_date.localeCompare(b.last_activity_date) || a.club_name.localeCompare(b.club_name); });
 }
 
+var CORE_STORY_REST_MONTHS = 6; // a club that won the Story of the month rests this long, so it moves around
+var CORE_STORY_SHORTLIST = 10;
+
+/** The month before a 'yyyy-mm' month (or a date). */
+function Core_monthBefore(month) {
+  var y = Number(Core_str(month).slice(0, 4));
+  var m = Number(Core_str(month).slice(5, 7));
+  return m === 1 ? (y - 1) + '-12' : y + '-' + Core_pad(m - 1);
+}
+
+/**
+ * Story of the month: a shortlist for the moderators, who still choose (owner, 26 Nov 2026: no automatic pick).
+ * Approved activities dated in `month`, ranked by signs of a good story (photos, a real description, people
+ * helped or money spent, a newspaper or video, partner clubs), leaving out clubs that won in the months before.
+ * Returns { month, picked: [ids already starred], items: [{ id, title, club, date, score, why }] }.
+ */
+function Core_storyShortlist(activities, month) {
+  var rest = {};
+  var m = month;
+  for (var i = 0; i < CORE_STORY_REST_MONTHS; i++) { m = Core_monthBefore(m); rest[m] = true; }
+  var won = {};
+  var live = (activities || []).filter(function (a) {
+    return Core_str(a.status).toLowerCase() === 'approved' && !Core_isPractice(a) && !Core_isTrue(a.is_sample);
+  });
+  live.forEach(function (a) { if (Core_isTrue(a.story_of_month) && rest[Core_isoDate(a.date).slice(0, 7)]) won[Core_str(a.club_id)] = true; });
+  var inMonth = live.filter(function (a) { return Core_isoDate(a.date).slice(0, 7) === month; });
+  var items = inMonth.filter(function (a) { return !won[Core_str(a.club_id)] && !Core_isTrue(a.story_of_month); }).map(function (a) {
+    var photos = Core_photoRefs(a.photo_files).length;
+    var words = Core_str(a.description).split(/\s+/).filter(Boolean).length;
+    var why = [];
+    var score = 0;
+    if (photos) { score += Math.min(photos, 4); why.push(photos + (photos === 1 ? ' photo' : ' photos')); }
+    if (words >= 120) { score += 3; why.push('full description'); } else if (words >= 50) { score += 2; why.push('good description'); } else if (words >= 20) score += 1;
+    if (Number(String(a.people_helped).replace(/[^\d.]/g, '')) > 0) { score += 2; why.push('people helped stated'); }
+    if (Number(String(a.amount_spent).replace(/[^\d.]/g, '')) > 0) { score += 1; why.push('amount stated'); }
+    if (Core_str(a.press_paper) || Core_str(a.press_link) || Core_str(a.video_link)) { score += 1; why.push('press or video'); }
+    if (Core_str(a.partner_clubs)) { score += 1; why.push('with partner clubs'); }
+    return { id: Core_str(a.id), title: Core_str(a.title), club: Core_str(a.club_name), club_id: Core_str(a.club_id), date: Core_isoDate(a.date), score: score, why: why.join(', ') };
+  }).sort(function (a, b) { return b.score - a.score || b.date.localeCompare(a.date) || a.title.localeCompare(b.title); });
+  return {
+    month: month,
+    picked: inMonth.filter(function (a) { return Core_isTrue(a.story_of_month); }).map(function (a) { return Core_str(a.id); }),
+    resting: Object.keys(won).length,
+    count: inMonth.length,
+    items: items.slice(0, CORE_STORY_SHORTLIST),
+  };
+}
+
 /** A newspaper name that is really a web address (sent in the press_paper answer by mistake). */
 function Core_looksLikeUrl(v) {
   var s = Core_str(v);
@@ -2214,7 +2262,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_actingOfficers: Core_actingOfficers, Core_settingMode: Core_settingMode, Core_clubSender: Core_clubSender, Core_formSender: Core_formSender,
     Core_clubWeekday: Core_clubWeekday, Core_clubWeeklyDue: Core_clubWeeklyDue, Core_clubWeeklyEmail: Core_clubWeeklyEmail,
     Core_yearsAhead: Core_yearsAhead, Core_baseRole: Core_baseRole, Core_heldYear: Core_heldYear, Core_roleTitle: Core_roleTitle,
-    Core_comingOfficers: Core_comingOfficers,
+    Core_comingOfficers: Core_comingOfficers, Core_storyShortlist: Core_storyShortlist, Core_monthBefore: Core_monthBefore,
     CORE_TEAM_LISTS: CORE_TEAM_LISTS, Core_teamRowKey: Core_teamRowKey, Core_teamListCheck: Core_teamListCheck,
   };
 }

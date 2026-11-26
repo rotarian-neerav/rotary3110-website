@@ -1,0 +1,33 @@
+---
+layout: layouts/base.njk
+title: Rotary couples
+description: Couples in Rotary District 3110 where both are Rotarians, who chose to share their anniversary.
+permalink: /couples/
+noindex: true
+---
+{% from "macros.njk" import avatar %}
+<div class="wrap section">
+  <h1>Rotary couples</h1>
+  <p class="lead">Husbands and wives who are both Rotarians, serving side by side. Each couple chose to share their anniversary.</p>
+  {%- if site.rotarianCouples.length %}
+  <ul class="couple-wall">
+    {%- for c in site.rotarianCouples %}
+    <li class="couple-tile">
+      {%- if c.couplePhoto %}<img class="couple-photo" src="{{ c.couplePhoto }}" alt="Photo of {{ c.a.name }} and {{ c.b.name }}" width="480" height="320" loading="lazy">
+      {%- else %}<span class="cel-photos">{{ avatar(c.a.name, c.a.photo, 88) }}{{ avatar(c.b.name, c.b.photo, 88) }}</span>{% endif %}
+      <h3>{% if c.a.u %}<a href="{{ c.a.u }}">{{ c.a.name }}</a>{% else %}{{ c.a.name }}{% endif %} &amp; {% if c.b.u %}<a href="{{ c.b.u }}">{{ c.b.name }}</a>{% else %}{{ c.b.name }}{% endif %}</h3>
+      {%- if c.bridging %}
+      <p class="small"><a href="{{ c.a.clubUrl }}">{{ c.a.club }}</a> and <a href="{{ c.b.clubUrl }}">{{ c.b.club }}</a></p>
+      <p><span class="chip">Bridging two clubs</span></p>
+      {%- else %}
+      <p class="small"><a href="{{ c.a.clubUrl }}">{{ c.a.club }}</a></p>
+      {%- endif %}
+      {%- if c.md %}<p class="small muted">Anniversary {{ c.md | dayMonth }}</p>{% endif %}
+    </li>
+    {%- endfor %}
+  </ul>
+  {%- else %}
+  <p>No couples yet.</p>
+  {%- endif %}
+  <p class="small">Both Rotarians? Each of you gives the anniversary and your spouse's Rotary ID on the <a href="/update/">Update my details form</a>, and chooses List for the anniversary on the <a href="/consent/">Show my details form</a>. You appear here once both have done so.</p>
+</div>

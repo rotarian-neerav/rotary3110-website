@@ -1,18 +1,32 @@
 ---
 layout: layouts/base.njk
 title: Member spotlight
-description: Each month the moderators tell the story of a Rotary District 3110 member's profession and how they serve through it.
+description: Each day a Rotary District 3110 member's profession and how they serve through it, and the moderators' stories.
 permalink: /spotlight/
+scripts: ["spotlight.js"]
 # kept out of search engines and the sitemap while there is nothing on it
 eleventyComputed:
   noindex: "{% if not site.has.spotlight %}yes{% endif %}"
 ---
-{% from "macros.njk" import avatar %}
+{% from "macros.njk" import avatar, spotlightEntry %}
 <div class="wrap section narrow">
   <h1>Member spotlight</h1>
-  <p class="lead">Members in business and service: one story each month, chosen by the moderators.</p>
+  <p class="lead">One member each day, in their own words: members in business and service who chose to be featured. Everyone has a turn before anyone comes back.</p>
+  {%- if site.spotlightToday %}
+  <h2>Today</h2>
+  <article class="message-card featured" data-spotlight-today="full">{{ spotlightEntry(site.spotlightToday, true) }}</article>
+  {%- if site.spotlightRecent.length %}
+  <h2>The last few days</h2>
+  <ul class="spotlight-recent" data-spotlight-recent>
+    {%- for e in site.spotlightRecent %}<li class="message-card">{{ spotlightEntry(e) }}</li>{% endfor %}
+  </ul>
+  {%- endif %}
+  {%- endif %}
+  {%- if site.spotlights.length %}
+  <h2>Stories by the moderators</h2>
+  {%- endif %}
   {%- for s in site.spotlights %}
-  <article class="message-card{% if loop.first %} featured{% endif %}" id="{{ s.month }}">
+  <article class="message-card" id="{{ s.month }}">
     <header>
       {{ avatar(s.member.name, s.image.sq.src if s.image else '', 72) }}
       <div><p class="meta">{{ s.monthLabel }}</p><h2>{% if s.card %}<a href="{{ s.card }}">{{ s.member.name }}</a>{% else %}{{ s.member.name }}{% endif %}</h2>
@@ -22,8 +36,9 @@ eleventyComputed:
     <p>{{ s.story }}</p>
     {%- if s.member.website %}<p><a href="{{ s.member.website }}" target="_blank" rel="noopener">Website ↗</a></p>{% endif %}
   </article>
-  {%- else %}
-  <p>The first spotlight will appear here soon.</p>
   {%- endfor %}
-  <p class="small">Happy to be considered? Choose List for "member spotlight" on the <a href="/consent/">Show my details form</a>.</p>
+  {%- if not site.spotlightToday and not site.spotlights.length %}
+  <p>The first spotlight will appear here soon.</p>
+  {%- endif %}
+  <p class="small">Happy to be featured? Choose List for "member spotlight" on the <a href="/consent/">Show my details form</a>, and give your profession, a few lines on what you do, and a photo on the <a href="/update/">Update my details form</a>.</p>
 </div>

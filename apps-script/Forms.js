@@ -197,7 +197,9 @@ var BUSINESS_CHOICES = {
 };
 var SHOW_DETAILS_DESCRIPTION = 'Choose what the district website may show about you. Answer List or Do not list for each item; ' +
   'send the form again any time to change your mind. Birthdays and anniversaries are shown as day and month only, never the year. ' +
-  'Your email is never shown, and your numbers only as Call and WhatsApp buttons.\n\n' +
+  'Your email is never shown, and your numbers only as Call and WhatsApp buttons. ' +
+  'If you and your spouse are both Rotarians, both listed in the directory and both list the anniversary, the website also shows you ' +
+  'together as a Rotarian couple: on the Rotary couples page, on your cards and on the home page on your anniversary.\n\n' +
   'Sent from your own email (the one the district has for you), it goes in at the next website update and you get an email. ' +
   "A club's President, Secretary or Executive Secretary can fill it in for a member: we email the member, and a district moderator checks it first.\n\n" +
   'The details themselves (profession, photo, birthday, numbers) come from the Update my details form.';
@@ -696,7 +698,8 @@ function makeShowDetailsForm_(L) {
   form.addGridItem().setTitle(Q.showGrid).setRequired(true).setRows(Object.keys(SHOW_ITEMS).map(function (k) { return SHOW_ITEMS[k]; }))
     .setColumns(SHOW_COLUMNS)
     .setHelpText('List or Do not list for every item. A listed item shows once the district has it: your photo, birthday or numbers ' +
-      'come from the Update my details form. The anniversary and couple photo show only when your spouse agrees too.');
+      'come from the Update my details form. The anniversary and couple photo show only when your spouse agrees too; ' +
+      'for two Rotarians, the anniversary also shows you as a Rotarian couple.');
   form.addCheckboxItem().setTitle(Q.cDeclaration).setRequired(true)
     .setChoiceValues(['These are my choices. (Filled in by the club: the member agreed to each of them.)']);
   who.setChoices([who.createChoice(FILLED_BY.member, choices), who.createChoice(FILLED_BY.club, member)]);

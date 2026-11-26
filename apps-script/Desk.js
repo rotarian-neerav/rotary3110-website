@@ -522,7 +522,10 @@ function deskContent_() {
   }).sort(function (a, b) { return Core_isoDate(a.start_date).localeCompare(Core_isoDate(b.start_date)); }).map(function (e) {
     return { tab: 'events', id: Core_str(e.id), title: Core_str(e.title), club: Core_str(e.organiser), date: Core_isoDate(e.start_date), left_out: Core_isTrue(e.bulletin_exclude) };
   });
-  return { pending: pending, recent: recent, upcoming: upcoming };
+  // last month's Story of the month: a shortlist; the moderators choose (owner, 26 Nov 2026)
+  var shortlist = Core_storyShortlist(readTab_(ss, 'activities'), Core_monthBefore(today));
+  shortlist.label = Core_dateLabel(shortlist.month + '-01').replace(/^\d+\s+/, '');
+  return { pending: pending, recent: recent, upcoming: upcoming, shortlist: shortlist };
 }
 
 /** A photo of a waiting item, for a moderator who may see that item (or the holder of that item's email link). */

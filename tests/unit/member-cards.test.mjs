@@ -170,10 +170,10 @@ test('a past year shown as a showcase: recognition starts from its newest month 
 
 test('pages with nothing on them yet are flagged so the menu can leave them out; only the Governor\'s profile is shown', () => {
   const full = site();
-  assert.deepEqual(full.has, { events: true, services: true, news: true, magazine: true, spotlight: true, messages: true, rmb: true, rmbMenu: false, meetings: true });
+  assert.deepEqual(full.has, { events: true, services: true, news: true, magazine: true, spotlight: true, messages: true, rmb: true, rmbMenu: false, meetings: true, couples: false });
   const d = build();
-  const empty = derive({ ...d, events: [], public_services: [], magazines: [], spotlights: [], messages: [], businesses: [], clubs: d.clubs.map((c) => ({ ...c, meeting_day: '' })), activities: d.activities.map((a) => ({ ...a, press: null })) }, media, '2026-10-13');
-  assert.deepEqual(empty.has, { events: false, services: false, news: false, magazine: false, spotlight: false, messages: false, rmb: false, rmbMenu: false, meetings: false });
+  const empty = derive({ ...d, events: [], public_services: [], magazines: [], spotlights: [], messages: [], businesses: [], members: d.members.map((m) => ({ ...m, spotlight_ok: false })), clubs: d.clubs.map((c) => ({ ...c, meeting_day: '' })), activities: d.activities.map((a) => ({ ...a, press: null })) }, media, '2026-10-13');
+  assert.deepEqual(empty.has, { events: false, services: false, news: false, magazine: false, spotlight: false, messages: false, rmb: false, rmbMenu: false, meetings: false, couples: false });
   // Rotary Means Business joins the top menu by itself at 25 listings (owner, 17 Nov 2026)
   const one = d.businesses.find((b) => b.name);
   const many = (n) => Array.from({ length: n }, (_, i) => ({ ...one, id: 'BIZ-T' + i, name: 'Business ' + i }));

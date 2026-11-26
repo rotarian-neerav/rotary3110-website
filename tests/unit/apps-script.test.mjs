@@ -1139,6 +1139,16 @@ test('weekly backup: both Sheets copied into a private Backups folder next to th
   assert.ok(settingsMap().last_backup_at, 'when the last backup ran is shown in settings');
 });
 
+test('weekly backup run by the Sunday timer: named by today\'s date, not the timer\'s event details', () => {
+  // Google calls a timed function with an event object (21 Nov 2026: copies named "[object Object] – …")
+  const r = env.run('weeklyBackup', { authMode: 'FULL', triggerUid: '123', year: 2026, month: 11, 'day-of-month': 29 });
+  for (const name of plain(r.made)) assert.match(name, /^\d{4}-\d{2}-\d{2} – /, name);
+  // a copy left with the bad name counts as the oldest, so the clean-up removes it before any dated copy
+  env.files.set('BADNAME', { name: '[object Object] – 3110Website', folder: 'FOLDER-Backups' });
+  for (let w = 1; w <= 8; w++) env.run('weeklyBackup', core.Core_addDays('2027-06-06', 7 * w));
+  assert.ok(env.trashed.includes('BADNAME'), 'the undated copy went first');
+});
+
 test('weekly backup: the form copies Google makes with the Sheet go to the Bin; the real forms stay', () => {
   const formsIn = () => [...env.files.entries()].filter(([, f]) => f.mime === 'application/vnd.google-apps.form');
   const r = env.run('weeklyBackup', '2027-03-07');

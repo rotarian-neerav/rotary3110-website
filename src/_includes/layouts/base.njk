@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- What the page may load; the hash is the text-size line below (tests check it still matches) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-1Obrxc6zsLyhK8kfoFrvzH+gxjXO+jp6NyOlqeQJYyQ=' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com; font-src 'self'; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://cloudflareinsights.com; frame-src https://docs.google.com https://www.youtube-nocookie.com; form-action 'self'; base-uri 'self'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-1Obrxc6zsLyhK8kfoFrvzH+gxjXO+jp6NyOlqeQJYyQ=' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com; font-src 'self'; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://cloudflareinsights.com; frame-src https://docs.google.com https://www.youtube-nocookie.com; form-action 'self'; base-uri 'self'; object-src 'none'">
 <meta name="referrer" content="same-origin">
 {%- if forwardHome %}
 <meta http-equiv="refresh" content="0; url=/">
@@ -110,6 +110,7 @@
         {%- if site.has.magazine %}<li><a href="/magazine/">{{ t.nav.magazine }}</a></li>{% endif %}
         {%- if site.has.spotlight %}<li><a href="/spotlight/">{{ t.nav.spotlight }}</a></li>{% endif %}
         <li><a href="/celebrations/">Celebrations</a></li>
+        {%- if site.has.couples %}<li><a href="/couples/">Rotary couples</a></li>{% endif %}
       </ul>
       <ul>
         <li><a href="/about/">{{ t.footer.about_link }}</a></li>

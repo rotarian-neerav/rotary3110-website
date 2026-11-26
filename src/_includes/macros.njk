@@ -139,3 +139,16 @@
 {% macro shareButton(text, url, t) -%}
 <a class="btn btn-wa" href="{{ text | waShare(url) }}" target="_blank" rel="noopener">{{ t.activity.share }}</a>
 {%- endmacro %}
+
+{#- One day's member spotlight (a member, or a Rotarian couple sharing the day); spotlight.js draws the same -#}
+{% macro spotlightEntry(e, full=false) -%}
+{%- if e.people.length > 1 %}<p class="meta">♥ A Rotarian couple</p>{% endif %}
+{%- for p in e.people %}
+<div class="spotlight-person">{{ avatar(p.name, p.photo, 72 if full else 80) }}<div>
+  <h3>{% if p.u %}<a href="{{ p.u }}">{{ p.name }}</a>{% else %}{{ p.name }}{% endif %}</h3>
+  <p class="small">{% if p.profession or p.area %}{{ [p.profession, p.area] | select | join(' · ') }} · {% endif %}{% if p.clubUrl %}<a href="{{ p.clubUrl }}">{{ p.club }}</a>{% else %}{{ p.club }}{% endif %}</p>
+  {%- if p.text %}<p>{% if full or p.text.length <= 180 %}{{ p.text }}{% else %}{{ p.text | truncate(170, false, '…') }}{% endif %}</p>{% endif %}
+  {%- if full and p.website %}<p><a href="{{ p.website }}" target="_blank" rel="noopener">Website ↗</a></p>{% endif %}
+</div></div>
+{%- endfor %}
+{%- endmacro %}

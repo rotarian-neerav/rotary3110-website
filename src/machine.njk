@@ -13,6 +13,7 @@ machineFiles:
   - { path: /data/people.json, kind: people }
   - { path: /data/directory.json, kind: directory }
   - { path: /data/celebrations.json, kind: celebrations }
+  - { path: /data/spotlight.json, kind: spotlight }
 ---
 {%- if f.kind == 'robots' -%}
 # Rotary District 3110
@@ -82,4 +83,6 @@ Sitemap: {{ '/sitemap.xml' | absolute }}
 {{ site.directory | json | safe }}
 {%- elif f.kind == 'celebrations' -%}
 {{ site.celebrations | json | safe }}
+{%- elif f.kind == 'spotlight' -%}
+{{ site.spotlightDaily | json | safe }}
 {%- endif -%}

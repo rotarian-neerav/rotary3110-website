@@ -1,6 +1,6 @@
 ---
 layout: layouts/base.njk
-scripts: ["celebrations.js"]
+scripts: ["celebrations.js", "spotlight.js"]
 eleventyComputed:
   jsonld:
     "@context": "https://schema.org"
@@ -9,7 +9,7 @@ eleventyComputed:
     url: "{{ '/' | absolute }}"
     logo: "{{ '/assets/img/logo.png' | absolute }}"
 ---
-{% from "macros.njk" import activityCard, eventItem, avatar, campaignCard %}
+{% from "macros.njk" import activityCard, eventItem, avatar, campaignCard, spotlightEntry %}
 {%- set dg = site.governor %}
 <section class="hero">
   <div class="wrap{% if dg %} hero-grid{% endif %}">
@@ -37,6 +37,13 @@ eleventyComputed:
     </{% if dg.url %}a{% else %}div{% endif %}>
     {%- endif %}
   </div>
+</section>
+
+{#- Rotarian couples' wedding anniversaries today (owner, 26 Nov 2026): celebrations.js fills it in on the day -#}
+<section class="wrap anniv-banner" data-anniversary-banner data-nosnippet hidden>
+  <h2>💍 Happy anniversary from District 3110</h2>
+  <ul class="anniv-list" data-anniv-list></ul>
+  <p class="small" data-anniv-more hidden><a href="/celebrations/" data-anniv-more-link></a></p>
 </section>
 {%- if site.bulletin %}
 <p class="wrap this-week" id="this-week"><a href="/bulletin/">{{ t.bulletin.home_line }} → {{ site.bulletin.dateLabel }}</a></p>
@@ -108,19 +115,16 @@ eleventyComputed:
   </div>
 </section>
 
-{%- if site.spotlight %}
-{%- set sp = site.spotlight %}
+{%- if site.spotlightToday or site.spotlightStory %}
+{#- One member a day (owner, 26 Nov 2026); spotlight.js moves it on at midnight between website updates -#}
 <section class="wrap section" id="spotlight">
   <div class="section-head"><h2>{{ t.nav.spotlight }}</h2><a href="/spotlight/">More →</a></div>
-  <div class="spotlight-card">
-    {{ avatar(sp.member.name, sp.image.sq.src if sp.image else '', 80) }}
-    <div>
-      <p class="meta">{{ sp.monthLabel }}</p>
-      <h3>{% if sp.card %}<a href="{{ sp.card }}">{{ sp.member.name }}</a>{% else %}{{ sp.member.name }}{% endif %}</h3>
-      <p>{{ sp.headline }}</p>
-      {%- if sp.club %}<p class="small">{% if sp.member.profession %}{{ sp.member.profession }} · {% endif %}{{ sp.club.name }}</p>{% endif %}
-    </div>
-  </div>
+  {%- if site.spotlightToday %}
+  <div class="spotlight-card" data-spotlight-today>{{ spotlightEntry(site.spotlightToday) }}</div>
+  {%- endif %}
+  {%- if site.spotlightStory %}{% set sp = site.spotlightStory %}
+  <p class="more-links"><a class="more" href="/spotlight/#{{ sp.month }}">{{ sp.monthLabel }}: {{ sp.member.name }}, {{ sp.headline }} →</a></p>
+  {%- endif %}
 </section>
 {%- endif %}
 

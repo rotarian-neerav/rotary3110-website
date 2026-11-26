@@ -142,7 +142,7 @@ published activity off the website with a reason; **Put back** returns it.
 
 **Linking an event to its report:** when an approved activity reports on a calendar event, type the event's ID (e.g. `EVT-2026-0004`) in the activity's `event_id` column. The calendar entry then links to the report.
 
-**Story of the month:** set `story_of_month` to **TRUE** on the best activity of the month (judged on quality, not quantity), or use **★ Story of the month** on the desk.
+**Story of the month:** set `story_of_month` to **TRUE** on the best activity of the month (judged on quality, not quantity), or use **★ Story of the month** on the desk. The desk's **Recent** tab starts with a **shortlist** for last month: its approved activities ranked by photos, a full description, people helped, money spent, press or video and partner clubs, leaving out clubs that won in the last six months so the honour moves around the district. You still choose; nothing is picked by itself. Until someone does, the Monday summary says "No Story of the month for … yet" with the top of the shortlist.
 
 **Avenue of Service, press and videos:** every new activity carries an Avenue of Service (`avenue`); correct it if it is clearly wrong. If the club says a newspaper covered it, `press_paper`, `press_date` and `press_link` hold the paper's name, the date and a link; the website shows only these, never a photo of the clipping. A note warns when there is a press link but no paper's name. `video_link` can be a YouTube, Instagram or Facebook link; YouTube videos play on the page.
 
@@ -360,7 +360,13 @@ Type them into the **messages** tab: name, position, message, date. Tick `featur
 
 ## Member spotlight
 
-Each month, choose a member who chose List for "member spotlight" on the Show my details form. In **spotlights**, add the month (`2026-11`), the member's `public_key` (from **members_public**), a headline and the story.
+**One member a day, by itself (owner, 26 Nov 2026).** The website features every member who chose List for "member spotlight" on the Show my details form, is listed in the directory and has a photo and their own "what I do" lines. It goes round them in a fixed order: everyone has a turn before anyone comes back, and members of one club are spread out. It changes at midnight India time, even on days the website is not updated. A Rotarian couple who both chose it share one day. Nothing to do for moderators. A member with no photo or no "what I do" lines is skipped until they send them on the Update my details form.
+
+**Written stories (optional).** To tell a fuller story, add a row in **spotlights**: the month (`2026-11`), the member's `public_key` (from **members_public**), a headline and the story. It appears on the spotlight page under "Stories by the moderators", on the member's card, and as a link under the home page's spotlight in that month.
+
+## Rotary couples
+
+When a husband and wife are both Rotarians, both listed in the directory and both chose List for the wedding anniversary (see *Couples waiting* on the desk), the website shows them as a Rotarian couple: on the **Rotary couples** page (in the footer once there are 5 couples), as a ribbon on both cards and directory entries, and in a banner on the home page on their anniversary (up to three couples; more are listed on the Celebrations page). Either spouse choosing Do not list for the anniversary takes all of this off.
 
 ## Quiet clubs
 

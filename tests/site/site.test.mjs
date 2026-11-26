@@ -215,7 +215,14 @@ test('pages stay light for slow connections', () => {
   // the moderation desk's script loads only on its own page, for moderators
   const js = files.filter((f) => f.includes(join('assets', 'js')) && !f.endsWith('desk.js')).reduce((s, f) => s + statSync(f).size, 0);
   assert.ok(home + css + js < 200 * 1024, `home page + css + js = ${Math.round((home + css + js) / 1024)} KB`);
-  assert.ok(js < 30 * 1024, `all scripts = ${Math.round(js / 1024)} KB`);
+  // what a visitor's phone loads: each page's own scripts (26 Nov 2026: the daily spotlight and the couples banner took
+  // the total of every script on the site past 30 KB, though no page loads more than a few of them)
+  for (const f of htmlFiles) {
+    const srcs = [...read(f).matchAll(/<script[^>]+src="([^"]+)"/g)].map((m) => m[1]).filter((s) => s.startsWith('/assets/js/') && !s.endsWith('desk.js')); // Pagefind's own, on the search page only, is not ours
+    const size = srcs.reduce((s, src) => s + (existsSync(join(SITE, src)) ? statSync(join(SITE, src)).size : 0), 0);
+    assert.ok(size < 30 * 1024, `scripts on ${relative(SITE, f)} = ${Math.round(size / 1024)} KB`);
+  }
+  assert.ok(js < 40 * 1024, `all scripts = ${Math.round(js / 1024)} KB`);
   const people = files.filter((f) => /media[\\/]person-.*-sq-[0-9a-f]{6}\.webp$/.test(f));
   assert.ok(people.length, 'member photos found');
   for (const f of people) assert.ok(statSync(f).size < 40 * 1024, `member photo too large: ${f}`);
@@ -491,6 +498,11 @@ test('every page says what it may load (content security policy) and keeps its a
       assert.ok(csp.getAttribute('content').includes(`'sha256-${hash}'`), `inline script on ${relative(SITE, f)} is not in the policy`);
     }
     assert.ok(!/\son[a-z]+="/.test(read(f).replace(/<script[\s\S]*?<\/script>/g, '')), `no inline event handlers on ${relative(SITE, f)}`);
+    // the site search runs WebAssembly; without this the browser refuses it and search never answers
+    // (broken 11–26 Nov 2026). It allows WebAssembly only, never eval of script text.
+    const scriptSrc = csp.getAttribute('content').split(';').find((d) => d.trim().startsWith('script-src')) || '';
+    assert.ok(scriptSrc.includes("'wasm-unsafe-eval'"), `site search allowed on ${relative(SITE, f)}`);
+    assert.ok(!/'unsafe-eval'|'unsafe-inline'/.test(scriptSrc), `no script eval or inline scripts on ${relative(SITE, f)}`);
   }
 });
 
@@ -500,4 +512,36 @@ test('club pages describe the club for search engines (name, city, part of the d
   assert.equal(ld['@type'], 'Organization');
   assert.equal(ld.address.addressLocality, c.city);
   assert.equal(ld.parentOrganization.name, 'Rotary District 3110');
+});
+
+test('member spotlight (one a day), Rotarian couples and the directory order on the built pages (owner, 26 Nov 2026)', () => {
+  const home = read(join(SITE, 'index.html'));
+  const spot = read(join(SITE, 'spotlight/index.html'));
+  const daily = JSON.parse(read(join(SITE, 'data/spotlight.json')));
+  assert.ok(daily.items.length > 0 && /^\d{4}-\d{2}-\d{2}$/.test(daily.start));
+  assert.doesNotMatch(JSON.stringify(daily), /wa\.me|public_key|member_id/, 'names, clubs, own words and photos only');
+  // the build day's member is on the page for browsers without scripts; spotlight.js moves it on each day
+  assert.match(home, /data-spotlight-today>[\s\S]*?spotlight-person/);
+  assert.match(home, /assets\/js\/spotlight\.js/);
+  assert.match(spot, /data-spotlight-today="full"/);
+  assert.match(spot, /data-spotlight-recent/);
+  // the anniversary banner waits, hidden, for the day's couples
+  assert.match(home, /data-anniversary-banner data-nosnippet hidden/);
+  // the Couples page: not for search engines; in the footer only from 5 couples
+  const couples = read(join(SITE, 'couples/index.html'));
+  assert.match(couples, /<meta name="robots" content="noindex/);
+  assert.ok(!read(join(SITE, 'sitemap.xml')).includes('/couples/'));
+  const celebrations = JSON.parse(read(join(SITE, 'data/celebrations.json')));
+  assert.equal(home.includes('href="/couples/"'), celebrations.rotarianCouples.length >= 5);
+  const couplesText = parse(couples).text; // the glossary wraps a first "Rtn" in a tooltip
+  for (const c of celebrations.rotarianCouples) assert.ok(couplesText.includes(c.a.name) && couplesText.includes(c.b.name), c.a.name);
+  // ribbons: on both spouses' directory entries
+  const dir = JSON.parse(read(join(SITE, 'data/directory.json')));
+  for (const c of celebrations.rotarianCouples) {
+    assert.equal(dir.find((d) => d.name === c.a.name)?.spouse?.name, c.b.name);
+    assert.equal(dir.find((d) => d.name === c.b.name)?.spouse?.name, c.a.name);
+  }
+  // the directory shuffles when opened; the team pages never load that script
+  assert.match(read(join(SITE, 'assets/js/directory.js')), /function shuffle/);
+  for (const p of ['leadership', 'teams']) assert.doesNotMatch(read(join(SITE, p, 'index.html')), /directory\.js/, p);
 });

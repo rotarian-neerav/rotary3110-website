@@ -21,6 +21,7 @@ eleventyComputed:
         {%- if p.club %}<p class="club"><a href="{{ p.club.url }}">{{ p.club.name }}</a></p>{% endif %}
         {%- if p.titles.length %}<p class="titles">{{ p.titles | join(' · ') }}</p>{% endif %}
         {%- if p.profession %}<p class="role">{{ p.profession }}{% if p.area %} · {{ p.area }}{% endif %}</p>{% endif %}
+        {%- if p.spouse %}<p><span class="ribbon">♥ Rotarian couple with {% if p.spouse.u %}<a href="{{ p.spouse.u }}">{{ p.spouse.name }}</a>{% else %}{{ p.spouse.name }}{% endif %}{% if p.spouse.club and p.spouse.club != (p.club.name if p.club else '') %}, {{ p.spouse.club }}{% endif %}</span></p>{% endif %}
         <p class="dir-actions">
           {%- if p.wa %}<a class="btn-small wa" href="{{ p.wa | waHello }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
           {%- if p.call %}<a class="btn-small" href="{{ p.call | tel }}">Call</a>{% endif %}

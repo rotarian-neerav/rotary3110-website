@@ -843,6 +843,54 @@ function Core_quietClubs(clubs, activities, today, days) {
   }).sort(function (a, b) { return a.last_activity_date.localeCompare(b.last_activity_date) || a.club_name.localeCompare(b.club_name); });
 }
 
+var CORE_STORY_REST_MONTHS = 6; // a club that won the Story of the month rests this long, so it moves around
+var CORE_STORY_SHORTLIST = 10;
+
+/** The month before a 'yyyy-mm' month (or a date). */
+function Core_monthBefore(month) {
+  var y = Number(Core_str(month).slice(0, 4));
+  var m = Number(Core_str(month).slice(5, 7));
+  return m === 1 ? (y - 1) + '-12' : y + '-' + Core_pad(m - 1);
+}
+
+/**
+ * Story of the month: a shortlist for the moderators, who still choose (owner, 26 Nov 2026: no automatic pick).
+ * Approved activities dated in `month`, ranked by signs of a good story (photos, a real description, people
+ * helped or money spent, a newspaper or video, partner clubs), leaving out clubs that won in the months before.
+ * Returns { month, picked: [ids already starred], items: [{ id, title, club, date, score, why }] }.
+ */
+function Core_storyShortlist(activities, month) {
+  var rest = {};
+  var m = month;
+  for (var i = 0; i < CORE_STORY_REST_MONTHS; i++) { m = Core_monthBefore(m); rest[m] = true; }
+  var won = {};
+  var live = (activities || []).filter(function (a) {
+    return Core_str(a.status).toLowerCase() === 'approved' && !Core_isPractice(a) && !Core_isTrue(a.is_sample);
+  });
+  live.forEach(function (a) { if (Core_isTrue(a.story_of_month) && rest[Core_isoDate(a.date).slice(0, 7)]) won[Core_str(a.club_id)] = true; });
+  var inMonth = live.filter(function (a) { return Core_isoDate(a.date).slice(0, 7) === month; });
+  var items = inMonth.filter(function (a) { return !won[Core_str(a.club_id)] && !Core_isTrue(a.story_of_month); }).map(function (a) {
+    var photos = Core_photoRefs(a.photo_files).length;
+    var words = Core_str(a.description).split(/\s+/).filter(Boolean).length;
+    var why = [];
+    var score = 0;
+    if (photos) { score += Math.min(photos, 4); why.push(photos + (photos === 1 ? ' photo' : ' photos')); }
+    if (words >= 120) { score += 3; why.push('full description'); } else if (words >= 50) { score += 2; why.push('good description'); } else if (words >= 20) score += 1;
+    if (Number(String(a.people_helped).replace(/[^\d.]/g, '')) > 0) { score += 2; why.push('people helped stated'); }
+    if (Number(String(a.amount_spent).replace(/[^\d.]/g, '')) > 0) { score += 1; why.push('amount stated'); }
+    if (Core_str(a.press_paper) || Core_str(a.press_link) || Core_str(a.video_link)) { score += 1; why.push('press or video'); }
+    if (Core_str(a.partner_clubs)) { score += 1; why.push('with partner clubs'); }
+    return { id: Core_str(a.id), title: Core_str(a.title), club: Core_str(a.club_name), club_id: Core_str(a.club_id), date: Core_isoDate(a.date), score: score, why: why.join(', ') };
+  }).sort(function (a, b) { return b.score - a.score || b.date.localeCompare(a.date) || a.title.localeCompare(b.title); });
+  return {
+    month: month,
+    picked: inMonth.filter(function (a) { return Core_isTrue(a.story_of_month); }).map(function (a) { return Core_str(a.id); }),
+    resting: Object.keys(won).length,
+    count: inMonth.length,
+    items: items.slice(0, CORE_STORY_SHORTLIST),
+  };
+}
+
 /** A newspaper name that is really a web address (sent in the press_paper answer by mistake). */
 function Core_looksLikeUrl(v) {
   var s = Core_str(v);
@@ -2564,7 +2612,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Core_actingOfficers: Core_actingOfficers, Core_settingMode: Core_settingMode, Core_clubSender: Core_clubSender, Core_formSender: Core_formSender,
     Core_clubWeekday: Core_clubWeekday, Core_clubWeeklyDue: Core_clubWeeklyDue, Core_clubWeeklyEmail: Core_clubWeeklyEmail,
     Core_yearsAhead: Core_yearsAhead, Core_baseRole: Core_baseRole, Core_heldYear: Core_heldYear, Core_roleTitle: Core_roleTitle,
-    Core_comingOfficers: Core_comingOfficers,
+    Core_comingOfficers: Core_comingOfficers, Core_storyShortlist: Core_storyShortlist, Core_monthBefore: Core_monthBefore,
     CORE_TEAM_LISTS: CORE_TEAM_LISTS, Core_teamRowKey: Core_teamRowKey, Core_teamListCheck: Core_teamListCheck,
   };
 }
@@ -3117,7 +3165,9 @@ var BUSINESS_CHOICES = {
 };
 var SHOW_DETAILS_DESCRIPTION = 'Choose what the district website may show about you. Answer List or Do not list for each item; ' +
   'send the form again any time to change your mind. Birthdays and anniversaries are shown as day and month only, never the year. ' +
-  'Your email is never shown, and your numbers only as Call and WhatsApp buttons.\n\n' +
+  'Your email is never shown, and your numbers only as Call and WhatsApp buttons. ' +
+  'If you and your spouse are both Rotarians, both listed in the directory and both list the anniversary, the website also shows you ' +
+  'together as a Rotarian couple: on the Rotary couples page, on your cards and on the home page on your anniversary.\n\n' +
   'Sent from your own email (the one the district has for you), it goes in at the next website update and you get an email. ' +
   "A club's President, Secretary or Executive Secretary can fill it in for a member: we email the member, and a district moderator checks it first.\n\n" +
   'The details themselves (profession, photo, birthday, numbers) come from the Update my details form.';
@@ -3616,7 +3666,8 @@ function makeShowDetailsForm_(L) {
   form.addGridItem().setTitle(Q.showGrid).setRequired(true).setRows(Object.keys(SHOW_ITEMS).map(function (k) { return SHOW_ITEMS[k]; }))
     .setColumns(SHOW_COLUMNS)
     .setHelpText('List or Do not list for every item. A listed item shows once the district has it: your photo, birthday or numbers ' +
-      'come from the Update my details form. The anniversary and couple photo show only when your spouse agrees too.');
+      'come from the Update my details form. The anniversary and couple photo show only when your spouse agrees too; ' +
+      'for two Rotarians, the anniversary also shows you as a Rotarian couple.');
   form.addCheckboxItem().setTitle(Q.cDeclaration).setRequired(true)
     .setChoiceValues(['These are my choices. (Filled in by the club: the member agreed to each of them.)']);
   who.setChoices([who.createChoice(FILLED_BY.member, choices), who.createChoice(FILLED_BY.club, member)]);
@@ -6240,7 +6291,10 @@ function deskContent_() {
   }).sort(function (a, b) { return Core_isoDate(a.start_date).localeCompare(Core_isoDate(b.start_date)); }).map(function (e) {
     return { tab: 'events', id: Core_str(e.id), title: Core_str(e.title), club: Core_str(e.organiser), date: Core_isoDate(e.start_date), left_out: Core_isTrue(e.bulletin_exclude) };
   });
-  return { pending: pending, recent: recent, upcoming: upcoming };
+  // last month's Story of the month: a shortlist; the moderators choose (owner, 26 Nov 2026)
+  var shortlist = Core_storyShortlist(readTab_(ss, 'activities'), Core_monthBefore(today));
+  shortlist.label = Core_dateLabel(shortlist.month + '-01').replace(/^\d+\s+/, '');
+  return { pending: pending, recent: recent, upcoming: upcoming, shortlist: shortlist };
 }
 
 /** A photo of a waiting item, for a moderator who may see that item (or the holder of that item's email link). */
@@ -8058,6 +8112,14 @@ function weeklySummary() {
   out.push('QUIET CLUBS\n' + (quiet.length ? quiet.length + ' club(s) with no activity dated in the last ' + CORE_QUIET_DAYS + ' days, for example: ' +
     quiet.slice(0, 8).map(function (c) { return c.club_name; }).join(', ') + (quiet.length > 8 ? '…' : '') + '.' : 'Every active club posted in the last ' + CORE_QUIET_DAYS + ' days.'));
 
+  // last month's Story of the month, until a moderator picks one (no automatic pick: owner, 26 Nov 2026)
+  var story = Core_storyShortlist(readTab_(main, 'activities'), Core_monthBefore(today));
+  if (!story.picked.length && story.items.length) {
+    var monthName = Core_dateLabel(story.month + '-01').replace(/^\d+\s+/, '');
+    out.push('STORY OF THE MONTH\nNo Story of the month for ' + monthName + ' yet. The moderation desk has a shortlist of ' + story.items.length +
+      ' (Content → Recent); the top one: ' + story.items[0].title + ' (' + (story.items[0].club || clubNameById_(story.items[0].club_id)) + ').');
+  }
+
   var roleChecks = readTab_(main, 'role_checks').length;
   if (roleChecks) out.push('ROLES TO CHECK\n' + roleChecks + ' role(s) need a look (wrong or missing member ID, someone marked left or deceased). ' +
     'Members moderators fix them on the moderation desk, Roles tab.');
@@ -8097,7 +8159,8 @@ var BACKUP_WEEKS = 8;
  * those copies are moved to the Bin, so only the real forms stay in the folder.
  */
 function weeklyBackup(today) {
-  var day = today || today_();
+  // the Sunday timer passes its own event details here, not a date (21 Nov 2026: copies named "[object Object]")
+  var day = typeof today === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(today) ? today : today_();
   var parents = DriveApp.getFileById(mainSs_().getId()).getParents();
   if (!parents.hasNext()) throw new Error('The main Sheet is not in a folder');
   var parent = parents.next();
@@ -8111,11 +8174,12 @@ function weeklyBackup(today) {
     made.push(name);
   });
   var formsRemoved = removeBackupFormCopies_(parent, folder);
-  // keep the newest 8 weeks: names start with the date, so they sort oldest first
+  // keep the newest 8 weeks: names start with the date, so they sort by it; a copy without a date counts as oldest
   var files = [];
   var list = folder.getFiles();
   while (list.hasNext()) files.push(list.next());
-  files.sort(function (a, b) { return b.getName().localeCompare(a.getName()); });
+  function when(f) { var n = f.getName(); return /^\d{4}-\d{2}-\d{2}/.test(n) ? n : '0000 ' + n; }
+  files.sort(function (a, b) { return when(b).localeCompare(when(a)); });
   var removed = 0;
   files.slice(BACKUP_WEEKS * 2).forEach(function (f) { f.setTrashed(true); removed++; });
   setSetting_('last_backup_at', nowIso_());

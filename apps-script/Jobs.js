@@ -337,6 +337,14 @@ function weeklySummary() {
   out.push('QUIET CLUBS\n' + (quiet.length ? quiet.length + ' club(s) with no activity dated in the last ' + CORE_QUIET_DAYS + ' days, for example: ' +
     quiet.slice(0, 8).map(function (c) { return c.club_name; }).join(', ') + (quiet.length > 8 ? '…' : '') + '.' : 'Every active club posted in the last ' + CORE_QUIET_DAYS + ' days.'));
 
+  // last month's Story of the month, until a moderator picks one (no automatic pick: owner, 26 Nov 2026)
+  var story = Core_storyShortlist(readTab_(main, 'activities'), Core_monthBefore(today));
+  if (!story.picked.length && story.items.length) {
+    var monthName = Core_dateLabel(story.month + '-01').replace(/^\d+\s+/, '');
+    out.push('STORY OF THE MONTH\nNo Story of the month for ' + monthName + ' yet. The moderation desk has a shortlist of ' + story.items.length +
+      ' (Content → Recent); the top one: ' + story.items[0].title + ' (' + (story.items[0].club || clubNameById_(story.items[0].club_id)) + ').');
+  }
+
   var roleChecks = readTab_(main, 'role_checks').length;
   if (roleChecks) out.push('ROLES TO CHECK\n' + roleChecks + ' role(s) need a look (wrong or missing member ID, someone marked left or deceased). ' +
     'Members moderators fix them on the moderation desk, Roles tab.');
@@ -376,7 +384,8 @@ var BACKUP_WEEKS = 8;
  * those copies are moved to the Bin, so only the real forms stay in the folder.
  */
 function weeklyBackup(today) {
-  var day = today || today_();
+  // the Sunday timer passes its own event details here, not a date (21 Nov 2026: copies named "[object Object]")
+  var day = typeof today === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(today) ? today : today_();
   var parents = DriveApp.getFileById(mainSs_().getId()).getParents();
   if (!parents.hasNext()) throw new Error('The main Sheet is not in a folder');
   var parent = parents.next();
@@ -390,11 +399,12 @@ function weeklyBackup(today) {
     made.push(name);
   });
   var formsRemoved = removeBackupFormCopies_(parent, folder);
-  // keep the newest 8 weeks: names start with the date, so they sort oldest first
+  // keep the newest 8 weeks: names start with the date, so they sort by it; a copy without a date counts as oldest
   var files = [];
   var list = folder.getFiles();
   while (list.hasNext()) files.push(list.next());
-  files.sort(function (a, b) { return b.getName().localeCompare(a.getName()); });
+  function when(f) { var n = f.getName(); return /^\d{4}-\d{2}-\d{2}/.test(n) ? n : '0000 ' + n; }
+  files.sort(function (a, b) { return when(b).localeCompare(when(a)); });
   var removed = 0;
   files.slice(BACKUP_WEEKS * 2).forEach(function (f) { f.setTrashed(true); removed++; });
   setSetting_('last_backup_at', nowIso_());

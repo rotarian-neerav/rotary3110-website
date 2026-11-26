@@ -233,8 +233,28 @@ img.avatar { width: auto; }
 .message-card .role { margin: 0; color: var(--muted); }
 .message-teaser { margin: 0; padding: 14px 16px; border-left: 4px solid var(--gold); background: var(--bg-soft); border-radius: 0 var(--radius) var(--radius) 0; }
 .message-teaser footer { font-size: .875rem; color: var(--muted); }
-.spotlight-card { display: flex; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); }
-.spotlight-card h3 { margin: 0; }
+.spotlight-card { padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); }
+.spotlight-person { display: flex; gap: 14px; align-items: flex-start; }
+.spotlight-person + .spotlight-person { margin-top: 12px; }
+.spotlight-person h3 { margin: 0; }
+.spotlight-person p { margin: 4px 0 0; }
+.spotlight-person .avatar { flex: none; }
+.spotlight-recent { list-style: none; padding: 0; margin: 0; }
+/* Rotarian couples (owner, 26 Nov 2026) */
+.anniv-banner { margin-top: 16px; padding: 14px 16px; border-radius: var(--radius); background: #fff4dc; border-left: 6px solid var(--gold); }
+.anniv-banner h2 { margin: 0 0 10px; font-size: 1.15rem; }
+.anniv-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.anniv-tile { display: flex; gap: 12px; align-items: center; background: #fff; border-radius: 8px; padding: 10px; }
+.anniv-tile p { margin: 2px 0 0; }
+.anniv-tile .dir-actions { margin-top: 6px; }
+.couple-wall { list-style: none; padding: 0; margin: 16px 0; display: grid; gap: 14px; }
+.couple-tile { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; text-align: center; }
+.couple-tile .couple-photo { width: 100%; max-width: 360px; height: auto; aspect-ratio: 3 / 2; }
+.couple-tile .cel-photos { justify-content: center; }
+.couple-tile h3 { margin: 10px 0 2px; font-size: 1.05rem; }
+.couple-tile p { margin: 2px 0; }
+.ribbon { display: inline-block; font-size: .8rem; color: var(--royal); background: #fdeef3; border-radius: 999px; padding: 2px 10px; margin-top: 6px; }
+.ribbon a { color: inherit; }
 
 /* Clubs */
 .club-list { columns: 1; padding-left: 18px; }
@@ -261,6 +281,8 @@ img.avatar { width: auto; }
 .footer-logo { background: #fff; padding: 6px 8px; border-radius: 6px; height: 52px; width: auto; margin-bottom: 8px; }
 
 @media (min-width: 640px) {
+  .anniv-list { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .couple-wall { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .cards { grid-template-columns: repeat(2, 1fr); }
   .people-grid { grid-template-columns: repeat(2, 1fr); }
   .magazine-grid { grid-template-columns: repeat(3, 1fr); }

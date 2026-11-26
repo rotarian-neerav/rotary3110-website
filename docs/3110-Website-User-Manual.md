@@ -1,7 +1,7 @@
 # Rotary District 3110 website: user manual
 
 *For everyone who uses the district website at rotary3110.org: visitors, clubs, members, moderators and the
-district's administrators. Updated 24 November 2026.*
+district's administrators. Updated 26 November 2026.*
 
 The fuller guides for each group are in this folder: the **Moderator guide** (every desk and Sheet task), the
 **Google Sheet setup** guide (installing and changing the script), and the **Yearly update** guide (July). This
